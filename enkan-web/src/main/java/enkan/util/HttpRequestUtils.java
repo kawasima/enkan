@@ -1,0 +1,63 @@
+package enkan.util;
+
+import enkan.data.HttpRequest;
+import enkan.exception.UnrecoverableException;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static enkan.util.ParsingUtils.RE_VALUE;
+
+/**
+ * Functions for augmenting and pulling information from HttpRequest.
+ *
+ * @author kawasima
+ */
+public class HttpRequestUtils {
+
+    private static final Pattern CHARSET_PATTERN = Pattern.compile(";(?:.*\\s)?(?i:charset)=(" + RE_VALUE + ")\\s*(?:;|$)");
+    private static final Pattern CONTENT_TYPE_PATTERN = Pattern.compile("^(.*?)(?:;|$)");
+    public static String requestUrl(HttpRequest request) {
+        StringBuilder sb = new StringBuilder()
+                .append(request.getScheme())
+                .append("://")
+                .append(request.getHeaders().get("host"))
+                .append(request.getUri());
+        String queryString = request.getQueryString();
+        if (queryString != null) {
+            sb.append('?').append(queryString);
+        }
+
+        return sb.toString();
+    }
+
+    public static String contentType(HttpRequest request) {
+        String type = request.getHeaders().get("content-type");
+        if (type == null) return null;
+
+        Matcher m = CONTENT_TYPE_PATTERN.matcher(type);
+        return m.find() ? m.group(2) : null;
+    }
+
+    public static String characterEncoding(HttpRequest request) {
+        String type = request.getHeaders().get("content-type");
+        if (type == null) return null;
+
+        Matcher m = CHARSET_PATTERN.matcher(type);
+        return m.find() ? m.group(2) : null;
+    }
+
+    public static String pathInfo(HttpRequest request) {
+        return request.getUri();
+    }
+
+    public static boolean isUrlEncodedForm(HttpRequest request) {
+        String type = contentType(request);
+        return type != null ? type.startsWith("application/x-www-form-urlencoded") : false;
+    }
+}
