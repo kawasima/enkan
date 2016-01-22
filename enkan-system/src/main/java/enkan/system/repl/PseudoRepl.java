@@ -1,7 +1,8 @@
 package enkan.system.repl;
 
+import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
-import enkan.exception.UnrecoverableException;
+import enkan.system.loader.EnkanLoader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,8 +14,15 @@ import java.io.InputStreamReader;
 public class PseudoRepl implements Runnable {
     private EnkanSystem system;
 
-    public PseudoRepl(EnkanSystem system) {
-        this.system = system;
+    public PseudoRepl(String enkanSystemFactoryClassName) {
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            Class<? extends EnkanSystemFactory> clazz = (Class<? extends EnkanSystemFactory>) loader
+                    .loadClass(enkanSystemFactoryClassName);
+            system = clazz.newInstance().create();
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     protected void printHelp() {
@@ -37,6 +45,8 @@ public class PseudoRepl implements Runnable {
                 break;
             case "reset":
                 system.stop();
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                if (cl instanceof EnkanLoader) ((EnkanLoader) cl).reload();
                 system.start();
                 break;
             case "exit":
@@ -59,7 +69,6 @@ public class PseudoRepl implements Runnable {
             }
         } catch (Throwable ex) {
             ex.printStackTrace();
-            throw UnrecoverableException.raise(ex);
         }
     }
 

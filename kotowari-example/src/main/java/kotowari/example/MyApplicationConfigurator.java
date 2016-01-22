@@ -32,6 +32,7 @@ public class MyApplicationConfigurator implements ApplicationConfigurator {
             r.get("/").to(ExampleController.class, "method1");
             r.get("/m2").to(ExampleController.class, "method2");
             r.get("/m3").to(ExampleController.class, "method3");
+            r.get("/m4").to(ExampleController.class, "method5");
         }).compile();
 
         // Kotowari

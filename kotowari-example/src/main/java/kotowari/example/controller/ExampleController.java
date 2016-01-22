@@ -21,12 +21,14 @@ public class ExampleController {
     }
 
     public String method2(Map<String, List<String>> params) {
-        System.out.println(params);
-        return "!!!method2 " + params.get("name");
+        return "method2です " + params.get("name");
+    }
+
+    public String method4(Map<String, List<String>> params) {
+        return "method4です ";
     }
 
     public HttpResponse method3(ExampleForm form) {
-        System.out.println(form.getName());
         return templateEngine.render("example",
                 "name", form.getName());
     }

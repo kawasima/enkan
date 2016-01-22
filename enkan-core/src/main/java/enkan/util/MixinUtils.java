@@ -99,7 +99,8 @@ public class MixinUtils {
 
         System.arraycopy(interfaces, 0, classes, addedIndex, interfaces.length);
 
-        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        return (T) Proxy.newProxyInstance(cl,
                 classes,
                 new MixinProxyHandler(target, classes));
 
