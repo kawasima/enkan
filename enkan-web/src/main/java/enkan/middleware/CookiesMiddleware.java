@@ -5,6 +5,9 @@ import enkan.annotation.Middleware;
 import enkan.data.Cookie;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.util.CodecUtils;
+import enkan.util.HttpDateFormat;
+import org.eclipse.collections.api.multimap.MutableMultimap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static enkan.util.CodecUtils.formDecodeStr;
+import static enkan.util.CodecUtils.formEncode;
 import static enkan.util.ParsingUtils.RE_TOKEN;
 
 /**
@@ -50,6 +54,30 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
         return cookies;
     }
 
+    protected String writeCookie(Cookie cookie) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formEncode(cookie.getName())).append("=").append(formEncode(cookie.getValue()));
+        if (cookie.getDomain() != null) {
+            sb.append(";domain=").append(cookie.getDomain());
+        }
+        if (cookie.getPath() != null) {
+            sb.append(";path=").append(cookie.getPath());
+        }
+        if (cookie.getExpires() != null) {
+            sb.append(";expires=").append(HttpDateFormat.RFC822.format(cookie.getExpires()));
+        }
+        if (cookie.getMaxAge() != null) {
+            sb.append(";max-age=").append(cookie.getMaxAge());
+        }
+        if (cookie.isHttpOnly()) {
+            sb.append(";httponly");
+        }
+        if (cookie.isSecure()) {
+            sb.append(";secure");
+        }
+        return sb.toString();
+    }
+
     protected void cookiesRequest(HttpRequest request) {
         if (request.getCookies() == null) {
             request.setCookies(parseCookies(request));
@@ -57,11 +85,20 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     }
 
     protected void cookiesResponse(HttpResponse response) {
-
+        MutableMultimap<String, Cookie> cookieMap = response.getCookies();
+        if (cookieMap != null) {
+            cookieMap.forEachKeyValue((key, cookie) -> {
+                response.getHeaders().put("Set-Cookie", writeCookie(cookie));
+            });
+        }
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain next) {
-        return null;
+    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+        cookiesRequest(request);
+        HttpResponse response = castToHttpResponse(next.next(request));
+        cookiesResponse(response);
+
+        return response;
     }
 }

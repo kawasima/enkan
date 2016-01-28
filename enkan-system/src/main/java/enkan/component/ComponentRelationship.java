@@ -1,11 +1,6 @@
-package enkan.system;
-
-import enkan.component.SystemComponent;
-import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.factory.Maps;
+package enkan.component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author kawasima

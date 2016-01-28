@@ -3,6 +3,7 @@ package enkan.adapter;
 import enkan.application.WebApplication;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnrecoverableException;
 import enkan.collection.OptionMap;
 import enkan.util.ServletUtils;
@@ -72,9 +73,9 @@ public class JettyAdapter {
         } catch (Exception ex) {
             try {
                 server.stop();
-                UnrecoverableException.raise(ex);
+                FalteringEnvironmentException.create(ex);
             } catch (Exception stopEx) {
-                UnrecoverableException.raise(stopEx);
+                FalteringEnvironmentException.create(stopEx);
             }
         }
         return server;

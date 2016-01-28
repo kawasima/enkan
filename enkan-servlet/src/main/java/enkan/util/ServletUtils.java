@@ -3,6 +3,8 @@ package enkan.util;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 
@@ -85,19 +87,19 @@ public class ServletUtils {
                 }
             }
         } else {
-            UnrecoverableException.create(String.format(Locale.ENGLISH, "Unrecognized body: %s", body));
+            throw UnreachableException.create();
         }
     }
 
     public static void updateServletResponse(HttpServletResponse servletResponse, HttpResponse response) {
-        if (response == null) throw UnrecoverableException.create("Null response given.");
+        if (servletResponse == null || response == null) return;
 
         servletResponse.setStatus(response.getStatus());
         setHeaders(servletResponse, response.getHeaders());
         try {
             setBody(servletResponse, response.getBody());
         } catch(IOException ex) {
-            UnrecoverableException.raise(ex);
+            FalteringEnvironmentException.create(ex);
         }
     }
 }

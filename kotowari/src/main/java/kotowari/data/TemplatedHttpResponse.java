@@ -1,5 +1,6 @@
 package kotowari.data;
 
+import enkan.data.DefaultHttpResponse;
 import enkan.data.HttpResponse;
 import org.eclipse.collections.impl.factory.Multimaps;
 
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * @author kawasima
  */
-public class TemplatedHttpResponse extends HttpResponse<InputStream> {
+public class TemplatedHttpResponse extends DefaultHttpResponse<InputStream> {
     private String templateName;
     private Map<String, Object> context;
 

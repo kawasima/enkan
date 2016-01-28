@@ -28,6 +28,7 @@ public class DefaultHttpRequest implements UriAvailable, HttpRequest {
     private Multimap<String, String> formParams;
     private Multimap<String, String> queryParams;
 
+    private Session session;
     private Map<String, Cookie> cookies;
     private Map<String, Object> extensions;
 
@@ -209,6 +210,16 @@ public class DefaultHttpRequest implements UriAvailable, HttpRequest {
     @Override
     public void setCookies(Map<String, Cookie> cookies) {
         this.cookies = cookies;
+    }
+
+    @Override
+    public Session getSession() {
+        return session;
+    }
+
+    @Override
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     @Override

@@ -2,24 +2,24 @@ package enkan.system.repl;
 
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
-import enkan.system.loader.EnkanLoader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author kawasima
  */
 public class PseudoRepl implements Runnable {
     private EnkanSystem system;
+    private ExecutorService monitorService;
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            Class<? extends EnkanSystemFactory> clazz = (Class<? extends EnkanSystemFactory>) loader
-                    .loadClass(enkanSystemFactoryClassName);
-            system = clazz.newInstance().create();
+            system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).newInstance().create();
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -33,22 +33,38 @@ public class PseudoRepl implements Runnable {
         );
     }
 
-    protected boolean repl(BufferedReader reader) throws IOException {
+    protected void startChangeMonitor(ClassLoader cl) throws IOException, URISyntaxException {
+        if (monitorService == null) {
+            monitorService = Executors.newCachedThreadPool();
+        }
+    }
+
+    protected void stopChangeMonitor() {
+        if (monitorService != null) {
+            monitorService.shutdown();
+            monitorService = null;
+        }
+    }
+
+    protected boolean repl(BufferedReader reader) throws IOException, URISyntaxException {
         System.out.print("REPL> ");
-        String cmd = reader.readLine().trim();
-        switch (cmd) {
+        String[] cmd = reader.readLine().trim().split("\\s+");
+        switch (cmd[0]) {
             case "start":
                 system.start();
+                if (cmd.length > 1 && cmd[1].equals("auto")) {
+
+                }
                 break;
             case "stop":
                 system.stop();
+                stopChangeMonitor();
                 break;
-            case "reset":
+            case "reset": {
                 system.stop();
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                if (cl instanceof EnkanLoader) ((EnkanLoader) cl).reload();
                 system.start();
                 break;
+            }
             case "exit":
                 system.stop();
                 return false;
@@ -56,7 +72,7 @@ public class PseudoRepl implements Runnable {
                 printHelp();
                 break;
             default:
-                System.out.println("Unknown command: " + cmd);
+                System.out.println("Unknown command: " + cmd[0]);
         }
         return true;
     }

@@ -5,6 +5,9 @@ import enkan.MiddlewareChain;
 import enkan.component.SystemComponent;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.data.Traceable;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 import enkan.system.inject.ComponentInjector;
 import kotowari.data.FormAvailable;
@@ -16,6 +19,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * Kotowari endpoint.
@@ -30,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "kotowariEndpoint", dependencies = "params")
+@enkan.annotation.Middleware(name = "controllerInvoker", dependencies = "params")
 public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES> {
     Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
     ComponentInjector injector;
@@ -71,21 +76,17 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         if (request instanceof Routable) {
             Method controllerMethod = ((Routable) request).getControllerMethod();
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
-            Object controller = controllerCache.computeIfAbsent(controllerClass, c -> {
-                try {
-                    return inject(c.newInstance());
-                } catch (IllegalAccessException | InstantiationException e) {
-                    return UnrecoverableException.raise(e);
-                }
-            });
-            Object[] arguments = createArguments(request);
-            try {
+
+            Object controller = controllerCache.computeIfAbsent(controllerClass, c ->
+                    tryReflection(() -> inject(c.newInstance())));
+
+            return tryReflection(() -> {
+                Object[] arguments = createArguments(request);
                 return (RES) controllerMethod.invoke(controller, arguments);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                return (RES) UnrecoverableException.raise(e);
-            }
+            });
         } else {
-            throw UnrecoverableException.create("HttpRequest is not Routable.");
+            MisconfigurationException.raise("DONT_IMPLEMENT", Routable.class);
+            throw UnreachableException.create();
         }
     }
 }

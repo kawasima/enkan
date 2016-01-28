@@ -18,19 +18,19 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 
+import static enkan.util.ReflectionUtils.tryReflection;
+
 /**
  * @author kawasima
  */
 @Middleware(name = "form", dependencies = {"params", "routing"})
 public class FormMiddleware extends AbstractWebMiddleware {
     protected Serializable createForm(Class<?> formClass, Multimap<String, String> params) {
-        try {
+        return tryReflection(() -> {
             Serializable form = (Serializable) formClass.newInstance();
             BeanUtils.populate(form, params.toMap());
             return form;
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            return UnrecoverableException.raise(e);
-        }
+        });
     }
 
     @Override

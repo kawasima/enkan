@@ -2,8 +2,12 @@ package enkan.util;
 
 import enkan.collection.OptionMap;
 import enkan.data.HttpResponse;
+import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 
+import java.awt.geom.FlatteningPathIterator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +77,7 @@ public class HttpResponseUtils {
                             new Date((file.lastModified() / 1000) * 1000));
                 }
             } catch (URISyntaxException e) {
-                UnrecoverableException.raise(e);
+                throw UnreachableException.create(e);
             }
         } else if ("jar".equals(protocol)) {
             try {
@@ -84,7 +88,7 @@ public class HttpResponseUtils {
                             connectionLastModified(connection));
                 }
             } catch (IOException e) {
-                UnrecoverableException.raise(e);
+                throw FalteringEnvironmentException.create(e);
             }
         }
 
@@ -99,7 +103,8 @@ public class HttpResponseUtils {
         } else if (data instanceof StreamContentData) {
             response = HttpResponse.of(((StreamContentData) data).getContent());
         } else {
-            UnrecoverableException.raise(new MalformedURLException("Unknown protocol: " + url));
+            MisconfigurationException.raise("CLASSPATH", url.getProtocol(), url);
+
         }
         contentLength(response, data.getContentLength());
         lastModified(response, data.getLastModifiedDate());

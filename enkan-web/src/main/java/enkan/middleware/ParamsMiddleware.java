@@ -4,6 +4,7 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.impl.factory.Multimaps;
@@ -30,6 +31,9 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
         String queryString = request.getQueryString();
         if (queryString == null) {
             request.setQueryParams(Multimaps.mutable.list.empty());
+            if (request.getParams() == null) {
+                request.setParams(Multimaps.mutable.list.empty());
+            }
         } else {
             Multimap<String, String> params = parseParams(queryString, encoding);
             request.setQueryParams(params);
@@ -53,7 +57,7 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
                     sb.append((char) c);
                 }
             } catch (IOException e) {
-                UnrecoverableException.raise(e);
+                throw FalteringEnvironmentException.create(e);
             }
             Multimap<String, String> params = parseParams(sb.toString(), encoding);
             request.setFormParams(params);
@@ -65,6 +69,9 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
             }
         } else {
             request.setFormParams(Multimaps.mutable.list.empty());
+            if (request.getParams() == null) {
+                request.setParams(Multimaps.mutable.list.empty());
+            }
         }
 
     }

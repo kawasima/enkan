@@ -1,5 +1,7 @@
 package enkan.util;
 
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.multimap.MutableMultimap;
@@ -7,12 +9,11 @@ import org.eclipse.collections.impl.factory.Multimaps;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Locale;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * The utilities for codec.
@@ -70,6 +71,7 @@ public class CodecUtils {
             return unencoded;
         }
     }
+
     public static String urlDecode(String encoded) {
         return urlDecode(encoded, "UTF-8");
     }
@@ -85,8 +87,31 @@ public class CodecUtils {
             m.appendTail(sb);
             return sb.toString();
         } catch (UnsupportedEncodingException e) {
-            UnrecoverableException.raise(e);
+            MisconfigurationException.raise("UNSUPPORTED_ENCODING", encoding, e);
+            throw UnreachableException.create();
+        }
+    }
+
+    public static <T> String formEncode(T x) {
+        return formEncode(x, "UTF-8");
+    }
+
+    public static <T> String formEncode(T x, String encoding) {
+        if (x == null) {
             return null;
+        } else if (x instanceof String) {
+            try {
+                return URLEncoder.encode((String) x, encoding);
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalArgumentException(String.format("encoding %s is not supported", x), e);
+            }
+        } else if (x instanceof Map) {
+            Map<?, ?> m = (Map) x;
+            return m.entrySet().stream()
+                    .map(e -> formEncode(e.getKey()) + "=" + formEncode(e.getValue()))
+                    .collect(Collectors.joining("&"));
+        } else {
+            return formEncode(x.toString(), encoding);
         }
     }
 

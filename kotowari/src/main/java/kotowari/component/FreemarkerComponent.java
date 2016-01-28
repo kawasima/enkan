@@ -3,6 +3,9 @@ package kotowari.component;
 import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
 import enkan.data.HttpResponse;
+import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -36,11 +39,12 @@ public class FreemarkerComponent extends TemplateEngineComponent {
                 Template template = config.getTemplate(name + suffix, encoding);
                 StringWriter writer = new StringWriter();
                 template.process(response.getContext(), writer);
-
                 return new ByteArrayInputStream(writer.toString().getBytes(encoding));
-            } catch (TemplateException | IOException e) {
-                UnrecoverableException.raise(e);
-                return null;
+            } catch (TemplateException e) {
+                MisconfigurationException.raise("RENDERING_ERROR", e);
+                throw UnreachableException.create();
+            } catch (IOException e) {
+                throw FalteringEnvironmentException.create(e);
             }
 
         }));

@@ -1,6 +1,7 @@
 package enkan.data;
 
-import enkan.exception.UnrecoverableException;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 
 /**
  * @author kawasima
@@ -25,7 +26,8 @@ public interface Traceable extends Extendable {
         if (extension instanceof TraceLog) {
             return (TraceLog) extension;
         } else {
-            throw UnrecoverableException.create("TraceLog");
+            MisconfigurationException.raise("EXTENSION_MISMATCH.problem", extension, "TraceLog");
+            throw UnreachableException.create();
         }
     }
 }

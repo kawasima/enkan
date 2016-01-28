@@ -1,11 +1,11 @@
 package enkan.util;
 
-import enkan.exception.UnrecoverableException;
+import enkan.exception.UnreachableException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
-import java.util.Arrays;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,7 +30,7 @@ public class MixinUtils {
             }
             return lookup.unreflectSpecial(method, declaringClass);
         } catch (Exception e) {
-            throw UnrecoverableException.create(e);
+            throw UnreachableException.create();
         }
     }
 
@@ -67,6 +67,29 @@ public class MixinUtils {
         }
     }
 
+    private static void getAllInterfaces(Class<?> clazz, final HashSet<Class<?>> interfacesFound) {
+        while (clazz != null) {
+            final Class<?>[] interfaces = clazz.getInterfaces();
+            for (Class<?> i : interfaces) {
+                if (interfacesFound.add(i)) {
+                    getAllInterfaces(i, interfacesFound);
+                }
+            }
+
+            clazz = clazz.getSuperclass();
+        }
+
+    }
+
+    static Class[] getAllInterfaces(final Class<?> clazz) {
+        if (clazz == null) return null;
+
+        final HashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
+        getAllInterfaces(clazz, interfacesFound);
+
+        return interfacesFound.toArray(new Class<?>[interfacesFound.size()]);
+    }
+
     public static <T> T mixin(T target, Class<?>... interfaces) {
         if (target == null) return null;
 
@@ -77,7 +100,7 @@ public class MixinUtils {
         }
 
         Class[] classes;
-        int addedIndex = 0;
+        int addedIndex;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
             target = handler.getOriginal();
@@ -86,7 +109,7 @@ public class MixinUtils {
             System.arraycopy(originalInterfaces, 0, classes, 0, originalInterfaces.length);
             addedIndex = originalInterfaces.length;
         } else {
-            Class[] targetInterfaces = targetClass.getInterfaces();
+            Class[] targetInterfaces = getAllInterfaces(targetClass);
             classes = new Class[targetInterfaces.length + interfaces.length];
             System.arraycopy(targetInterfaces, 0, classes, 0, targetInterfaces.length);
             addedIndex = targetInterfaces.length;

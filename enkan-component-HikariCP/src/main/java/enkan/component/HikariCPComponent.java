@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 /**
  * @author kawasima
  */
-public class HikariCPComponent extends SystemComponent {
+public class HikariCPComponent extends DataSourceComponent {
     private HikariConfig config;
     private HikariDataSource dataSource;
 
@@ -25,6 +25,11 @@ public class HikariCPComponent extends SystemComponent {
         if (options.containsKey("maxPoolSize")) config.setMaximumPoolSize(options.getInt("maxPoolSize"));
         if (options.containsKey("minIdle")) config.setMinimumIdle(options.getInt("minIdle"));
         if (options.containsKey("poolName")) config.setPoolName(options.getString("uri"));
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
     }
 
     @Override

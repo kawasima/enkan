@@ -10,7 +10,7 @@ public class Cookie implements Serializable {
     private String name;
     private String value;
     private String domain;
-    private int maxAge;
+    private Integer maxAge;
     private String path;
     private Date expires;
     private boolean secure;
@@ -47,11 +47,11 @@ public class Cookie implements Serializable {
         this.domain = domain;
     }
 
-    public int getMaxAge() {
+    public Integer getMaxAge() {
         return maxAge;
     }
 
-    public void setMaxAge(int maxAge) {
+    public void setMaxAge(Integer maxAge) {
         this.maxAge = maxAge;
     }
 

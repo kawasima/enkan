@@ -1,6 +1,7 @@
 package enkan.system.inject;
 
 import enkan.component.SystemComponent;
+import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
 
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ public class ComponentInjector {
         try {
             f.set(target, value);
         } catch (IllegalAccessException e) {
-            UnrecoverableException.raise(e);
+            throw UnreachableException.create(e);
         }
     }
 

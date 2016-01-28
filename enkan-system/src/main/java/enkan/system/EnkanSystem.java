@@ -1,13 +1,10 @@
 package enkan.system;
 
+import enkan.component.ComponentRelationship;
 import enkan.component.LifecycleManager;
 import enkan.component.SystemComponent;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.impl.factory.Lists;
 
-import java.beans.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**

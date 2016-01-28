@@ -47,7 +47,8 @@ public class AbsoluteRedirectsMiddleware extends AbstractWebMiddleware {
                 URL url = new URL(requestUrl(request));
                 return new URL(url, location).toString();
             } catch (MalformedURLException e) {
-                throw UnrecoverableException.raise(e);
+                throw new IllegalArgumentException(
+                        String.format("wrong location %s or request url %s.", location, requestUrl(request)), e);
             }
         }
     }

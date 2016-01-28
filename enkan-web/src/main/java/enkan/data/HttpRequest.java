@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * @author kawasima
  */
-public interface HttpRequest extends Extendable {
+public interface HttpRequest extends SessionAvailable, Extendable {
     String getUrl();
 
     void setUrl(String uri);

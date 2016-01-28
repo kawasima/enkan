@@ -1,5 +1,6 @@
 package enkan.component;
 
+import enkan.exception.MisconfigurationException;
 import enkan.exception.UnrecoverableException;
 
 import java.util.Map;
@@ -10,15 +11,15 @@ import java.util.Map;
 public abstract class SystemComponent {
     private Map<String, SystemComponent> dependencies;
 
-    public void setDependencies(Map<String, SystemComponent> dependencies) {
+    protected void setDependencies(Map<String, SystemComponent> dependencies) {
         this.dependencies = dependencies;
     }
 
-    public <T extends SystemComponent> T getDependency(Class<T> componentClass) {
+    protected <T extends SystemComponent> T getDependency(Class<T> componentClass) {
         return (T) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
                 .findFirst()
-                .orElseThrow(() -> UnrecoverableException.create("Can't find component [" + componentClass + "]"));
+                .orElseThrow(() -> MisconfigurationException.raise("CLASS_NOT_FOUND", componentClass));
     }
 
     protected Map<String, SystemComponent> getAllDependencies() {

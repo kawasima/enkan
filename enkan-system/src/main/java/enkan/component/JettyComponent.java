@@ -2,6 +2,7 @@ package enkan.component;
 
 import enkan.adapter.JettyAdapter;
 import enkan.collection.OptionMap;
+import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnrecoverableException;
 import org.eclipse.jetty.server.Server;
 
@@ -35,7 +36,7 @@ public class JettyComponent extends SystemComponent {
                         server.stop();
                         server.join();
                     } catch (Exception e) {
-                        throw UnrecoverableException.raise(e);
+                        throw FalteringEnvironmentException.create(e);
                     } finally {
                         server = null;
                     }

@@ -3,10 +3,7 @@ package kotowari.example;
 import enkan.Application;
 import enkan.application.WebApplication;
 import enkan.config.ApplicationConfigurator;
-import enkan.middleware.HtmlRenderer;
-import enkan.middleware.NormalizationMiddleware;
-import enkan.middleware.ParamsMiddleware;
-import enkan.middleware.TraceMiddleware;
+import enkan.middleware.*;
 import enkan.system.inject.ComponentInjector;
 import kotowari.example.controller.ExampleController;
 import kotowari.middleware.ControllerInvokerMiddleware;
@@ -27,12 +24,14 @@ public class MyApplicationConfigurator implements ApplicationConfigurator {
         app.use(new TraceMiddleware<>());
         app.use(new ParamsMiddleware());
         app.use(new NormalizationMiddleware());
+        app.use(new CookiesMiddleware());
+        app.use(new SessionMiddleware());
 
         Routes routes = Routes.define(r -> {
             r.get("/").to(ExampleController.class, "method1");
             r.get("/m2").to(ExampleController.class, "method2");
             r.get("/m3").to(ExampleController.class, "method3");
-            r.get("/m4").to(ExampleController.class, "method5");
+            r.get("/m4").to(ExampleController.class, "method4");
         }).compile();
 
         // Kotowari
