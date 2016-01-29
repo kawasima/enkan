@@ -1,7 +1,5 @@
 package enkan.component;
 
-import enkan.component.SystemComponent;
-
 /**
  * @author kawasima
  */

@@ -32,6 +32,10 @@ public class MiddlewareChain<REQ, RES> {
         return this;
     }
 
+    public Middleware<REQ, RES> getMiddleware() {
+        return middleware;
+    }
+
     protected void writeTraceLog(Object reqOrRes, String middlewareName) {
         if (reqOrRes instanceof Traceable) {
             ((Traceable) reqOrRes).getTraceLog().write(middlewareName);

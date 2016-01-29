@@ -41,7 +41,7 @@ public class HttpRequestUtils {
         if (type == null) return null;
 
         Matcher m = CONTENT_TYPE_PATTERN.matcher(type);
-        return m.find() ? m.group(2) : null;
+        return m.find() ? m.group(1) : null;
     }
 
     public static String characterEncoding(HttpRequest request) {
@@ -49,7 +49,7 @@ public class HttpRequestUtils {
         if (type == null) return null;
 
         Matcher m = CHARSET_PATTERN.matcher(type);
-        return m.find() ? m.group(2) : null;
+        return m.find() ? m.group(1) : null;
     }
 
     public static String pathInfo(HttpRequest request) {

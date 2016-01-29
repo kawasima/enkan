@@ -9,15 +9,20 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>enkan-servlet</artifactId>
+    <artifactId>enkan-component-btm</artifactId>
     <packaging>jar</packaging>
 
-    <name>enkan-servlet</name>
+    <name>enkan-component-btm</name>
 
     <dependencies>
         <dependency>
+            <groupId>org.codehaus.btm</groupId>
+            <artifactId>btm</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+        <dependency>
             <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-web</artifactId>
+            <artifactId>enkan-system</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -30,12 +35,6 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

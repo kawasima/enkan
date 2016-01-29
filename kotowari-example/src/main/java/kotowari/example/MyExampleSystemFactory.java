@@ -20,7 +20,7 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                 "flyway", new FlywayMigration(),
                 "template", new FreemarkerComponent(),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
-                "app", new ApplicationComponent("kotowari.example.MyApplicationConfigurator"),
+                "app", new ApplicationComponent("kotowari.example.MyApplicationFactory"),
                 "http", new JettyComponent(OptionMap.of("port", Env.getInt("PORT", 3000)))
         ).relationships(
                 component("http").using("app"),

@@ -1,23 +1,22 @@
 package enkan.component;
 
-import enkan.application.WebApplication;
-import enkan.config.ApplicationConfigurator;
+import enkan.Application;
+import enkan.config.ApplicationFactory;
 import enkan.config.ConfigurationLoader;
-import enkan.exception.MisconfigurationException;
-import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 import enkan.system.inject.ComponentInjector;
+
+import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * @author kawasima
  */
 public class ApplicationComponent extends SystemComponent {
-    private WebApplication application;
+    private Application application;
     private ConfigurationLoader loader;
-    private String configuratorClassName;
+    private String factoryClassName;
 
     public ApplicationComponent(String className) {
-        this.configuratorClassName = className;
+        this.factoryClassName = className;
     }
 
     @Override
@@ -26,27 +25,14 @@ public class ApplicationComponent extends SystemComponent {
             @Override
             public void start(ApplicationComponent component) {
                 if (component.application == null) {
-                    component.application = new WebApplication();
-                    Class<? extends ApplicationConfigurator> configuratorClass = null;
-                    try {
+                    component.application = tryReflection(() -> {
                         loader = new ConfigurationLoader(getClass().getClassLoader());
-                        configuratorClass =
-                                (Class<? extends ApplicationConfigurator>) loader.loadClass(configuratorClassName);
-                        ApplicationConfigurator configurator = configuratorClass.newInstance();
-                        configurator.config(application, new ComponentInjector(getAllDependencies()));
-                    } catch (ClassNotFoundException ex) {
-                        MisconfigurationException.raise("CLASS_NOT_FOUND", "ApplicationConfigurator", configuratorClassName);
-                    } catch (ClassCastException ex) {
-                        MisconfigurationException.raise("CLASS_NOT_FOUND", "ApplicationConfigurator", configuratorClassName);
-                    } catch (IllegalAccessException ex) {
-                        if (configuratorClass != null) {
-                            MisconfigurationException.raise("ILLEGAL_ACCESS", "ApplicationConfigurator", configuratorClassName);
-                        } else {
-                            UnreachableException.create();
-                        }
-                    } catch (InstantiationException ex) {
-                        MisconfigurationException.raise("INSTANTIATION", "ApplicationConfigurator", configuratorClassName);
-                    }
+                        Class<? extends ApplicationFactory> factoryClass =
+                                (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
+                        ApplicationFactory factory = factoryClass.newInstance();
+                        return factory.create(new ComponentInjector(getAllDependencies()));
+                    });
+                    component.application.validate();
                 }
             }
 
@@ -58,7 +44,7 @@ public class ApplicationComponent extends SystemComponent {
         };
     }
 
-    public WebApplication getApplication() {
+    public Application getApplication() {
         return application;
     }
 

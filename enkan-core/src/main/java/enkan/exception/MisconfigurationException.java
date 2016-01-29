@@ -21,6 +21,11 @@ public class MisconfigurationException extends UnrecoverableException {
         misconfigurationMessages = ResourceBundle.getBundle("META-INF/misconfiguration", new MergeableResourceBundleControl());
     }
 
+    @Override
+    public String getMessage() {
+        return super.getMessage() + ":" + problem;
+    }
+
     protected MisconfigurationException(String code, Object... arguments) {
         super(code);
         String problemFmt = misconfigurationMessages.getString(code + ".problem");

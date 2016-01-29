@@ -6,6 +6,6 @@ import enkan.system.inject.ComponentInjector;
 /**
  * @author kawasima
  */
-public interface ApplicationConfigurator {
-    void config(Application application, ComponentInjector injector);
+public interface ApplicationFactory {
+    Application create(ComponentInjector injector);
 }

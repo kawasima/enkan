@@ -6,6 +6,8 @@ import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
+import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.multimap.Multimap;
 
 import java.awt.geom.FlatteningPathIterator;
 import java.io.File;
@@ -14,6 +16,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.*;
 import java.util.Date;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -21,27 +24,36 @@ import java.util.zip.ZipEntry;
  * @author kawasima
  */
 public class HttpResponseUtils {
+    public static List<Object> getHeader(HttpResponse response, String name) {
+        Multimap<String, Object> headers = response.getHeaders();
+        List<Object> values = headers
+                .selectKeysValues((k, v) -> name.equalsIgnoreCase(k))
+                .valuesView().toList();
+        return values.isEmpty() ? null : values;
+
+    }
+
     public static void header(HttpResponse response, String name, String value) {
-        response.getHeaders().toMutable().put(name, value);
+        response.getHeaders().put(name, value);
     }
 
     public static HttpResponse contentType(HttpResponse response, String type) {
         if (type != null) {
-            response.getHeaders().toMutable().put("content-type", type);
+            response.getHeaders().put("content-type", type);
         }
         return response;
     }
 
     public static HttpResponse contentLength(HttpResponse response, Long len) {
         if (len != null) {
-            response.getHeaders().toMutable().put("content-length", len);
+            response.getHeaders().put("content-length", len);
         }
         return response;
     }
 
     public static HttpResponse lastModified(HttpResponse response, Date lastModified) {
         if (lastModified != null) {
-            response.getHeaders().toMutable().put("Last-Modified", HttpDateFormat.RFC1123.format(lastModified));
+            response.getHeaders().put("Last-Modified", HttpDateFormat.RFC1123.format(lastModified));
         }
         return response;
     }
@@ -97,6 +109,8 @@ public class HttpResponseUtils {
 
     public static HttpResponse urlResponse(URL url) {
         ContentData data = resourceData(url);
+        if (data == null) return null;
+
         HttpResponse response = null;
         if (data instanceof FileContentData) {
             response = HttpResponse.of(((FileContentData) data).getContent());
@@ -104,7 +118,6 @@ public class HttpResponseUtils {
             response = HttpResponse.of(((StreamContentData) data).getContent());
         } else {
             MisconfigurationException.raise("CLASSPATH", url.getProtocol(), url);
-
         }
         contentLength(response, data.getContentLength());
         lastModified(response, data.getLastModifiedDate());
@@ -121,7 +134,12 @@ public class HttpResponseUtils {
             loader = Thread.currentThread().getContextClassLoader();
         }
         URL url = loader.getResource(path);
-        return urlResponse(url);
+        return url != null ? urlResponse(url) : null;
+    }
+
+    public static boolean isEmptyBody(HttpResponse response) {
+        Object body = response.getBody();
+        return (body == null || (body instanceof String && ((String) body).isEmpty()));
     }
 
     private static abstract class ContentData<T> implements Serializable {

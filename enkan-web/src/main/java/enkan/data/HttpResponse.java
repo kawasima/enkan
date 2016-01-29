@@ -13,21 +13,21 @@ public interface HttpResponse<T> extends SessionAvailable {
 
     static HttpResponse<String> of(String body) {
         HttpResponse<String> response = new DefaultHttpResponse<>(200,
-                Multimaps.mutable.list.with("content-type", "text/html"));
+                Multimaps.mutable.list.empty());
         response.setBody(body);
         return response;
     }
 
     static HttpResponse<InputStream> of(InputStream body) {
         HttpResponse<InputStream> response = new DefaultHttpResponse<>(200,
-                Multimaps.mutable.list.with("content-type", "text/html"));
+                Multimaps.mutable.list.empty());
         response.setBody(body);
         return response;
     }
 
     static HttpResponse<File> of(File body) {
         HttpResponse<File> response = new DefaultHttpResponse<>(200,
-                Multimaps.mutable.list.with("content-type", "text/html"));
+                Multimaps.mutable.list.empty());
         response.setBody(body);
         return response;
     }

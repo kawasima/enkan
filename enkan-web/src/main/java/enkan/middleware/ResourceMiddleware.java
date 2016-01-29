@@ -18,15 +18,11 @@ import static enkan.util.CodecUtils.*;
  */
 @Middleware(name = "resource")
 public class ResourceMiddleware extends AbstractWebMiddleware {
-    private String rootPath;
+    private String rootPath = "public";
     private static final Set<String> ACCEPTABLE_METHODS = new HashSet<String>() {{
         add("get");
         add("head");
     }};
-
-    public ResourceMiddleware(String rootPath) {
-        this.rootPath = rootPath;
-    }
 
     protected HttpResponse resourceRequest(HttpRequest request, String rootPath) {
         if (ACCEPTABLE_METHODS.contains(request.getRequestMethod())) {
@@ -40,10 +36,10 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain next) {
-        HttpResponse response = resourceRequest(httpRequest, rootPath);
+    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+        HttpResponse response = resourceRequest(request, rootPath);
         if (response == null) {
-            response = (HttpResponse) next.next(response);
+            response = (HttpResponse) next.next(request);
         }
         return response;
     }

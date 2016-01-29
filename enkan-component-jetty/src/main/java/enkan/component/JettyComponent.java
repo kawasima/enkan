@@ -1,6 +1,7 @@
 package enkan.component;
 
 import enkan.adapter.JettyAdapter;
+import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnrecoverableException;
@@ -25,7 +26,7 @@ public class JettyComponent extends SystemComponent {
                 ApplicationComponent app = getDependency(ApplicationComponent.class);
                 if (server == null) {
                     options.put("join?", false);
-                    server = new JettyAdapter().runJetty(app.getApplication(), options);
+                    server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
                 }
             }
 

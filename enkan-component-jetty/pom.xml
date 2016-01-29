@@ -9,15 +9,20 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>enkan-servlet</artifactId>
+    <artifactId>enkan-component-jetty</artifactId>
     <packaging>jar</packaging>
 
-    <name>enkan-servlet</name>
+    <name>enkan-component-jetty</name>
 
     <dependencies>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-web</artifactId>
+            <artifactId>enkan-system</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-servlet</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -32,10 +37,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.3.5.v20151012</version>
         </dependency>
     </dependencies>
 </project>

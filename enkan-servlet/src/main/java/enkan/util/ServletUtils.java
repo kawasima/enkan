@@ -78,13 +78,17 @@ public class ServletUtils {
             }
         } else if (body instanceof InputStream) {
             InputStream input = (InputStream) body;
-            try(ServletOutputStream output = servletResponse.getOutputStream()) {
+            try (ServletOutputStream output = servletResponse.getOutputStream()) {
                 byte[] buf = new byte[4096];
-                for(;;) {
+                for (; ; ) {
                     int size = input.read(buf);
                     if (size <= 0) break;
                     output.write(buf, 0, size);
                 }
+            }
+        } else if (body instanceof File) {
+            try(InputStream in = new FileInputStream((File) body)) {
+                setBody(servletResponse, in);
             }
         } else {
             throw UnreachableException.create();

@@ -7,6 +7,7 @@ import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import enkan.exception.UnrecoverableException;
+import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -48,6 +49,7 @@ public class FreemarkerComponent extends TemplateEngineComponent {
             }
 
         }));
+        HttpResponseUtils.contentType(response, "text/html");
         return response;
     }
 

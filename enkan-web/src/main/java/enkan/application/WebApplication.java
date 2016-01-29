@@ -9,7 +9,10 @@ import enkan.data.HttpResponse;
 import enkan.decision.AllDecision;
 import enkan.decision.PathDecision;
 
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author kawasima
@@ -53,6 +56,13 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
     public HttpResponse handle(HttpRequest req) {
         return (HttpResponse) new MiddlewareChain<>(ANY, (Middleware) (req1, next) ->
                 next.next(req1)).setNext(middlewareStack.getFirst()).next(req);
+    }
+
+    @Override
+    public List<Middleware> getMiddlewareStack() {
+        return middlewareStack.stream()
+                .map(chain -> chain.getMiddleware())
+                .collect(Collectors.toList());
     }
 
     @Override

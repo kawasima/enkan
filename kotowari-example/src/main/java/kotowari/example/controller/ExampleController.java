@@ -21,9 +21,8 @@ public class ExampleController {
     @Inject
     private DomaDaoProvider daoProvider;
 
-    public String method1() {
-        System.out.println(templateEngine);
-        return "method1";
+    public HttpResponse index() {
+        return templateEngine.render("index");
     }
 
     public String method2(Map<String, List<String>> params) {
