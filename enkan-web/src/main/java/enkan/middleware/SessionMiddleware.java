@@ -8,7 +8,7 @@ import enkan.middleware.session.MemoryStore;
 import enkan.middleware.session.SessionStore;
 import enkan.util.MixinUtils;
 
-import javax.swing.text.html.Option;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author kawasima
@@ -17,8 +17,13 @@ import javax.swing.text.html.Option;
 public class SessionMiddleware extends AbstractWebMiddleware {
     private String storeName;
     private String root;
+
+    @NotNull
     private String cookieName;
+
     private OptionMap cookieAttrs;
+
+    @NotNull
     private SessionStore store;
 
     public SessionMiddleware() {
@@ -34,7 +39,7 @@ public class SessionMiddleware extends AbstractWebMiddleware {
 
             String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
             Session session = reqKey != null ? store.read(reqKey) : null;
-            ((WebSessionAvailable) request).setSession(session);
+            request.setSession(session);
             if (session != null) {
                 ((WebSessionAvailable) request).setSessionKey(reqKey);
             }
@@ -47,7 +52,7 @@ public class SessionMiddleware extends AbstractWebMiddleware {
             sessionKey = ((WebSessionAvailable) request).getSessionKey();
         }
         if (response instanceof WebSessionAvailable) {
-            Session session = ((WebSessionAvailable) response).getSession();
+            Session session = response.getSession();
             String newSessionKey = null;
             if (session != null) {
                 if (session.isValid()) {
@@ -74,5 +79,25 @@ public class SessionMiddleware extends AbstractWebMiddleware {
         response = MixinUtils.mixin(response, WebSessionAvailable.class);
         sessionResponse(response, request);
         return response;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public void setRoot(String root) {
+        this.root = root;
+    }
+
+    public void setCookieName(String cookieName) {
+        this.cookieName = cookieName;
+    }
+
+    public void setCookieAttrs(OptionMap cookieAttrs) {
+        this.cookieAttrs = cookieAttrs;
+    }
+
+    public void setStore(SessionStore store) {
+        this.store = store;
     }
 }

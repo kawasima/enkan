@@ -19,7 +19,7 @@ public enum HttpDateFormat {
 
     private String formatStr;
 
-    private HttpDateFormat(String formatStr) {
+    HttpDateFormat(String formatStr) {
         this.formatStr = formatStr;
     }
 

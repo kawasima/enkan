@@ -13,13 +13,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class PreventDDoSMiddleWare extends AbstractWebMiddleware {
     private LRUCache cache;
 
-
     private int threshold = 10000;
     private int banThreshold = 10000;
     private int period = 10;
     private int banPeriod = 300;
     private int tableSize = 100;
-
 
     public PreventDDoSMiddleWare() {
         cache = new LRUCache(tableSize);

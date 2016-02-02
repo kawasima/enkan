@@ -2,11 +2,11 @@ package kotowari.routing;
 
 import enkan.collection.OptionMap;
 import kotowari.routing.segment.*;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author kawasima
@@ -21,12 +21,13 @@ public class RouteBuilder {
             Arrays.asList(new String[]{"GET" , "HEAD", "POST", "PUT", "DELETE", "OPTIONS"});
 
 
-    private static final List<String> optionalSeparators = Arrays.asList(new String[]{"/"});
+    private static final List<String> optionalSeparators = Collections.singletonList("/");
     private static final Pattern separatorRegexp = Pattern.compile("[" + RegexpUtils.escape(String.join("", SEPARATORS)) + "]");
     private static final Pattern nonseparatorRegexp = Pattern.compile("\\A([^" + RegexpUtils.escape(String.join("", SEPARATORS))+ "]+)");
 
+    @SuppressWarnings("Convert2Diamond")
     public List<Segment> segmentsForRoutePath(String path) {
-        List<Segment> segments = new ArrayList<Segment>();
+        List<Segment> segments = new ArrayList<>();
         StringBuilder rest = new StringBuilder(path);
 
         while (rest.length() > 0) {
@@ -49,7 +50,7 @@ public class RouteBuilder {
                 key = m.group(2);
                 options.put("wrapParentheses", true);
             }
-            segment = "controller".equals(key) ? new ControllerSegment(key, options) : new DynamicSegment(key, options);
+            segment = new DynamicSegment(key, options);
         } else if ((m = PTN_PATH.matcher(str)).find()) {
             segment = new PathSegment(m.group(1), OptionMap.of("optional", true));
         } else if ((m = PTN_STATIC.matcher(str)).find()) {
@@ -80,10 +81,10 @@ public class RouteBuilder {
 
         validateRouteConditions(conditions);
 
-        List<String> pathKeys = new ArrayList<>();
-        for (Segment segment : segments)
-            if (segment.hasKey())
-                pathKeys.add(segment.getKey());
+        List<String> pathKeys = segments.stream()
+                .filter(Segment::hasKey)
+                .map(Segment::getKey)
+                .collect(Collectors.toList());
 
         for (Map.Entry<String, Object> e : options.entrySet()) {
             if (pathKeys.contains(e.getKey()) && !(e.getValue() instanceof Pattern)) {
@@ -166,8 +167,7 @@ public class RouteBuilder {
 
         String prefix = options.getString("pathPrefix");
         if (prefix != null && !prefix.isEmpty()) {
-            prefix.replace("^/", "");
-            path = "/" + prefix + path;
+            path = "/" + prefix.replace("^/", "") + path;
         }
 
         List<Segment> segments = segmentsForRoutePath(path);

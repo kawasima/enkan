@@ -6,7 +6,6 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.util.HttpResponseUtils;
 import net.unit8.moshas.MoshasEngine;
-import net.unit8.moshas.RenderUtils;
 import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
@@ -31,7 +30,7 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         HttpResponse response = castToHttpResponse(next.next(request));
-        if (isEmptyBody(response)) {
+        if (response != null && isEmptyBody(response)) {
             List<Object> types = getHeader(response, "Content-Type");
             String type = (types == null || types.isEmpty()) ? null : types.get(0).toString();
             if (type == null || "text/html".equals(type)) {

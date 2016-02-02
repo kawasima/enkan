@@ -8,11 +8,7 @@ import java.util.Map;
 /**
  * @author kawasima
  */
-public interface HttpRequest extends SessionAvailable, Extendable {
-    String getUrl();
-
-    void setUrl(String uri);
-
+public interface HttpRequest extends UriAvailable, SessionAvailable, Extendable {
     int getServerPort();
 
     void setServerPort(int serverPort);

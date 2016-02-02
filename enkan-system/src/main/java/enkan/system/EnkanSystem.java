@@ -33,6 +33,10 @@ public class EnkanSystem {
         componentsOrder.add(name);
     }
 
+    public SystemComponent getComponent(String name) {
+        return components.get(name);
+    }
+
     public EnkanSystem relationships(ComponentRelationship... relationships) {
         for (ComponentRelationship relationship : relationships) {
             relationship.inject(components);
@@ -45,7 +49,7 @@ public class EnkanSystem {
     public void start() {
         componentsOrder.stream()
                 .map(key -> components.get(key))
-                .forEach(component -> LifecycleManager.start(component));
+                .forEach(LifecycleManager::start);
     }
 
     public void stop() {

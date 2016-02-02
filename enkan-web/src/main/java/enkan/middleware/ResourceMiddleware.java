@@ -43,4 +43,8 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
         }
         return response;
     }
+
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
 }

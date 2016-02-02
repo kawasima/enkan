@@ -6,6 +6,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
+import enkan.util.HttpResponseUtils;
 import net.unit8.moshas.MoshasEngine;
 import net.unit8.moshas.Snippet;
 import net.unit8.moshas.Template;
@@ -56,7 +57,9 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
         Context ctx = new Context();
         ctx.setVariable("exception", ex);
         template.render(ctx, sw);
-        return HttpResponse.of(sw.toString());
+        HttpResponse response = HttpResponse.of(sw.toString());
+        HttpResponseUtils.contentType(response, "text/html");
+        return response;
     }
 
     protected HttpResponse exResponse(HttpRequest request, Throwable ex) {

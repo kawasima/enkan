@@ -1,4 +1,4 @@
-package kotowari.data;
+package enkan.data;
 
 import enkan.data.Extendable;
 

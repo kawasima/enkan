@@ -2,13 +2,15 @@ package enkan.system.inject;
 
 import enkan.component.SystemComponent;
 import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
+
+import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * @author kawasima
@@ -47,9 +49,23 @@ public class ComponentInjector {
         }
     }
 
-    public void inject(Object target) {
+    protected <T> void postConstruct(T target) {
+        Arrays.stream(target.getClass().getDeclaredMethods())
+                .filter(m -> m.getAnnotation(PostConstruct.class) != null)
+                .findFirst()
+                .ifPresent(m -> tryReflection(
+                        () -> {
+                            m.setAccessible(true);
+                            return m.invoke(target);
+                        })
+                );
+    }
+
+    public <T> T inject(T target) {
         Arrays.stream(target.getClass().getDeclaredFields())
-                .filter(f -> isInjectTarget(f))
+                .filter(this::isInjectTarget)
                 .forEach(f -> injectField(target, f));
+        postConstruct(target);
+        return target;
     }
 }

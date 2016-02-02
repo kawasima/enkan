@@ -55,8 +55,7 @@ public class ComponentRelationship {
         }
 
         public ComponentRelationship using(String... dependents) {
-            ComponentRelationship relationship = new ComponentRelationship(componentName, Arrays.asList(dependents));
-            return relationship;
+            return new ComponentRelationship(componentName, Arrays.asList(dependents));
         }
     }
 }

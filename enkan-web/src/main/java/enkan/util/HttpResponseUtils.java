@@ -5,16 +5,16 @@ import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
-import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.multimap.Multimap;
 
-import java.awt.geom.FlatteningPathIterator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.*;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -24,29 +24,42 @@ import java.util.zip.ZipEntry;
  * @author kawasima
  */
 public class HttpResponseUtils {
-    public static List<Object> getHeader(HttpResponse response, String name) {
+    public static <T> T getHeader(HttpResponse response, String name) {
         Multimap<String, Object> headers = response.getHeaders();
         List<Object> values = headers
                 .selectKeysValues((k, v) -> name.equalsIgnoreCase(k))
                 .valuesView().toList();
-        return values.isEmpty() ? null : values;
-
+        if (values.isEmpty()) {
+            return null;
+        } else {
+            return (T) values.get(0);
+        }
     }
 
     public static void header(HttpResponse response, String name, String value) {
         response.getHeaders().put(name, value);
     }
 
+    public static void charset(HttpResponse response, String charset) {
+        String type = getHeader(response, "Content-Type");
+        if (type == null) {
+            type = "text/plain";
+        }
+        String newType = type.replaceAll(";\\s*charset=[^;]*", "") + "; charset=" + charset;
+        response.getHeaders().removeAll("Content-Type"); // TODO Character case.
+        header(response, "Content-Type", newType);
+    }
+
     public static HttpResponse contentType(HttpResponse response, String type) {
         if (type != null) {
-            response.getHeaders().put("content-type", type);
+            response.getHeaders().put("Content-Type", type);
         }
         return response;
     }
 
     public static HttpResponse contentLength(HttpResponse response, Long len) {
         if (len != null) {
-            response.getHeaders().put("content-length", len);
+            response.getHeaders().put("Content-Length", len);
         }
         return response;
     }
@@ -111,13 +124,13 @@ public class HttpResponseUtils {
         ContentData data = resourceData(url);
         if (data == null) return null;
 
-        HttpResponse response = null;
+        HttpResponse response;
         if (data instanceof FileContentData) {
             response = HttpResponse.of(((FileContentData) data).getContent());
         } else if (data instanceof StreamContentData) {
             response = HttpResponse.of(((StreamContentData) data).getContent());
         } else {
-            MisconfigurationException.raise("CLASSPATH", url.getProtocol(), url);
+            throw MisconfigurationException.create("CLASSPATH", url.getProtocol(), url);
         }
         contentLength(response, data.getContentLength());
         lastModified(response, data.getLastModifiedDate());
@@ -127,7 +140,7 @@ public class HttpResponseUtils {
     public static HttpResponse resourceResponse(String path, OptionMap options) {
         String root = options.getString("root");
         path = (root != null ? root : "") + "/" + path;
-        path.replace("//", "/").replaceAll("^/", "");
+        path = path.replace("//", "/").replaceAll("^/", "");
 
         ClassLoader loader = (ClassLoader) options.get("loader");
         if (loader == null) {

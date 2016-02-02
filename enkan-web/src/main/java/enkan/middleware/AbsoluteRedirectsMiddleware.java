@@ -4,7 +4,6 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.impl.factory.Sets;
 

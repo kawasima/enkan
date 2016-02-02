@@ -5,7 +5,6 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 
 import javax.servlet.ServletOutputStream;
@@ -103,7 +102,7 @@ public class ServletUtils {
         try {
             setBody(servletResponse, response.getBody());
         } catch(IOException ex) {
-            FalteringEnvironmentException.create(ex);
+            throw FalteringEnvironmentException.create(ex);
         }
     }
 }

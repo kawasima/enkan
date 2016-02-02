@@ -1,16 +1,12 @@
 package enkan.adapter;
 
 import enkan.application.WebApplication;
+import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
-import enkan.exception.UnrecoverableException;
-import enkan.collection.OptionMap;
 import enkan.util.ServletUtils;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -38,9 +34,19 @@ public class JettyAdapter {
         }
     }
 
+    private HttpConfiguration httpConfiguration(OptionMap options) {
+        HttpConfiguration config = new HttpConfiguration();
+        config.setSendDateHeader(options.getBoolean("sendDateHeader", true));
+        config.setOutputBufferSize(options.getInt("outputBufferSize", 32768));
+        config.setRequestHeaderSize(options.getInt("requestHeaderSize", 8192));
+        config.setResponseHeaderSize(options.getInt("responseHeaderSize", 8192));
+        config.setSendServerVersion(options.getBoolean("sendServerVersion", true));
+        return config;
+    }
+
     private ServerConnector createHttpConnector(Server server, OptionMap options) {
-        HttpConnectionFactory factory = new HttpConnectionFactory();
-        ServerConnector connector = new ServerConnector(server);
+        HttpConnectionFactory factory = new HttpConnectionFactory(httpConfiguration(options));
+        ServerConnector connector = new ServerConnector(server, factory);
         connector.setPort(options.getInt("port", 80));
         connector.setHost(options.getString("host"));
         connector.setIdleTimeout(options.getLong("maxIdleTime", 200000));
@@ -73,9 +79,9 @@ public class JettyAdapter {
         } catch (Exception ex) {
             try {
                 server.stop();
-                FalteringEnvironmentException.create(ex);
+                throw FalteringEnvironmentException.create(ex);
             } catch (Exception stopEx) {
-                FalteringEnvironmentException.create(stopEx);
+                throw FalteringEnvironmentException.create(stopEx);
             }
         }
         return server;

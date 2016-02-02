@@ -5,7 +5,6 @@ import enkan.annotation.Middleware;
 import enkan.data.Cookie;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.util.CodecUtils;
 import enkan.util.HttpDateFormat;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 
@@ -46,8 +45,8 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
         if (cookieHeader != null) {
             Matcher m = RE_COOKIE.matcher(cookieHeader);
             while (m.find()) {
-                Cookie cookie = Cookie.create(m.group(2), formDecodeStr(stripQuotes(m.group(3))));
-                cookies.put(m.group(2), cookie);
+                Cookie cookie = Cookie.create(m.group(1), formDecodeStr(stripQuotes(m.group(2))));
+                cookies.put(m.group(1), cookie);
             }
         }
 
@@ -87,9 +86,8 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     protected void cookiesResponse(HttpResponse response) {
         MutableMultimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {
-            cookieMap.forEachKeyValue((key, cookie) -> {
-                response.getHeaders().put("Set-Cookie", writeCookie(cookie));
-            });
+            cookieMap.forEachKeyValue((key, cookie) ->
+                    response.getHeaders().put("Set-Cookie", writeCookie(cookie)));
         }
     }
 
@@ -97,7 +95,9 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         cookiesRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
-        cookiesResponse(response);
+        if (response != null) {
+            cookiesResponse(response);
+        }
 
         return response;
     }

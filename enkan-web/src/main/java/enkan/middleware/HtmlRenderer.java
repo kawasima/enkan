@@ -8,6 +8,7 @@ import enkan.data.HttpResponse;
 /**
  * @author kawasima
  */
+@enkan.annotation.Middleware(name = "htmlRenderer")
 public class HtmlRenderer implements Middleware<HttpRequest, HttpResponse> {
     @Override
     public HttpResponse handle(HttpRequest req, MiddlewareChain chain) {

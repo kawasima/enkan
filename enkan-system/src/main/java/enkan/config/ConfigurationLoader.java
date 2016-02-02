@@ -95,7 +95,7 @@ public class ConfigurationLoader extends ClassLoader {
         if (c != null) return c;
 
         try {
-            Method findLoadedClassMethod = ClassLoader.class.getDeclaredMethod("findLoadedClass", new Class<?>[]{ String.class });
+            Method findLoadedClassMethod = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
             findLoadedClassMethod.setAccessible(true);
             c = (Class) findLoadedClassMethod.invoke(getParent(), name);
             if (c != null){

@@ -2,19 +2,15 @@ package kotowari.middleware;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
-import enkan.component.SystemComponent;
+import enkan.data.Flash;
 import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
-import enkan.data.Traceable;
+import enkan.data.Session;
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 import enkan.system.inject.ComponentInjector;
 import kotowari.data.FormAvailable;
-import kotowari.data.Routable;
+import enkan.data.Routable;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
@@ -54,6 +50,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             Class<?> type = parameter.getType();
             if (HttpRequest.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request;
+            } else if (Session.class.isAssignableFrom(type)) {
+                arguments[parameterIndex] = request.getSession();
+            } else if (Flash.class.isAssignableFrom(type)) {
+                // TODO flash
             } else if (Map.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getParams().toMap();
             } else if (form != null && form.getClass().equals(type)) {
@@ -85,8 +85,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 return (RES) controllerMethod.invoke(controller, arguments);
             });
         } else {
-            MisconfigurationException.raise("DONT_IMPLEMENT", Routable.class);
-            throw UnreachableException.create();
+            throw MisconfigurationException.create("DONT_IMPLEMENT", Routable.class);
         }
     }
 }

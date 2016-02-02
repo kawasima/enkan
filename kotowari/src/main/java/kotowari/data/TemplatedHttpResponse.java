@@ -1,7 +1,6 @@
 package kotowari.data;
 
 import enkan.data.DefaultHttpResponse;
-import enkan.data.HttpResponse;
 import org.eclipse.collections.impl.factory.Multimaps;
 
 import java.io.InputStream;

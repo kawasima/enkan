@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A default implementation for HTTP request
+ *
  * @author kawasima
  */
-public class DefaultHttpRequest implements UriAvailable, HttpRequest {
+public class DefaultHttpRequest implements HttpRequest {
     private int serverPort;
     private String serverName;
     private String remoteAddr;
@@ -33,12 +35,12 @@ public class DefaultHttpRequest implements UriAvailable, HttpRequest {
     private Map<String, Object> extensions;
 
     @Override
-    public String getUrl() {
+    public String getUri() {
         return uri;
     }
 
     @Override
-    public void setUrl(String uri) {
+    public void setUri(String uri) {
         this.uri = uri;
     }
 
@@ -70,16 +72,6 @@ public class DefaultHttpRequest implements UriAvailable, HttpRequest {
     @Override
     public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
-    }
-
-    @Override
-    public void setUri(String uri) {
-        this.uri = uri;
     }
 
     @Override

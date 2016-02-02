@@ -4,18 +4,20 @@ import enkan.adapter.JettyAdapter;
 import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.exception.FalteringEnvironmentException;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.jetty.server.Server;
+
+import javax.validation.constraints.DecimalMax;
 
 /**
  * @author kawasima
  */
 public class JettyComponent extends SystemComponent {
-    private OptionMap options;
+    @DecimalMax("65535")
+    private Integer port;
     private Server server;
 
-    public JettyComponent(OptionMap options) {
-        this.options = options;
+    public JettyComponent() {
+
     }
 
     @Override
@@ -25,7 +27,8 @@ public class JettyComponent extends SystemComponent {
             public void start(JettyComponent component) {
                 ApplicationComponent app = getDependency(ApplicationComponent.class);
                 if (server == null) {
-                    options.put("join?", false);
+                    OptionMap options = OptionMap.of("join?", false);
+                    if (port != null) options.put("port", port);
                     server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
                 }
             }
@@ -45,5 +48,9 @@ public class JettyComponent extends SystemComponent {
 
             }
         };
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

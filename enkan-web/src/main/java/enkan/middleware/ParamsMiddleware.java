@@ -5,7 +5,6 @@ import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.impl.factory.Multimaps;
 
@@ -13,9 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static enkan.util.CodecUtils.formDecode;
 import static enkan.util.HttpRequestUtils.characterEncoding;
 import static enkan.util.HttpRequestUtils.isUrlEncodedForm;
-import static enkan.util.CodecUtils.*;
 
 /**
  * @author kawasima

@@ -2,7 +2,6 @@ package enkan.util;
 
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import enkan.data.TraceLog;
 import enkan.data.Traceable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class HttpRequestUtilsTest {
             request.setId("ABC123");
         }
         System.out.println(System.currentTimeMillis() - t1);
-        Assert.assertEquals("ABC123", ((Traceable) request).getId());
+        Assert.assertEquals("ABC123", request.getId());
     }
 
     @Test

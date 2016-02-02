@@ -2,20 +2,26 @@ package enkan.system.repl;
 
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
+import enkan.system.SystemCommand;
+import enkan.system.command.MiddlewareCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * @author kawasima
  */
-public class PseudoRepl implements Runnable {
+public class PseudoRepl implements enkan.system.Repl {
     private EnkanSystem system;
     private ExecutorService monitorService;
+    private Map<String, SystemCommand> commands = new HashMap<>();
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
@@ -23,6 +29,12 @@ public class PseudoRepl implements Runnable {
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
+
+        registerCommand("start", (system, args) -> { system.start(); return true; } );
+        registerCommand("stop",  (system, args) -> { system.stop(); return true; });
+        registerCommand("reset", (system, args) -> { system.stop(); system.start(); return true; });
+        registerCommand("exit",  (system, args) -> { system.stop(); return false; });
+        registerCommand("middleware", new MiddlewareCommand(this));
     }
 
     protected void printHelp() {
@@ -49,32 +61,29 @@ public class PseudoRepl implements Runnable {
     protected boolean repl(BufferedReader reader) throws IOException, URISyntaxException {
         System.out.print("REPL> ");
         String[] cmd = reader.readLine().trim().split("\\s+");
-        switch (cmd[0]) {
-            case "start":
-                system.start();
-                if (cmd.length > 1 && cmd[1].equals("auto")) {
-
-                }
-                break;
-            case "stop":
-                system.stop();
-                stopChangeMonitor();
-                break;
-            case "reset": {
-                system.stop();
-                system.start();
-                break;
+        SystemCommand command = commands.get(cmd[0]);
+        if (cmd[0].isEmpty()) {
+            printHelp();
+        } else if (command != null) {
+            String[] args = new String[cmd.length - 1];
+            if (cmd.length > 0) {
+                System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
             }
-            case "exit":
-                system.stop();
-                return false;
-            case "":
-                printHelp();
-                break;
-            default:
-                System.out.println("Unknown command: " + cmd[0]);
+            return command.execute(system, args);
+        } else {
+            System.out.println("Unknown command: " + cmd[0]);
         }
         return true;
+    }
+
+    @Override
+    public PrintStream out() {
+        return System.out;
+    }
+
+    @Override
+    public void registerCommand(String name, SystemCommand command) {
+        commands.put(name, command);
     }
 
     @Override

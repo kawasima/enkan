@@ -5,8 +5,6 @@ import enkan.component.SystemComponent;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -15,8 +13,6 @@ import freemarker.template.TemplateException;
 import freemarker.template.Version;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.io.LazyRenderInputStream;
-import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,8 +38,7 @@ public class FreemarkerComponent extends TemplateEngineComponent {
                 template.process(response.getContext(), writer);
                 return new ByteArrayInputStream(writer.toString().getBytes(encoding));
             } catch (TemplateException e) {
-                MisconfigurationException.raise("RENDERING_ERROR", e);
-                throw UnreachableException.create();
+                throw MisconfigurationException.create("RENDERING_ERROR", e);
             } catch (IOException e) {
                 throw FalteringEnvironmentException.create(e);
             }

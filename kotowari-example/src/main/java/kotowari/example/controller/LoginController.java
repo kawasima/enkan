@@ -1,6 +1,6 @@
 package kotowari.example.controller;
 
-import enkan.component.DomaDaoProvider;
+import enkan.component.DomaProvider;
 import enkan.data.HttpResponse;
 
 import javax.inject.Inject;
@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class LoginController {
     @Inject
-    private DomaDaoProvider daoProvider;
+    private DomaProvider daoProvider;
 
     public HttpResponse login(Map<String, List<String>> params) {
         return HttpResponse.of(params.get("account").get(0));

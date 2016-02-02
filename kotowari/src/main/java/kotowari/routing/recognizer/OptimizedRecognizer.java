@@ -85,7 +85,7 @@ public class OptimizedRecognizer implements Recognizer {
         public SegmentNode(String label, int index) {
             this.index = index;
             this.label = label;
-            childNodes = new ArrayList<SegmentNode>();
+            childNodes = new ArrayList<>();
         }
 
         public void add(SegmentNode child) {

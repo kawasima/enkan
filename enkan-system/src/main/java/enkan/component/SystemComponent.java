@@ -1,7 +1,6 @@
 package enkan.component;
 
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnrecoverableException;
 
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public abstract class SystemComponent {
         return (T) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
                 .findFirst()
-                .orElseThrow(() -> MisconfigurationException.raise("CLASS_NOT_FOUND", componentClass));
+                .orElseThrow(() -> MisconfigurationException.create("CLASS_NOT_FOUND", componentClass));
     }
 
     protected Map<String, SystemComponent> getAllDependencies() {

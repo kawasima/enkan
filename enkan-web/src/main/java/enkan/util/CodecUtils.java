@@ -1,8 +1,6 @@
 package enkan.util;
 
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnreachableException;
-import enkan.exception.UnrecoverableException;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.impl.factory.Multimaps;
@@ -10,7 +8,9 @@ import org.eclipse.collections.impl.factory.Multimaps;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,8 +87,7 @@ public class CodecUtils {
             m.appendTail(sb);
             return sb.toString();
         } catch (UnsupportedEncodingException e) {
-            MisconfigurationException.raise("UNSUPPORTED_ENCODING", encoding, e);
-            throw UnreachableException.create();
+            throw MisconfigurationException.create("UNSUPPORTED_ENCODING", encoding, e);
         }
     }
 
@@ -132,7 +131,7 @@ public class CodecUtils {
 
         for(String param : encoded.split("&")) {
             String[] kv = param.split("=", 2);
-            if (kv != null && kv.length == 2) {
+            if (kv.length == 2) {
                 m.put(formDecodeStr(kv[0], encoding),
                         formDecodeStr(kv[1], encoding));
             }

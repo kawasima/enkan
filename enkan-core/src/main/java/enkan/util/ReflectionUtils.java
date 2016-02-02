@@ -1,6 +1,8 @@
 package enkan.util;
 
+import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
+import enkan.exception.UnrecoverableException;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -12,7 +14,7 @@ public class ReflectionUtils {
         try {
             return runnable.run();
         } catch (InstantiationException e) {
-            throw MisconfigurationException.raise("");
+            throw MisconfigurationException.create("INSTANTIATION.problem");
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof Error) {
@@ -20,16 +22,16 @@ public class ReflectionUtils {
             } else if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             } else if (t instanceof Exception) {
-                throw MisconfigurationException.raise("");
+                throw FalteringEnvironmentException.create(e);
             } else {
                 throw new InternalError(t);
             }
         } catch (NoSuchMethodException e) {
-            throw MisconfigurationException.raise("NO_SUCH_METHOD");
+            throw MisconfigurationException.create("NO_SUCH_METHOD");
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw MisconfigurationException.create("ILLEGAL_ACCESS");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw MisconfigurationException.create("CLASS_NOT_FOUND");
         }
     }
 }

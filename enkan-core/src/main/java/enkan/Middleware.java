@@ -1,8 +1,17 @@
 package enkan;
 
 /**
+ * A middleware.
+ *
  * @author kawasima
  */
 public interface Middleware<REQ, RES> {
-    RES handle(REQ req, MiddlewareChain next);
+    /**
+     * Handle a request.
+     *
+     * @param req   A request object
+     * @param chain A chain of middlewares
+     * @return      A response object
+     */
+    RES handle(REQ req, MiddlewareChain chain);
 }

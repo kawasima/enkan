@@ -22,8 +22,8 @@ public class FlywayMigration extends SystemComponent {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 DataSource dataSource = dataSourceComponent.getDataSource();
                 Flyway flyway = new Flyway();
-
                 flyway.setDataSource(dataSource);
+
                 if (component.locations != null) {
                     flyway.setLocations(component.locations);
                 }
@@ -35,5 +35,9 @@ public class FlywayMigration extends SystemComponent {
 
             }
         };
+    }
+
+    public void setLocation(String[] locations) {
+        this.locations = locations;
     }
 }

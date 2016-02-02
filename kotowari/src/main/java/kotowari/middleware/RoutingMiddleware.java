@@ -6,9 +6,8 @@ import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.middleware.AbstractWebMiddleware;
-import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
-import kotowari.data.Routable;
+import enkan.data.Routable;
 import kotowari.routing.Routes;
 
 import java.lang.reflect.Method;
@@ -57,5 +56,9 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
         }
 
         return castToHttpResponse(next.next(request));
+    }
+
+    public Routes getRoutes() {
+        return routes;
     }
 }

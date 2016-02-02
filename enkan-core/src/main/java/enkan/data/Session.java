@@ -1,7 +1,5 @@
 package enkan.data;
 
-import enkan.annotation.Middleware;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

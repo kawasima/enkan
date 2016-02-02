@@ -9,5 +9,7 @@
     <input type="password" name="account" placeholder="Account"/>
     <button type="submit">Login</button>
   </form>
+
+  <a href="/customer/new">New registration</a>
 </body>
 </html>

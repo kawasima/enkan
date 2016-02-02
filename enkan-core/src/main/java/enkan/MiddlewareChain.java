@@ -1,60 +1,54 @@
 package enkan;
 
-import enkan.data.Traceable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Predicate;
 
 /**
+ * A chain of middlewares.
+ *
  * @author kawasima
  */
-public class MiddlewareChain<REQ, RES> {
-    private static final Logger LOG = LoggerFactory.getLogger("enkan.middleware");
+public interface MiddlewareChain<REQ, RES> {
+    /**
+     * Set a next middleware.
+     *
+     * @param next   a next middleware
+     * @return this middleware's chain
+     */
+    MiddlewareChain<REQ, RES> setNext(MiddlewareChain next);
 
-    private Decision<REQ> decision;
-    private Middleware<REQ, RES> middleware;
-    private String middlewareName;
-    private MiddlewareChain<Object, Object> next;
+    /**
+     * Get a middleware in this chain.
+     *
+     * @return middleware
+     */
+    Middleware<REQ, RES> getMiddleware();
 
+    /**
+     * Get a middleware name in this chain.
+     *
+     * @return the name of middleware
+     */
+    String getName();
 
-    public MiddlewareChain(Decision<REQ> decision, Middleware<REQ, RES> middleware) {
-        this.decision = decision;
-        this.middleware = middleware;
-        enkan.annotation.Middleware anno = middleware.getClass().getAnnotation(enkan.annotation.Middleware.class);
-        if (anno != null) {
-            middlewareName = anno.name();
-        } else {
-            middlewareName = "Anonymous(" + middleware.toString() + ")";
-        }
-    }
+    /**
+     * Get a predicate.
+     *
+     * @return
+     */
+    Predicate<REQ> getPredicate();
 
-    public MiddlewareChain<REQ, RES> setNext(MiddlewareChain next) {
-        this.next = next;
-        return this;
-    }
+    /**
+     * Set a predicate.
+     *
+     * @param predicate predicate
+     */
+    void setPredicate(Predicate<REQ> predicate);
 
-    public Middleware<REQ, RES> getMiddleware() {
-        return middleware;
-    }
-
-    protected void writeTraceLog(Object reqOrRes, String middlewareName) {
-        if (reqOrRes instanceof Traceable) {
-            ((Traceable) reqOrRes).getTraceLog().write(middlewareName);
-        }
-    }
-
-    public RES next(REQ req) {
-        writeTraceLog(req, middlewareName);
-
-        if (decision.decide(req)) {
-            RES res = middleware.handle(req, next);
-            writeTraceLog(res, middlewareName);
-            return res;
-        } else if (next != null){
-            RES res = (RES) next.next(req);
-            writeTraceLog(res, middlewareName);
-            return res;
-        } else {
-            return null;
-        }
-    }
+    /**
+     * Process the next middleware.
+     *
+     * @param req  A request object
+     * @return A response object
+     */
+    RES next(REQ req);
 }

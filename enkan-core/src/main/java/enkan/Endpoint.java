@@ -10,5 +10,11 @@ public interface Endpoint<REQ, RES> extends Middleware<REQ, RES> {
         return handle(req);
     }
 
+    /**
+     * Handle a request.
+     *
+     * @param req  A request object
+     * @return     A response object
+     */
     RES handle(REQ req);
 }

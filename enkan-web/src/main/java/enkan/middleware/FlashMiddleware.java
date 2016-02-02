@@ -2,10 +2,7 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
-import enkan.data.Flash;
-import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
-import enkan.data.Session;
+import enkan.data.*;
 
 /**
  *
@@ -21,15 +18,21 @@ public class FlashMiddleware extends AbstractWebMiddleware {
             Flash flash = session.getAttribute("_flash");
             session.removeAttribute("_flash");
             if (flash != null) {
-
+                ((FlashAvailable) request).setFlash(flash);
             }
         }
+    }
+
+    protected void flashResponse(HttpResponse response, HttpRequest request) {
+        if (response == null) return;
     }
 
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         flashRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
+        flashResponse(response, request);
+
         return response;
     }
 }

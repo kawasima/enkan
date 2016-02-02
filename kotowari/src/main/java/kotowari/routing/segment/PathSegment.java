@@ -2,7 +2,6 @@ package kotowari.routing.segment;
 
 import enkan.collection.OptionMap;
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnrecoverableException;
 
 import java.util.regex.Matcher;
 
@@ -26,7 +25,7 @@ public class PathSegment extends DynamicSegment {
 
     public void setDefault(String path) {
         if (!path.isEmpty())
-            MisconfigurationException.raise("ROUTING_PATH_", "paths cannot have non-empty default values"); // TODO what is this?
+            throw MisconfigurationException.create("ROUTING_PATH_", "paths cannot have non-empty default values"); // TODO what is this?
     }
 
     public String defaultRegexpChunk() {

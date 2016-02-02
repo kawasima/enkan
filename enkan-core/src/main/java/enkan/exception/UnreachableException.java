@@ -4,8 +4,6 @@ package enkan.exception;
  * @author kawasima
  */
 public final class UnreachableException extends UnrecoverableException {
-    private static final UnreachableException WITHOUT_CAUSE_EXCEPTION = new UnreachableException();
-
     private UnreachableException() {
         this(null);
     }
@@ -15,7 +13,7 @@ public final class UnreachableException extends UnrecoverableException {
     }
 
     public static UnreachableException create() {
-        return WITHOUT_CAUSE_EXCEPTION;
+        return new UnreachableException();
     }
 
     public static UnreachableException create(Throwable cause) {

@@ -7,6 +7,7 @@ import kotowari.routing.segment.DividerSegment;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author kawasima
@@ -38,7 +39,7 @@ public class Route {
     }
 
     public String buildQueryString(Map<String, String> hash) {
-        List<String> elements = new ArrayList<String>();
+        List<String> elements = new ArrayList<>();
         for(String key : hash.keySet()) {
             String value = hash.get(key);
             if (!value.isEmpty()) {
@@ -51,14 +52,12 @@ public class Route {
     public List<String> significantKeys() {
         if (significantKeys != null)
             return significantKeys;
-        Set<String> sk = new HashSet<String>();
-        for (Segment segment : segments) {
-            if (segment.hasKey()) {
-                sk.add(segment.getKey());
-            }
-        }
+        Set<String> sk = segments.stream()
+                .filter(Segment::hasKey)
+                .map(Segment::getKey)
+                .collect(Collectors.toSet());
         sk.addAll(constraints.keySet());
-        significantKeys = new ArrayList<String>(sk);
+        significantKeys = new ArrayList<>(sk);
         return significantKeys;
     }
 
@@ -117,7 +116,7 @@ public class Route {
             return "";
         } else if (value instanceof Collection) {
             Collection<?> values = Collection.class.cast(value);
-            List<String> pairs = new ArrayList<String>(values.size());
+            List<String> pairs = new ArrayList<>(values.size());
             for (Object val : values) {
                 if (val == null)
                     val = "";
@@ -130,27 +129,24 @@ public class Route {
     }
 
     private String buildQueryString(OptionMap hash, List<String> onlyKeys) {
-        List<String> elements = new ArrayList<String>(hash.size());
+        List<String> elements = new ArrayList<>(hash.size());
 
         if (onlyKeys == null)
-            onlyKeys = new ArrayList<String>(hash.keySet());
+            onlyKeys = new ArrayList<>(hash.keySet());
 
-        for (String key : onlyKeys) {
-            if (hash.containsKey(key)) {
-                elements.add(getUrlEncodedString(hash, key));
-            }
-        }
+        elements.addAll(onlyKeys.stream()
+                .filter(key -> hash.containsKey(key))
+                .map(key -> getUrlEncodedString(hash, key))
+                .collect(Collectors.toList()));
         return elements.isEmpty() ? "" : "?" + String.join("&", elements);
     }
 
     private OptionMap getParameterShell() {
         if (parameterShell == null) {
             OptionMap options = OptionMap.of();
-            for (Map.Entry<String, Object> e : constraints.entrySet()) {
-                if (! (e.getValue() instanceof Pattern)) {
-                    options.put(e.getKey(), e.getValue());
-                }
-            }
+            constraints.entrySet().stream()
+                    .filter(e -> !(e.getValue() instanceof Pattern))
+                    .forEach(e -> options.put(e.getKey(), e.getValue()));
             parameterShell = options;
         }
         return parameterShell;
@@ -218,7 +214,7 @@ public class Route {
     }
 
     private List<String> extraKeys(OptionMap hash) {
-        List<String> extraKeys = new ArrayList<String>();
+        List<String> extraKeys = new ArrayList<>();
         if (hash != null) {
             for (String key : hash.keySet()) {
                 if (!significantKeys.contains(key))

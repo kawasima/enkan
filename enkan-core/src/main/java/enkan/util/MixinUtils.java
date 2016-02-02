@@ -117,7 +117,7 @@ public class MixinUtils {
         Arrays.asList(interfaces).forEach(i ->
                 Arrays.asList(i.getMethods()).stream()
                         .filter(Method::isDefault)
-                        .forEach(m -> getMethodHandle(m)));
+                        .forEach(MixinUtils::getMethodHandle));
 
 
         System.arraycopy(interfaces, 0, classes, addedIndex, interfaces.length);

@@ -1,13 +1,7 @@
 package enkan.util;
 
 import enkan.data.HttpRequest;
-import enkan.exception.UnrecoverableException;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +52,6 @@ public class HttpRequestUtils {
 
     public static boolean isUrlEncodedForm(HttpRequest request) {
         String type = contentType(request);
-        return type != null ? type.startsWith("application/x-www-form-urlencoded") : false;
+        return type != null && type.startsWith("application/x-www-form-urlencoded");
     }
 }

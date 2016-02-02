@@ -1,11 +1,14 @@
 package enkan.data;
 
 import org.eclipse.collections.api.multimap.MutableMultimap;
+import org.eclipse.collections.impl.factory.Multimaps;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A default implementation for HTTP response
+ *
  * @author kawasima
  */
 public class DefaultHttpResponse<T> implements HttpResponse<T> {
@@ -20,6 +23,7 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
     protected DefaultHttpResponse(int status, MutableMultimap<String, Object> headers) {
         this.status = status;
         this.headers = headers;
+        this.cookies = Multimaps.mutable.list.empty();
         this.extensions = new HashMap<>();
     }
 
@@ -65,12 +69,12 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append("{status=")
-                .append(status)
-                .append(", headers=").append(headers.toString())
-                .append(", body=").append(body)
-                .append('}').toString();
+        String sb = "{status=" +
+                status +
+                ", headers=" + headers.toString() +
+                ", body=" + body +
+                '}';
+        return sb;
     }
 
     @Override
@@ -85,7 +89,7 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
 
     @Override
     public Object getExtension(String name) {
-        return getExtension(name);
+        return extensions.get(name);
     }
 
     @Override

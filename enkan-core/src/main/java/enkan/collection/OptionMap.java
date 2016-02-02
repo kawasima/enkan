@@ -3,11 +3,17 @@ package enkan.collection;
 import java.util.*;
 
 /**
+ * A map implementation for options.
+ *
  * @author kawasima
  */
 public class OptionMap extends HashMap<String, Object> {
+    public static OptionMap empty() {
+        return new OptionMap();
+    }
+
     public static OptionMap of(Object... init) {
-        OptionMap m = new OptionMap();
+        OptionMap m = empty();
         for(int i = 0; i < init.length; i += 2) {
             m.put(init[i].toString(), init[i + 1]);
         }
@@ -40,7 +46,7 @@ public class OptionMap extends HashMap<String, Object> {
     }
 
     public long getLong(String key) {
-        return getLong(key, 0l);
+        return getLong(key, 0L);
     }
 
     public long getLong(String key, long defaultValue) {
@@ -73,7 +79,7 @@ public class OptionMap extends HashMap<String, Object> {
     public List<Object> getList(String key) {
         Object value = this.get(key);
         if (value == null) {
-            return new ArrayList<Object>();
+            return new ArrayList<>();
         }
         List<Object> valueList;
         if (List.class.isAssignableFrom(value.getClass())) {
@@ -81,9 +87,9 @@ public class OptionMap extends HashMap<String, Object> {
         } else if (value.getClass().isArray()) {
             valueList = Arrays.asList((Object[])value);
         } else if (Collection.class.isAssignableFrom(value.getClass())) {
-            valueList = new ArrayList<Object>(Collection.class.cast(value));
+            valueList = new ArrayList<>(Collection.class.cast(value));
         } else {
-            valueList = new ArrayList<Object>(1);
+            valueList = new ArrayList<>(1);
             valueList.add(value);
         }
         return valueList;

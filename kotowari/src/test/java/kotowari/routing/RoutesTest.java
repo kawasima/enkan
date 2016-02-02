@@ -9,9 +9,7 @@ import org.junit.Test;
 public class RoutesTest {
     @Test
     public void test() {
-        Routes routes = Routes.define(r -> {
-            r.get("/").to(ExampleController.class, "method1");
-        }).compile();
+        Routes routes = Routes.define(r -> r.get("/").to(ExampleController.class, "method1")).compile();
 
 
         System.out.println(routes.recognizePath("/", "GET"));

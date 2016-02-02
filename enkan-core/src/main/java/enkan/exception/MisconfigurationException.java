@@ -35,8 +35,8 @@ public class MisconfigurationException extends UnrecoverableException {
         solution = MessageFormatter.arrayFormat(solutionFmt, arguments).getMessage();
     }
 
-    public static MisconfigurationException raise(String code, Object... arguments){
-        throw new MisconfigurationException(code, arguments);
+    public static MisconfigurationException create(String code, Object... arguments){
+        return new MisconfigurationException(code, arguments);
     }
 
     public String getProblem() {
