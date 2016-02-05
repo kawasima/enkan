@@ -1,7 +1,6 @@
 package enkan.data;
 
-import org.eclipse.collections.api.multimap.MutableMultimap;
-import org.eclipse.collections.impl.factory.Multimaps;
+import enkan.collection.Multimap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,17 +12,17 @@ import java.util.Map;
  */
 public class DefaultHttpResponse<T> implements HttpResponse<T> {
     private int status;
-    private MutableMultimap<String, Object> headers;
-    private MutableMultimap<String, Cookie> cookies;
+    private Multimap<String, Object> headers;
+    private Multimap<String, Cookie> cookies;
     private Session session;
     private T body;
 
     private Map<String, Object> extensions;
 
-    protected DefaultHttpResponse(int status, MutableMultimap<String, Object> headers) {
+    protected DefaultHttpResponse(int status, Multimap<String, Object> headers) {
         this.status = status;
         this.headers = headers;
-        this.cookies = Multimaps.mutable.list.empty();
+        this.cookies = Multimap.empty();
         this.extensions = new HashMap<>();
     }
 
@@ -38,22 +37,22 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
     }
 
     @Override
-    public MutableMultimap<String, Object> getHeaders() {
+    public Multimap<String, Object> getHeaders() {
         return headers;
     }
 
     @Override
-    public void setHeaders(MutableMultimap<String, Object> headers) {
+    public void setHeaders(Multimap<String, Object> headers) {
         this.headers = headers;
     }
 
     @Override
-    public MutableMultimap<String, Cookie> getCookies() {
+    public Multimap<String, Cookie> getCookies() {
         return cookies;
     }
 
     @Override
-    public void setCookies(MutableMultimap<String, Cookie> cookies) {
+    public void setCookies(Multimap<String, Cookie> cookies) {
         this.cookies = cookies;
     }
 

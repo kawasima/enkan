@@ -2,11 +2,11 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Multimap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * The middleware for normalizing parameter values.
@@ -19,12 +19,15 @@ import java.util.stream.Collectors;
 public class NormalizationMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
-        MutableListMultimap<String, String> params = (MutableListMultimap<String, String>) request.getParams();
+        Map<String, ?> params = request.getParams();
         if (params != null) {
-            params.forEachKey(key -> params.replaceValues(key, params.get(key)
-                    .stream()
-                    .map(String::trim)
-                    .collect(Collectors.toList())));
+            params.keySet().stream()
+                    .forEach(key -> {
+                        if (params instanceof Multimap) {
+                            Multimap<String, String> mm = Multimap.class.cast(params);
+                            mm.replaceEachValues(key, val -> val.trim());
+                        }
+                    });
         }
         return (HttpResponse) next.next(request);
     }

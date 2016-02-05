@@ -1,6 +1,6 @@
 package enkan.data;
 
-import org.eclipse.collections.api.multimap.Multimap;
+import enkan.collection.Multimap;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public class DefaultHttpRequest implements HttpRequest {
     private String characterEncoding;
     private InputStream body;
 
-    private Multimap<String, String> params;
+    private Map<String, ?> params;
     private Multimap<String, String> formParams;
     private Multimap<String, String> queryParams;
 
@@ -165,12 +165,12 @@ public class DefaultHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Multimap<String, String> getParams() {
+    public Map<String, ?> getParams() {
         return params;
     }
 
     @Override
-    public void setParams(Multimap<String, String> params) {
+    public void setParams(Map<String, ?> params) {
         this.params = params;
     }
 

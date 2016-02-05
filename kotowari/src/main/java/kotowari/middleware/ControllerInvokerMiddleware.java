@@ -55,7 +55,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             } else if (Flash.class.isAssignableFrom(type)) {
                 // TODO flash
             } else if (Map.class.isAssignableFrom(type)) {
-                arguments[parameterIndex] = request.getParams().toMap();
+                arguments[parameterIndex] = request.getParams();
             } else if (form != null && form.getClass().equals(type)) {
                 arguments[parameterIndex] = form;
             }

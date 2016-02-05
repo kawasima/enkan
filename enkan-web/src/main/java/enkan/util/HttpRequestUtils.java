@@ -38,6 +38,18 @@ public class HttpRequestUtils {
         return m.find() ? m.group(1) : null;
     }
 
+    public static Long contentLength(HttpRequest request) {
+        String length = request.getHeaders().get("content-length");
+        if (length != null) {
+            try {
+                return new Long(length);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        return null;
+    }
+
     public static String characterEncoding(HttpRequest request) {
         String type = request.getHeaders().get("content-type");
         if (type == null) return null;

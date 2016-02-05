@@ -48,4 +48,7 @@ public class ApplicationComponent extends SystemComponent {
         return application;
     }
 
+    public ConfigurationLoader getLoader() {
+        return loader;
+    }
 }

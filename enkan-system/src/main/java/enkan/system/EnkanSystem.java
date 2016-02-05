@@ -3,7 +3,6 @@ package enkan.system;
 import enkan.component.ComponentRelationship;
 import enkan.component.LifecycleManager;
 import enkan.component.SystemComponent;
-import org.eclipse.collections.impl.factory.Lists;
 
 import java.util.*;
 
@@ -33,6 +32,15 @@ public class EnkanSystem {
         componentsOrder.add(name);
     }
 
+    /**
+     * Get all components.
+     *
+     * @return all components
+     */
+    public Collection<SystemComponent> getAllComponents() {
+        return components.values();
+    }
+
     public SystemComponent getComponent(String name) {
         return components.get(name);
     }
@@ -53,8 +61,9 @@ public class EnkanSystem {
     }
 
     public void stop() {
-        Lists.immutable.withAll(componentsOrder).asReversed()
-                .toList().stream()
+        List<String> reverse = new ArrayList<>(componentsOrder);
+        Collections.reverse(reverse);
+        reverse.stream()
                 .map(key -> components.get(key))
                 .forEach(LifecycleManager::stop);
     }

@@ -1,6 +1,6 @@
 package enkan.data;
 
-import org.eclipse.collections.api.multimap.Multimap;
+import enkan.collection.Multimap;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -61,9 +61,9 @@ public interface HttpRequest extends UriAvailable, SessionAvailable, Extendable 
 
     void setBody(InputStream body);
 
-    Multimap<String, String> getParams();
+    Map<String, ?> getParams();
 
-    void setParams(Multimap<String, String> params);
+    void setParams(Map<String, ?> params);
 
     Multimap<String, String> getFormParams();
 

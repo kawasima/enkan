@@ -1,9 +1,7 @@
 package enkan.util;
 
+import enkan.collection.Multimap;
 import enkan.exception.MisconfigurationException;
-import org.eclipse.collections.api.multimap.Multimap;
-import org.eclipse.collections.api.multimap.MutableMultimap;
-import org.eclipse.collections.impl.factory.Multimaps;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -127,12 +125,12 @@ public class CodecUtils {
     }
 
     public static Multimap<String, String> formDecode(String encoded, String encoding) {
-        MutableMultimap<String, String> m = Multimaps.mutable.list.empty();
+        Multimap<String, String> m = Multimap.empty();
 
         for(String param : encoded.split("&")) {
             String[] kv = param.split("=", 2);
             if (kv.length == 2) {
-                m.put(formDecodeStr(kv[0], encoding),
+                m.add(formDecodeStr(kv[0], encoding),
                         formDecodeStr(kv[1], encoding));
             }
         }

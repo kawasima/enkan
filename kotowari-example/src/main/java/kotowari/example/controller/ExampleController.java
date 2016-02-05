@@ -1,5 +1,6 @@
 package kotowari.example.controller;
 
+import enkan.collection.Multimap;
 import enkan.component.DomaProvider;
 import enkan.data.HttpResponse;
 import enkan.data.Session;
@@ -8,8 +9,6 @@ import kotowari.component.TemplateEngineComponent;
 import kotowari.example.dao.CustomerDao;
 import kotowari.example.entity.Customer;
 import kotowari.example.form.ExampleForm;
-import org.eclipse.collections.api.multimap.MutableMultimap;
-import org.eclipse.collections.impl.factory.Multimaps;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -39,10 +38,9 @@ public class ExampleController {
             session = new Session();
         }
         session.setAttribute("count", count);
-        MutableMultimap<String, Object> headers = Multimaps.mutable.list.with("Content-Type", "text/html");
-        return BeanBuilder.builder(HttpResponse.of(count + "times."))
+        return (HttpResponse) BeanBuilder.builder(HttpResponse.of(count + "times."))
                 .set(HttpResponse::setSession, session)
-                .set(HttpResponse::setHeaders, headers)
+                .set(HttpResponse::setHeaders, Multimap.of("Content-Type", "text/html"))
                 .build();
     }
 
@@ -55,7 +53,7 @@ public class ExampleController {
         CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
         Customer customer = new Customer();
         customer.setId(1L);
-        customer.setName("川島");
+        customer.setName("Kawasima");
         customerDao.insert(customer);
         return "insert customer";
     }

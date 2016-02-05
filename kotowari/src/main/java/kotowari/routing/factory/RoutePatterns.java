@@ -6,6 +6,7 @@ import kotowari.routing.RouteBuilder;
 import kotowari.routing.Routes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +47,21 @@ public class RoutePatterns {
         return httpMethodCondition("DELETE", path);
     }
 
+    public Route resources(Class<?> controllers, OptionMap options) {
+        String name = controllers.getSimpleName().replaceAll("Controller$", "");
+        get(name).to(controllers, "index");
+        get(name + "/:id"     ).to(controllers, "show");
+        get(name + "/new"     ).to(controllers, "newForm");
+        post(name             ).to(controllers, "create");
+        get(name + "/:id/edit").to(controllers, "edit");
+        put(name + "/:id"     ).to(controllers, "update");
+        delete(name + "/id"   ).to(controllers, "delete");
+
+        return null;
+    }
+
     public Route resources(Class<?>... controllers) {
+        Arrays.stream(controllers).map(c -> resources(c, null));
         return null;
     }
 

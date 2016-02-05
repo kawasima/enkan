@@ -12,6 +12,7 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 
 - Middleware pattern
 - No configuration files
+- Avoid blackbox
 - Less annotations
 - Less library dependencies
 - Single instance (Middlewares and compoments, controller) 
@@ -25,6 +26,8 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 
 ### Ease of operation
 
+- Starting server is fast. (~3 seconds)
+- Resetting application is fast. (~3 seconds)
 - Run-time change predicates of middleware on the REPL
 
 ## Requirements
@@ -103,3 +106,21 @@ A middleware is a single instance. By `use` method, the middleware is used by ap
 ```java
 app.use(ANY("/secret"), new AuthenticateMiddleware());
 ```
+
+### REPL
+
+Enkan system is operated by a REPL interface.
+
+- Start a server
+```
+```
+- Stop a server
+- Reload a application
+- Show routing information
+- Show middleware stack
+- Rewrite a predicate of middleware
+
+
+
+TODO: Attach a running process
+TODO: Migrate to JShell.

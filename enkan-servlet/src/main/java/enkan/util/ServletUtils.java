@@ -1,11 +1,11 @@
 package enkan.util;
 
+import enkan.collection.Multimap;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.UnreachableException;
-import org.eclipse.collections.api.multimap.Multimap;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -56,14 +56,18 @@ public class ServletUtils {
     }
 
     private static void setHeaders(HttpServletResponse servletResponse, Multimap<String, Object> headers) {
-        headers.forEachKeyValue((k, v) -> {
-            if (v == null) return;
-            if (servletResponse.getHeaders(k).isEmpty()) {
-                servletResponse.setHeader(k, v.toString());
-            } else {
-                servletResponse.addHeader(k, v.toString());
-            }
-        });
+        headers.keySet().stream()
+                .forEach(k  -> {
+                    List<Object> values = headers.getAll(k);
+                    if (values == null) return;
+                    values.forEach(v -> {
+                        if (servletResponse.getHeaders(k).isEmpty()) {
+                            servletResponse.setHeader(k, v.toString());
+                        } else {
+                            servletResponse.addHeader(k, v.toString());
+                        }
+                    });
+            });
     }
 
     private static void setBody(HttpServletResponse servletResponse, Object body) throws IOException {

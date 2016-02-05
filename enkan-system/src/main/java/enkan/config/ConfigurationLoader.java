@@ -1,5 +1,7 @@
 package enkan.config;
 
+import enkan.exception.UnreachableException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class ConfigurationLoader extends ClassLoader {
-    List<URL> dirs;
+    List<File> dirs;
 
     public ConfigurationLoader(ClassLoader parent) {
         super(parent);
@@ -26,15 +28,25 @@ public class ConfigurationLoader extends ClassLoader {
 
         dirs = Arrays.stream(urls)
                 .filter(this::isDirectory)
+                .filter(d -> {
+                    try {
+                        return new URLClassLoader(new URL[]{ d }, null).getResource("META-INF/reload.xml") != null;
+                    } catch (NoClassDefFoundError e) {
+                        return false;
+                    }
+                })
+                .map(url -> {
+                    try {
+                        return new File(url.toURI());
+                    } catch(URISyntaxException e) {
+                        throw UnreachableException.create(e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
-    protected boolean contains(URL dir, String path) {
-        try {
-            return Files.exists(Paths.get(dir.toURI()).resolve(path.replace('.', '/') + ".class"));
-        } catch (URISyntaxException e) {
-            return false;
-        }
+    protected boolean contains(File dir, String path) {
+        return Files.exists(dir.toPath().resolve(path.replace('.', '/') + ".class"));
     }
 
     protected boolean isDirectory(URL url) {
@@ -47,14 +59,7 @@ public class ConfigurationLoader extends ClassLoader {
 
     protected boolean isTarget(String name) {
         return dirs.stream()
-                .filter(d -> contains(d, name))
-                .anyMatch(d -> {
-                    try {
-                        return new URLClassLoader(new URL[]{ d }, null).getResource("META-INF/reload.xml") != null;
-                    } catch (NoClassDefFoundError e) {
-                        return false;
-                    }
-                });
+                .anyMatch(d -> contains(d, name));
     }
 
     private void definePackage(String name) {
@@ -113,5 +118,9 @@ public class ConfigurationLoader extends ClassLoader {
         }
 
         return super.loadClass(name, resolve);
+    }
+
+    public List<File> reloadableFiles() {
+        return dirs;
     }
 }

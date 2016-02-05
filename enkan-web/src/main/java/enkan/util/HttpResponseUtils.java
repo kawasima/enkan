@@ -5,7 +5,6 @@ import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import org.eclipse.collections.api.multimap.Multimap;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
-import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -25,15 +23,7 @@ import java.util.zip.ZipEntry;
  */
 public class HttpResponseUtils {
     public static <T> T getHeader(HttpResponse response, String name) {
-        Multimap<String, Object> headers = response.getHeaders();
-        List<Object> values = headers
-                .selectKeysValues((k, v) -> name.equalsIgnoreCase(k))
-                .valuesView().toList();
-        if (values.isEmpty()) {
-            return null;
-        } else {
-            return (T) values.get(0);
-        }
+        return (T) response.getHeaders().get(name);
     }
 
     public static void header(HttpResponse response, String name, String value) {
@@ -46,7 +36,7 @@ public class HttpResponseUtils {
             type = "text/plain";
         }
         String newType = type.replaceAll(";\\s*charset=[^;]*", "") + "; charset=" + charset;
-        response.getHeaders().removeAll("Content-Type"); // TODO Character case.
+        response.getHeaders().remove("Content-Type"); // TODO Character case.
         header(response, "Content-Type", newType);
     }
 

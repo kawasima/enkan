@@ -3,6 +3,7 @@ package kotowari.system;
 import enkan.Application;
 import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
+import enkan.system.Repl;
 import enkan.system.repl.PseudoRepl;
 import enkan.system.repl.SystemCommandRegister;
 import kotowari.middleware.RoutingMiddleware;
@@ -11,7 +12,7 @@ import kotowari.middleware.RoutingMiddleware;
  * @author kawasima
  */
 public class KotowariCommandRegister implements SystemCommandRegister {
-    public void register(PseudoRepl repl) {
+    public void register(Repl repl) {
         repl.registerCommand("routes", (system, args) -> {
             if (args == null || args.length == 0) {
                 repl.out().println("usage: routes [app]");

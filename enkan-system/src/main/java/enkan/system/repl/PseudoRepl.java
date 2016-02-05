@@ -2,6 +2,7 @@ package enkan.system.repl;
 
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
+import enkan.system.Repl;
 import enkan.system.SystemCommand;
 import enkan.system.command.MiddlewareCommand;
 
@@ -14,18 +15,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * @author kawasima
  */
-public class PseudoRepl implements enkan.system.Repl {
+public class PseudoRepl implements Repl {
     private EnkanSystem system;
-    private ExecutorService monitorService;
+    private ExecutorService threadPool;
     private Map<String, SystemCommand> commands = new HashMap<>();
+    private Map<String, Future<?>> backgroundTasks = new HashMap<>();
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
             system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).newInstance().create();
+            threadPool = Executors.newCachedThreadPool();
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
@@ -43,19 +47,6 @@ public class PseudoRepl implements enkan.system.Repl {
                 "reset - Reset system.\n" +
                 "exit - exit repl.\n"
         );
-    }
-
-    protected void startChangeMonitor(ClassLoader cl) throws IOException, URISyntaxException {
-        if (monitorService == null) {
-            monitorService = Executors.newCachedThreadPool();
-        }
-    }
-
-    protected void stopChangeMonitor() {
-        if (monitorService != null) {
-            monitorService.shutdown();
-            monitorService = null;
-        }
     }
 
     protected boolean repl(BufferedReader reader) throws IOException, URISyntaxException {
@@ -92,9 +83,27 @@ public class PseudoRepl implements enkan.system.Repl {
             for(;;) {
                 if (!repl(reader)) break;
             }
+            threadPool.shutdown();
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
     }
 
+    @Override
+    public void addBackgroundTask(String name, Runnable task) {
+        backgroundTasks.put(name, threadPool.submit(task));
+    }
+
+    @Override
+    public Future<?> getBackgorundTask(String name) {
+        Future<?> f = backgroundTasks.get(name);
+        if (f == null) return null;
+
+        if (f.isDone()) {
+            backgroundTasks.remove(name);
+            return null;
+        }
+
+        return f;
+    }
 }

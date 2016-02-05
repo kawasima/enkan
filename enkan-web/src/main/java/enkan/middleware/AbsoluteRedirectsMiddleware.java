@@ -4,11 +4,12 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.impl.factory.Sets;
+import enkan.util.ThreadingUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static enkan.util.HttpRequestUtils.requestUrl;
@@ -18,15 +19,15 @@ import static enkan.util.HttpRequestUtils.requestUrl;
  */
 @Middleware(name = "absoluteRedirect")
 public class AbsoluteRedirectsMiddleware extends AbstractWebMiddleware {
-    private static final Set<Integer> REDIRECT_STATUS = Sets.immutable.of(201, 301, 302, 303, 307).castToSet();
+    private static final Set<Integer> REDIRECT_STATUS = new HashSet<>(Arrays.asList(201, 301, 302, 303, 307));
 
     protected boolean isRedirectResponse(HttpResponse response) {
         return REDIRECT_STATUS.contains(response.getStatus());
     }
 
     protected void updateHeader(HttpResponse response, String header, HttpRequest request) {
-        RichIterable<String> iterable = response.getHeaders().get(header);
-        iterable.each(url -> absoluteUrl(url, request));
+        ThreadingUtils.some(response.getHeaders().get(header), Object::toString)
+                .ifPresent(url -> response.getHeaders().put(header, absoluteUrl(url, request)));
     }
 
     protected boolean isUrl(String s) {

@@ -2,11 +2,11 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Multimap;
 import enkan.data.Cookie;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.util.HttpDateFormat;
-import org.eclipse.collections.api.multimap.MutableMultimap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,10 +84,10 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     }
 
     protected void cookiesResponse(HttpResponse response) {
-        MutableMultimap<String, Cookie> cookieMap = response.getCookies();
+        Multimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {
-            cookieMap.forEachKeyValue((key, cookie) ->
-                    response.getHeaders().put("Set-Cookie", writeCookie(cookie)));
+            cookieMap.keySet().forEach(key ->
+                    response.getHeaders().add("Set-Cookie", writeCookie(cookieMap.get(key))));
         }
     }
 

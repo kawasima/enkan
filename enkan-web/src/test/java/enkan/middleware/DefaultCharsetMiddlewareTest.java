@@ -1,9 +1,8 @@
 package enkan.middleware;
 
+import enkan.collection.Multimap;
 import enkan.data.HttpResponse;
 import enkan.util.HttpResponseUtils;
-import org.eclipse.collections.api.multimap.MutableMultimap;
-import org.eclipse.collections.impl.factory.Multimaps;
 import org.junit.Test;
 
 import static enkan.util.BeanBuilder.builder;
@@ -16,7 +15,7 @@ public class DefaultCharsetMiddlewareTest {
     @Test
     public void test() {
         DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
-        MutableMultimap<String, Object> headers = Multimaps.mutable.list.with("Content-Type", "text/html");
+        Multimap<String, Object> headers = Multimap.of("Content-Type", "text/html");
         HttpResponse response = builder(HttpResponse.of("aaa"))
                 .set(HttpResponse::setHeaders, headers)
                 .build();

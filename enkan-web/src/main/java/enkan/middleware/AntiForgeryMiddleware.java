@@ -3,14 +3,12 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Multimap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.data.Session;
-import enkan.data.SessionAvailable;
 import enkan.util.ThreadingUtils;
-import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.multimap.Multimap;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,12 +28,12 @@ public class AntiForgeryMiddleware extends AbstractWebMiddleware {
                 String::toString);
     }
 
-    private Multimap<String, String> formParams(HttpRequest request) {
+    private Map<String, ?> formParams(HttpRequest request) {
         return request.getParams();
     }
 
     private Optional<String> defaultRequestToken(HttpRequest request) {
-        return ThreadingUtils.some(request, this::formParams, p -> p.get("__anti-forgery-token"), RichIterable::getFirst);
+        return ThreadingUtils.some(request, this::formParams, p -> p.get("__anti-forgery-token"), Object::toString);
     }
 
     private boolean isValidRequest(HttpRequest request) {
