@@ -1,9 +1,8 @@
 package kotowari.middleware;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.component.BeansConverter;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.Routable;
@@ -11,34 +10,22 @@ import enkan.middleware.AbstractWebMiddleware;
 import enkan.util.MixinUtils;
 import kotowari.data.FormAvailable;
 
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
-
-import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * @author kawasima
  */
 @Middleware(name = "form", dependencies = {"params", "routing"})
 public class FormMiddleware extends AbstractWebMiddleware {
-    // FIXME this must be provided from components.
-    private ObjectMapper mapper;
-
-    public FormMiddleware() {
-        mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
-    }
+    @Inject
+    protected BeansConverter beans;
 
     protected <T extends Serializable> T createForm(Class<T> formClass, Map<String, ?> params) {
-        return tryReflection(() -> mapper.convertValue(params, formClass));
+        return beans.createFrom(params, formClass);
     }
 
     @Override

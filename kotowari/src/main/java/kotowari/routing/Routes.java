@@ -1,6 +1,7 @@
 package kotowari.routing;
 
 import enkan.collection.OptionMap;
+import enkan.exception.MisconfigurationException;
 import kotowari.routing.factory.RoutePatterns;
 import kotowari.routing.factory.RoutePatternsDescriptor;
 import kotowari.routing.recognizer.OptimizedRecognizer;
@@ -33,6 +34,26 @@ public class Routes {
 
     public OptionMap recognizePath(String path, String method) {
         return recognizer.recognize(path, method);
+    }
+
+    public String generate(OptionMap options) {
+        OptionMap merged = OptionMap.of(options);
+        Class<?> controller = (Class<?>) options.get("controller");
+        String action = options.getString("action");
+
+        if (controller == null || action == null) {
+            throw MisconfigurationException.create("ROUTING_GENERATION");
+        }
+        return routeList.stream()
+                .filter(r -> {
+                    boolean b = r.matchesControllerAndAction(controller, action);
+                    return b;
+                })
+                .filter(r -> r.significantKeys().stream().allMatch(k -> options.containsKey(k)))
+                .map(r -> r.generate(options, merged))
+                .findFirst()
+                .orElseThrow(() -> MisconfigurationException.create("ROUTING_GENERATION"));
+
     }
 
     @Override

@@ -2,7 +2,6 @@ package enkan.util;
 
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
-import enkan.exception.UnrecoverableException;
 
 import java.lang.reflect.InvocationTargetException;
 

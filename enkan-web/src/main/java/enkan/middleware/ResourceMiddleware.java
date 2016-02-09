@@ -9,9 +9,9 @@ import enkan.data.HttpResponse;
 import java.util.HashSet;
 import java.util.Set;
 
-import static enkan.util.HttpRequestUtils.*;
-import static enkan.util.HttpResponseUtils.*;
-import static enkan.util.CodecUtils.*;
+import static enkan.util.CodecUtils.urlDecode;
+import static enkan.util.HttpRequestUtils.pathInfo;
+import static enkan.util.HttpResponseUtils.resourceResponse;
 
 /**
  * @author kawasima

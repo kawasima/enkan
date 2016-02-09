@@ -2,14 +2,11 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
-import enkan.collection.MapNestedParams;
-import enkan.collection.Multimap;
-import enkan.collection.NestedParams;
+import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -45,7 +42,7 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
         return keys.toArray(new String[keys.size()]);
     };
 
-    protected NestedParams assocVector(NestedParams map, String key, Object value) {
+    protected Parameters assocVector(Parameters map, String key, Object value) {
         if (!map.containsKey(key)) {
             map.put(key, new ArrayList<>());
         }
@@ -64,8 +61,8 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
      * @param value
      * @return
      */
-    protected NestedParams assocConj(NestedParams map, String key, Object value) {
-        Object cur = map.get(key);
+    protected Parameters assocConj(Parameters map, String key, Object value) {
+        Object cur = map.getRawType(key);
         if (cur != null) {
             if (cur instanceof List) {
                 if (value instanceof List) {
@@ -97,7 +94,7 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
         return map;
     }
 
-    protected Object assocNested(NestedParams map, String[] keys, List<String> values) {
+    protected Object assocNested(Parameters map, String[] keys, List<String> values) {
         if (keys.length > 0) {
             String[] ks = new String[keys.length - 1];
 
@@ -111,7 +108,8 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
                         System.arraycopy(keys, 2, js, 0, js.length);
                     }
 
-                    List<Object> nestedList = (List<Object>) map.getOrDefault(keys[0], new ArrayList<>(values.size()));
+                    List<Object> nestedList = map.getList(keys[0]);
+
                     for (int i = nestedList.size(); i < values.size(); i++) nestedList.add(null);
 
                     for (int i = 0; i < values.size(); i++) {
@@ -119,17 +117,18 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
                         vs.add(values.get(i));
                         if (js.length > 0) {
                             nestedList.set(i,
-                                    assocNested((MapNestedParams) Optional.ofNullable(nestedList.get(i)).orElse(new MapNestedParams())
+                                    assocNested((Parameters) Optional.ofNullable(nestedList.get(i)).orElse(Parameters.empty())
                                             , js, vs));
                         } else {
-                            nestedList.add(assocNested(null, js, vs));
+                            nestedList.set(i, vs.get(0));
                         }
 
                     }
                     map.put(keys[0], nestedList);
                     return map;
                 } else {
-                    MapNestedParams submap= (MapNestedParams) map.getOrDefault(keys[0], new MapNestedParams());
+                    Parameters submap = (Parameters) map.getRawType(keys[0]);
+                    if (submap == null) submap = Parameters.empty();
                     map.put(keys[0], assocNested(submap, ks, values));
                     return map;
                 }
@@ -142,10 +141,10 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
     }
 
     public HttpRequest nestedParamsRequest(HttpRequest request, Function<String, String[]> keyParser) {
-        Multimap<String, String> params = Multimap.class.cast(request.getParams());
-        NestedParams nestedParams = new MapNestedParams();
+        Parameters params = request.getParams();
+        Parameters nestedParams = Parameters.empty();
 
-        params.keySet().forEach(key -> assocNested(nestedParams, keyParser.apply(key), params.getAll(key)));
+        params.keySet().forEach(key -> assocNested(nestedParams, keyParser.apply(key), params.getList(key)));
         request.setParams(nestedParams);
         return request;
     }

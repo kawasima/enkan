@@ -3,9 +3,9 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.component.TransactionComponent;
+import enkan.data.Routable;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
-import enkan.data.Routable;
 
 import javax.inject.Inject;
 import javax.transaction.*;

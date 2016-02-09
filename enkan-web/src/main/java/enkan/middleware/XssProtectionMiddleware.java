@@ -2,11 +2,11 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.collection.OptionMap;
 
-import static enkan.util.HttpResponseUtils.*;
+import static enkan.util.HttpResponseUtils.header;
 
 /**
  * @author kawasima

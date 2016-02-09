@@ -87,7 +87,7 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
         Multimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {
             cookieMap.keySet().forEach(key ->
-                    response.getHeaders().add("Set-Cookie", writeCookie(cookieMap.get(key))));
+                    response.getHeaders().put("Set-Cookie", writeCookie(cookieMap.get(key))));
         }
     }
 

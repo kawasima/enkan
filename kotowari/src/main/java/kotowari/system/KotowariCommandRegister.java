@@ -4,7 +4,6 @@ import enkan.Application;
 import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
 import enkan.system.Repl;
-import enkan.system.repl.PseudoRepl;
 import enkan.system.repl.SystemCommandRegister;
 import kotowari.middleware.RoutingMiddleware;
 

@@ -1,5 +1,6 @@
 package enkan.util;
 
+import enkan.collection.Headers;
 import enkan.collection.OptionMap;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
@@ -18,10 +19,43 @@ import java.util.Date;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import static enkan.util.BeanBuilder.builder;
+
 /**
  * @author kawasima
  */
 public class HttpResponseUtils {
+    public enum RedirectStatusCode {
+        MOVED_PERMANENTLY(301),
+        FOUND(302),
+        SEE_OTHER(303),
+        TEMPORARY_REDIRECT(307),
+        PERMANENT_REDIRECT(308);
+
+        private int code;
+
+        RedirectStatusCode(int statusCode) {
+            this.code = statusCode;
+        }
+
+        public int getStatusCode() { return code; }
+    }
+
+
+    public static HttpResponse redirect(String url, RedirectStatusCode code) {
+        return builder(HttpResponse.of(""))
+                .set(HttpResponse::setStatus, code.getStatusCode())
+                .set(HttpResponse::setHeaders, Headers.of("Location", url))
+                .build();
+    }
+
+    public static HttpResponse response(String body) {
+        return builder(HttpResponse.of(body))
+                .set(HttpResponse::setStatus, 200)
+                .build();
+    }
+
+
     public static <T> T getHeader(HttpResponse response, String name) {
         return (T) response.getHeaders().get(name);
     }

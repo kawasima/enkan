@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Routing patterns.
+ *
  * @author kawasima
  */
 public class RoutePatterns {
@@ -47,26 +49,41 @@ public class RoutePatterns {
         return httpMethodCondition("DELETE", path);
     }
 
-    public Route resources(Class<?> controllers, OptionMap options) {
-        String name = controllers.getSimpleName().replaceAll("Controller$", "");
-        get(name).to(controllers, "index");
-        get(name + "/:id"     ).to(controllers, "show");
-        get(name + "/new"     ).to(controllers, "newForm");
-        post(name             ).to(controllers, "create");
-        get(name + "/:id/edit").to(controllers, "edit");
-        put(name + "/:id"     ).to(controllers, "update");
-        delete(name + "/id"   ).to(controllers, "delete");
+    public Route resource(Class<?> controller) {
+        return resource(controller, null);
+    }
+
+    private String decapitalize(String s) {
+        if (s != null && s.length() > 1) {
+            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        } else {
+            return s;
+        }
+    }
+    public Route resource(Class<?> controller, OptionMap options) {
+        String name = decapitalize(controller.getSimpleName().replaceAll("Controller$", ""));
+        get(name + "/").to(controller, "index");
+        get(name + "/:id"     ).requires("id", "\\d+").to(controller, "show");
+        get(name + "/new"     ).to(controller, "newForm");
+        post(name + "/"       ).to(controller, "create");
+        get(name + "/:id/edit").requires("id", "\\d+").to(controller, "edit");
+        put(name + "/:id"     ).requires("id", "\\d+").to(controller, "update");
+        delete(name + "/:id"   ).requires("id", "\\d+").to(controller, "delete");
 
         return null;
     }
 
     public Route resources(Class<?>... controllers) {
-        Arrays.stream(controllers).map(c -> resources(c, null));
+        Arrays.stream(controllers).map(c -> resource(c, null));
         return null;
     }
 
     public void namespace(String ns, RoutePatternsDescriptor subDesc) {
-        //subdef.define(subRoutes);
+        /*
+        RoutePatterns patterns = new RoutePatterns(new Routes());
+        subDesc.describe(patterns);
+        return patterns;
+        */
         // TODO merge definitions.
     }
 

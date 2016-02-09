@@ -1,5 +1,6 @@
 package enkan.data;
 
+import enkan.collection.Headers;
 import enkan.collection.Multimap;
 
 import java.util.HashMap;
@@ -12,14 +13,14 @@ import java.util.Map;
  */
 public class DefaultHttpResponse<T> implements HttpResponse<T> {
     private int status;
-    private Multimap<String, Object> headers;
+    private Headers headers;
     private Multimap<String, Cookie> cookies;
     private Session session;
-    private T body;
+    private Object body;
 
     private Map<String, Object> extensions;
 
-    protected DefaultHttpResponse(int status, Multimap<String, Object> headers) {
+    protected DefaultHttpResponse(int status, Headers headers) {
         this.status = status;
         this.headers = headers;
         this.cookies = Multimap.empty();
@@ -37,12 +38,12 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
     }
 
     @Override
-    public Multimap<String, Object> getHeaders() {
+    public Headers getHeaders() {
         return headers;
     }
 
     @Override
-    public void setHeaders(Multimap<String, Object> headers) {
+    public void setHeaders(Headers headers) {
         this.headers = headers;
     }
 
@@ -58,7 +59,7 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
 
     @Override
     public T getBody() {
-        return body;
+        return (T) body;
     }
 
     @Override

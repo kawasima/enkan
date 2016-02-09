@@ -1,6 +1,7 @@
 package enkan.data;
 
-import enkan.collection.Multimap;
+import enkan.collection.Headers;
+import enkan.collection.Parameters;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -41,9 +42,9 @@ public interface HttpRequest extends UriAvailable, SessionAvailable, Extendable 
 
     void setProtocol(String protocol);
 
-    Map<String, String> getHeaders();
+    Headers getHeaders();
 
-    void setHeaders(Map<String, String> headers);
+    void setHeaders(Headers headers);
 
     String getContentType();
 
@@ -61,17 +62,17 @@ public interface HttpRequest extends UriAvailable, SessionAvailable, Extendable 
 
     void setBody(InputStream body);
 
-    Map<String, ?> getParams();
+    Parameters getParams();
 
-    void setParams(Map<String, ?> params);
+    void setParams(Parameters params);
 
-    Multimap<String, String> getFormParams();
+    Parameters getFormParams();
 
-    void setFormParams(Multimap<String, String> formParams);
+    void setFormParams(Parameters formParams);
 
-    Multimap<String, String> getQueryParams();
+    Parameters getQueryParams();
 
-    void setQueryParams(Multimap<String, String> queryParams);
+    void setQueryParams(Parameters queryParams);
 
     Map<String, Cookie> getCookies();
 

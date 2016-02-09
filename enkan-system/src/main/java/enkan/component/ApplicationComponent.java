@@ -1,6 +1,7 @@
 package enkan.component;
 
 import enkan.Application;
+import enkan.MiddlewareChain;
 import enkan.config.ApplicationFactory;
 import enkan.config.ConfigurationLoader;
 import enkan.system.inject.ComponentInjector;
@@ -29,10 +30,15 @@ public class ApplicationComponent extends SystemComponent {
                         loader = new ConfigurationLoader(getClass().getClassLoader());
                         Class<? extends ApplicationFactory> factoryClass =
                                 (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
+                        ComponentInjector injector = new ComponentInjector(getAllDependencies());
                         ApplicationFactory factory = factoryClass.newInstance();
-                        return factory.create(new ComponentInjector(getAllDependencies()));
+                        Application<?, ?> app = factory.create(injector);
+                        app.getMiddlewareStack().stream()
+                                .map(MiddlewareChain::getMiddleware)
+                                .forEach(middleware -> injector.inject(middleware));
+                        app.validate();
+                        return app;
                     });
-                    component.application.validate();
                 }
             }
 

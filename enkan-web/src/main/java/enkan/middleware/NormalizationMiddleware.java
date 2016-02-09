@@ -3,6 +3,7 @@ package enkan.middleware;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.collection.Multimap;
+import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
@@ -19,14 +20,11 @@ import java.util.Map;
 public class NormalizationMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
-        Map<String, ?> params = request.getParams();
+        Parameters params = request.getParams();
         if (params != null) {
             params.keySet().stream()
                     .forEach(key -> {
-                        if (params instanceof Multimap) {
-                            Multimap<String, String> mm = Multimap.class.cast(params);
-                            mm.replaceEachValues(key, val -> val.trim());
-                        }
+                        Object obj = params.getRawType(key);
                     });
         }
         return (HttpResponse) next.next(request);

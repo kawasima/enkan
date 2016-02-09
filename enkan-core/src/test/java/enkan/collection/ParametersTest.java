@@ -2,20 +2,25 @@ package enkan.collection;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author kawasima
  */
-public class NestedParamsTest {
+public class ParametersTest {
     @Test
     public void test() {
-        NestedParams<String> params = new MapNestedParams();
+        Parameters params = Parameters.empty();
 
-        NestedParams<String> n1 = new MapNestedParams();
+        Parameters n1 = Parameters.empty();
         n1.put("Foo", "Bar");
         n1.put("Fizz", "Buzz");
-        VectorNestedParams v1 = new VectorNestedParams();
+        List<String> v1 = new ArrayList<>();
+
         v1.add("AAA");
         v1.add("BBB");
         v1.add("CCC");
@@ -25,7 +30,6 @@ public class NestedParamsTest {
         assertEquals("CCC", params.getIn("V1", 2));
         assertEquals("BBB", params.getIn("V1", "1"));
         assertNull("0.0 isn't a integer format", params.getIn("V1", "0.0"));
-        assertNull(v1.getIn("V1", 3));
         assertEquals("Buzz", params.getIn("N1", "Fizz"));
     }
 }

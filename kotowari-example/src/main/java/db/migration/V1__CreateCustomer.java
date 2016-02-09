@@ -12,7 +12,7 @@ public class V1__CreateCustomer implements JdbcMigration {
     @Override
     public void migrate(Connection connection) throws Exception {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("CREATE TABLE customer(id bigint primary key, name varchar(255))");
+            stmt.execute("CREATE TABLE customer(id identity primary key, name varchar(255), password varchar(255))");
         }
     }
 }

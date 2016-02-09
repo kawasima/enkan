@@ -4,7 +4,7 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 
 ## Concept
 
-- Minimal
+- Minimal (Simple made easy)
 - Ease of development
 - Ease of operation
 
@@ -174,3 +174,22 @@ ANY   stacktrace (enkan.middleware.StacktraceMiddleware@545872dd)
 
 * TODO: Attach a running process
 * TODO: Migrate to JShell.
+
+### Kotowari
+
+Kotowari is a web routing framework on Enkan.
+
+It's rails-like syntax in the routing definition.
+
+```java
+Routes routes = Routes.define(r -> {
+    r.get("/").to(ExampleController.class, "index");
+    r.get("/m1").to(ExampleController.class, "method1");
+    r.get("/m2").to(ExampleController.class, "method2");
+    r.get("/m3").to(ExampleController.class, "method3");
+    r.get("/m4").to(ExampleController.class, "method4");
+    r.post("/login").to(LoginController.class, "login");
+    r.resource(CustomerController.class);
+}).compile();
+```
+

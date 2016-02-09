@@ -2,7 +2,7 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
-import enkan.collection.Multimap;
+import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
@@ -10,7 +10,6 @@ import enkan.exception.FalteringEnvironmentException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 import static enkan.util.CodecUtils.formDecode;
 import static enkan.util.HttpRequestUtils.characterEncoding;
@@ -21,29 +20,26 @@ import static enkan.util.HttpRequestUtils.isUrlEncodedForm;
  */
 @Middleware(name = "params")
 public class ParamsMiddleware extends AbstractWebMiddleware {
-    protected Multimap<String, String> parseParams(String urlencodedParams, String encoding) {
-        Multimap<String, String> params = formDecode(urlencodedParams, encoding);
-        return params == null ? Multimap.empty() : params;
+    protected Parameters parseParams(String urlencodedParams, String encoding) {
+        Parameters params = formDecode(urlencodedParams, encoding);
+        return params == null ? Parameters.empty() : params;
     }
 
     protected void parseQueryParams(HttpRequest request, String encoding) {
         String queryString = request.getQueryString();
         if (queryString == null) {
-            request.setQueryParams(Multimap.empty());
+            request.setQueryParams(Parameters.empty());
             if (request.getParams() == null) {
-                request.setParams(Multimap.empty());
+                request.setParams(Parameters.empty());
             }
         } else {
-            Multimap<String, String> params = parseParams(queryString, encoding);
+            Parameters params = parseParams(queryString, encoding);
             request.setQueryParams(params);
-            Multimap<String, Object> current = (Multimap<String, Object>) request.getParams();
+            Parameters current = request.getParams();
             if (current == null) {
                 request.setParams(params);
             } else {
-                params.keySet().stream()
-                        .forEach(k -> {
-                            params.getAll(k).forEach(v -> current.add(k, v));
-                        });
+                current.putAll(params);
             }
         }
     }
@@ -61,18 +57,18 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
             } catch (IOException e) {
                 throw FalteringEnvironmentException.create(e);
             }
-            Multimap<String, String> params = parseParams(sb.toString(), encoding);
+            Parameters params = parseParams(sb.toString(), encoding);
             request.setFormParams(params);
-            Map<String, ?> current = request.getParams();
+            Parameters current = request.getParams();
             if (current == null) {
                 request.setParams(params);
             } else {
-                // TODO current.putAll(params);
+                current.putAll(params);
             }
         } else {
-            request.setFormParams(Multimap.empty());
+            request.setFormParams(Parameters.empty());
             if (request.getParams() == null) {
-                request.setParams(Multimap.empty());
+                request.setParams(Parameters.empty());
             }
         }
 
@@ -84,12 +80,12 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
             encoding = "UTF-8";
         }
 
-        Multimap<String, String> formParams = request.getFormParams();
+        Parameters formParams = request.getFormParams();
         if (formParams == null) {
             parseFormParams(request, encoding);
         }
 
-        Multimap<String, String> queryParams = request.getQueryParams();
+        Parameters queryParams = request.getQueryParams();
         if (queryParams == null) {
             parseQueryParams(request, encoding);
         }

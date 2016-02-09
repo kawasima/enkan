@@ -21,6 +21,16 @@
         <module>../enkan-web</module>
         <module>../enkan-servlet</module>
         <module>../enkan-system</module>
+        <module>../enkan-system-jshell</module>
+        <module>../enkan-devel</module>
+        <module>../enkan-component-HikariCP</module>
+        <module>../enkan-component-freemarker</module>
+        <module>../enkan-component-jetty</module>
+        <module>../enkan-component-flyway</module>
+        <module>../enkan-component-doma2</module>
+        <module>../enkan-component-jackson</module>
+        <module>../kotowari</module>
+        <module>../kotowari-example</module>
     </modules>
     <build>
         <plugins>

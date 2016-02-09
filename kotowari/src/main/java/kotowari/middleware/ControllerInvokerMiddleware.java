@@ -2,13 +2,14 @@ package kotowari.middleware;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
+import enkan.collection.Parameters;
 import enkan.data.Flash;
 import enkan.data.HttpRequest;
+import enkan.data.Routable;
 import enkan.data.Session;
 import enkan.exception.MisconfigurationException;
 import enkan.system.inject.ComponentInjector;
 import kotowari.data.FormAvailable;
-import enkan.data.Routable;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -54,7 +55,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 arguments[parameterIndex] = request.getSession();
             } else if (Flash.class.isAssignableFrom(type)) {
                 // TODO flash
-            } else if (Map.class.isAssignableFrom(type)) {
+            } else if (Parameters.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getParams();
             } else if (form != null && form.getClass().equals(type)) {
                 arguments[parameterIndex] = form;

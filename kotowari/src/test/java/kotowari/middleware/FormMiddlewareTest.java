@@ -1,7 +1,8 @@
 package kotowari.middleware;
 
-import enkan.collection.Multimap;
-import enkan.collection.NestedParams;
+import enkan.collection.Headers;
+import enkan.collection.Parameters;
+import enkan.component.JacksonBeansConverter;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.middleware.NestedParamsMiddleware;
@@ -16,7 +17,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author kawasima
@@ -46,24 +48,27 @@ public class FormMiddlewareTest extends FormMiddleware {
         return keys.toArray(new String[keys.size()]);
     };
 
-    private NestedParams parseFromQuery(String qs) {
+    private Parameters parseFromQuery(String qs) {
         HttpRequest request = new DefaultHttpRequest();
-        request.setHeaders(Multimap.empty());
+        request.setHeaders(Headers.empty());
         request.setRequestMethod("GET");
         request.setQueryString(qs);
 
         new ParamsMiddleware().paramsRequest(request);
         new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
-        return (NestedParams) request.getParams();
+        return request.getParams();
     }
 
     @Test
     public void test() {
+        beans = new JacksonBeansConverter() {{
+            lifecycle().start(this);
+        }};
         HttpRequest request = new DefaultHttpRequest();
-        request.setHeaders(Multimap.empty());
+        request.setHeaders(Headers.empty());
         request.setRequestMethod("GET");
-        request.setQueryString("intVal=123&intVal=567&doubleVal=1.7320508&decimalVal=65536" +
+        request.setQueryString("intVal=123&doubleVal=1.7320508&decimalVal=65536" +
                 "&item[name]=item1&itemList[][name]=item2&itemList[][name]=item3" +
                 "&itemArray[][name]=item4&itemArray[][name]=item5");
 
@@ -81,8 +86,14 @@ public class FormMiddlewareTest extends FormMiddleware {
 
     @Test
     public void parseNestedQueryStringsCorrectly() {
-        NestedParams p = parseFromQuery("foo=bar");
+        Parameters p = parseFromQuery("foo=bar");
         assertEquals("bar", p.getIn("foo"));
+
+        p = parseFromQuery("foo");
+        assertNull(p.getIn("foo"));
+
+        p = parseFromQuery("foo=");
+        assertEquals("", p.getIn("foo"));
 
         p = parseFromQuery("foo=\"bar\"");
         assertEquals("\"bar\"", p.getIn("foo"));
@@ -90,14 +101,25 @@ public class FormMiddlewareTest extends FormMiddleware {
         p = parseFromQuery("foo=bar&foo=quux");
         assertEquals("bar", p.getIn("foo", 0));
 
+        p = parseFromQuery("foo&foo=");
+        assertEquals("", p.getIn("foo"));
+
         p = parseFromQuery("a=b&pid%3D1234=1023");
         assertEquals("1023", p.getIn("pid=1234"));
         assertEquals("b", p.getIn("a"));
 
-        /*
+        // Difference from rack. rack returns "[nil]".
         p = parseFromQuery("foo[]");
         assertEquals(0, ((List) p.getIn("foo")).size());
-        */
+
+        p = parseFromQuery("foo[]=bar");
+        assertEquals(1, p.getList("foo").size());
+        assertEquals("bar", p.getIn("foo", 0));
+
+        p = parseFromQuery("foo[]=bar&foo[]");
+        assertEquals(2, p.getList("foo").size());
+        assertEquals("bar", p.getIn("foo", 0));
+        assertEquals(null, p.getIn("foo", 1));
 
         p = parseFromQuery("x[y][z]=1");
         assertEquals("1", p.getIn("x", "y", "z"));
@@ -107,5 +129,22 @@ public class FormMiddlewareTest extends FormMiddleware {
 
         p = parseFromQuery("x[y][z][]=1");
         assertEquals("1", p.getIn("x", "y", "z", 0));
+
+        p = parseFromQuery("x[y][z][]=1&x[y][z][]=2");
+        assertEquals("1", p.getIn("x", "y", "z", 0));
+        assertEquals("2", p.getIn("x", "y", "z", 1));
+
+        p = parseFromQuery("x[y][][z]=1");
+        assertEquals("1", p.getIn("x", "y", 0, "z"));
+
+        p = parseFromQuery("x[y][][z][]=1");
+        assertEquals("1", p.getIn("x", "y", 0, "z", 0));
+
+        // TODO
+        /*
+        p = parseFromQuery("x[y][][z]=1&x[y][][w]=2");
+        assertEquals("1", p.getIn("x", "y", 0, "z"));
+        assertEquals("1", p.getIn("x", "y", 0, "w"));
+        */
     }
 }

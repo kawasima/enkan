@@ -6,8 +6,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.junit.Test;
 
-import static enkan.predicate.PathPredicate.*;
-import static org.junit.Assert.*;
+import static enkan.predicate.PathPredicate.ANY;
+import static enkan.predicate.PathPredicate.GET;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author kawasima

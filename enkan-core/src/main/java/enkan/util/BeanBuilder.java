@@ -26,7 +26,7 @@ public class BeanBuilder<X> {
         return bean -> new BeanBuilder<>(bean, validatorFactory);
     }
 
-    public static <X> BeanBuilder<X> builder(X x) {
+    public static <Y> BeanBuilder<Y> builder(Y x) {
         return new BeanBuilder<>(x, null);
     }
 

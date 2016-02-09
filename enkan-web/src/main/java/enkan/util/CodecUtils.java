@@ -1,6 +1,6 @@
 package enkan.util;
 
-import enkan.collection.Multimap;
+import enkan.collection.Parameters;
 import enkan.exception.MisconfigurationException;
 
 import java.io.UnsupportedEncodingException;
@@ -124,13 +124,15 @@ public class CodecUtils {
         }
     }
 
-    public static Multimap<String, String> formDecode(String encoded, String encoding) {
-        Multimap<String, String> m = Multimap.empty();
+    public static Parameters formDecode(String encoded, String encoding) {
+        Parameters m = Parameters.empty();
 
         for(String param : encoded.split("&")) {
             String[] kv = param.split("=", 2);
-            if (kv.length == 2) {
-                m.add(formDecodeStr(kv[0], encoding),
+            if (kv.length == 1) {
+                m.put(formDecodeStr(kv[0], encoding), null);
+            } else if (kv.length == 2) {
+                m.put(formDecodeStr(kv[0], encoding),
                         formDecodeStr(kv[1], encoding));
             }
         }

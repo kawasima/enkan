@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -26,8 +28,8 @@ public class MisconfigurationException extends UnrecoverableException {
         return super.getMessage() + ":" + problem;
     }
 
-    protected MisconfigurationException(String code, Object... arguments) {
-        super(code);
+    protected MisconfigurationException(String code, Throwable cause, Object... arguments) {
+        super(code, cause);
         String problemFmt = misconfigurationMessages.getString(code + ".problem");
         problem = MessageFormatter.arrayFormat(problemFmt, arguments).getMessage();
 
@@ -36,7 +38,11 @@ public class MisconfigurationException extends UnrecoverableException {
     }
 
     public static MisconfigurationException create(String code, Object... arguments){
-        return new MisconfigurationException(code, arguments);
+        Optional<Throwable> cause = Arrays.stream(arguments)
+                .filter(arg -> arg instanceof Throwable)
+                .map(arg -> (Throwable) arg)
+                .findFirst();
+        return new MisconfigurationException(code, cause.orElse(null), arguments);
     }
 
     public String getProblem() {

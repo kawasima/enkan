@@ -1,27 +1,26 @@
-package kotowari.component;
+package enkan.component;
 
-import enkan.component.ComponentLifecycle;
-import enkan.component.SystemComponent;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.Version;
+import freemarker.template.*;
+import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
+import kotowari.data.Validatable;
 import kotowari.io.LazyRenderInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author kawasima
  */
-public class FreemarkerComponent extends TemplateEngineComponent {
+public class FreemarkerTemplateEngine extends TemplateEngine {
     private Configuration config;
     private String prefix = "templates";
     private String suffix = ".ftl";
@@ -38,9 +37,9 @@ public class FreemarkerComponent extends TemplateEngineComponent {
                 template.process(response.getContext(), writer);
                 return new ByteArrayInputStream(writer.toString().getBytes(encoding));
             } catch (TemplateException e) {
-                throw MisconfigurationException.create("RENDERING_ERROR", e);
+                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e.getFTLInstructionStack(), e.getMessageWithoutStackTop(), e);
             } catch (IOException e) {
-                throw FalteringEnvironmentException.create(e);
+                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e);
             }
 
         }));
@@ -59,6 +58,15 @@ public class FreemarkerComponent extends TemplateEngineComponent {
                 config = new Configuration(new Version(2,3,23));
                 ClassTemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
                 config.setTemplateLoader(classTemplateLoader);
+                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,23)) {
+                    @Override
+                    protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
+                        if (obj instanceof Validatable) {
+                            return new ValidatableFormAdapter((Validatable) obj, this);
+                        }
+                        return super.handleUnknownType(obj);
+                    }
+                });
             }
 
             @Override
@@ -67,5 +75,10 @@ public class FreemarkerComponent extends TemplateEngineComponent {
                 classLoader = null;
             }
         };
+    }
+
+    @Override
+    public Object createFunction(Function<List, Object> func) {
+        return (TemplateMethodModelEx) arguments -> func.apply(arguments);
     }
 }

@@ -1,16 +1,20 @@
 package kotowari.example.form;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import javax.validation.constraints.Size;
 
 /**
  * @author kawasima
  */
 @Data
-public class CustomerForm implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class CustomerForm extends FormBase {
     @NotNull
+    @Size(max = 10)
     private String name;
 
     @NotNull

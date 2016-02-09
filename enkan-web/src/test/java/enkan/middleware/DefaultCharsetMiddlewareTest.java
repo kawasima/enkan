@@ -1,12 +1,13 @@
 package enkan.middleware;
 
-import enkan.collection.Multimap;
+import enkan.collection.Headers;
 import enkan.data.HttpResponse;
 import enkan.util.HttpResponseUtils;
 import org.junit.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author kawasima
@@ -15,11 +16,10 @@ public class DefaultCharsetMiddlewareTest {
     @Test
     public void test() {
         DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
-        Multimap<String, Object> headers = Multimap.of("Content-Type", "text/html");
         HttpResponse response = builder(HttpResponse.of("aaa"))
-                .set(HttpResponse::setHeaders, headers)
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                 .build();
-        assertNull(HttpResponseUtils.getHeader(response, "Content-Type"));
+        assertNotNull(HttpResponseUtils.getHeader(response, "Content-Type"));
         middleware.addCharset(response, "UTF-8");
         String type = HttpResponseUtils.getHeader(response, "Content-Type");
         assertNotNull(type);

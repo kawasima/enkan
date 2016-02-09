@@ -1,8 +1,6 @@
 package enkan.middleware;
 
-import enkan.collection.MapNestedParams;
-import enkan.collection.Multimap;
-import enkan.collection.NestedParams;
+import enkan.collection.Parameters;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import org.junit.Test;
@@ -28,20 +26,20 @@ public class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
 
     @Test
     public void testNestedParams() {
-        MapNestedParams params = new MapNestedParams();
+        Parameters params = Parameters.empty();
         assocNested(params,
                 new String[]{"val", ""},
                 new ArrayList<String>(){{ add("hoge"); }});
         assertEquals("hoge", params.getIn("val", 0));
 
 
-        params = new MapNestedParams();
+        params = Parameters.empty();
         assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); }});
         assertEquals("baz", params.getIn("foo", "bar"));
 
-        params = new MapNestedParams();
+        params = Parameters.empty();
         assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); add("bay"); }});
@@ -51,12 +49,12 @@ public class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
     @Test
     public void testNestedParamsRequest() {
         HttpRequest request = new DefaultHttpRequest();
-        request.setParams(Multimap.of(
+        request.setParams(Parameters.of(
                 "foo[aaa]", "a3",
                 "foo[bbb]", "b3",
                 "bar[][telNo]", "090"));
         nestedParamsRequest(request, parseNestedKeys);
-        assertEquals("090", ((NestedParams) request.getParams()).getIn("bar", "0", "telNo"));
+        assertEquals("090", request.getParams().getIn("bar", "0", "telNo"));
     }
 }
 

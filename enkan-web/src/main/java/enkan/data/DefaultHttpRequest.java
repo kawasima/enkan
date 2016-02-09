@@ -1,6 +1,7 @@
 package enkan.data;
 
-import enkan.collection.Multimap;
+import enkan.collection.Headers;
+import enkan.collection.Parameters;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -20,15 +21,15 @@ public class DefaultHttpRequest implements HttpRequest {
     private String scheme;
     private String requestMethod;
     private String protocol;
-    private Map<String, String> headers;
+    private Headers headers;
     private String contentType;
     private Long contentLength;
     private String characterEncoding;
     private InputStream body;
 
-    private Map<String, ?> params;
-    private Multimap<String, String> formParams;
-    private Multimap<String, String> queryParams;
+    private Parameters params;
+    private Parameters formParams;
+    private Parameters queryParams;
 
     private Session session;
     private Map<String, Cookie> cookies;
@@ -115,12 +116,12 @@ public class DefaultHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Map<String, String> getHeaders() {
+    public Headers getHeaders() {
         return headers;
     }
 
     @Override
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(Headers headers) {
         this.headers = headers;
     }
 
@@ -165,32 +166,32 @@ public class DefaultHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Map<String, ?> getParams() {
+    public Parameters getParams() {
         return params;
     }
 
     @Override
-    public void setParams(Map<String, ?> params) {
+    public void setParams(Parameters params) {
         this.params = params;
     }
 
     @Override
-    public Multimap<String, String> getFormParams() {
+    public Parameters getFormParams() {
         return formParams;
     }
 
     @Override
-    public void setFormParams(Multimap<String, String> formParams) {
+    public void setFormParams(Parameters formParams) {
         this.formParams = formParams;
     }
 
     @Override
-    public Multimap<String, String> getQueryParams() {
+    public Parameters getQueryParams() {
         return queryParams;
     }
 
     @Override
-    public void setQueryParams(Multimap<String, String> queryParams) {
+    public void setQueryParams(Parameters queryParams) {
         this.queryParams = queryParams;
     }
 

@@ -1,6 +1,8 @@
 package enkan.data;
 
 /**
+ * Extendable interface.
+ *
  * @author kawasima
  */
 public interface Extendable {

@@ -5,7 +5,6 @@ import enkan.collection.OptionMap;
 import enkan.component.*;
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
-import kotowari.component.FreemarkerComponent;
 
 import static enkan.component.ComponentRelationship.component;
 import static enkan.util.BeanBuilder.builder;
@@ -18,8 +17,9 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
     public EnkanSystem create() {
         return EnkanSystem.of(
                 "doma", new DomaProvider(),
+                "jackson", new JacksonBeansConverter(),
                 "flyway", new FlywayMigration(),
-                "template", new FreemarkerComponent(),
+                "template", new FreemarkerTemplateEngine(),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
                 "app", new ApplicationComponent("kotowari.example.MyApplicationFactory"),
                 "http", builder(new JettyComponent())
@@ -27,8 +27,8 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                         .build()
         ).relationships(
                 component("http").using("app"),
-                component("app").using("template", "doma", "datasource"),
-                component("doma").using("datasource"),
+                component("app").using("datasource", "template", "doma", "jackson"),
+                component("doma").using("datasource", "flyway"),
                 component("flyway").using("datasource")
         );
 

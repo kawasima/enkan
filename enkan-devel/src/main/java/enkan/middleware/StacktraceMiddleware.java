@@ -23,11 +23,14 @@ import static net.unit8.moshas.RenderUtils.text;
 public class StacktraceMiddleware extends AbstractWebMiddleware {
     private MoshasEngine moshas = new MoshasEngine();
 
-    protected HttpResponse htmlUnreachableExResponse(UnreachableException ex) {
+    protected HttpResponse<String> htmlUnreachableExResponse(UnreachableException ex) {
         return HttpResponse.of("This is framework bug. Please report this issue.");
     }
 
     protected HttpResponse htmlMisconfigExResponse(MisconfigurationException ex) {
+        Template template = moshas.defineTemplate("templates/misconfiguration.html", t -> {
+            t.select("#misconfiguration", text());
+        });
         return HttpResponse.of(ex.getProblem() + "\n" + ex.getSolution());
     }
 

@@ -2,9 +2,9 @@ package kotowari.example.dao;
 
 import kotowari.example.DomaConfig;
 import kotowari.example.entity.Customer;
-import org.seasar.doma.Dao;
-import org.seasar.doma.Insert;
-import org.seasar.doma.Select;
+import org.seasar.doma.*;
+
+import java.util.List;
 
 /**
  * @author kawasima
@@ -14,6 +14,15 @@ public interface CustomerDao {
     @Select
     Customer selectById(Long id);
 
+    @Select
+    List<Customer> selectAll();
+
     @Insert
     int insert(Customer customer);
+
+    @Update
+    int update(Customer customer);
+
+    @Delete
+    int delete(Customer customer);
 }

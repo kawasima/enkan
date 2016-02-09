@@ -1,7 +1,5 @@
 package enkan.data;
 
-import enkan.data.Extendable;
-
 import java.lang.reflect.Method;
 
 /**

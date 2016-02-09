@@ -7,8 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * @author kawasima

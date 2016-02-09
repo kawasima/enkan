@@ -1,6 +1,7 @@
 package enkan.util;
 
 
+import enkan.exception.MisconfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,7 +15,8 @@ import java.net.URLEncoder;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static enkan.util.ThreadingUtils.*;
+import static enkan.util.ThreadingUtils.partial;
+import static enkan.util.ThreadingUtils.some;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -56,11 +58,15 @@ public class ThreadingsTest {
     @Test
     public void builder() {
         Function<Person, BeanBuilder<Person>> builder = BeanBuilder.builderWithValidation(Validation.buildDefaultValidatorFactory());
-        Person p1 = builder.apply(new Person())
-                .set(Person::setName, "kawasima")
-                .set(Person::setAge,   3)
-                .build();
-        System.out.println(p1.getAge());
+        try {
+            Person p1 = builder.apply(new Person())
+                    .set(Person::setName, "kawasima")
+                    .set(Person::setAge, 3)
+                    .build();
+            Assert.fail("MisconfigurationException occur");
+        } catch (MisconfigurationException ex) {
+
+        }
     }
 
     static class Person {

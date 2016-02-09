@@ -23,7 +23,7 @@ public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES> {
             TraceLog log = ((Traceable) req).getTraceLog();
             log.getEntries().stream()
                     .filter(entry -> res instanceof HttpResponse)
-                    .forEach(entry -> ((HttpResponse) res).getHeaders().add("X-Enkan-Trace",
+                    .forEach(entry -> ((HttpResponse) res).getHeaders().put("X-Enkan-Trace",
                             entry.getTimestamp() + ":" + entry.getMiddleware()));
         }
 

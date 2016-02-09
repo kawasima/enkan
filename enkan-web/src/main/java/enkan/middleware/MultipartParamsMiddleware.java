@@ -9,7 +9,8 @@ import enkan.middleware.multipart.MultipartParser;
 
 import java.io.IOException;
 
-import static enkan.util.HttpRequestUtils.*;
+import static enkan.util.HttpRequestUtils.contentLength;
+import static enkan.util.HttpRequestUtils.contentType;
 
 /**
  * @author kawasima

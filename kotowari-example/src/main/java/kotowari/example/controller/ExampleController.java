@@ -1,29 +1,21 @@
 package kotowari.example.controller;
 
-import enkan.collection.Multimap;
-import enkan.component.DomaProvider;
+import enkan.collection.Parameters;
 import enkan.data.HttpResponse;
 import enkan.data.Session;
-import enkan.util.BeanBuilder;
-import kotowari.component.TemplateEngineComponent;
-import kotowari.example.dao.CustomerDao;
-import kotowari.example.entity.Customer;
-import kotowari.example.form.ExampleForm;
+import kotowari.component.TemplateEngine;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
+
+import static enkan.util.BeanBuilder.builder;
+import static enkan.util.HttpResponseUtils.response;
 
 /**
  * @author kawasima
  */
 public class ExampleController {
     @Inject
-    private TemplateEngineComponent templateEngine;
-
-    @Inject
-    private DomaProvider daoProvider;
+    private TemplateEngine templateEngine;
 
     public HttpResponse index() {
         return templateEngine.render("index");
@@ -38,32 +30,12 @@ public class ExampleController {
             session = new Session();
         }
         session.setAttribute("count", count);
-        return (HttpResponse) BeanBuilder.builder(HttpResponse.of(count + "times."))
+        return builder(response(count + "times."))
                 .set(HttpResponse::setSession, session)
-                .set(HttpResponse::setHeaders, Multimap.of("Content-Type", "text/html"))
                 .build();
     }
 
-    public String method2(Map<String, List<String>> params) {
+    public String method2(Parameters params) {
         return "method2です " + params.get("name");
-    }
-
-    @Transactional
-    public String method4(Map<String, List<String>> params) {
-        CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
-        Customer customer = new Customer();
-        customer.setId(1L);
-        customer.setName("Kawasima");
-        customerDao.insert(customer);
-        return "insert customer";
-    }
-
-    public HttpResponse method3(ExampleForm form) {
-        CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
-        Customer customer = customerDao.selectById(1L);
-        return BeanBuilder.builder(templateEngine.render("example",
-                "customer", customer))
-                .set(HttpResponse::setStatus, 200)
-                .build();
     }
 }

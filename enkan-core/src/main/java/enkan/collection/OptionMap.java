@@ -12,6 +12,12 @@ public class OptionMap extends HashMap<String, Object> {
         return new OptionMap();
     }
 
+    public static OptionMap of(OptionMap init) {
+        OptionMap m = empty();
+        init.forEach((k, v) -> m.put(k, v));
+        return m;
+    }
+
     public static OptionMap of(Object... init) {
         OptionMap m = empty();
         for(int i = 0; i < init.length; i += 2) {

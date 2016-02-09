@@ -1,5 +1,6 @@
 package enkan.util;
 
+import enkan.collection.Headers;
 import enkan.collection.Multimap;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
@@ -17,8 +18,8 @@ import java.util.*;
  * @author kawasima
  */
 public class ServletUtils {
-    private static Map<String, String> getHeaders(HttpServletRequest servletRequest) {
-        Map<String, String> headers = new HashMap<>();
+    private static Headers getHeaders(HttpServletRequest servletRequest) {
+        Headers headers = Headers.empty();
         Enumeration<String> names = servletRequest.getHeaderNames();
         while(names.hasMoreElements()) {
             String name = names.nextElement();
@@ -55,10 +56,10 @@ public class ServletUtils {
         return request;
     }
 
-    private static void setHeaders(HttpServletResponse servletResponse, Multimap<String, Object> headers) {
+    private static void setHeaders(HttpServletResponse servletResponse, Headers headers) {
         headers.keySet().stream()
                 .forEach(k  -> {
-                    List<Object> values = headers.getAll(k);
+                    List<String> values = headers.getList(k);
                     if (values == null) return;
                     values.forEach(v -> {
                         if (servletResponse.getHeaders(k).isEmpty()) {

@@ -4,7 +4,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author kawasima
@@ -21,7 +22,7 @@ public class MultimapTest {
         assertEquals(1, values.size());
         assertEquals("bbb", values.get(0));
 
-        mm.put("aaa", "ccc");
+        mm.add("aaa", "ccc");
         assertEquals("bbb", mm.get("aaa"));
         values = mm.getAll("aaa");
         assertEquals(2, values.size());

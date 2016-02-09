@@ -1,21 +1,20 @@
 package kotowari.data;
 
-import enkan.collection.Multimap;
+import enkan.collection.Headers;
 import enkan.data.DefaultHttpResponse;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author kawasima
  */
-public class TemplatedHttpResponse extends DefaultHttpResponse<InputStream> {
+public class TemplatedHttpResponse extends DefaultHttpResponse {
     private String templateName;
     private Map<String, Object> context;
 
     private TemplatedHttpResponse(String templateName) {
-        super(200, Multimap.empty());
+        super(200, Headers.of("Content-Type", "text/html"));
         this.templateName = templateName;
         context = new HashMap<>();
     }
