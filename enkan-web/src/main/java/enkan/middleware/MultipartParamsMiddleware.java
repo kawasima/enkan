@@ -2,12 +2,18 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.middleware.multipart.MultipartParser;
+import enkan.util.ThreadingUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 import static enkan.util.HttpRequestUtils.contentLength;
 import static enkan.util.HttpRequestUtils.contentType;
@@ -15,11 +21,31 @@ import static enkan.util.HttpRequestUtils.contentType;
 /**
  * @author kawasima
  */
-@Middleware(name = "multipartParams")
+@Middleware(name = "multipartParams", dependencies = {"params"})
 public class MultipartParamsMiddleware extends AbstractWebMiddleware {
-    protected void extractMultipart(HttpRequest request) {
+    protected void deleteTempfile(Parameters multipartParams) {
+        multipartParams.keySet().stream()
+                .filter(k -> {
+                    Object v = multipartParams.getIn(k);
+                    return v instanceof Parameters && ((Parameters) v).getIn("tempfile") instanceof File;
+                })
+                .forEach(k -> {
+                    Optional<Path> tempfile = ThreadingUtils.some((File) multipartParams.getIn(k, "tempfile"),
+                            File::toPath);
+                    tempfile.ifPresent(f -> {
+                        try {
+                            Files.deleteIfExists(f);
+                        } catch (IOException ex) {
+                            throw FalteringEnvironmentException.create(ex);
+                        }
+                    });
+                });
+    }
+
+    protected Parameters extractMultipart(HttpRequest request) {
         try {
-            MultipartParser.parse(request.getBody(), contentLength(request), contentType(request), 16384);
+            return MultipartParser.parse(request.getBody(), contentLength(request),
+                    request.getHeaders().get("content-type"), 16384);
         } catch (IOException e) {
             throw FalteringEnvironmentException.create(e);
         }
@@ -27,7 +53,13 @@ public class MultipartParamsMiddleware extends AbstractWebMiddleware {
 
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
-        extractMultipart(request);
-        return castToHttpResponse(chain.next(request));
+        Parameters multipartParams = extractMultipart(request);
+        request.getParams().putAll(multipartParams);
+        try {
+            return castToHttpResponse(chain.next(request));
+        } finally {
+            deleteTempfile(multipartParams);
+        }
+
     }
 }

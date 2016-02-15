@@ -1,18 +1,22 @@
 package enkan.middleware.multipart;
 
+import enkan.collection.Parameters;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.util.CodecUtils;
+import enkan.util.SearchUtils;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Parse multipart request.
@@ -23,37 +27,36 @@ public class MultipartParser {
     private static final int DEFAULT_BUFFER_SIZE = 16384;
 
     private static final String EOL = "\r\n";
-    private static final String MULTIPART_BOUNDARY = "AaB03x";
     private static final Pattern MULTIPART = Pattern.compile("multipart/.*boundary=\"?([^\";,]+)\"?");
     private static final Pattern TOKEN = Pattern.compile("[^\\s()<>,;:\\\\\"/\\[\\]?=]+");
-    private static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s+", Pattern.CASE_INSENSITIVE);
-    private static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
-    private static final Pattern BROKEN_QUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=\"(.*?)\"(?:\\s*$|\\s*;\\s*%s=)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE);
-    private static final Pattern BROKEN_UNQUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=(%s)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE);
+    protected static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s*", Pattern.CASE_INSENSITIVE);
+    protected static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
+    private static final Pattern BROKEN_QUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=\"(.*?)\"(?:\\s*$|\\s*;\\s*%s=)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private static final Pattern BROKEN_UNQUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=(%s)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Pattern MULTIPART_CONTENT_TYPE = Pattern.compile("Content-Type: (.*)" + EOL, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Pattern MULTIPART_CONTENT_DISPOSITION = Pattern.compile("Content-Disposition:.*\\s+name=(" + VALUE.pattern() + ")", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Pattern MULTIPART_CONTENT_ID = Pattern.compile("Content-ID:\\s*([^" + EOL + "]*)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     private static final Pattern ATTRIBUTE_CHAR = Pattern.compile("[^ \\t\\v\\n\\r)(><@,;:\\\\\"/\\[\\]?='*%]");
-    private static final Pattern ATTRIBUTE = Pattern.compile(ATTRIBUTE_CHAR.pattern() + "+");
+    protected static final Pattern ATTRIBUTE = Pattern.compile(ATTRIBUTE_CHAR.pattern() + "+");
     private static final Pattern SECTION = Pattern.compile("\\*[0-9]+/");
-    private static final Pattern REGULAR_PARAMETER_NAME = Pattern.compile(ATTRIBUTE.pattern() + SECTION.pattern() + "?");
-    private static final Pattern REGULAR_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", REGULAR_PARAMETER_NAME.pattern(), VALUE.pattern()));
+    protected static final Pattern REGULAR_PARAMETER_NAME = Pattern.compile(ATTRIBUTE.pattern() + "(?:" + SECTION.pattern() + ")?");
+    protected static final Pattern REGULAR_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", REGULAR_PARAMETER_NAME.pattern(), VALUE.pattern()));
     private static final Pattern EXTENDED_OTHER_NAME = Pattern.compile(ATTRIBUTE.pattern() + "\\*[1-9][0-9]*\\*");
     private static final Pattern EXTENDED_OTHER_VALUE = Pattern.compile("%[0-9a-fA-F]{2}|" + ATTRIBUTE_CHAR.pattern());
-    private static final Pattern EXTENDED_OTHER_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", EXTENDED_OTHER_NAME.pattern(), EXTENDED_OTHER_VALUE.pattern()));
+    private static final Pattern EXTENDED_OTHER_PARAMETER = Pattern.compile(String.format("(%s)=((?:%s)*)", EXTENDED_OTHER_NAME.pattern(), EXTENDED_OTHER_VALUE.pattern()));
     private static final Pattern EXTENDED_INITIAL_NAME = Pattern.compile(ATTRIBUTE + "(?:\\*0)?\\*");
-    private static final Pattern EXTENDED_INITIAL_VALUE = Pattern.compile("[a-zA-Z0-9\\-]*'[a-zA-Z0-9\\-]*'" + EXTENDED_OTHER_VALUE.pattern() + "*");
+    private static final Pattern EXTENDED_INITIAL_VALUE = Pattern.compile("[a-zA-Z0-9\\-]*'[a-zA-Z0-9\\-]*'(?:" + EXTENDED_OTHER_VALUE.pattern() + ")*");
     private static final Pattern EXTENDED_INITIAL_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", EXTENDED_INITIAL_NAME.pattern(), EXTENDED_INITIAL_VALUE.pattern()));
     private static final Pattern EXTENDED_PARAMETER = Pattern.compile(EXTENDED_INITIAL_PARAMETER.pattern() + "|" + EXTENDED_OTHER_PARAMETER);
-    private static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER));
-    private static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE);
+    protected static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER.pattern()));
+    protected static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 
     private static final MultipartInfo EMPTY = new MultipartInfo(null, new ArrayList<>());
     private static final BiFunction<String, String, File> TEMPFILE_FACTORY = (filename, contentType) -> {
         int idx = filename.indexOf('.');
-        String extName = (idx >= 0 && idx < filename.length()) ? filename.substring(idx + 1) : "";
+        String extName = (idx >= 0 && idx < filename.length()) ? filename.substring(idx) : "";
         try {
             return File.createTempFile("EnkanMultipart", extName);
         } catch (IOException e) {
@@ -75,23 +78,26 @@ public class MultipartParser {
     private ParseState state;
     private int mimeIndex;
     private MultipartCollector collector;
-    private int bufferSize;
 
     public MultipartParser(String boundary, int bufferSize) {
-        this.bufferSize = bufferSize;
         this.boundary = "--" + boundary;
         buf = ByteBuffer.allocate(bufferSize);
         state = ParseState.FAST_FORWARD;
         collector = new MultipartCollector(TEMPFILE_FACTORY);
     }
 
-    public void onRead(byte[] src, boolean isEOF) throws IOException {
-        buf.put(src);
+    public void onRead(byte[] src, int len) throws IOException {
+        if (len == 0) throw new EOFException();
+        buf.put(src, 0, len);
+        buf.flip();
         runParser();
     }
 
-    public MultipartInfo result() {
-        return EMPTY; //TODO
+    public Parameters result() {
+        Parameters params = Parameters.empty();
+        collector.stream()
+                .forEach(part -> params.putAll(part.getData()));
+        return params;
     }
 
     public static String parseBoundary(String contentType) {
@@ -103,21 +109,21 @@ public class MultipartParser {
         return null;
     }
 
-    public static MultipartInfo parse(InputStream in, long contentLength, String contentType, int bufferSize) throws IOException {
-        if (contentLength == 0) return EMPTY;
+    public static Parameters parse(InputStream in, Long contentLength, String contentType, int bufferSize) throws IOException {
+        if (contentLength != null && contentLength == 0) return Parameters.empty();
         String boundary = parseBoundary(contentType);
-        if (boundary == null) return EMPTY;
+        if (boundary == null) return Parameters.empty();
 
         if (bufferSize == 0) bufferSize = DEFAULT_BUFFER_SIZE;
         byte[] buffer = new byte[bufferSize];
         MultipartParser parser = new MultipartParser(boundary, bufferSize);
         int readed = in.read(buffer);
-        parser.onRead(buffer, readed == 0);
+        parser.onRead(buffer, readed);
 
         while (true) {
             if (parser.state == ParseState.DONE) break;
             readed = in.read(buffer, 0, parser.buf.remaining());
-            parser.onRead(buffer, readed == 0);
+            parser.onRead(buffer, readed);
         }
 
         return parser.result();
@@ -128,12 +134,16 @@ public class MultipartParser {
             switch (state) {
                 case FAST_FORWARD:
                     if (handleFastForward()) return;
+                    break;
                 case CONSUME_TOKEN:
                     if (handleConsumeToken()) return;
+                    break;
                 case MIME_HEAD:
                     if (handleMimeHead()) return;
+                    break;
                 case MIME_BODY:
                     if (handleMimeBody()) return;
+                    break;
                 case DONE:
                     return;
             }
@@ -170,12 +180,11 @@ public class MultipartParser {
                 int end = buf.position() - 4;
                 buf.reset();
                 int start = buf.position();
-                byte[] headBuf = new byte[end - start + 1];
+                byte[] headBuf = new byte[end - start + 2];
                 buf.get(headBuf);
                 String head = new String(headBuf, StandardCharsets.UTF_8);
                 // Read two CR+LF.
-                for (int i=0; i<4; i++) buf.get();
-                buf.compact();
+                for (int i=0; i<2; i++) buf.get();
 
                 String contentType = null;
                 Matcher contentTypeMatcher = MULTIPART_CONTENT_TYPE.matcher(head);
@@ -186,7 +195,7 @@ public class MultipartParser {
                 String name = null;
                 Matcher contentDispositionMatcher = MULTIPART_CONTENT_DISPOSITION.matcher(head);
                 if (contentDispositionMatcher.find()) {
-                    name = contentDispositionMatcher.group(1);
+                    name = contentDispositionMatcher.group(1).replaceAll("\"(.*)\"", "$1");
                 } else {
                     Matcher contentIdMatcher = MULTIPART_CONTENT_ID.matcher(head);
                     if (contentIdMatcher.find()) {
@@ -194,7 +203,7 @@ public class MultipartParser {
                     }
                 }
 
-                String filename = getFilename(name);
+                String filename = getFilename(head);
 
                 collector.onMimeHead(mimeIndex, head, filename, contentType, name);
                 state = ParseState.MIME_BODY;
@@ -204,12 +213,45 @@ public class MultipartParser {
         return true;
     }
 
-    private boolean handleMimeBody() {
-        return true;
+    private boolean handleMimeBody() throws IOException {
+        byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
+        byte[] sought = new byte[boundaryBytes.length + 2];
+        sought[0] = '\r';
+        sought[1] = '\n';
+        System.arraycopy(boundaryBytes, 0, sought, 2, boundaryBytes.length);
+
+        int idx = SearchUtils.kmp(buf, sought);
+
+        int len = idx < 0 ? buf.remaining() : idx - buf.position();
+        byte[] content = new byte[len];
+        buf.get(content, 0, len);
+        collector.onMimeBody(mimeIndex, content);
+
+        // boundary is not found
+        if (idx < 0) {
+            buf.clear();
+            return true;
+        }
+        // partial boundary is found
+        else if (idx + sought.length + 2 > buf.limit()) {
+            buf.position(idx);
+            buf.compact();
+            buf.flip();
+            return true;
+        }
+        // full boundary is found
+        else {
+            buf.position(idx + 2);
+            buf.compact();
+            buf.flip();
+            collector.onMimeFinish(mimeIndex);
+            mimeIndex += 1;
+            state = ParseState.CONSUME_TOKEN;
+            return false;
+        }
     }
 
     private BoundaryState consumeBoundary() {
-        buf.flip();
         while (true) {
             while (buf.hasRemaining() && buf.get() == '\n');
             if (buf.hasRemaining()) {
@@ -225,8 +267,9 @@ public class MultipartParser {
 
             byte[] boundaryBuf = new byte[end - buf.position()];
             buf.get(boundaryBuf);
-            String readedBoundary = new String(boundaryBuf, StandardCharsets.UTF_8).trim();
-            buf.compact();
+            String readedBoundary = new String(boundaryBuf, StandardCharsets.ISO_8859_1).trim();
+            buf.get();
+
             if (readedBoundary.equals(boundary)) {
                 return BoundaryState.BOUNDARY;
             } else if (readedBoundary.equals(boundary + "--")) {
@@ -246,16 +289,23 @@ public class MultipartParser {
         if (rfc2183Matcher.find()) {
             Map<String, String> params = new HashMap<>();
             Matcher disparmMatchr = DISPPARM.matcher(head);
-            if (disparmMatchr.find()) {
-                params.put(disparmMatchr.group(1), disparmMatchr.group(2));
+            while (disparmMatchr.find()) {
+                int cnt = disparmMatchr.groupCount();
+                for (int i=1; i<cnt; i+=2) {
+                    if (disparmMatchr.group(i) != null) {
+                        params.put(disparmMatchr.group(i), disparmMatchr.group(i + 1));
+                    }
+                }
             }
 
             if (params.containsKey("filename")) {
-                filename = params.get("filename");
-                filename.replaceAll("^\"(.*)\"$", "$1");
+                filename = params.get("filename").replaceAll("^\"(.*)\"$", "$1");
             } else if (params.containsKey("filename*")) {
                 String[] tokens = params.get("filename*").split("'", 3);
                 filename = tokens[2];
+                if (Charset.isSupported(tokens[0])) {
+                    filename = CodecUtils.urlDecode(filename, tokens[0]);
+                }
             }
         } else if (brokenQuotedMatcher.find()) {
             filename = brokenQuotedMatcher.group(1);
@@ -265,17 +315,27 @@ public class MultipartParser {
 
         if (filename == null) return null;
 
-        return null;
+        filename = CodecUtils.urlDecode(filename);
+        if (!filename.matches("\\[^\"]")) {
+            filename = filename.replaceAll("\\\\(.)", "$1");
+        }
+
+        return filename;
     }
 
     private void tagMultipartEncoding(String filename, String contentType, String name, InputStream body) {
         if (filename != null) return;
 
         if (contentType != null) {
-            String[] list = contentType.split(";");
-            String typeSubtype = list[0].trim();
+            List<String> tokens = Arrays.stream(contentType.split(";"))
+                    .map(String::trim)
+                    .collect(Collectors.toList());
+
+            String typeSubtype = tokens.remove(0);
 
             if (typeSubtype.equals("text/plain")) {
+                tokens.stream()
+                        .map(s -> s.split("=", 2));
             }
         }
     }

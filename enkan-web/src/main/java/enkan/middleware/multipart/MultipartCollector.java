@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 /**
  * @author kawasima
@@ -17,14 +18,13 @@ public class MultipartCollector {
         this.tempfileFactory = tempfileFactory;
     }
 
-    public void onMimeHead(int mimeIndex, String head, String filename, String contentType, String name) throws FileNotFoundException {
+    public void onMimeHead(int mimeIndex, String head, String filename, String contentType, String name) throws IOException {
         if (filename != null) {
             File tempfile = tempfileFactory.apply(filename, contentType);
-            OutputStream body = new BufferedOutputStream(new FileOutputStream(tempfile));
             openFiles += 1;
-            mimeParts.add(new TempfilePart(body, head, filename, contentType, name));
+            mimeParts.add(new TempfilePart(tempfile, head, filename, contentType, name));
         } else {
-            // TODO Buffer
+            mimeParts.add(new BufferPart(head, filename, contentType, name));
         }
 
     }
@@ -35,5 +35,13 @@ public class MultipartCollector {
 
     public void onMimeBody(int mimeIndex, byte[] content) throws IOException {
         mimeParts.get(mimeIndex).getBody().write(content);
+    }
+
+    public void onMimeFinish(int mimeIndex) {
+        mimeParts.get(mimeIndex).close();
+    }
+
+    public Stream<MimePart> stream() {
+        return mimeParts.stream();
     }
 }

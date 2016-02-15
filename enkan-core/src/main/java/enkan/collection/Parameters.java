@@ -41,6 +41,14 @@ public class Parameters implements Map<String, Object> {
         return params;
     }
 
+    public static Parameters of(Object... init) {
+        Parameters params = Parameters.empty();
+        for(int i = 0; i < init.length; i += 2) {
+            params.put(init[i].toString(), init[i + 1]);
+        }
+        return params;
+    }
+
     /**
      *
      * @return {@inheritDoc}

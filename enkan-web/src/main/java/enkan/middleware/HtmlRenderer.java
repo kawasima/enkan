@@ -2,8 +2,11 @@ package enkan.middleware;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
+import enkan.collection.Headers;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+
+import static enkan.util.BeanBuilder.builder;
 
 /**
  * @author kawasima
@@ -17,7 +20,9 @@ public class HtmlRenderer implements Middleware<HttpRequest, HttpResponse> {
         if (res instanceof HttpResponse) {
             response = (HttpResponse) res;
         } else if (res instanceof String) {
-            response = HttpResponse.of((String) res);
+            response = builder(HttpResponse.of((String) res))
+                    .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                    .build();
         }
         return response;
     }

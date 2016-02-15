@@ -1,0 +1,35 @@
+package enkan.middleware.multipart;
+
+import enkan.collection.Parameters;
+import enkan.util.CodecUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * @author kawasima
+ */
+public class BufferPart extends MimePart {
+    public BufferPart(String head, String filename, String contentType, String name) {
+        super(new ByteArrayOutputStream(), head, filename, contentType, name);
+    }
+
+    @Override
+    public Parameters getData() {
+        byte[] buf = ((ByteArrayOutputStream) getBody()).toByteArray();
+        String value = new String(buf, StandardCharsets.ISO_8859_1);
+        return Parameters.of(name, value);
+    }
+
+    @Override
+    public void write(byte[] buf) throws IOException {
+        getBody().write(buf);
+    }
+
+    @Override
+    public void close() {
+
+    }
+}

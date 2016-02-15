@@ -10,6 +10,7 @@ import enkan.system.inject.ComponentInjector;
 import kotowari.example.controller.CustomerController;
 import kotowari.example.controller.ExampleController;
 import kotowari.example.controller.LoginController;
+import kotowari.example.controller.MiscController;
 import kotowari.middleware.ControllerInvokerMiddleware;
 import kotowari.middleware.FormMiddleware;
 import kotowari.middleware.RoutingMiddleware;
@@ -32,6 +33,8 @@ public class MyApplicationFactory implements ApplicationFactory {
             r.get("/m3").to(ExampleController.class, "method3");
             r.get("/m4").to(ExampleController.class, "method4");
             r.post("/login").to(LoginController.class, "login");
+            r.get("/misc/upload").to(MiscController.class, "uploadForm");
+            r.post("/misc/upload").to(MiscController.class, "upload");
             r.resource(CustomerController.class);
         }).compile();
 
@@ -43,6 +46,7 @@ public class MyApplicationFactory implements ApplicationFactory {
         app.use(new ContentTypeMiddleware());
         app.use(new HttpStatusCatMiddleware());
         app.use(new ParamsMiddleware());
+        app.use(new MultipartParamsMiddleware());
         app.use(new MethodOverrideMiddleware("_method"));
         app.use(new NormalizationMiddleware());
         app.use(new NestedParamsMiddleware());

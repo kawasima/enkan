@@ -79,7 +79,7 @@ public class CodecUtils {
             Matcher m = RE_URL_ENCODED_CHARS.matcher(encoded);
             StringBuffer sb = new StringBuffer(encoded.length());
             while (m.find()) {
-                String chars = m.group(1);
+                String chars = m.group(0);
                 m.appendReplacement(sb, new String(parseBytes(chars), encoding));
             }
             m.appendTail(sb);
