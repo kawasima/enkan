@@ -12,9 +12,9 @@ import kotowari.middleware.RoutingMiddleware;
  */
 public class KotowariCommandRegister implements SystemCommandRegister {
     public void register(Repl repl) {
-        repl.registerCommand("routes", (system, args) -> {
+        repl.registerCommand("routes", (system, env, args) -> {
             if (args == null || args.length == 0) {
-                repl.out().println("usage: routes [app]");
+                env.out.println("usage: routes [app]");
                 return true;
             }
 
@@ -23,16 +23,16 @@ public class KotowariCommandRegister implements SystemCommandRegister {
             if (component instanceof ApplicationComponent) {
                 Application<?, ?> app = ((ApplicationComponent) component).getApplication();
                 if (app == null) {
-                    repl.out().println(String.format("Application %s is not running.", appName));
+                    env.out.println(String.format("Application %s is not running.", appName));
                     return true;
                 }
                 app.getMiddlewareStack().stream()
                         .map(chain -> chain.getMiddleware())
                         .filter(middleware -> middleware instanceof RoutingMiddleware)
                         .map(m -> ((RoutingMiddleware) m).getRoutes().toString())
-                        .forEach(System.out::println);
+                        .forEach(env.out::println);
             } else {
-                repl.out().println(String.format("Application %s not found.", appName));
+                env.out.println(String.format("Application %s not found.", appName));
             }
             return true;
         });

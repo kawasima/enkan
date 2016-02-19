@@ -73,7 +73,7 @@ public class Route {
         }
         StringBuilder out = new StringBuilder(256);
         for (Object method : methods) {
-            out.append(String.format("%-6s %-40s %s\n", method.toString().toUpperCase(), segs.toString(), constraints));
+            out.append(String.format(Locale.US, "%-6s %-40s %s\n", method.toString().toUpperCase(), segs.toString(), constraints));
         }
         return out.toString();
     }
@@ -154,6 +154,11 @@ public class Route {
     }
 
     /* --- generate --- */
+    public boolean matchesController(Class<?> controller) {
+        prepareMatching();
+        return controllerRequirement != null && controller.equals(controllerRequirement);
+    }
+
     public boolean matchesControllerAndAction(Class<?> controller, String action) {
         prepareMatching();
         return  (controllerRequirement == null || controller.equals(controllerRequirement)) &&
@@ -222,5 +227,9 @@ public class Route {
             }
         }
         return extraKeys;
+    }
+
+    public String getActionRequirement() {
+        return actionRequirement;
     }
 }

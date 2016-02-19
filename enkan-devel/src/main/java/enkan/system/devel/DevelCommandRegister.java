@@ -27,15 +27,15 @@ public class DevelCommandRegister implements SystemCommandRegister {
 
     @Override
     public void register(Repl repl) {
-        repl.registerCommand("autoreset", (system, args) -> {
+        repl.registerCommand("autoreset", (system, env, args) -> {
             if (repl.getBackgorundTask("classWatcher") != null) {
-                repl.out().println("Autoreset is already running.");
+                env.out.println("Autoreset is already running.");
                 return true;
             }
 
             ConfigurationLoader loader = findConfigurationLoader(system);
             if (loader == null) {
-                repl.out().println("Start an application first.");
+                env.out.println("Start an application first.");
                 return true;
             }
             try {
@@ -46,10 +46,10 @@ public class DevelCommandRegister implements SystemCommandRegister {
                         () -> {
                             system.stop();
                             system.start();
-                            repl.out().println("Reset automatically");
+                            env.out.println("Reset automatically");
                     });
                 repl.addBackgroundTask("classWatcher", classWatcher);
-                repl.out().println("Start to watch modification an application.");
+                env.out.println("Start to watch modification an application.");
                 return true;
             } catch (IOException ex) {
                 throw FalteringEnvironmentException.create(ex);

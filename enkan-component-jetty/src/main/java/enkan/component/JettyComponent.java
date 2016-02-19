@@ -11,7 +11,7 @@ import javax.validation.constraints.DecimalMax;
 /**
  * @author kawasima
  */
-public class JettyComponent extends SystemComponent {
+public class JettyComponent extends WebServerComponent {
     @DecimalMax("65535")
     private Integer port;
     private Server server;
@@ -52,5 +52,11 @@ public class JettyComponent extends SystemComponent {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+
+    @Override
+    public int getPort() {
+        return port;
     }
 }

@@ -1,6 +1,7 @@
 package kotowari.example;
 
 import enkan.system.devel.DevelCommandRegister;
+import enkan.system.repl.PseudoRepl;
 import enkan.system.repl.ReplBoot;
 import kotowari.system.KotowariCommandRegister;
 
@@ -9,7 +10,8 @@ import kotowari.system.KotowariCommandRegister;
  */
 public class Main {
     public static void main(String[] args) {
-        ReplBoot.start("kotowari.example.MyExampleSystemFactory",
+        PseudoRepl repl = new PseudoRepl(MyExampleSystemFactory.class.getName());
+        ReplBoot.start(repl,
                 new KotowariCommandRegister(),
                 new DevelCommandRegister());
     }

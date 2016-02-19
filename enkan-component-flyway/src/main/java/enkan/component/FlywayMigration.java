@@ -9,6 +9,7 @@ import javax.sql.DataSource;
  */
 public class FlywayMigration extends SystemComponent {
     private String[] locations;
+    private Flyway flyway;
 
     public FlywayMigration() {
 
@@ -21,18 +22,19 @@ public class FlywayMigration extends SystemComponent {
             public void start(FlywayMigration component) {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 DataSource dataSource = dataSourceComponent.getDataSource();
-                Flyway flyway = new Flyway();
-                flyway.setDataSource(dataSource);
+                component.flyway = new Flyway();
+                component.flyway.setDataSource(dataSource);
 
+                component.flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
                 if (component.locations != null) {
-                    flyway.setLocations(component.locations);
+                    component.flyway.setLocations(component.locations);
                 }
-                flyway.migrate();
+                component.flyway.migrate();
             }
 
             @Override
             public void stop(FlywayMigration component) {
-
+                component.flyway = null;
             }
         };
     }

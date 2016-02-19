@@ -21,20 +21,6 @@ public class ExampleController {
         return templateEngine.render("index");
     }
 
-    public HttpResponse method1(Session session) {
-        int count = 0;
-        if (session != null) {
-            count = session.getAttribute("count");
-            count++;
-        } else {
-            session = new Session();
-        }
-        session.setAttribute("count", count);
-        return builder(response(count + "times."))
-                .set(HttpResponse::setSession, session)
-                .build();
-    }
-
     public String method2(Parameters params) {
         return "method2です " + params.get("name");
     }

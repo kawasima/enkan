@@ -9,7 +9,10 @@ import enkan.predicate.NonePredicate;
 import enkan.system.EnkanSystem;
 import enkan.system.Repl;
 import enkan.system.SystemCommand;
+import enkan.system.repl.ReplEnvironment;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,35 +20,29 @@ import java.util.Optional;
  * @author kawasima
  */
 public class MiddlewareCommand implements SystemCommand {
-    private Repl repl;
-
-    public MiddlewareCommand(Repl repl) {
-        this.repl = repl;
-    }
-
-    private void list(Application<?, ?> app) {
+    private void list(Application<?, ?> app, PrintStream out) {
         List<MiddlewareChain<?, ?>> chains = app.getMiddlewareStack();
-        chains.forEach(chain -> repl.out().println(chain.toString()));
+        chains.forEach(chain -> out.println(chain.toString()));
     }
 
     @Override
-    public boolean execute(EnkanSystem system, String... args) {
+    public boolean execute(EnkanSystem system, ReplEnvironment env, String... args) {
         if (args == null || args.length < 2) {
-            repl.out().println("middleware [appName]");
+            env.out.println("middleware [appName]");
             return true;
         }
 
         String appName = args[0];
         SystemComponent component = system.getComponent(appName);
         if (component == null || !(component instanceof ApplicationComponent)) {
-            repl.out().println(String.format("Application %s not found.", appName));
+            env.out.println(String.format("Application %s not found.", appName));
             return true;
         }
         Application<?, ?> app = ((ApplicationComponent) component).getApplication();
 
         switch (args[1]) {
             case "list":
-                list(app);
+                list(app, env.out);
                 break;
             case "predicate":
                 String middlewareName = args[2];
@@ -68,7 +65,7 @@ public class MiddlewareCommand implements SystemCommand {
 
                     }
                 } else {
-                    repl.out().println(String.format("Middleware %s not found.", middlewareName));
+                    env.out.println(String.format("Middleware %s not found.", middlewareName));
                 }
         }
 

@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * @author kawasima
@@ -31,10 +29,10 @@ public class MisconfigurationException extends UnrecoverableException {
     protected MisconfigurationException(String code, Throwable cause, Object... arguments) {
         super(code, cause);
         String problemFmt = misconfigurationMessages.getString(code + ".problem");
-        problem = MessageFormatter.arrayFormat(problemFmt, arguments).getMessage();
+        problem = String.format(Locale.US, problemFmt, arguments);
 
         String solutionFmt = misconfigurationMessages.getString(code + ".solution");
-        solution = MessageFormatter.arrayFormat(solutionFmt, arguments).getMessage();
+        solution = String.format(Locale.US, solutionFmt, arguments);
     }
 
     public static MisconfigurationException create(String code, Object... arguments){

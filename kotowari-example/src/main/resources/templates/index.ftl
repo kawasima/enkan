@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <link href="/css/example.css" rel="stylesheet"/>
-</head>
-<body>
-  <form action="/login" method="POST" >
-    <input type="text" name="account" placeholder="Account"/>
-    <input type="password" name="account" placeholder="Account"/>
-    <button type="submit">Login</button>
-  </form>
-
-  <a href="/customer/new">New registration</a>
-</body>
-</html>
+<#import "layout/defaultLayout.ftl" as layout>
+<@layout.layout "Example">
+  <h1>Kotowari examples</h1>
+  <ul>
+    <li><a href="${urlFor("kotowari.example.controller.MiscController", "counter")}">Counter (Using session)</a></li>
+    <li><a href="${urlFor("kotowari.example.controller.MiscController", "uploadForm")}">File upload</a></li>
+    <li><a href="${urlFor("kotowari.example.controller.CustomerController", "index")}">CRUD</a></li>
+  </ul>
+  <hr/>
+  <ul>
+    <li><a href="${urlFor("kotowari.example.controller.HospitalityDemoController", "misconfiguration")}">Misconfiguration demo</a></li>
+    <li><a href="${urlFor("kotowari.example.controller.HospitalityDemoController", "unreachable")}">Unreachable Exception demo</a></li>
+  </ul>
+</@layout.layout>

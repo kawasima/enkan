@@ -3,83 +3,76 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Enkan: Misconfiguration</title>
+    <style id="primer"></style>
     <style><!--
-body {
-    font-family: sans-serif;
-    background: #87d37c;
-    padding: 1em;
-}
-
-.exception {
-    background: #f2f2f2;
-    color: #333;
-    padding: 1em;
-}
-
-h1 {
-    color: #26a65b;
-    font-size: 32pt;
-    text-align: center;
-    margin-bottom: 0.3em;
-}
-
-.message {
-    font-size: 16pt;
-    text-align: center;
-    margin-bottom:1em;
-}
-
-.trace {
-    max-width: 500px;
-    width: 90%;
-    margin: auto;
-}
-
-.trace table {
-    width: 100%;
-    font-size: 12pt;
-    border: 1px solid #dadada;
-    margin-bottom: 1.5em;
-}
-
-.trace tr {
-    color: #222;
-}
-
-.trace td {
-    padding-top: 0.4em;
-    paddin-bottom: 0.4em;
-}
-
-.trace td.method {
-    padding-left: 1em;
-    padding-right: 0.2em;
-    text-align: left;
-}
-
-.trace td.source {
-    padding-left: 0.2em;
+.request th {
     text-align: right;
+    padding-right: 1em;
 }
---></style>
+-->
+    </style>
 </head>
 
 <body>
-<div class="exception">
-    <h1 id="misconfiguration">Misconfiguration</h1>
-    <div class="message"></div>
+<div class="container">
+    <h1 id="misconfiguration"><span>😱</span>Misconfiguration</h1>
     <div class="trace">
-        <table>
-            <tbody>
-            <tr>
-                <td class="problem">This is problem.</td>
-            </tr>
-            <tr>
-                <td class="solution">This is solution.</td>
-            </tr>
-            </tbody>
-        </table>
+        <h2>Problem</h2>
+        <div class="flash flash-error flash-with-icon">
+            <span class="octicon octicon-alert"></span><span class="problem">This is problem.</span>
+        </div>
+
+        <h2>Solution</h2>
+        <div class="flash">
+            <pre class="solution">This is solution.</pre>
+        </div>
+
+        <h2><a id="detail" href="javascript:void(0)">Detail</a></h2>
+        <div class="stacktrace">
+            <table>
+                <tbody>
+                <tr>
+                    <td class="source">source</td>
+                    <td class="method">method</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <h3>Request</h3>
+    <table class="request">
+        <tr>
+            <th>URI</th>
+            <td class="uri">http://example.com/</td>
+        </tr>
+        <tr>
+            <th>Server Port</th>
+            <td class="server-port">80</td>
+        </tr>
+        <tr>
+            <th>Server Name</th>
+            <td class="server-name">80</td>
+        </tr>
+        <tr>
+            <th>Remote address</th>
+            <td class="remote-addr">80</td>
+        </tr>
+        <tr>
+            <th>Parameters</th>
+            <td class="parameters">80</td>
+        </tr>
+
+    </table>
+    <script>
+<!--
+document.querySelector(".stacktrace").hidden = true;
+document.getElementById("detail").addEventListener("click", function(e) {
+   document.querySelector(".stacktrace").hidden = !document.querySelector(".stacktrace").hidden;
+});
+
+-->
+    </script>
 </div>
 </body>
 </html>

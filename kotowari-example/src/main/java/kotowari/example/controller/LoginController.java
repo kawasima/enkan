@@ -1,5 +1,6 @@
 package kotowari.example.controller;
 
+import enkan.collection.Parameters;
 import enkan.component.DomaProvider;
 import enkan.data.HttpResponse;
 
@@ -14,7 +15,7 @@ public class LoginController {
     @Inject
     private DomaProvider daoProvider;
 
-    public HttpResponse login(Map<String, List<String>> params) {
-        return HttpResponse.of(params.get("account").get(0));
+    public HttpResponse login(Parameters params) {
+        return HttpResponse.of(params.get("account"));
     }
 }

@@ -15,6 +15,7 @@ public class ApplicationComponent extends SystemComponent {
     private Application application;
     private ConfigurationLoader loader;
     private String factoryClassName;
+    private ClassLoader originalLoader;
 
     public ApplicationComponent(String className) {
         this.factoryClassName = className;
@@ -27,7 +28,9 @@ public class ApplicationComponent extends SystemComponent {
             public void start(ApplicationComponent component) {
                 if (component.application == null) {
                     component.application = tryReflection(() -> {
-                        loader = new ConfigurationLoader(getClass().getClassLoader());
+                        component.loader = new ConfigurationLoader(getClass().getClassLoader());
+                        component.originalLoader = Thread.currentThread().getContextClassLoader();
+                        Thread.currentThread().setContextClassLoader(loader);
                         Class<? extends ApplicationFactory> factoryClass =
                                 (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
                         ComponentInjector injector = new ComponentInjector(getAllDependencies());
@@ -45,7 +48,8 @@ public class ApplicationComponent extends SystemComponent {
             @Override
             public void stop(ApplicationComponent component) {
                 component.application = null;
-                loader = null;
+                component.loader = null;
+                Thread.currentThread().setContextClassLoader(originalLoader);
             }
         };
     }

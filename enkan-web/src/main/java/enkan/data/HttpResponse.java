@@ -41,6 +41,9 @@ public interface HttpResponse<T> extends SessionAvailable {
     Multimap<String, Cookie> getCookies();
     void setCookies(Multimap<String, Cookie> cookies);
 
+    default void setContentType(String type) {
+        getHeaders().put("Content-Type", type);
+    }
     T getBody();
     void setBody(T body);
 
