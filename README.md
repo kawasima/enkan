@@ -37,6 +37,7 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 
 ## Middleware
 
+- Service Unavailable
 - Session
 - Flash
 - Cookie
@@ -53,6 +54,7 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 - Flyway
 - Freemarker
 - Jetty
+- Undertow
 - Doma2
 
 Using enkan and kotowari, your code is following
@@ -113,7 +115,7 @@ Enkan system is operated by a REPL interface.
 
 - Start a server
 ```
-REPL> start
+REPL> /start
 [pool-1-thread-1] INFO com.zaxxer.hikari.HikariDataSource - HikariPool-0 - is starting.
 [pool-1-thread-1] INFO org.flywaydb.core.internal.util.VersionPrinter - Flyway 3.2.1 by Boxfuse
 [pool-1-thread-1] INFO org.flywaydb.core.internal.dbsupport.DbSupportFactory - Database: jdbc:h2:mem:test (H2 1.4)
@@ -128,13 +130,12 @@ INFO: HV000001: Hibernate Validator 5.2.2.Final
 [pool-1-thread-1] INFO org.eclipse.jetty.server.Server - jetty-9.3.5.v20151012
 REPL> [pool-1-thread-1] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@5325abc3{HTTP/1.1,[http/1.1]}{0.0.0.0:3000}
 [pool-1-thread-1] INFO org.eclipse.jetty.server.Server - Started @2688295ms
->>>>>>> fe68c48d016d978ccfdb1fafa52d35b8f086f49f
 ```
 - Stop a server
 - Reload a application
 - Show routing information
 ```
-REPL> routes app
+REPL> /routes app
 GET    /                                        {controller=class kotowari.example.controller.ExampleController, action=index}
 GET    /m1                                      {controller=class kotowari.example.controller.ExampleController, action=method1}
 GET    /m2                                      {controller=class kotowari.example.controller.ExampleController, action=method2}
@@ -144,7 +145,7 @@ POST   /login                                   {controller=class kotowari.examp
 ```
 - Show middleware stack
 ```
-REPL> middleware app list
+REPL> /middleware app list
 ANY   defaultCharset (enkan.middleware.DefaultCharsetMiddleware@4929dbc3)
 NONE   serviceUnavailable (enkan.middleware.ServiceUnavailableMiddleware@2ee4fa3b)
 ANY   stacktrace (enkan.middleware.StacktraceMiddleware@545872dd)
@@ -165,14 +166,21 @@ ANY   controllerInvoker (kotowari.middleware.ControllerInvokerMiddleware@2b13e2e
 ```
 - Rewrite a predicate of middleware
 ```
-REPL> middleware app predicate serviceUnavailable ANY
-REPL> middleware app list
+REPL> /middleware app predicate serviceUnavailable ANY
+REPL> /middleware app list
 ANY   defaultCharset (enkan.middleware.DefaultCharsetMiddleware@4929dbc3)
 ANY   serviceUnavailable (enkan.middleware.ServiceUnavailableMiddleware@2ee4fa3b)
 ANY   stacktrace (enkan.middleware.StacktraceMiddleware@545872dd)
 ```
 
-* TODO: Attach a running process
+
+Enkan REPL can attach to a running process.
+
+```
+enkan> /connect 35677
+Connected to server (port = 35677)
+```
+
 * TODO: Migrate to JShell.
 
 ### Kotowari

@@ -2,17 +2,19 @@ package enkan.system.repl;
 
 import enkan.component.WebServerComponent;
 import enkan.config.EnkanSystemFactory;
-import enkan.system.EnkanSystem;
-import enkan.system.Repl;
-import enkan.system.SystemCommand;
+import enkan.exception.FalteringEnvironmentException;
+import enkan.system.*;
 import enkan.system.command.MiddlewareCommand;
-import enkan.system.repl.pseudo.Transport;
+import enkan.system.repl.pseudo.PseudoReplTransport;
+import enkan.system.repl.pseudo.ReplClient;
+import org.msgpack.MessagePack;
+import org.msgpack.unpacker.Unpacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +22,16 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
 /**
  * @author kawasima
  */
 public class PseudoRepl implements Repl {
+    private final Logger LOG = LoggerFactory.getLogger(PseudoRepl.class);
+
     private EnkanSystem system;
     private ExecutorService threadPool;
     private Map<String, SystemCommand> commands = new HashMap<>();
@@ -33,14 +40,18 @@ public class PseudoRepl implements Repl {
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
             system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).newInstance().create();
-            threadPool = Executors.newCachedThreadPool();
+            threadPool = Executors.newCachedThreadPool(runnable -> {
+                Thread t = new Thread(runnable);
+                t.setName("enkan-repl-pseudo");
+                return t;
+            });
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
 
-        registerCommand("start", (system, env, args) -> {
+        registerCommand("start", (system, transport, args) -> {
             system.start();
-            env.out.println("Started server");
+            transport.sendOut("Started server");
             if (args.length > 0) {
                 if (Desktop.isDesktopSupported()) {
                     Optional<WebServerComponent> webServerComponent = system.getAllComponents().stream()
@@ -59,19 +70,18 @@ public class PseudoRepl implements Repl {
             }
             return true;
         } );
-        registerCommand("stop",  (system, env, args) -> {
+        registerCommand("stop",  (system, transport, args) -> {
             system.stop();
-            env.out.println("Stopped server");
+            transport.sendOut("Stopped server");
             return true;
         });
 
-        registerCommand("reset", (system, env, args) -> {
+        registerCommand("reset", (system, transport, args) -> {
             system.stop();
             system.start();
-            env.out.println("Reset server");
+            transport.sendOut("Reset server");
             return true;
         });
-        registerCommand("shutdown",  (system, env, args) -> { system.stop(); return false; });
         registerCommand("middleware", new MiddlewareCommand());
     }
 
@@ -90,41 +100,85 @@ public class PseudoRepl implements Repl {
 
     @Override
     public void run() {
-        try {
+        ReplClient replClient = null;
+        try (ServerSocket serverSock = new ServerSocket()) {
             InetSocketAddress addr = new InetSocketAddress("localhost", 0);
-            ServerSocket serverSock = new ServerSocket();
             serverSock.setReuseAddress(true);
             serverSock.bind(addr);
 
+            registerCommand("shutdown", (system, transport, args) -> {
+                system.stop();
+                transport.sendOut("Shutdown server", SHUTDOWN);
+                try {
+                    serverSock.close();
+                    return false;
+                } catch (IOException ex) {
+                    throw FalteringEnvironmentException.create(ex);
+                }
+            });
+
             System.out.println("Listen " + serverSock.getLocalPort());
+
+            replClient = new ReplClient();
+            replClient.start(serverSock.getLocalPort());
 
             do {
                 Socket socket = serverSock.accept();
-                PrintStream ps = new PrintStream(socket.getOutputStream(), true);
-                ReplEnvironment env = new ReplEnvironment(ps, ps);
+                Transport transport = new PseudoReplTransport(socket);
 
-                threadPool.submit(new Transport(socket, msg -> {
-                    String[] cmd = msg.trim().split("\\s+");
-                    if (cmd[0].startsWith("/")) {
-                        SystemCommand command = commands.get(cmd[0].substring(1));
-                        if (cmd[0].isEmpty()) {
-                            printHelp();
-                        } else if (command != null) {
-                            String[] args = new String[cmd.length - 1];
-                            if (cmd.length > 0) {
-                                System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
+                threadPool.submit(() -> {
+                    try {
+                        Unpacker unpacker = new MessagePack().createUnpacker(socket.getInputStream());
+
+                        while (true) {
+                            String msg = unpacker.readString();
+                            String[] cmd = msg.trim().split("\\s+");
+                            if (cmd[0].startsWith("/")) {
+                                SystemCommand command = commands.get(cmd[0].substring(1));
+                                if (cmd[0].isEmpty()) {
+                                    printHelp();
+                                } else if (command != null) {
+                                    String[] args = new String[cmd.length - 1];
+                                    if (cmd.length > 0) {
+                                        System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
+                                    }
+                                    boolean ret = command.execute(system, transport, args);
+                                    if (!ret) return;
+                                } else {
+                                    transport.sendErr("Unknown command: " + cmd[0], ReplResponse.ResponseStatus.UNKNOWN_COMMAND);
+                                }
+                            } else {
+                                transport.sendOut("");
                             }
-                            command.execute(system, env, args);
-                        } else {
-                            ps.println("Unknown command: " + cmd[0]);
+                        }
+                    } catch (EOFException ignore) {
+                        // Disconnect from client.
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        try {
+                            socket.close();
+                        } catch (IOException ignore) {
+
                         }
                     }
-                }));
-            } while(!serverSock.isClosed());
-        } catch (IOException e) {
-            e.printStackTrace();
+                });
+            } while (!serverSock.isClosed());
+        } catch (SocketException e) {
+            LOG.info("Repl server closed");
+        } catch (Exception e) {
+            LOG.error("Repl server error", e);
         } finally {
-            threadPool.shutdown();
+            try {
+                threadPool.shutdown();
+                if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {
+                    threadPool.shutdownNow();
+                }
+            } catch (InterruptedException ex) {
+                threadPool.shutdownNow();
+            }
+            LOG.info("REPL client close");
+            replClient.close();
         }
     }
 

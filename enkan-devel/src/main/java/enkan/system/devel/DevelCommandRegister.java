@@ -5,6 +5,7 @@ import enkan.config.ConfigurationLoader;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.EnkanSystem;
 import enkan.system.Repl;
+import enkan.system.ReplResponse;
 import enkan.system.repl.SystemCommandRegister;
 
 import java.io.File;
@@ -27,15 +28,15 @@ public class DevelCommandRegister implements SystemCommandRegister {
 
     @Override
     public void register(Repl repl) {
-        repl.registerCommand("autoreset", (system, env, args) -> {
+        repl.registerCommand("autoreset", (system, transport, args) -> {
             if (repl.getBackgorundTask("classWatcher") != null) {
-                env.out.println("Autoreset is already running.");
+                transport.sendOut("Autoreset is already running.");
                 return true;
             }
 
             ConfigurationLoader loader = findConfigurationLoader(system);
             if (loader == null) {
-                env.out.println("Start an application first.");
+                transport.sendOut("Start an application first.");
                 return true;
             }
             try {
@@ -46,10 +47,10 @@ public class DevelCommandRegister implements SystemCommandRegister {
                         () -> {
                             system.stop();
                             system.start();
-                            env.out.println("Reset automatically");
+                            transport.send(ReplResponse.withOut("Reset automatically"));
                     });
                 repl.addBackgroundTask("classWatcher", classWatcher);
-                env.out.println("Start to watch modification an application.");
+                transport.sendOut("Start to watch modification an application.");
                 return true;
             } catch (IOException ex) {
                 throw FalteringEnvironmentException.create(ex);

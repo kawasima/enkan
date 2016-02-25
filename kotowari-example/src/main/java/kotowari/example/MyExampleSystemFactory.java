@@ -22,8 +22,8 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                 "template", new FreemarkerTemplateEngine(),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
                 "app", new ApplicationComponent("kotowari.example.MyApplicationFactory"),
-                "http", builder(new JettyComponent())
-                        .set(JettyComponent::setPort, Env.getInt("PORT", 3000))
+                "http", builder(new UndertowComponent())
+                        .set(UndertowComponent::setPort, Env.getInt("PORT", 3000))
                         .build()
         ).relationships(
                 component("http").using("app"),

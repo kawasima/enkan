@@ -1,11 +1,19 @@
 package enkan.collection;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * @author kawasima
  */
 public class Headers extends Parameters {
-    protected Headers() {
+    private static final Map<String, String> KEYWORDS = Arrays.asList("CSP", "ATT", "WAP", "IP", "HTTP", "CPU", "DNT", "SSL", "UA", "TE", "WWW", "XSS", "MD5")
+            .stream()
+            .collect(Collectors.toMap(k -> k, k -> k));
 
+
+    protected Headers() {
+        setCaseSensitive(false);
     }
 
     public static Headers empty() {
@@ -35,4 +43,24 @@ public class Headers extends Parameters {
         headers.put(k4, v4);
         return headers;
     }
+
+    @Override
+    public Set<String> keySet() {
+        Set<String> keys = super.keySet();
+        Set<String> headerKeys = new HashSet<>(keys.size() + 10);
+        for (String key : keys) {
+            headerKeys.add(Arrays.stream(key.split("-"))
+                        .map(t -> {
+                            if (t.length() < 2) {
+                                return t.toUpperCase(Locale.US);
+                            } else {
+                                return Optional.ofNullable(KEYWORDS.get(t.toUpperCase(Locale.US)))
+                                        .orElseGet(() -> Character.toUpperCase(t.charAt(0)) + t.substring(1));
+                            }
+                        })
+                        .collect(Collectors.joining("-")));
+        }
+        return headerKeys;
+    }
+
 }

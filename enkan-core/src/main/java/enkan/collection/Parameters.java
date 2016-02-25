@@ -7,11 +7,15 @@ import java.util.*;
  */
 public class Parameters implements Map<String, Object> {
     private HashMap<String, Object> params = new HashMap<>();
+    private boolean caseSensitive = true;
 
     protected Parameters() {
 
     }
 
+    protected void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
     public static Parameters empty() {
         return new Parameters();
     }
@@ -74,6 +78,9 @@ public class Parameters implements Map<String, Object> {
      */
     @Override
     public boolean containsKey(Object key) {
+        if (!caseSensitive && String.class.isInstance(key)) {
+            key = String.class.cast(key).toLowerCase(Locale.US);
+        }
         return params.containsKey(key);
     }
 
@@ -94,6 +101,9 @@ public class Parameters implements Map<String, Object> {
      */
     @Override
     public String get(Object key) {
+        if (!caseSensitive && String.class.isInstance(key)) {
+            key = String.class.cast(key).toLowerCase(Locale.US);
+        }
         Object val = params.get(key);
         if (val == null) return null;
         return val.toString();
@@ -146,6 +156,10 @@ public class Parameters implements Map<String, Object> {
     }
 
     public Object getRawType(Object key) {
+        if (!caseSensitive && String.class.isInstance(key)) {
+            key = String.class.cast(key).toLowerCase(Locale.US);
+        }
+
         return params.get(key);
     }
 
@@ -177,6 +191,9 @@ public class Parameters implements Map<String, Object> {
 
     @Override
     public Object put(String key, Object value) {
+        if (!caseSensitive) {
+            key = key.toLowerCase(Locale.US);
+        }
         Object v = params.get(key);
         if (v == null) {
             params.put(key, value);

@@ -4,6 +4,7 @@ import enkan.Application;
 import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
 import enkan.system.Repl;
+import enkan.system.ReplResponse;
 import enkan.system.repl.SystemCommandRegister;
 import kotowari.middleware.RoutingMiddleware;
 
@@ -12,9 +13,9 @@ import kotowari.middleware.RoutingMiddleware;
  */
 public class KotowariCommandRegister implements SystemCommandRegister {
     public void register(Repl repl) {
-        repl.registerCommand("routes", (system, env, args) -> {
+        repl.registerCommand("routes", (system, transport, args) -> {
             if (args == null || args.length == 0) {
-                env.out.println("usage: routes [app]");
+                transport.sendOut("usage: routes [app]");
                 return true;
             }
 
@@ -23,16 +24,17 @@ public class KotowariCommandRegister implements SystemCommandRegister {
             if (component instanceof ApplicationComponent) {
                 Application<?, ?> app = ((ApplicationComponent) component).getApplication();
                 if (app == null) {
-                    env.out.println(String.format("Application %s is not running.", appName));
+                    transport.sendErr(String.format("Application %s is not running.", appName));
                     return true;
                 }
                 app.getMiddlewareStack().stream()
                         .map(chain -> chain.getMiddleware())
                         .filter(middleware -> middleware instanceof RoutingMiddleware)
-                        .map(m -> ((RoutingMiddleware) m).getRoutes().toString())
-                        .forEach(env.out::println);
+                        .map(m -> ReplResponse.withOut(((RoutingMiddleware) m).getRoutes().toString()))
+                        .forEach(transport::send);
+                transport.sendOut("", ReplResponse.ResponseStatus.DONE);
             } else {
-                env.out.println(String.format("Application %s not found.", appName));
+                transport.sendErr(String.format("Application %s not found.", appName));
             }
             return true;
         });

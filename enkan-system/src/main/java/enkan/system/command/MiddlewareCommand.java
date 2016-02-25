@@ -7,42 +7,42 @@ import enkan.component.SystemComponent;
 import enkan.predicate.AnyPredicate;
 import enkan.predicate.NonePredicate;
 import enkan.system.EnkanSystem;
-import enkan.system.Repl;
+import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
-import enkan.system.repl.ReplEnvironment;
+import enkan.system.Transport;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
  * @author kawasima
  */
 public class MiddlewareCommand implements SystemCommand {
-    private void list(Application<?, ?> app, PrintStream out) {
+    private void list(Application<?, ?> app, Transport transport) {
         List<MiddlewareChain<?, ?>> chains = app.getMiddlewareStack();
-        chains.forEach(chain -> out.println(chain.toString()));
+        chains.forEach(chain -> transport.send(ReplResponse.withOut(chain.toString())));
     }
 
     @Override
-    public boolean execute(EnkanSystem system, ReplEnvironment env, String... args) {
+    public boolean execute(EnkanSystem system, Transport transport, String... args) {
         if (args == null || args.length < 2) {
-            env.out.println("middleware [appName]");
+            transport.sendOut("middleware [appName]");
             return true;
         }
 
         String appName = args[0];
         SystemComponent component = system.getComponent(appName);
         if (component == null || !(component instanceof ApplicationComponent)) {
-            env.out.println(String.format("Application %s not found.", appName));
+            transport.sendErr(String.format("Application %s not found.", appName));
             return true;
         }
         Application<?, ?> app = ((ApplicationComponent) component).getApplication();
 
         switch (args[1]) {
             case "list":
-                list(app, env.out);
+                list(app, transport);
+                transport.sendOut("", ReplResponse.ResponseStatus.DONE);
                 break;
             case "predicate":
                 String middlewareName = args[2];
@@ -62,11 +62,16 @@ public class MiddlewareCommand implements SystemCommand {
                                 middlewareChain.get().setPredicate(new NonePredicate<>());
                                 break;
                         }
-
+                        transport.sendOut(String.format(Locale.US, "Middleware %s's predicate has changed to %s.", middlewareName, predicateName));
+                    } else {
+                        transport.sendOut(String.format(Locale.US, "Usage: /middleware [app name] predicate [middleware name] [predicate nme]"));
                     }
                 } else {
-                    env.out.println(String.format("Middleware %s not found.", middlewareName));
+                    transport.sendErr(String.format("Middleware %s not found.", middlewareName));
                 }
+                break;
+            default:
+                transport.sendErr("");
         }
 
         return true;
