@@ -1,0 +1,10 @@
+enkan
+Copyright 2016 kawasima <kawasima1016@gmail.com>
+
+Core library from
+https://github.com/ring-clojure/ring
+Copyright © 2009-2015 Mark McGranaghan, James Reeves & contributors.
+
+Multipart parser from
+https://github.com/rack/rack/
+Copyright (c) 2007-2015 Christian Neukirchen
