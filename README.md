@@ -132,7 +132,7 @@ REPL> [pool-1-thread-1] INFO org.eclipse.jetty.server.ServerConnector - Started 
 [pool-1-thread-1] INFO org.eclipse.jetty.server.Server - Started @2688295ms
 ```
 - Stop a server
-- Reload a application
+- Reload an application
 - Show routing information
 ```
 REPL> /routes app
