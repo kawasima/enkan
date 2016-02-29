@@ -210,6 +210,9 @@ public class Parameters implements Map<String, Object> {
 
     @Override
     public Object remove(Object key) {
+        if (!caseSensitive) {
+            key = key.toString().toLowerCase(Locale.US);
+        }
         return params.remove(key);
     }
 
@@ -220,6 +223,9 @@ public class Parameters implements Map<String, Object> {
 
     @Override
     public Object replace(String key, Object value) {
+        if (!caseSensitive) {
+            key = key.toLowerCase(Locale.US);
+        }
         return params.replace(key, value);
     }
 
