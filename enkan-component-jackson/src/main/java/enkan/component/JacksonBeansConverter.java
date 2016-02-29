@@ -1,13 +1,13 @@
 package enkan.component;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import enkan.exception.MisconfigurationException;
+import sun.security.krb5.internal.crypto.Des;
 
 import java.io.IOException;
-
-import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * @author kawasima
@@ -36,6 +36,9 @@ public class JacksonBeansConverter extends BeansConverter {
             @Override
             public void start(JacksonBeansConverter component) {
                 component.mapper = new ObjectMapper();
+                component.mapper.registerModule(new JavaTimeModule());
+                component.mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+                component.mapper.configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
                 component.mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
                 component.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             }
