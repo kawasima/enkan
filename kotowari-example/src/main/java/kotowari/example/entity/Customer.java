@@ -6,6 +6,8 @@ import org.seasar.doma.GeneratedValue;
 import org.seasar.doma.GenerationType;
 import org.seasar.doma.Id;
 
+import java.time.LocalDate;
+
 
 /**
  * @author kawasima
@@ -15,8 +17,14 @@ import org.seasar.doma.Id;
 public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    Long id;
+    private Long id;
 
-    String name;
-    String password;
+    private String name;
+    private String password;
+
+    private String email;
+
+    private String gender;
+
+    private LocalDate birthday;
 }

@@ -2,6 +2,7 @@ package kotowari.data;
 
 import enkan.collection.Multimap;
 import enkan.data.Extendable;
+import enkan.util.ThreadingUtils;
 
 import java.util.List;
 
@@ -18,11 +19,9 @@ public interface Validatable extends Extendable {
     }
 
     default boolean hasErrors(String key) {
-        Multimap<String, String> errors = (Multimap<String, String>) getExtension("errors");
-        if (errors != null) {
-            return !errors.getAll(key).isEmpty();
-        }
-        return false;
+        return ThreadingUtils.some((Multimap<String, String>) getExtension("errors"),
+                errors -> errors.getAll(key),
+                List::isEmpty).orElse(false);
     }
 
     default List<String> getErrors(String key) {

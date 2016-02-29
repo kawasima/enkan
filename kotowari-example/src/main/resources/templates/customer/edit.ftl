@@ -12,6 +12,24 @@
       <label for="password">Password</label>
       <input id="password" class="form-control" type="password" name="password" value=""/>
     </div>
+     <div class="form-group">
+       <label for="email">Email address</label>
+       <input id="email" class="form-control" type="text" name="email" value="${customer.email}"/>
+     </div>
+     <div>
+       <label>Gender</label>
+       <label>
+         <input id="gender-M" type="radio" name="gender" value="M"<#if (customer.gender)! == 'M'> checked</#if>/>Male
+       </label>
+       <label>
+         <input id="gender-F" type="radio" name="gender" value="F"<#if (customer.gender)! == 'F'> checked</#if>/>Female
+       </label>
+     </div>
+     <div class="form-group">
+       <label for="birthday">Birthday</label>
+       <input id="birthday" class="form-control" type="date" name="birthday" value="${(customer.birthday)!}"/>
+     </div>
+
     <button type="submit" class="btn btn-primary">Update</button>
    </form>
 </@layout.layout>

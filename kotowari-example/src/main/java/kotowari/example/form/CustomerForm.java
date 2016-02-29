@@ -3,8 +3,11 @@ package kotowari.example.form;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -13,10 +16,18 @@ import javax.validation.constraints.Size;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class CustomerForm extends FormBase {
-    @NotNull
+    @NotBlank
     @Size(max = 10)
     private String name;
 
-    @NotNull
+    @NotBlank
     private String password;
+
+    @Email
+    private String email;
+
+    @Pattern(regexp = "[MF]")
+    private String gender;
+
+    private String birthday;
 }
