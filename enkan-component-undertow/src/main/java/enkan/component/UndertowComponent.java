@@ -8,7 +8,7 @@ import io.undertow.Undertow;
 /**
  * @author kawasima
  */
-public class UndertowComponent extends SystemComponent {
+public class UndertowComponent extends WebServerComponent {
     Integer port;
     private Undertow server;
 
@@ -38,5 +38,10 @@ public class UndertowComponent extends SystemComponent {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 }

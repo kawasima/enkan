@@ -25,6 +25,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 /**
+ * Undertow exchange adapter.
+ *
  * @author kawasima
  */
 public class UndertowAdapter {
@@ -107,6 +109,7 @@ public class UndertowAdapter {
                 exchange.endExchange();
             }
         });
+
         Undertow undertow = builder
                 .addHttpListener(
                         options.getInt("port", 3000),
