@@ -41,7 +41,7 @@ public class BeanBuilder<X> {
             Set<ConstraintViolation<X>> violations = validator.validate(x);
             if (!violations.isEmpty()) {
 
-                throw MisconfigurationException.create("BUILD_ERROR", x.getClass(),
+                throw MisconfigurationException.create("BUILD_ERROR", x.getClass().getName(),
                         violations.stream().map(ConstraintViolation::getMessage)
                                 .collect(Collectors.joining(",")));
             }
