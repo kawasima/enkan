@@ -36,6 +36,7 @@ public class MyApplicationFactory implements ApplicationFactory {
 
         // Enkan
         app.use(new DefaultCharsetMiddleware());
+        app.use(new MetricsMiddleware<>());
         app.use(new NonePredicate(), new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
         app.use(new StacktraceMiddleware());
         app.use(new TraceMiddleware<>());

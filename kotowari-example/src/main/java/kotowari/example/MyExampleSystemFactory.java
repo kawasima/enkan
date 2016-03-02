@@ -20,6 +20,7 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                 "jackson", new JacksonBeansConverter(),
                 "flyway", new FlywayMigration(),
                 "template", new FreemarkerTemplateEngine(),
+                "metrics", new MetricsComponent(),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
                 "app", new ApplicationComponent("kotowari.example.MyApplicationFactory"),
                 "http", builder(new UndertowComponent())
@@ -27,7 +28,7 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                         .build()
         ).relationships(
                 component("http").using("app"),
-                component("app").using("datasource", "template", "doma", "jackson"),
+                component("app").using("datasource", "template", "doma", "jackson", "metrics"),
                 component("doma").using("datasource", "flyway"),
                 component("flyway").using("datasource")
         );
