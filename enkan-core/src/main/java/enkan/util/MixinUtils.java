@@ -10,7 +10,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static enkan.util.ReflectionUtils.tryReflection;
+
 /**
+ * Mix-in Utilities.
+ *
  * @author kawasima
  */
 public class MixinUtils {
@@ -20,7 +24,7 @@ public class MixinUtils {
         final Class<?> declaringClass = method.getDeclaringClass();
         MethodHandles.Lookup lookup = MethodHandles.publicLookup()
                 .in(declaringClass);
-        try {
+        return tryReflection(() -> {
             final Field f = MethodHandles.Lookup.class.getDeclaredField("allowedModes");
             final int modifiers = f.getModifiers();
             if (Modifier.isFinal(modifiers)) {
@@ -31,9 +35,7 @@ public class MixinUtils {
                 f.set(lookup, MethodHandles.Lookup.PRIVATE);
             }
             return lookup.unreflectSpecial(method, declaringClass);
-        } catch (Exception e) {
-            throw UnreachableException.create();
-        }
+        });
     }
 
     static MethodHandle getMethodHandle(Method method) {

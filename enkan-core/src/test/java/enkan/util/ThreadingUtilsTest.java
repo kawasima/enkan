@@ -17,20 +17,19 @@ import java.util.function.Function;
 
 import static enkan.util.ThreadingUtils.partial;
 import static enkan.util.ThreadingUtils.some;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author kawasima
  */
-public class ThreadingsTest {
+public class ThreadingUtilsTest {
     @Test
-    public void test() {
+    public void nullInChain() {
         Optional<String> booleanName = ThreadingUtils.some(System.getenv(),
-                (env) -> env.get("HOME1"),
+                env -> env.get("HOME1"), // Null
                 String::isEmpty,
                 Object::toString);
-        booleanName.ifPresent(System.out::println);
-
+        assertFalse(booleanName.isPresent());
     }
 
     @Test
@@ -38,7 +37,6 @@ public class ThreadingsTest {
         String path = "^/hoge";
         Optional<URL> url = ThreadingUtils.some(path, File::new, File::toURI, URI::toURL);
         assertTrue(url.isPresent());
-        System.out.println(url.get());
     }
 
     @Test
@@ -48,48 +46,10 @@ public class ThreadingsTest {
         Optional<String> encoded = some(str,
                 partial(URLEncoder::encode, "UTF-8"));
         assertTrue(encoded.isPresent());
-        System.out.println(encoded.get());
 
         str = null;
         encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, "UTF-8"));
         Assert.assertFalse(encoded.isPresent());
     }
 
-    @Test
-    public void builder() {
-        Function<Person, BeanBuilder<Person>> builder = BeanBuilder.builderWithValidation(Validation.buildDefaultValidatorFactory());
-        try {
-            Person p1 = builder.apply(new Person())
-                    .set(Person::setName, "kawasima")
-                    .set(Person::setAge, 3)
-                    .build();
-            Assert.fail("MisconfigurationException occur");
-        } catch (MisconfigurationException ex) {
-
-        }
-    }
-
-    static class Person {
-        @NotNull
-        private String name;
-
-        @DecimalMin("10")
-        private int age;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-    }
 }

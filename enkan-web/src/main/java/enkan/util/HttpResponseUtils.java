@@ -76,6 +76,7 @@ public class HttpResponseUtils {
 
     public static HttpResponse contentType(HttpResponse response, String type) {
         if (type != null) {
+            response.getHeaders().remove("Content-Type");
             response.getHeaders().put("Content-Type", type);
         }
         return response;
@@ -83,6 +84,7 @@ public class HttpResponseUtils {
 
     public static HttpResponse contentLength(HttpResponse response, Long len) {
         if (len != null) {
+            response.getHeaders().remove("Content-Length");
             response.getHeaders().put("Content-Length", len);
         }
         return response;
@@ -90,6 +92,7 @@ public class HttpResponseUtils {
 
     public static HttpResponse lastModified(HttpResponse response, Date lastModified) {
         if (lastModified != null) {
+            response.getHeaders().remove("Last-Modified");
             response.getHeaders().put("Last-Modified", HttpDateFormat.RFC1123.format(lastModified));
         }
         return response;

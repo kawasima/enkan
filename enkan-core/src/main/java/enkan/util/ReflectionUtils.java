@@ -13,7 +13,7 @@ public class ReflectionUtils {
         try {
             return runnable.run();
         } catch (InstantiationException e) {
-            throw MisconfigurationException.create("INSTANTIATION.problem");
+            throw MisconfigurationException.create("INSTANTIATION", e);
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof Error) {
@@ -26,11 +26,13 @@ public class ReflectionUtils {
                 throw new InternalError(t);
             }
         } catch (NoSuchMethodException e) {
-            throw MisconfigurationException.create("NO_SUCH_METHOD");
+            throw MisconfigurationException.create("NO_SUCH_METHOD", e.getMessage(), e);
+        } catch (NoSuchFieldException e) {
+            throw MisconfigurationException.create("NO_SUCH_FIELD", e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            throw MisconfigurationException.create("ILLEGAL_ACCESS");
+            throw MisconfigurationException.create("ILLEGAL_ACCESS", e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-            throw MisconfigurationException.create("CLASS_NOT_FOUND");
+            throw MisconfigurationException.create("CLASS_NOT_FOUND", e.getMessage(), e);
         }
     }
 }
