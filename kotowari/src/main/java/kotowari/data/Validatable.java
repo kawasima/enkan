@@ -21,7 +21,7 @@ public interface Validatable extends Extendable {
     default boolean hasErrors(String key) {
         return ThreadingUtils.some((Multimap<String, String>) getExtension("errors"),
                 errors -> errors.getAll(key),
-                List::isEmpty).orElse(false);
+                errors -> !errors.isEmpty()).orElse(false);
     }
 
     default List<String> getErrors(String key) {
