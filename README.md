@@ -76,6 +76,25 @@ public class ExampleController {
 }
 ```
 
+## Get started
+
+Add sonatype snapshots repository to your pom.xml
+
+```xml
+  <repositories>
+    <repository>
+      <id>sonatype-snapshot</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+```
+
 ## Manual
 
 ### EnkanSystem
