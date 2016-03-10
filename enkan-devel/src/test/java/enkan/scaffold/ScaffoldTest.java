@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author skawasima
+ * @author kawasima
  */
 public class ScaffoldTest {
     private Application createApplication() {
