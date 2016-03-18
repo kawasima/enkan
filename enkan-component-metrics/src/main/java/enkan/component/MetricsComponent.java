@@ -28,7 +28,6 @@ public class MetricsComponent extends SystemComponent {
                 component.errorsMeter = metricRegistry.meter(name(metricName, "errors"));
                 component.activeRequests = metricRegistry.counter(name(metricName, "activeRequests"));
                 component.requestTimer = metricRegistry.timer(name(metricName, "requestTimer"));
-
             }
 
             @Override
