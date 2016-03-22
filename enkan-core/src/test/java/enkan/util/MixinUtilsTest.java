@@ -39,7 +39,7 @@ public class MixinUtilsTest {
     }
 
     public interface ComparableMoney extends Money {
-        default boolean isBigger(enkan.util.MixinUtilsTest.Money other) {
+        default boolean isBigger(Money other) {
             return getAmount() > other.getAmount();
         }
     }
