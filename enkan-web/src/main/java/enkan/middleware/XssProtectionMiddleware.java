@@ -15,6 +15,10 @@ import static enkan.util.HttpResponseUtils.header;
 public class XssProtectionMiddleware extends AbstractWebMiddleware {
     private String headerValue;
 
+    public XssProtectionMiddleware() {
+        this(true, OptionMap.of("mode", "block"));
+    }
+
     public XssProtectionMiddleware(boolean enable, OptionMap options) {
         StringBuilder sb = new StringBuilder();
         sb.append(enable? "1" : "0");

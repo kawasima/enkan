@@ -13,17 +13,13 @@ import java.util.function.Function;
  */
 @Middleware(name = "methodOverride", dependencies = {"params"})
 public class MethodOverrideMiddleware extends AbstractWebMiddleware {
-    private Function<HttpRequest, String> getterFunction;
+    private Function<HttpRequest, String> getterFunction = createGetter("_method");
 
-    public MethodOverrideMiddleware() {
-        this("X-HTTP-Method-Override");
+    public void setGetterFunction(String functionName) {
+        getterFunction = createGetter(functionName);
     }
 
-    public MethodOverrideMiddleware(String getter) {
-        this.getterFunction = createGetter(getter);
-    }
-
-    public MethodOverrideMiddleware(Function<HttpRequest, String> getterFunction) {
+    public void setGetterFunction(Function<HttpRequest, String> getterFunction) {
         this.getterFunction = getterFunction;
     }
 
