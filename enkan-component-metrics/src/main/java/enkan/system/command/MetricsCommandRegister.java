@@ -43,9 +43,9 @@ public class MetricsCommandRegister implements SystemCommandRegister {
                 String.format(Locale.US, "             count = %d", counter.getCount())));
     }
 
-    private void printGauge(Transport t, Gauge guage) {
+    private void printGauge(Transport t, Gauge gauge) {
         t.send(ReplResponse.withOut(
-                String.format(Locale.US, "             value = %d", guage.getValue())
+                String.format(Locale.US, "             value = %d", gauge.getValue())
         ));
     }
 
