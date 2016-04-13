@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.unit8.enkan</groupId>
+        <artifactId>enkan-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>net.unit8.enkan</groupId>
+    <artifactId>kotowari-scaffold</artifactId>
+    <packaging>jar</packaging>
+
+    <name>kotowari-scaffold</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-system</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.moshas</groupId>
+            <artifactId>moshas</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.amagicman</groupId>
+            <artifactId>amagicman-generator</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seasar.doma</groupId>
+            <artifactId>doma-gen</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.erebus</groupId>
+            <artifactId>erebus</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.189</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.20</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-web</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-component-HikariCP</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>kotowari</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

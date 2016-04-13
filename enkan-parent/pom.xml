@@ -38,6 +38,7 @@
         <module>../enkan-component-jackson</module>
         <module>../enkan-component-metrics</module>
         <module>../kotowari</module>
+        <module>../kotowari-scaffold</module>
         <module>../kotowari-example</module>
     </modules>
     <build>
