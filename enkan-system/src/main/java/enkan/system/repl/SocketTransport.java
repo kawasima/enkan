@@ -1,4 +1,4 @@
-package enkan.system.repl.pseudo;
+package enkan.system.repl;
 
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.ReplResponse;
@@ -11,14 +11,16 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
+ * Transport via socket.
+ *
  * @author kawasima
  */
-public class PseudoReplTransport implements Transport {
+public class SocketTransport implements Transport {
     private Socket socket;
     private Packer packer;
     private Unpacker unpacker;
 
-    public PseudoReplTransport(Socket socket) throws IOException {
+    public SocketTransport(Socket socket) throws IOException {
         this.socket = socket;
         MessagePack msgpack = new MessagePack();
         msgpack.register(ReplResponse.ResponseStatus.class);

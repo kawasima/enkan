@@ -61,4 +61,8 @@ public class ApplicationComponent extends SystemComponent {
     public ConfigurationLoader getLoader() {
         return loader;
     }
+
+    public String getFactoryClassName() {
+        return factoryClassName;
+    }
 }

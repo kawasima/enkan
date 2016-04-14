@@ -5,8 +5,6 @@ import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.*;
 import enkan.system.command.MiddlewareCommand;
-import enkan.system.repl.pseudo.PseudoReplTransport;
-import enkan.system.repl.pseudo.ReplClient;
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
@@ -15,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -124,7 +124,7 @@ public class PseudoRepl implements Repl {
 
             do {
                 Socket socket = serverSock.accept();
-                Transport transport = new PseudoReplTransport(socket);
+                Transport transport = new SocketTransport(socket);
 
                 threadPool.submit(() -> {
                     try {
@@ -142,8 +142,14 @@ public class PseudoRepl implements Repl {
                                     if (cmd.length > 0) {
                                         System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
                                     }
-                                    boolean ret = command.execute(system, transport, args);
-                                    if (!ret) return;
+                                    try {
+                                        boolean ret = command.execute(system, transport, args);
+                                        if (!ret) return;
+                                    } catch (Exception ex) {
+                                        StringWriter traceWriter = new StringWriter();
+                                        ex.printStackTrace(new PrintWriter(traceWriter));
+                                        transport.sendErr(traceWriter.toString());
+                                    }
                                 } else {
                                     transport.sendErr("Unknown command: " + cmd[0], ReplResponse.ResponseStatus.UNKNOWN_COMMAND);
                                 }
@@ -154,7 +160,9 @@ public class PseudoRepl implements Repl {
                     } catch (EOFException ignore) {
                         // Disconnect from client.
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        StringWriter traceWriter = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(traceWriter));
+                        transport.sendErr(traceWriter.toString());
                     } finally {
                         try {
                             socket.close();

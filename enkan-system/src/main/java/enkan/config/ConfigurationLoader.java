@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * A reloadable classloader.
+ *
  * @author kawasima
  */
 public class ConfigurationLoader extends ClassLoader {

@@ -1,8 +1,12 @@
 package enkan.component;
 
+import enkan.exception.MisconfigurationException;
+
 import java.util.*;
 
 /**
+ * A dependency representation between components.
+ *
  * @author kawasima
  */
 public class ComponentRelationship {
@@ -14,6 +18,12 @@ public class ComponentRelationship {
         this.dependents = dependents;
     }
 
+    /**
+     * Create a ComponentRelationshipBuilder.
+     *
+     * @param componentName A name of target component.
+     * @return relationship builder
+     */
     public static ComponentRelationshipBuilder component(String componentName) {
         return new ComponentRelationshipBuilder(componentName);
     }
@@ -32,6 +42,9 @@ public class ComponentRelationship {
 
         Map<String, SystemComponent> dependencies = new HashMap<>();
         for (String key : dependents) {
+            if (!components.containsKey(key)) {
+                throw MisconfigurationException.create("COMPONENT_NOT_FOUND", key, target);
+            }
             dependencies.put(key, components.get(key));
         }
         targetComponent.setDependencies(dependencies);
