@@ -1,4 +1,4 @@
-package enkan.middleware;
+package enkan.middleware.doma2;
 
 
 import enkan.Middleware;
