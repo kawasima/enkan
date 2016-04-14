@@ -10,6 +10,8 @@ import enkan.util.MixinUtils;
 
 import javax.validation.constraints.NotNull;
 
+import static enkan.util.ThreadingUtils.some;
+
 /**
  * @author kawasima
  */
@@ -35,14 +37,15 @@ public class SessionMiddleware extends AbstractWebMiddleware {
 
     protected void sessionRequest(HttpRequest request) {
         if (request instanceof WebSessionAvailable) {
-            Cookie sessionCookie = request.getCookies().get(cookieName);
-
-            String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
-            Session session = reqKey != null ? store.read(reqKey) : null;
-            request.setSession(session);
-            if (session != null) {
-                ((WebSessionAvailable) request).setSessionKey(reqKey);
-            }
+            some(request.getCookies(), cs -> cs.get(cookieName))
+                    .ifPresent(sessionCookie -> {
+                        String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
+                        Session session = reqKey != null ? store.read(reqKey) : null;
+                        request.setSession(session);
+                        if (session != null) {
+                            ((WebSessionAvailable) request).setSessionKey(reqKey);
+                        }
+                    });
         }
     }
 
