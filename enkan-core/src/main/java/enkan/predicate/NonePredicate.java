@@ -1,11 +1,9 @@
 package enkan.predicate;
 
-import java.util.function.Predicate;
-
 /**
  * @author kawasima
  */
-public class NonePredicate<REQ> implements Predicate<REQ> {
+public class NonePredicate<REQ> implements PrintablePredicate<REQ> {
     @Override
     public boolean test(REQ req) {
         return false;

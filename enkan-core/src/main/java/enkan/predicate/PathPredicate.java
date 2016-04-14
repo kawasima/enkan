@@ -2,13 +2,12 @@ package enkan.predicate;
 
 import enkan.data.UriAvailable;
 
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
  * @author kawasima
  */
-public class PathPredicate<REQ extends UriAvailable> implements Predicate<REQ> {
+public class PathPredicate<REQ extends UriAvailable> implements PrintablePredicate<REQ> {
     private String method;
     private Pattern pathPattern;
 
@@ -45,5 +44,16 @@ public class PathPredicate<REQ extends UriAvailable> implements Predicate<REQ> {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (!method.equals("ANY")) {
+            sb.append("method = ").append(method).append(" && ");
+        }
+        sb.append("path = ").append(pathPattern.pattern());
+
+        return sb.toString();
     }
 }

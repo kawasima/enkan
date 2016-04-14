@@ -1,11 +1,9 @@
 package enkan.predicate;
 
-import java.util.function.Predicate;
-
 /**
  * @author kawasima
  */
-public class AnyPredicate<REQ> implements Predicate<REQ> {
+public class AnyPredicate<REQ> implements PrintablePredicate<REQ> {
     @Override
     public boolean test(REQ req) {
         return true;
