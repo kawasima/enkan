@@ -27,7 +27,7 @@ public class AbsoluteRedirectsMiddleware extends AbstractWebMiddleware {
 
     protected void updateHeader(HttpResponse response, String header, HttpRequest request) {
         ThreadingUtils.some(response.getHeaders().get(header), Object::toString)
-                .ifPresent(url -> response.getHeaders().put(header, absoluteUrl(url, request)));
+                .ifPresent(url -> response.getHeaders().replace(header, absoluteUrl(url, request)));
     }
 
     protected boolean isUrl(String s) {

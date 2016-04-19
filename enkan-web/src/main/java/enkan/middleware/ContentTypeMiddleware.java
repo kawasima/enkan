@@ -8,6 +8,8 @@ import enkan.util.HttpResponseUtils;
 import enkan.util.MimeTypeUtils;
 
 /**
+ * Adds default Content-Type header if not.
+ *
  * @author kawasima
  */
 @Middleware(name = "contentType")

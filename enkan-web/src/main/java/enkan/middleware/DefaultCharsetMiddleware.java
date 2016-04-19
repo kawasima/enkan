@@ -9,6 +9,8 @@ import enkan.util.HttpResponseUtils;
 import static enkan.util.HttpResponseUtils.getHeader;
 
 /**
+ * Adds default charset to Content-Type header if not.
+ *
  * @author kawasima
  */
 @Middleware(name = "defaultCharset")
