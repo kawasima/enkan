@@ -1,4 +1,4 @@
-package enkan.component;
+package enkan.component.freemarker;
 
 import freemarker.ext.beans.BeanModel;
 import freemarker.template.DefaultObjectWrapper;

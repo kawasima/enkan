@@ -1,7 +1,8 @@
-package enkan.component;
+package enkan.component.freemarker;
 
+import enkan.component.ComponentLifecycle;
+import enkan.component.SystemComponent;
 import enkan.data.HttpResponse;
-import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
@@ -15,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 /**
@@ -39,7 +41,8 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
             } catch (TemplateException e) {
                 throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e.getFTLInstructionStack(), e.getMessageWithoutStackTop(), e);
             } catch (IOException e) {
-                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e);
+                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e.getMessage(),
+                        String.format(Locale.US, "Make a template '%s'.", name), e);
             }
 
         }));

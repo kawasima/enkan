@@ -1,8 +1,10 @@
-package enkan.component;
+package enkan.component.hikaricp;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import enkan.collection.OptionMap;
+import enkan.component.ComponentLifecycle;
+import enkan.component.DataSourceComponent;
 
 import javax.sql.DataSource;
 

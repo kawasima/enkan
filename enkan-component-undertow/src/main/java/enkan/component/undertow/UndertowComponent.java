@@ -1,8 +1,11 @@
-package enkan.component;
+package enkan.component.undertow;
 
 import enkan.adapter.UndertowAdapter;
 import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
+import enkan.component.ApplicationComponent;
+import enkan.component.ComponentLifecycle;
+import enkan.component.WebServerComponent;
 import io.undertow.Undertow;
 
 /**

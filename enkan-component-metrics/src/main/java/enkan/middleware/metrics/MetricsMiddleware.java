@@ -1,4 +1,4 @@
-package enkan.middleware;
+package enkan.middleware.metrics;
 
 import com.codahale.metrics.Timer;
 import enkan.Middleware;

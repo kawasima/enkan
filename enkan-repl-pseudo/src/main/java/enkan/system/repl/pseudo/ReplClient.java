@@ -1,4 +1,4 @@
-package enkan.system.repl;
+package enkan.system.repl.pseudo;
 
 import enkan.system.ReplResponse;
 import jline.console.ConsoleReader;

@@ -1,8 +1,11 @@
-package enkan.component;
+package enkan.component.jetty;
 
-import enkan.adapter.JettyAdapter;
+import enkan.adapter.jetty.JettyAdapter;
 import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
+import enkan.component.ApplicationComponent;
+import enkan.component.ComponentLifecycle;
+import enkan.component.WebServerComponent;
 import enkan.exception.FalteringEnvironmentException;
 import org.eclipse.jetty.server.Server;
 
