@@ -75,6 +75,14 @@ public class UndertowAdapter {
                 }));
     }
 
+    private void setOptions(Undertow.Builder builder, OptionMap options) {
+        if (options.containsKey("ioThreads")) builder.setIoThreads(options.getInt("ioThreads"));
+        if (options.containsKey("workerThreads")) builder.setWorkerThreads(options.getInt("workerThreads"));
+        if (options.containsKey("bufferSize")) builder.setBufferSize(options.getInt("bufferSize"));
+        if (options.containsKey("buffersPerRegion")) builder.setBuffersPerRegion(options.getInt("buffersPerRegion"));
+        if (options.containsKey("directBuffers")) builder.setDirectBuffers(options.getBoolean("directBuffers"));
+    }
+
     public Undertow runUndertow(WebApplication application, OptionMap options) {
         Undertow.Builder builder = Undertow.builder();
 
@@ -110,6 +118,7 @@ public class UndertowAdapter {
             }
         });
 
+        setOptions(builder, options);
         Undertow undertow = builder
                 .addHttpListener(
                         options.getInt("port", 3000),

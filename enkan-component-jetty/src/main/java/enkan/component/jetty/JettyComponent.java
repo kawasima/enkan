@@ -1,6 +1,6 @@
 package enkan.component.jetty;
 
-import enkan.adapter.jetty.JettyAdapter;
+import enkan.adapter.JettyAdapter;
 import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.component.ApplicationComponent;

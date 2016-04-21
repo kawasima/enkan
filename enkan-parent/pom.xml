@@ -23,6 +23,7 @@
     </properties>
 
     <modules>
+        <module>../docs</module>
         <module>../enkan-core</module>
         <module>../enkan-web</module>
         <module>../enkan-servlet</module>
@@ -31,6 +32,7 @@
         <module>../enkan-devel</module>
         <module>../enkan-component-HikariCP</module>
         <module>../enkan-component-freemarker</module>
+        <module>../enkan-component-thymeleaf</module>
         <module>../enkan-component-jetty</module>
         <module>../enkan-component-undertow</module>
         <module>../enkan-component-flyway</module>

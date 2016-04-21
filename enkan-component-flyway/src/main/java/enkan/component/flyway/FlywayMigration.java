@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
+ * A migration component using by Flyway.
+ *
  * @author kawasima
  */
 public class FlywayMigration extends SystemComponent {

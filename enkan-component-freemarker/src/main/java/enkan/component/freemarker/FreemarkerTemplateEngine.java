@@ -20,6 +20,8 @@ import java.util.Locale;
 import java.util.function.Function;
 
 /**
+ * Template engine component using by Freemarker.
+ *
  * @author kawasima
  */
 public class FreemarkerTemplateEngine extends TemplateEngine {

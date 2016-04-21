@@ -3,7 +3,7 @@ package enkan.middleware.metrics;
 import com.codahale.metrics.Timer;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
-import enkan.component.MetricsComponent;
+import enkan.component.metrics.MetricsComponent;
 
 import javax.inject.Inject;
 

@@ -41,13 +41,12 @@ public class ScaffoldTest {
         app.use(new HttpStatusCatMiddleware());
         app.use(new ParamsMiddleware());
         app.use(new MultipartParamsMiddleware());
-        app.use(new MethodOverrideMiddleware("_method"));
+        app.use(new MethodOverrideMiddleware());
         app.use(new NormalizationMiddleware());
         app.use(new NestedParamsMiddleware());
         app.use(new CookiesMiddleware());
         app.use(new SessionMiddleware());
         app.use(new ResourceMiddleware());
-        app.use(new HtmlRenderer());
 
         return app;
     }
