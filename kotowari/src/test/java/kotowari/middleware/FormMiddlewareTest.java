@@ -2,7 +2,7 @@ package kotowari.middleware;
 
 import enkan.collection.Headers;
 import enkan.collection.Parameters;
-import enkan.component.JacksonBeansConverter;
+import enkan.component.jackson.JacksonBeansConverter;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.middleware.NestedParamsMiddleware;

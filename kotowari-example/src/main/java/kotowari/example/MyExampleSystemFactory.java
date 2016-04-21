@@ -3,6 +3,13 @@ package kotowari.example;
 import enkan.Env;
 import enkan.collection.OptionMap;
 import enkan.component.*;
+import enkan.component.doma2.DomaProvider;
+import enkan.component.flyway.FlywayMigration;
+import enkan.component.freemarker.FreemarkerTemplateEngine;
+import enkan.component.hikaricp.HikariCPComponent;
+import enkan.component.jackson.JacksonBeansConverter;
+import enkan.component.metrics.MetricsComponent;
+import enkan.component.undertow.UndertowComponent;
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
 

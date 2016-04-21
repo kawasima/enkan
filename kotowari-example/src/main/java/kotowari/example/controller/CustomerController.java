@@ -2,7 +2,7 @@ package kotowari.example.controller;
 
 import enkan.collection.Parameters;
 import enkan.component.BeansConverter;
-import enkan.component.DomaProvider;
+import enkan.component.doma2.DomaProvider;
 import enkan.data.HttpResponse;
 import kotowari.component.TemplateEngine;
 import kotowari.example.dao.CustomerDao;
@@ -37,6 +37,11 @@ public class CustomerController {
         List<Customer> customers = customerDao.selectAll();
         return templateEngine.render("customer/list",
                 "customers", customers);
+    }
+
+    public List<Customer> list() {
+        CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
+        return customerDao.selectAll();
     }
 
     public HttpResponse show(Parameters params) {

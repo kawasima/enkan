@@ -1,6 +1,8 @@
 package enkan.util;
 
 /**
+ * Declare pattern strings defined by some RFCs.
+ *
  * @author kawasima
  */
 public class ParsingUtils {

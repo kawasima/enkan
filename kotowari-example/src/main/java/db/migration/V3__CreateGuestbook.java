@@ -16,7 +16,7 @@ public class V3__CreateGuestbook implements JdbcMigration {
                     "(id IDENTITY PRIMARY KEY," +
                     " name VARCHAR(30)," +
                     " message VARCHAR(200)," +
-                    " posted_at TIMESTAMP)");
+                    " postedat TIMESTAMP)");
         }
     }
 }

@@ -4,10 +4,13 @@ import enkan.system.ReplResponse;
 import jline.console.ConsoleReader;
 import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.StringsCompleter;
+import jline.console.history.FileHistory;
+import jline.console.history.History;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -110,6 +113,9 @@ public class ReplClient {
         console = new ConsoleReader();
         console.getTerminal().setEchoEnabled(false);
         console.setPrompt("\u001B[32menkan\u001B[0m> ");
+        History history = new FileHistory(new File(System.getProperty("user.home"), ".enkan_history"));
+        console.setHistory(history);
+
         console.addCompleter(new StringsCompleter("/connect", "/exit"));
         CandidateListCompletionHandler handler = new CandidateListCompletionHandler();
         console.setCompletionHandler(handler);

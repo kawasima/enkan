@@ -5,6 +5,7 @@ import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.*;
 import enkan.system.command.MiddlewareCommand;
+import enkan.system.repl.pseudo.ReplClient;
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
@@ -32,10 +34,12 @@ import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 public class PseudoRepl implements Repl {
     private final Logger LOG = LoggerFactory.getLogger(PseudoRepl.class);
 
-    private EnkanSystem system;
-    private ExecutorService threadPool;
-    private Map<String, SystemCommand> commands = new HashMap<>();
-    private Map<String, Future<?>> backgroundTasks = new HashMap<>();
+    private final EnkanSystem system;
+    private final ExecutorService threadPool;
+    private final Map<String, SystemCommand> commands = new HashMap<>();
+    private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
+
+    private final Preferences prefs;
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
@@ -48,6 +52,8 @@ public class PseudoRepl implements Repl {
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
+
+        prefs = Preferences.userRoot().node("enkan/PseudoRepl");
 
         registerCommand("start", (system, transport, args) -> {
             system.start();

@@ -3,13 +3,11 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.collection.Parameters;
-import enkan.data.Flash;
-import enkan.data.HttpRequest;
-import enkan.data.Routable;
-import enkan.data.Session;
+import enkan.data.*;
 import enkan.exception.MisconfigurationException;
+import enkan.security.UserPrincipal;
 import enkan.system.inject.ComponentInjector;
-import kotowari.data.FormAvailable;
+import kotowari.data.BodyDeserializable;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -43,7 +41,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
 
     protected Object[] createArguments(HttpRequest request) {
         Method method = ((Routable) request).getControllerMethod();
-        Serializable form = FormAvailable.class.cast(request).getForm();
+        Object bodyObj = BodyDeserializable.class.cast(request).getDeserializedBody();
         Object[] arguments = new Object[method.getParameterCount()];
 
         int parameterIndex = 0;
@@ -57,8 +55,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 // TODO flash
             } else if (Parameters.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getParams();
-            } else if (form != null && form.getClass().equals(type)) {
-                arguments[parameterIndex] = form;
+            } else if (UserPrincipal.class.isAssignableFrom(type)) {
+                arguments[parameterIndex] = PrincipalAvailable.class.cast(request).getPrincipal();
+            } else if (bodyObj != null && bodyObj.getClass().equals(type)) {
+                arguments[parameterIndex] = bodyObj;
             }
             parameterIndex++;
         }

@@ -2,6 +2,7 @@ package kotowari.data;
 
 import enkan.collection.Headers;
 import enkan.data.DefaultHttpResponse;
+import enkan.exception.MisconfigurationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,9 @@ public class TemplatedHttpResponse extends DefaultHttpResponse {
     }
 
     public static TemplatedHttpResponse create(String templateName, Object... keyVals) {
+        if (keyVals.length % 2 != 0) {
+            throw MisconfigurationException.create("MISSING_KEY_VALUE_PAIR");
+        }
         TemplatedHttpResponse response = new TemplatedHttpResponse(templateName);
         for (int i = 0; i < keyVals.length; i += 2) {
             response.context.put(keyVals[i].toString(), keyVals[i+1]);

@@ -40,7 +40,6 @@ public class MyApplicationFactory implements ApplicationFactory {
         app.use(new RoutingMiddleware(routes));
         app.use(new FormMiddleware());
         app.use(new ValidateFormMiddleware());
-        app.use(new HtmlRenderer());
         app.use(new ControllerInvokerMiddleware(injector));
 
         return app;

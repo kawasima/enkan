@@ -22,6 +22,8 @@ import java.util.zip.ZipEntry;
 import static enkan.util.BeanBuilder.builder;
 
 /**
+ * Utilities for HTTP response.
+ *
  * @author kawasima
  */
 public class HttpResponseUtils {
@@ -42,6 +44,13 @@ public class HttpResponseUtils {
     }
 
 
+    /**
+     * Create a response with a Location header.
+     *
+     * @param url   a redirect url
+     * @param code  a HTTP status code in redirect
+     * @return response
+     */
     public static HttpResponse redirect(String url, RedirectStatusCode code) {
         return builder(HttpResponse.of(""))
                 .set(HttpResponse::setStatus, code.getStatusCode())
@@ -49,6 +58,12 @@ public class HttpResponseUtils {
                 .build();
     }
 
+    /**
+     * Create a response with a string body.
+     *
+     * @param body string body
+     * @return response
+     */
     public static HttpResponse response(String body) {
         return builder(HttpResponse.of(body))
                 .set(HttpResponse::setStatus, 200)
@@ -56,24 +71,52 @@ public class HttpResponseUtils {
     }
 
 
+    /**
+     * Returns the header value of the given response.
+     *
+     * @param response a response object
+     * @param name the name of the header
+     * @param <T>  the type of the header value
+     * @return the header value
+     */
     public static <T> T getHeader(HttpResponse response, String name) {
         return (T) response.getHeaders().get(name);
     }
 
+    /**
+     * Sets a response header with the given name and value
+     *
+     * @param response a response object
+     * @param name the name of the header
+     * @param value the header value
+     */
     public static void header(HttpResponse response, String name, String value) {
         response.getHeaders().put(name, value);
     }
 
+    /**
+     * Sets a charset to the response.
+     *
+     * @param response a response object
+     * @param charset the name of the character set
+     */
     public static void charset(HttpResponse response, String charset) {
         String type = getHeader(response, "Content-Type");
         if (type == null) {
             type = "text/plain";
         }
         String newType = type.replaceAll(";\\s*charset=[^;]*", "") + "; charset=" + charset;
-        response.getHeaders().remove("Content-Type"); // TODO Character case.
+        response.getHeaders().remove("Content-Type");
         header(response, "Content-Type", newType);
     }
 
+    /**
+     * Sets a content type to the response.
+     *
+     * @param response a response object
+     * @param type the type of the content
+     * @return
+     */
     public static HttpResponse contentType(HttpResponse response, String type) {
         if (type != null) {
             response.getHeaders().remove("Content-Type");
@@ -82,6 +125,13 @@ public class HttpResponseUtils {
         return response;
     }
 
+    /**
+     * Sets a size of the response message.
+     *
+     * @param response a response object
+     * @param len the length of response message
+     * @return
+     */
     public static HttpResponse contentLength(HttpResponse response, Long len) {
         if (len != null) {
             response.getHeaders().remove("Content-Length");

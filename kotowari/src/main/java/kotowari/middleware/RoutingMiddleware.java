@@ -67,9 +67,12 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
             }
 
             Parameters params = request.getParams();
-            routing.keySet().forEach(k -> params.put(k, routing.getString(k)));
+            routing.keySet()
+                    .stream()
+                    .filter(k -> !k.equals("controller") && !k.equals("action"))
+                    .forEach(k -> params.put(k, routing.getString(k)));
         } else {
-            HttpResponse response =  HttpResponse.of("");
+            HttpResponse response =  HttpResponse.of("NotFound");
             response.setStatus(404);
             return response;
         }

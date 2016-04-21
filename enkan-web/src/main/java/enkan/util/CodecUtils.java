@@ -3,6 +3,7 @@ package enkan.util;
 import enkan.collection.Parameters;
 import enkan.exception.MisconfigurationException;
 
+import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,6 +23,8 @@ public class CodecUtils {
     private static final Pattern RE_URL_ENCODED_CHARS = Pattern.compile("(?:%[A-Za-z0-9]{2})+");
     private static final Pattern RE_URL_ENCODED_CHAR = Pattern.compile("%[A-Za-z0-9]{2}");
     private static final Pattern RE_URL_ENCODE_TARGET = Pattern.compile("[^A-Za-z0-9_~\\.+\\-]+");
+    private static final Pattern RE_ACCEPT_FRAGMENT = Pattern.compile("^\\s*(\\*|[^()<>@,;:\"/\\[\\]?={}         ]+)/(\\*|[^()<>@,;:\"/\\[\\]?={}         ]+)$");
+
 
     public static byte[] parseBytes(String encodedBytes) {
         List<Byte> bytes = new ArrayList<>();
@@ -137,5 +140,35 @@ public class CodecUtils {
             }
         }
         return m;
+    }
+
+    /**
+     * Parse from the given String contains media type.
+     *
+     * @param typeStr a String contains media type
+     * @return MediaType object
+     */
+    public static MediaType parseMediaType(String typeStr) {
+        Matcher typeMatcher = RE_ACCEPT_FRAGMENT.matcher(typeStr);
+        if (typeMatcher.find()) {
+            return new MediaType(typeMatcher.group(1), typeMatcher.group(2));
+        } else {
+            throw new IllegalArgumentException(typeStr);
+        }
+    }
+
+    /**
+     * Convert media type to a String represents the MediaType.
+     *
+     * MediaType#toString requires a JAX-RS implementation.
+     * To avoid that enkan requires a JAX-RS implementation, Use this method.
+     *
+     * TODO MediaType parameters
+     *
+     * @param mediaType MediaType
+     * @return a String represents the MediaType
+     */
+    public static String printMediaType(MediaType mediaType) {
+        return mediaType.getType() + "/" + mediaType.getSubtype();
     }
 }

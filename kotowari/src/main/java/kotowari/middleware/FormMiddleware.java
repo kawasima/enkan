@@ -6,9 +6,11 @@ import enkan.component.BeansConverter;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.Routable;
+import enkan.data.Session;
 import enkan.middleware.AbstractWebMiddleware;
+import enkan.security.UserPrincipal;
 import enkan.util.MixinUtils;
-import kotowari.data.FormAvailable;
+import kotowari.data.BodyDeserializable;
 
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -31,14 +33,17 @@ public class FormMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         Method method = ((Routable) request).getControllerMethod();
-        request = MixinUtils.mixin(request, FormAvailable.class);
+        request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();
-            if (HttpRequest.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
+            if (HttpRequest.class.isAssignableFrom(type)
+                    || Session.class.isAssignableFrom(type)
+                    || UserPrincipal.class.isAssignableFrom(type)
+                    || Map.class.isAssignableFrom(type)) {
                 continue;
             }
-            FormAvailable.class.cast(request)
-                    .setForm(createForm((Class<? extends Serializable>) type, request.getParams()));
+            BodyDeserializable.class.cast(request)
+                    .setDeserializedBody(createForm((Class<? extends Serializable>) type, request.getParams()));
         }
 
         return castToHttpResponse(next.next(request));

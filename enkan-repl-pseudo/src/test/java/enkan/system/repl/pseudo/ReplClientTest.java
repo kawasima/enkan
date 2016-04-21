@@ -1,6 +1,5 @@
 package enkan.system.repl.pseudo;
 
-import enkan.system.repl.ReplClient;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -4,7 +4,7 @@ import enkan.Application;
 import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.component.ApplicationComponent;
-import enkan.component.HikariCPComponent;
+import enkan.component.hikaricp.HikariCPComponent;
 import enkan.config.ApplicationFactory;
 import enkan.system.EnkanSystem;
 import enkan.system.inject.ComponentInjector;

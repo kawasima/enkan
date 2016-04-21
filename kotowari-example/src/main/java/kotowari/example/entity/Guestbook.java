@@ -2,9 +2,10 @@ package kotowari.example.entity;
 
 import lombok.Data;
 import org.seasar.doma.Entity;
+import org.seasar.doma.GeneratedValue;
+import org.seasar.doma.GenerationType;
 import org.seasar.doma.Id;
 
-import javax.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 
 /**
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 public class Guestbook {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
