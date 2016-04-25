@@ -73,7 +73,7 @@ public class ThreadingUtils {
         return x -> f.apply(x, arg);
     }
 
-    static interface ThreadingBiFunction<X, X1, Y> {
+    interface ThreadingBiFunction<X, X1, Y> {
         Y apply(X x, X1 x1) throws Exception;
     }
 }

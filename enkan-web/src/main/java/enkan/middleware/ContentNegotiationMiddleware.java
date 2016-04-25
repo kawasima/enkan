@@ -7,16 +7,15 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.middleware.negotiation.AcceptHeaderNegotiator;
 import enkan.middleware.negotiation.ContentNegotiator;
-import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+
+import static enkan.util.ThreadingUtils.some;
 
 /**
  * Accept => Convert response format.
@@ -27,22 +26,37 @@ import java.util.Set;
 public class ContentNegotiationMiddleware extends AbstractWebMiddleware{
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
+    private Set<String> allowedLanguages;
 
     public ContentNegotiationMiddleware() {
         negotiator = new AcceptHeaderNegotiator();
         allowedTypes = new HashSet<>(Arrays.asList("text/html"));
+        allowedLanguages = new HashSet<>(Arrays.asList("*"));
     }
 
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
+        String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");
+        String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedTypes);
+        Locale locale = some(lang, Locale::forLanguageTag).orElse(Locale.getDefault());
+
         request = MixinUtils.mixin(request, ContentNegotiable.class);
         ContentNegotiable.class.cast(request).setAccept(mediaType);
+        ContentNegotiable.class.cast(request).setAcceptLanguage(locale);
         return castToHttpResponse(chain.next(request));
     }
 
     public void setNegotiator(ContentNegotiator negotiator) {
         this.negotiator = negotiator;
+    }
+
+    public void setAllowedTypes(Set<String> allowedTypes) {
+        this.allowedTypes = allowedTypes;
+    }
+
+    public void setAlowedLanguages(Set<String> allowedLanguages) {
+        this.allowedLanguages = allowedLanguages;
     }
 }

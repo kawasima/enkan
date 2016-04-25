@@ -5,6 +5,7 @@ import enkan.collection.Multimap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A default implementation for HTTP response
@@ -71,7 +72,7 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
     public String toString() {
         String sb = "{status=" +
                 status +
-                ", headers=" + headers.toString() +
+                ", headers=" + Objects.toString(headers.toString(), "{}") +
                 ", body=" + body +
                 '}';
         return sb;

@@ -18,7 +18,7 @@ import static java.util.Collections.reverseOrder;
 public class AcceptHeaderNegotiator implements ContentNegotiator {
     private static final Pattern ACCEPT_FRAGMENT_PARAM_RE = Pattern.compile("([^()<>@,;:\"/\\[\\]?={} 	]+)=([^()<>@,;:\"/\\[\\]?={} 	]+|\"[^\"]*\")$");
     private static final Pattern ACCEPTS_DELIMITER = Pattern.compile("[\\s\\n\\r]*,[\\s\\n\\r]*");
-    private static final Pattern ACCEPT_DELIMITER = Pattern.compile("\\s*;\\s*");
+    private static final Pattern ACCEPT_DELIMITER = Pattern.compile("[\\s\\n\\r]*;[\\s\\n\\r]*");
 
     private double clamp(double min, double max, double val) {
         return Math.max(Math.min(max, val), min);
@@ -32,28 +32,32 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         }
     }
 
-    public AcceptFragment parseAcceptFragment(String accept) {
+    public <T> AcceptFragment<T> parseAcceptFragment(String accept, Class<T> acceptType) {
         String[] tokens = ACCEPT_DELIMITER.split(accept);
         if (tokens.length > 0) {
-            MediaType mediaType = CodecUtils.parseMediaType(tokens[0]);
             Optional<Double> q = Arrays.stream(tokens).skip(1)
                     .map(param -> ACCEPT_FRAGMENT_PARAM_RE.matcher(param))
                     .filter(Matcher::find)
                     .filter(m -> m.group(1).equals("q"))
                     .map(m -> parseQ(m.group(2)))
                     .findFirst();
-            return new AcceptFragment(mediaType, q.orElse(1.0));
+            if (acceptType.equals(MediaType.class)) {
+                return new AcceptFragment(CodecUtils.parseMediaType(tokens[0]),
+                        q.orElse(1.0));
+            } else if (acceptType.equals(String.class)) {
+                return new AcceptFragment(tokens[0], q.orElse(1.0));
+            }
         }
         return null;
     }
 
-    protected Function<AcceptFragment, AcceptFragment> createServerWeightFunc(Set<MediaType> allowedTypes) {
+    protected Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> createServerWeightFunc(Set<MediaType> allowedTypes) {
         return fragment -> {
             Optional<MediaType> matched = allowedTypes.stream()
                     .map(mt -> {
-                        if (fragment.mediaType.isCompatible(mt)) {
-                            return fragment.mediaType;
-                        } else if(mt.isCompatible(fragment.mediaType)) {
+                        if (fragment.fragment.isCompatible(mt)) {
+                            return fragment.fragment;
+                        } else if(mt.isCompatible(fragment.fragment)) {
                             return mt;
                         } else {
                             return null;
@@ -70,44 +74,110 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         };
     }
 
+    protected Optional<String> selectBest(Set<String> candidates, Function<String, Double> scoreFunc) {
+        return candidates.stream()
+                .map(c -> new AcceptFragment<>(c, scoreFunc.apply(c)))
+                .sorted(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
+                .filter(af -> af.getQ() > 0.0)
+                .map(AcceptFragment::getFragment)
+                .findFirst();
+    }
+
     @Override
-    public MediaType bestAllowedContentType(String accept, Set<String> allowedTypes) {
-        Function<AcceptFragment, AcceptFragment> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
+    public MediaType bestAllowedContentType(String acceptsHeader, Set<String> allowedTypes) {
+        Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
                 .map(CodecUtils::parseMediaType)
                 .collect(Collectors.toSet()));
-        return Arrays.stream(ACCEPTS_DELIMITER.split(accept))
-                .map(this::parseAcceptFragment)
+        return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                .map(accept -> parseAcceptFragment(accept, MediaType.class))
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
                 .sorted(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
                 .findFirst()
                 .get()
-                .mediaType;
+                .fragment;
+    }
+
+    @Override
+    public String bestAllowedCharset(String acceptsHeader, Set<String> available) {
+        Map<String, Double> accepts = Arrays
+                .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                .map(accept -> parseAcceptFragment(accept, String.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        AcceptFragment::getFragment,
+                        AcceptFragment::getQ));
+        return selectBest(available, charset -> {
+            charset.toLowerCase(Locale.US);
+            return accepts.getOrDefault(charset,
+                    accepts.getOrDefault("*",
+                            charset.equals("ISO_8859_1") ? 1.0 : 0.0));
+        }).orElse(null);
+    }
+
+    @Override
+    public String bestAllowedEncoding(String acceptsHeader, Set<String> available) {
+        Map<String, Double> accepts = Arrays
+                .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                .map(accept -> parseAcceptFragment(accept, String.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        AcceptFragment::getFragment,
+                        AcceptFragment::getQ));
+        available = new HashSet<>(available);
+        available.add("identity");
+        return selectBest(available, encoding ->
+                accepts.getOrDefault("encoding",
+                        accepts.get("*")))
+                .orElseGet(() -> {
+                    if (! (accepts.getOrDefault("identity", 1.0) == 0.0
+                            || (accepts.getOrDefault("*", 1.0) == 0 && !accepts.containsKey("identity")))) {
+                        return "identity";
+                    } else {
+                        return null;
+                    }
+                });
+
+    }
+
+    @Override
+    public String bestAllowedLanguage(String acceptsHeader, Set<String> available) {
+        Map<String, Double> accepts = Arrays
+                .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                .map(accept -> parseAcceptFragment(accept, String.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        AcceptFragment::getFragment,
+                        AcceptFragment::getQ));
+        Function<String, Double> score = langtag -> {
+            for (String x = langtag;  x != null; x = x.substring(0, x.lastIndexOf('-'))) {
+                Double q = accepts.get(x);
+                if (q != null) return q;
+                if (!x.contains("-")) break;
+            }
+            return Objects.equals(langtag, "*") ? 0.01 : 0;
+        };
+
+        return selectBest(available, score).orElse(null);
     }
 
 
-    private static class AcceptFragment implements Serializable {
+    private static class AcceptFragment<T> implements Serializable {
         private double q;
-        private MediaType mediaType;
+        private T fragment;
 
-        public AcceptFragment(MediaType mediaType, double q) {
-            this.mediaType = mediaType;
+        public AcceptFragment(T fragment, double q) {
+            this.fragment = fragment;
             this.q = q;
         }
-        public AcceptFragment(String primary, String sub, double q) {
-            this(new MediaType(primary, sub), q);
+
+        public T getFragment() {
+            return fragment;
         }
 
         public double getQ() {
             return q;
         }
-
-        @Override
-        public String toString() {
-            return String.format(Locale.US, "%s/%s; q=%.1f",
-                    mediaType.getType(), mediaType.getSubtype(), q);
-        }
-
     }
 
 }

@@ -3,28 +3,58 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Headers;
+import enkan.data.ForgeryDetectable;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.data.Session;
+import enkan.util.HttpResponseUtils;
+import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static enkan.util.BeanBuilder.builder;
+
 /**
+ * Sets the token string to the session object for the anti forgery.
+ *
  * @author kawasima
  */
 @Middleware(name = "antiForgery", dependencies = {"session"})
 public class AntiForgeryMiddleware extends AbstractWebMiddleware {
+    private static final String TOKEN_KEY = AntiForgeryMiddleware.class.getName()
+            + "/antiForgeryToken";
+
     private String newToken() {
         return UUID.randomUUID().toString();
     }
 
-    private Optional<String> sessionToken(HttpRequest request) {
+    protected Optional<String> sessionToken(HttpRequest request) {
         return ThreadingUtils.some(request,
                 HttpRequest::getSession,
-                s -> s.getAttribute("antiForgeryToken"),
+                s -> s.getAttribute(TOKEN_KEY),
                 String::toString);
+    }
+
+    /**
+     * Puts the token to the session.
+     *
+     * @param response a HttpResponse object
+     * @param request a HttpRequest object
+     * @param token a String contains the new token
+     */
+    protected void putSessionToken(HttpResponse response, HttpRequest request, String token) {
+        String oldToken = sessionToken(request).orElse(null);
+        if (!Objects.equals(token, oldToken)) {
+            Session session = Optional.ofNullable(request.getSession())
+                    .orElse(new Session());
+            session.setAttribute(TOKEN_KEY, token);
+            response.setSession(session);
+        }
     }
 
     private Map<String, ?> formParams(HttpRequest request) {
@@ -48,11 +78,17 @@ public class AntiForgeryMiddleware extends AbstractWebMiddleware {
 
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
-        String antiForgeryToken = sessionToken(request).orElseGet(this::newToken);
+        String token = sessionToken(request).orElseGet(this::newToken);
         if (!isGetRequest(request) && !isValidRequest(request)) {
-            return HttpResponse.of("<h1>Invalid anti-forgery token</h1>");
+            return builder(HttpResponse.of("<h1>Invalid anti-forgery token</h1>"))
+                    .set(HttpResponse::setStatus, 403)
+                    .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
+                    .build();
         } else {
+            request = MixinUtils.mixin(request, ForgeryDetectable.class);
+            ForgeryDetectable.class.cast(request).setAntiForgeryToken(token);
             HttpResponse response = castToHttpResponse(next.next(request));
+            putSessionToken(response, request, token);
             return response;
         }
     }
