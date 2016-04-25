@@ -1,16 +1,21 @@
 package enkan.system.inject;
 
 import enkan.component.SystemComponent;
+import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
+import enkan.util.SearchUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 
 import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.SearchUtils.levenshteinDistance;
 
 /**
  * @author kawasima
@@ -40,7 +45,22 @@ public class ComponentInjector {
     protected void injectField(Object target, Field f) {
         Named named = f.getAnnotation(Named.class);
         if (named != null) {
-            setValueToField(target, f, components.get(named.value()));
+            String name = named.value();
+            SystemComponent component = components.get(name);
+            if (component != null) {
+                setValueToField(target, f, component);
+            } else {
+                Optional<String> correctName = components.entrySet().stream()
+                        .filter(c -> f.getType().isAssignableFrom(c.getValue().getClass()))
+                        .map(Map.Entry::getKey)
+                        .sorted(Comparator.comparing(n -> levenshteinDistance(n, name)))
+                        .findFirst();
+                if (correctName.isPresent()) {
+                    throw MisconfigurationException.create("INJECT_WRONG_NAMED_COMPONENT", name, correctName.get());
+                } else {
+                    throw MisconfigurationException.create("INJECT_WRONG_TYPE_COMPONENT", name, f.getType());
+                }
+            }
         } else {
             components.values().stream()
                     .filter(component -> f.getType().isAssignableFrom(component.getClass()))
