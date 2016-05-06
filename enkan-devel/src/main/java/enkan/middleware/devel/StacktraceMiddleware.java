@@ -1,4 +1,4 @@
-package enkan.middleware;
+package enkan.middleware.devel;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
@@ -6,6 +6,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
+import enkan.middleware.AbstractWebMiddleware;
 import enkan.util.HttpResponseUtils;
 import net.unit8.moshas.MoshasEngine;
 import net.unit8.moshas.Snippet;
