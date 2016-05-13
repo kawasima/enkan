@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/kawasima/enkan</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,4 +56,36 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <url>https://github.com/kawasima/enkan</url>
+        <connection>scm:git://github.com/kawasima/enkan.git</connection>
+        <developerConnection>scm:git:git@github.com/kawasima/enkan.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/kawasima/enkan/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2016</inceptionYear>
+    <licenses>
+        <license>
+            <name>Eclipse Public License (EPL), Version 1.0</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>kawasima</id>
+            <name>Yoshitaka Kawashima</name>
+            <email>kawasima1016@gmail.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 </project>
