@@ -18,7 +18,7 @@ public class PathResolverMock implements PathResolver {
 
     @Override
     public InputStream templateAsStream(String path) {
-        return null;
+        return ClassLoader.getSystemResourceAsStream(path);
     }
 
     @Override
@@ -29,5 +29,9 @@ public class PathResolverMock implements PathResolver {
     @Override
     public OutputStream destinationAsStream(String path) throws IOException {
         return baos;
+    }
+
+    public String getResult() {
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     }
 }

@@ -5,6 +5,7 @@ import enkan.system.SystemCommand;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -25,6 +26,11 @@ public class ReplMock implements Repl {
     @Override
     public void addBackgroundTask(String name, Runnable task) {
 
+    }
+
+    @Override
+    public CompletableFuture<Integer> getPort() {
+        return null;
     }
 
     @Override

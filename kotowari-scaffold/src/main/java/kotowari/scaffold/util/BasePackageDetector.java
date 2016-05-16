@@ -1,12 +1,6 @@
 package kotowari.scaffold.util;
 
-import enkan.exception.FalteringEnvironmentException;
-
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,12 +12,7 @@ public class BasePackageDetector {
 
     public static Set<String> scan(File sourceDirectory) {
         Set<String> packages = new HashSet<>();
-        File[] directories = sourceDirectory.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f != null && f.isDirectory();
-            }
-        });
+        File[] directories = sourceDirectory.listFiles(f -> f != null && f.isDirectory());
         if (directories != null) {
             for (File dir : directories) {
                 scanPackageInner(dir, null, packages);

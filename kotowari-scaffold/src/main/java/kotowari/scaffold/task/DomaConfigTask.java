@@ -14,7 +14,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import net.unit8.amagicman.MoldTask;
+import net.unit8.amagicman.GenTask;
 import net.unit8.amagicman.PathResolver;
 
 import java.io.OutputStreamWriter;
@@ -23,13 +23,15 @@ import java.util.Arrays;
 /**
  * @author kawasima
  */
-public class DomaConfigTask implements MoldTask {
+public class DomaConfigTask implements GenTask {
     private String pkgName;
+    private String destination;
     private final AnnotationExpr OVERRIDE_ANNOTATION =
             new MarkerAnnotationExpr(ASTHelper.createNameExpr("Override"));
 
     public DomaConfigTask(String pkgName) {
         this.pkgName = pkgName;
+        destination = "src/main/java/" + pkgName.replace('.', '/') + "/DomaConfig.java";
     }
     public void execute(PathResolver pathResolver) throws Exception {
         CompilationUnit cu = new CompilationUnit();
@@ -63,8 +65,13 @@ public class DomaConfigTask implements MoldTask {
         ASTHelper.addMember(type, getDialectMethod);
 
         try (OutputStreamWriter writer = new OutputStreamWriter(
-                pathResolver.destinationAsStream("src/main/java/" + pkgName.replace('.', '/') + "/DomaConfig.java"))) {
+                pathResolver.destinationAsStream(destination))) {
             writer.write(cu.toString());
         }
+    }
+
+    @Override
+    public String getDestinationPath() {
+        return destination;
     }
 }

@@ -1,13 +1,10 @@
 package kotowari.scaffold.task;
 
 import kotowari.scaffold.util.BasePackageDetector;
-import net.unit8.amagicman.MoldTask;
+import net.unit8.amagicman.GenTask;
 import net.unit8.amagicman.PathResolver;
 import org.apache.tools.ant.Project;
-import org.seasar.doma.extension.gen.task.DaoConfig;
-import org.seasar.doma.extension.gen.task.EntityConfig;
-import org.seasar.doma.extension.gen.task.Gen;
-import org.seasar.doma.extension.gen.task.SqlConfig;
+import org.seasar.doma.extension.gen.task.*;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -16,7 +13,7 @@ import java.sql.SQLException;
 /**
  * @author kawasima
  */
-public class DomaEntityTask implements MoldTask {
+public class DomaEntityTask implements GenTask {
     private String destination;
     private DataSource datasource;
     private String tableName;
@@ -50,6 +47,9 @@ public class DomaEntityTask implements MoldTask {
                 entityConfig.setProject(project);
                 entityConfig.setUseListener(false);
                 entityConfig.setDestDir(destDir);
+                GenerationTypeAttribute generationType = new GenerationTypeAttribute();
+                generationType.setValue("identity");
+                entityConfig.setGenerationType(generationType);
                 entityConfig.setPackageName(basePackage + "entity");
                 return entityConfig;
             }

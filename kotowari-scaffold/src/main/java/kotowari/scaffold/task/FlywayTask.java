@@ -4,23 +4,22 @@ import com.github.javaparser.ASTHelper;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.ModifierSet;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import net.unit8.amagicman.MoldTask;
+import net.unit8.amagicman.GenTask;
 import net.unit8.amagicman.PathResolver;
+import net.unit8.amagicman.util.CaseConverter;
 
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,13 +28,18 @@ import java.util.List;
  *
  * @author kawasima
  */
-public class FlywayTask implements MoldTask {
-    private String tableName;
-    private String destination;
+public class FlywayTask implements GenTask {
+    private static final DateTimeFormatter VERSION_FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private final String tableName;
+    private final String destination;
+    private final String createTableStatement;
 
-    public FlywayTask(String destination) {
-
+    public FlywayTask(String destination, String tableName, String createTableStatement) {
+        this.destination = destination;
+        this.tableName = tableName;
+        this.createTableStatement = createTableStatement;
     }
+
     @Override
     public void execute(PathResolver pathResolver) throws Exception {
         CompilationUnit cu = new CompilationUnit();
@@ -46,18 +50,21 @@ public class FlywayTask implements MoldTask {
         imports.add(new ImportDeclaration(ASTHelper.createNameExpr("java.sql.Statement"), false, false));
         cu.setImports(imports);
 
-        String version = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String version = LocalDateTime.now().format(VERSION_FMT);
         ClassOrInterfaceDeclaration migrationClass = new ClassOrInterfaceDeclaration(
-                ModifierSet.PUBLIC, false, "V" + version + "__Create" + tableName);
+                ModifierSet.PUBLIC, false, "V" + version + "__Create"
+                + CaseConverter.pascalCase(tableName));
+        ASTHelper.addTypeDeclaration(cu, migrationClass);
+
         List<ClassOrInterfaceType> implementList = new ArrayList<>();
         implementList.add(new ClassOrInterfaceType("JdbcMigration"));
         migrationClass.setImplements(implementList);
         MethodDeclaration migrateMethod = new MethodDeclaration(ModifierSet.PUBLIC, ASTHelper.VOID_TYPE, "migrate");
-
+        ASTHelper.addMember(migrationClass, migrateMethod);
         ASTHelper.addParameter(migrateMethod, ASTHelper.createParameter(
                 ASTHelper.createReferenceType("Connection", 0), "connection"
         ));
-        migrateMethod.setThrows(Arrays.asList(ASTHelper.createNameExpr("Exception")));
+        migrateMethod.setThrows(Collections.singletonList(ASTHelper.createNameExpr("Exception")));
 
         List<AnnotationExpr> annotations = new ArrayList<>();
         annotations.add(new MarkerAnnotationExpr(ASTHelper.createNameExpr("Override")));
@@ -66,11 +73,31 @@ public class FlywayTask implements MoldTask {
         BlockStmt block = new BlockStmt();
         migrateMethod.setBody(block);
 
+        TryStmt tryStmt = new TryStmt(createStatementExecuteBlock(), null, null);
+        tryStmt.setResources(Arrays.asList(createAssignStatement()));
+        ASTHelper.addStmt(block, tryStmt);
+
         try (Writer writer = new OutputStreamWriter(
                 pathResolver.destinationAsStream(
                         "src/main/java/db/migration/" + migrationClass.getName() + ".java"))) {
             writer.write(cu.toString());
         }
+    }
+
+    private VariableDeclarationExpr createAssignStatement() {
+        VariableDeclarationExpr expr = ASTHelper.createVariableDeclarationExpr(ASTHelper.createReferenceType("Statement", 0), "stmt");
+        expr.setVars(Arrays.asList(new VariableDeclarator(
+                new VariableDeclaratorId("stmt"),
+                new MethodCallExpr(ASTHelper.createNameExpr("connection"), "createStatement")
+        )));
+        return expr;
+    }
+    private BlockStmt createStatementExecuteBlock() {
+        BlockStmt block = new BlockStmt();
+        MethodCallExpr stmtExecute = new MethodCallExpr(ASTHelper.createNameExpr("stmt"), "execute");
+        ASTHelper.addArgument(stmtExecute, new StringLiteralExpr(createTableStatement));
+        ASTHelper.addStmt(block, stmtExecute);
+        return block;
     }
 
     @Override

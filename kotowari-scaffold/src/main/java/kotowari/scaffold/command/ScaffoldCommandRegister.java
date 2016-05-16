@@ -4,14 +4,19 @@ import com.github.javaparser.ASTHelper;
 import com.github.javaparser.ast.ImportDeclaration;
 import enkan.component.ApplicationComponent;
 import enkan.component.DataSourceComponent;
-import enkan.config.ApplicationFactory;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.UnreachableException;
 import enkan.system.EnkanSystem;
 import enkan.system.Repl;
 import enkan.system.repl.SystemCommandRegister;
-import kotowari.scaffold.task.DomaConfigTask;
-import kotowari.scaffold.task.DomaEntityTask;
+import kotowari.scaffold.model.EntityField;
+import kotowari.scaffold.task.*;
 import kotowari.scaffold.util.BasePackageDetector;
+import kotowari.scaffold.util.EntitySourceAnalyzer;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.unit8.amagicman.Generator;
 import net.unit8.amagicman.PathResolver;
 import net.unit8.amagicman.PathResolverImpl;
@@ -27,22 +32,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import javax.ws.rs.WebApplicationException;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Registers commands to REPL for scaffold.
+ *
  * @author kawasima
  */
 public class ScaffoldCommandRegister implements SystemCommandRegister {
@@ -73,15 +76,14 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
 
 
     private Generator tableGenerator(String sql, DataSource ds) {
-        return new Generator()
-                .writing("table", g -> {
-                    g.task(pathResolver -> {
-                        try (Connection conn = ds.getConnection();
-                             Statement stmt = conn.createStatement()) {
-                            stmt.executeUpdate("CREATE TABLE " + sql);
-                        }
-                    });
-                });
+        try {
+            CreateTable stmt = (CreateTable) CCJSqlParserUtil.parse("CREATE TABLE " + sql);
+            return new Generator()
+                    .writing("migration", g -> g.task(
+                            new FlywayTask("src/main/java", stmt.getTable().getName(), "CREATE TABLE " + sql)));
+        } catch (JSQLParserException e) {
+            throw new IllegalArgumentException("Statement generating a table is wrong syntax.", e);
+        }
     }
 
     private String convertToPathString(String packageName) {
@@ -90,16 +92,26 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                 .collect(Collectors.joining("/"));
     }
 
+    private File getEntitySource(String pkgPath, String tableName) {
+        try {
+            return pathResolver.destinationAsFile("src/main/java/" + pkgPath + "/entity/" + CaseConverter.pascalCase(tableName) + ".java");
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
     private Generator crudGenerator(String tableName, DataSource ds) {
         String pkgName = BasePackageDetector.detect();
         String pkgPath = convertToPathString(pkgName);
 
         return new Generator()
-                .writing("entity", g -> {
-                    g.task(new DomaEntityTask("src/main/java", tableName, ds));
-                })
+                .writing("entity", g -> g.task(new DomaEntityTask("src/main/java", tableName, ds)))
                 .writing("java", g -> {
                     String className = CaseConverter.pascalCase(tableName);
+                    List<EntityField> fields = new ArrayList<>();
+                    g.task(pathResolver -> {
+                        File entitySource = getEntitySource(pkgPath, tableName);
+                        fields.addAll(new EntitySourceAnalyzer().analyze(entitySource));
+                    });
                     g.task(new JavaByTemplateTask(
                             "src/main/java/scaffold/crud/controller/UserController.java",
                             "src/main/java/" + pkgPath
@@ -107,13 +119,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                             cu -> cu.accept(new ClassReplaceVisitor(
                                     "scaffold.crud.", pkgName,
                                     "user", tableName), null)));
-                    g.task(new JavaByTemplateTask(
-                            "src/main/java/scaffold/crud/form/UserForm.java",
-                            "src/main/java/" + pkgPath
-                                    + "/form/" + className + "Form.java",
-                            cu -> cu.accept(new ClassReplaceVisitor(
-                                    "scaffold.crud.", pkgName,
-                                    "user", tableName), null)));
+                    g.task(new FormTask(pkgName, tableName, fields));
                     g.task(new JavaByTemplateTask(
                             "src/main/java/scaffold/crud/dao/UserDao.java",
                             "src/main/java/" + pkgPath
@@ -144,6 +150,28 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                                             + "/" + ftl,
                                     line -> line.replaceAll("user", CaseConverter.camelCase(tableName))
                             )));
+                    List<EntityField> fields = new ArrayList<>();
+                    g.task(pathResolver -> {
+                        File entitySource = getEntitySource(pkgPath, tableName);
+                        fields.addAll(new EntitySourceAnalyzer().analyze(entitySource));
+                    });
+
+                    PatternTemplateTask formPartialTask = new PatternTemplateTask("src/main/resources/templates/" + CaseConverter.camelCase(tableName) + "/_form.ftl",
+                            tableName, fields);
+                    formPartialTask
+                            .addMapping(String.class,  "src/main/resources/templates/parts/textfield.ftl")
+                            .addMapping(Integer.class, "src/main/resources/templates/parts/textfield.ftl")
+                            .addMapping(Long.class,    "src/main/resources/templates/parts/textfield.ftl");
+                    g.task(formPartialTask);
+
+                    PatternTemplateTask showPartialTask = new PatternTemplateTask("src/main/resources/templates/" + CaseConverter.camelCase(tableName) + "/_show.ftl",
+                            tableName, fields);
+                    showPartialTask
+                            .addMapping(String.class,  "src/main/resources/templates/parts/text.ftl")
+                            .addMapping(Integer.class, "src/main/resources/templates/parts/text.ftl")
+                            .addMapping(Long.class,    "src/main/resources/templates/parts/text.ftl");
+                    g.task(showPartialTask);
+
                     String defaultLayout = "src/main/resources/templates/layout/defaultLayout.ftl";
                     if (!Files.exists(Paths.get(defaultLayout))) {
                         g.task(new ContentsReplaceTask(
@@ -165,19 +193,17 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
 
     private Generator configureApplicationFactory(Generator gen, String tableName, EnkanSystem system) {
         String path = findApplicationFactoryPath(system);
-        return gen.writing("app", g -> {
-            g.task(new RewriteJavaSourceTask("src/main/java/" + path, cu -> {
-                String controllerClassName = CaseConverter.pascalCase(tableName) + "Controller";
-                String pkgName = BasePackageDetector.detect();
+        return gen.writing("app", g -> g.task(new RewriteJavaSourceTask("src/main/java/" + path, cu -> {
+            String controllerClassName = CaseConverter.pascalCase(tableName) + "Controller";
+            String pkgName = BasePackageDetector.detect();
 
-                cu.getImports().add(
-                        new ImportDeclaration(
-                                ASTHelper.createNameExpr(pkgName + "controller." + controllerClassName),
-                                false, false));
-                cu.accept(new AppendRoutingVisitor(controllerClassName),
-                        new RoutingDefineContext());
-            }));
-        });
+            cu.getImports().add(
+                    new ImportDeclaration(
+                            ASTHelper.createNameExpr(pkgName + "controller." + controllerClassName),
+                            false, false));
+            cu.accept(new AppendRoutingVisitor(controllerClassName),
+                    new RoutingDefineContext());
+        })));
     }
 
     private void withClassLoader(ClassLoader loader, Runnable runnable) {
@@ -206,12 +232,12 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                         try {
                             return uri.toURL();
                         } catch (MalformedURLException e) {
-                            throw FalteringEnvironmentException.create(e);
+                            throw new UnreachableException(e);
                         }})
-                    .toArray(size -> new URL[size]);
+                    .toArray(URL[]::new);
             scaffoldLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
         } catch (DependencyCollectionException | DependencyResolutionException e) {
-            throw FalteringEnvironmentException.create(e);
+            throw new FalteringEnvironmentException(e);
         }
 
         repl.registerCommand("generate", (system, transport, args) -> {
@@ -229,7 +255,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                                 .setPathResolver(pathResolver)
                                 .addTaskListener(new LoggingTaskListener(transport))
                                 .invoke();
-                        transport.sendOut("Generated table " + args[0]);
+                        transport.sendOut("Generated table " + args[1]);
                     } else {
                         transport.sendOut("Usage: generate table [CREATE TABLE statement]");
                     }
