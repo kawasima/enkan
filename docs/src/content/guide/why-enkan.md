@@ -18,6 +18,7 @@ Enkan is a minimal framework inspired by [ring-clojure](https://github.com/ring-
 
 - Hot reloading
 - Kindly exception for misconfiguration
+- Trace the request / response
 
 ## Ease of Operation
 

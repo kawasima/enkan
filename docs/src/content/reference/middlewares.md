@@ -154,6 +154,22 @@ app.use(new SessionMiddleware());
 
 ### SerDes
 
+Deserialize the request body and serializes the response body.
+
+#### Usage
+
+```language-java
+app.use(new SerDesMiddleware());
+```
+
+#### Properties
+
+|Name|Description|
+|:-----|:----|
+|bodyReaders||
+|bodyWriters||
+ 
+
 ### Transaction
 
 ### ValidateForm

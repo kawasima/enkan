@@ -67,3 +67,27 @@ private TemplateEngine freemarker;
 private TemplateEngine freemarker;
 ```
 
+## Bootstrap the Enkan system
+
+To start/stop the Enkan system, call the `start()` or `stop()` method.
+
+```language-java
+system.start();
+
+// ...
+
+system.stop();
+```
+
+It is better to bootstrap a system in the REPL for the operation.
+
+```language-java
+PseudoRepl repl = new PseudoRepl(MyExampleSystemFactory.class.getName());
+ReplBoot.start(repl,
+        new KotowariCommandRegister(),
+        new DevelCommandRegister(),
+        new MetricsCommandRegister());
+```
+
+`PseudoRepl` is a REPL server. The factory class for Enkan system.
+`ReplBoot` is a tool for starting the REPL server and registering some commands to the REPL at same time.

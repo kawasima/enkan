@@ -65,6 +65,20 @@ Above example routes the `/admin/user/list` request to the `list` method of Admi
 
 ### Generates path
 
+`UrlRewriter#urlFor` methods can generate the path string from the given parameters.
+
+```language-java
+Routes routes = Routes.define(r -> {
+    r.get("/a/b/").to(TestController.class, "index");
+    r.get("/a/b/:id").to(TestController.class, "show");
+}).compile();
+
+// Generates "/a/b/"
+routes.generate(OptionMap.of("controller", TestController.class, "action", "index"));
+
+// Generates "/a/b/1"
+routes.generate(OptionMap.of("controller", TestController.class, "action", "show", "id", 1));
+```
 
 ## Middleware
 
@@ -78,3 +92,20 @@ The middleware executes in the order they are called `use()`.
     app.use(NONE, new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
     app.use(envIn("development"), new StacktraceMiddleware());
 ```
+
+### Predicates
+
+If the `use` method takes two arguments, its first argument is a `Predicate`.
+`Predicate` is a condition whether or not the middleware is applied.
+
+Standard predicates as follows:
+
+|Type                    |Description                |
+|:-----------------------|:--------------------------|
+|NonePredicate           |Not applied to all requests|
+|AnyPredicate            |Applied to all requests|
+|PathPredicate           |Applied to a request that matches the given path pattern and request method|
+|AuthenticatedPredicate  |Applied to a request that has valid `UserPrincipal` |
+|PermissionPredicate     |Applied to a request that its `UserPrincipal` contains the given permissions|
+|EnvPredicate            |Applied to a request that the given environment matches the `ENKAN_ENV` environment variable.|
+

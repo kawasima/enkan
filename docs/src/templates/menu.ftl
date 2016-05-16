@@ -65,5 +65,8 @@
     <li class="sidebar-brand">
       <a href="${content.rootpath}reference/components.html">Components</a>
     </li>
+    <li class="sidebar-brand">
+      <a href="${content.rootpath}reference/repl.html">REPL commands</a>
+    </li>
   </ul>
 </div>

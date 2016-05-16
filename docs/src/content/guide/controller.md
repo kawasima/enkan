@@ -6,6 +6,19 @@ status=published
 
 ## Component Injection
 
+Components that are registered in the Enkan system is injected to an annotated field with `Inject` of a controller.
+
+```language-java
+public class UserController {
+    @Inject
+    private TemplateEngine templateEngine;
+    
+    @Inject
+    private DomaProvider daoProvider;
+}
+```
+
+
 ## Arguments
 
 Arguments of a controller method are available as follows:
@@ -21,7 +34,7 @@ Arguments of a controller method are available as follows:
 If they are in the controller method parameters, `ControllerInvokerMiddleware` injects to the arguments.  
 They are in random order.
 
-```java
+```language-java
 public class ArgumentInjectionController {
     public String method1(Parameters params, UserPrincipal principal, Session session) {
 
@@ -31,10 +44,17 @@ public class ArgumentInjectionController {
 
 ### Parameters
 
-Parameters are a map represents a query string and a url encoded form.
+`Parameters` is a map represents a query string and a url encoded form.
 
 ### UserPrincipal
 
+`UserPrincipal` represents an authenticated user. It is available when `AuthenticationMiddleware` is used.
+
+### Session
+
+### Flash
+
+Flash is a short time session.
 
 ## Validation
 
