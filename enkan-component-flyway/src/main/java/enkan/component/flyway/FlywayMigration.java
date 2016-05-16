@@ -33,7 +33,7 @@ public class FlywayMigration extends SystemComponent {
                     } else if (l.startsWith("filesystem:")){
                         String path = l.substring("filesystem:".length());
                         return Files.exists(Paths.get(path));
-                    } else throw UnreachableException.create();
+                    } else throw new UnreachableException();
                 });
     }
 

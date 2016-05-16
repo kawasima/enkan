@@ -19,7 +19,7 @@ public class MetricsCommandRegister implements SystemCommandRegister {
     protected Optional<MetricsComponent> findMetrics(EnkanSystem system) {
         return system.getAllComponents().stream()
                 .filter(c -> c instanceof MetricsComponent)
-                .map(c -> MetricsComponent.class.cast(c))
+                .map(MetricsComponent.class::cast)
                 .findFirst();
     }
 

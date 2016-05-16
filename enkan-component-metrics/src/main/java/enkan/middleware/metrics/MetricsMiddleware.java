@@ -10,6 +10,7 @@ import javax.inject.Inject;
 /**
  * @author kawasima
  */
+@enkan.annotation.Middleware(name = "metrics")
 public class MetricsMiddleware<REQ, RES> implements Middleware<REQ, RES> {
     @Inject
     private MetricsComponent metrics;

@@ -52,7 +52,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES>
                     case REQUIRES_NEW:
                         return tm.requiresNew(() -> (RES) next.next(req));
                     default:
-                        throw MisconfigurationException.create("UNSUPPORTED_TX_TYPE", type);
+                        throw new MisconfigurationException("doma2.UNSUPPORTED_TX_TYPE", type);
                 }
             }
         }

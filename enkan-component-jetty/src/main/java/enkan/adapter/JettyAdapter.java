@@ -79,9 +79,9 @@ public class JettyAdapter {
         } catch (Exception ex) {
             try {
                 server.stop();
-                throw FalteringEnvironmentException.create(ex);
+                throw new FalteringEnvironmentException(ex);
             } catch (Exception stopEx) {
-                throw FalteringEnvironmentException.create(stopEx);
+                throw new FalteringEnvironmentException(stopEx);
             }
         }
         return server;

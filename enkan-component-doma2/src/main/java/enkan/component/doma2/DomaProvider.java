@@ -28,6 +28,13 @@ public class DomaProvider extends SystemComponent {
     private DataSource dataSource;
     private ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
 
+    /**
+     * Gets the DAO.
+     *
+     * @param daoInterface a type of DAO
+     * @param <T> a type of DAO
+     * @return a DAO of the given class.
+     */
     public <T> T getDao(Class<? extends T> daoInterface) {
         return (T) daoCache.computeIfAbsent(daoInterface.getName(), key ->
                 tryReflection(() -> {

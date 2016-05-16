@@ -2,18 +2,16 @@ package enkan.component.thymeleaf;
 
 import enkan.component.ComponentLifecycle;
 import enkan.data.HttpResponse;
-import enkan.exception.UnreachableException;
+import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.io.LazyRenderInputStream;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +41,7 @@ public class ThymeleafTemplateEngine extends TemplateEngine {
             try {
                 return new ByteArrayInputStream(thymeleafEngine.process(name, ctx).getBytes(encoding));
             } catch (UnsupportedEncodingException e) {
-                throw UnreachableException.create(e);
+                throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
             }
         }));
 

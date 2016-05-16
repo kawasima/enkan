@@ -8,11 +8,16 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.WebServerComponent;
 import io.undertow.Undertow;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+
 /**
  * @author kawasima
  */
 public class UndertowComponent extends WebServerComponent {
-    Integer port;
+    @DecimalMin("1")
+    @DecimalMax("65535")
+    private Integer port;
     private Undertow server;
 
     @Override

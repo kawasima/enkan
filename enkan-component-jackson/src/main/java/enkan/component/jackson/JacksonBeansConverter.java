@@ -22,7 +22,7 @@ public class JacksonBeansConverter extends BeansConverter {
             byte[] buf = mapper.writeValueAsBytes(source);
             mapper.readerForUpdating(destination).readValue(buf);
         } catch (IOException e) {
-            throw MisconfigurationException.create("JACKSON_ERROR");
+            throw new MisconfigurationException("jackson.IO_ERROR");
         }
     }
 

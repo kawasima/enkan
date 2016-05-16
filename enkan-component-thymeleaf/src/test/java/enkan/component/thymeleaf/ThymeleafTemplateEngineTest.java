@@ -1,7 +1,6 @@
 package enkan.component.thymeleaf;
 
 import enkan.data.HttpResponse;
-import kotowari.component.TemplateEngine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,15 +40,10 @@ public class ThymeleafTemplateEngineTest {
 
     @Test
     public void customFunction() {
-        HttpResponse response = engine.render("test2", "func", new Function<List, Object>() {
-            @Override
-            public Object apply(List list) {
-                return list.stream()
-                        .filter(Objects::nonNull)
-                        .map(Object::toString)
-                        .collect(Collectors.joining("&"));
-            }
-        });
+        HttpResponse response = engine.render("test2", "func", (Function<List, Object>) list -> list.stream()
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.joining("&")));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) response.getBody()))) {
             //assertTrue(reader.lines().anyMatch(s -> s.contains("<span>kawasima</span>")));
             reader.lines().forEach(System.out::println);

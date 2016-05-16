@@ -10,12 +10,14 @@ import enkan.exception.FalteringEnvironmentException;
 import org.eclipse.jetty.server.Server;
 
 import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 
 /**
  * @author kawasima
  */
 public class JettyComponent extends WebServerComponent {
     @DecimalMax("65535")
+    @DecimalMin("1")
     private Integer port;
     private Server server;
 
@@ -42,8 +44,8 @@ public class JettyComponent extends WebServerComponent {
                     try {
                         server.stop();
                         server.join();
-                    } catch (Exception e) {
-                        throw FalteringEnvironmentException.create(e);
+                    } catch (Exception ex) {
+                        throw new FalteringEnvironmentException(ex);
                     } finally {
                         server = null;
                     }

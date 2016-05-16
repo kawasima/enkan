@@ -41,9 +41,9 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
                 template.process(response.getContext(), writer);
                 return new ByteArrayInputStream(writer.toString().getBytes(encoding));
             } catch (TemplateException e) {
-                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e.getFTLInstructionStack(), e.getMessageWithoutStackTop(), e);
+                throw new MisconfigurationException("freemarker.TEMPLATE", e.getFTLInstructionStack(), e.getMessageWithoutStackTop(), e);
             } catch (IOException e) {
-                throw MisconfigurationException.create("FREEMARKER_TEMPLATE", e.getMessage(),
+                throw new MisconfigurationException("freemarker.TEMPLATE", e.getMessage(),
                         String.format(Locale.US, "Make a template '%s'.", name), e);
             }
 
@@ -84,6 +84,6 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
 
     @Override
     public Object createFunction(Function<List, Object> func) {
-        return (TemplateMethodModelEx) arguments -> func.apply(arguments);
+        return (TemplateMethodModelEx) func::apply;
     }
 }

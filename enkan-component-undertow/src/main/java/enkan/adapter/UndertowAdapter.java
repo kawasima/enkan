@@ -9,7 +9,9 @@ import enkan.data.HttpResponse;
 import enkan.exception.ServiceUnavailableException;
 import enkan.exception.UnreachableException;
 import io.undertow.Undertow;
+import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
@@ -30,6 +32,18 @@ import java.nio.channels.ReadableByteChannel;
  * @author kawasima
  */
 public class UndertowAdapter {
+    private static IoCallback callback = new IoCallback() {
+        @Override
+        public void onComplete(HttpServerExchange exchange, Sender sender) {
+
+        }
+
+        @Override
+        public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
+
+        }
+    };
+
     private static void setBody(Sender sender, Object body) throws IOException {
         if (body == null) {
             return; // Do nothing
@@ -45,8 +59,10 @@ public class UndertowAdapter {
                 int size = chan.read(buf);
                 if (size <= 0) break;
                 buf.flip();
-                sender.send(buf);
+                sender.send(buf, callback);
+                buf.clear();
             }
+            sender.close(IoCallback.END_EXCHANGE);
         } else if (body instanceof File) {
             try(FileInputStream fis = new FileInputStream((File) body);
                 FileChannel chan = fis.getChannel()) {
@@ -55,11 +71,13 @@ public class UndertowAdapter {
                     int size = chan.read(buf);
                     if (size <= 0) break;
                     buf.flip();
-                    sender.send(buf);
+                    sender.send(buf, callback);
+                    buf.clear();
                 }
+                sender.close(IoCallback.END_EXCHANGE);
             }
         } else {
-            throw UnreachableException.create();
+            throw new UnreachableException();
         }
     }
 
@@ -86,35 +104,42 @@ public class UndertowAdapter {
     public Undertow runUndertow(WebApplication application, OptionMap options) {
         Undertow.Builder builder = Undertow.builder();
 
-        builder.setHandler(exchange -> {
-            HttpRequest request = new DefaultHttpRequest();
-            request.setRequestMethod(exchange.getRequestMethod().toString());
-            request.setUri(exchange.getRequestURI());
-            request.setProtocol(exchange.getProtocol().toString());
-            request.setQueryString(exchange.getQueryString());
-            request.setCharacterEncoding(exchange.getRequestCharset());
-            request.setBody(new ChannelInputStream(exchange.getRequestChannel()));
-            request.setContentLength(exchange.getRequestContentLength());
-            request.setRemoteAddr(exchange.getSourceAddress().toString());
-            request.setScheme(exchange.getRequestScheme());
-            request.setServerName(exchange.getHostName());
-            request.setServerPort(exchange.getHostPort());
-            Headers headers = Headers.empty();
-            exchange.getRequestHeaders().forEach(e -> {
-                String headerName = e.getHeaderName().toString();
-                e.forEach(v -> headers.put(headerName, v));
-            });
-            request.setHeaders(headers);
+        builder.setHandler(new HttpHandler() {
+            @Override
+            public void handleRequest(HttpServerExchange exchange) throws Exception {
+                if (exchange.isInIoThread()) {
+                    exchange.dispatch(this);
+                    return;
+                }
+                HttpRequest request = new DefaultHttpRequest();
+                request.setRequestMethod(exchange.getRequestMethod().toString());
+                request.setUri(exchange.getRequestURI());
+                request.setProtocol(exchange.getProtocol().toString());
+                request.setQueryString(exchange.getQueryString());
+                request.setCharacterEncoding(exchange.getRequestCharset());
+                request.setBody(new ChannelInputStream(exchange.getRequestChannel()));
+                request.setContentLength(exchange.getRequestContentLength());
+                request.setRemoteAddr(exchange.getSourceAddress().toString());
+                request.setScheme(exchange.getRequestScheme());
+                request.setServerName(exchange.getHostName());
+                request.setServerPort(exchange.getHostPort());
+                Headers headers = Headers.empty();
+                exchange.getRequestHeaders().forEach(e -> {
+                    String headerName = e.getHeaderName().toString();
+                    e.forEach(v -> headers.put(headerName, v));
+                });
+                request.setHeaders(headers);
 
-            try {
-                HttpResponse response = application.handle(request);
-                exchange.setStatusCode(response.getStatus());
-                setResponseHeaders(response.getHeaders(), exchange);
-                setBody(exchange.getResponseSender(), response.getBody());
-            } catch (ServiceUnavailableException ex) {
-                exchange.setStatusCode(503);
-            } finally {
-                exchange.endExchange();
+                try {
+                    HttpResponse response = application.handle(request);
+                    exchange.setStatusCode(response.getStatus());
+                    setResponseHeaders(response.getHeaders(), exchange);
+                    setBody(exchange.getResponseSender(), response.getBody());
+                } catch (ServiceUnavailableException ex) {
+                    exchange.setStatusCode(503);
+                } finally {
+                    exchange.endExchange();
+                }
             }
         });
 
