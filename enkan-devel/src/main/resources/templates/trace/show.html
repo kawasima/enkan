@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Enkan Request Traces</title>
+    <link id="primer-link" rel="stylesheet" type="text/css" href="../../css/primer.css"/>
+    <style id="primer"></style>
+    <style>
+<!--
+thead th {
+    background-color: #e6efa8;
+    min-width: 300px;
+}
+
+table.middleware {
+    margin-bottom: 15px;
+}
+table.middleware thead th {
+    font-weight: normal;
+    background-color: transparent;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #bcd7ed;
+    text-align: left;
+    width: 400px;
+}
+table.middleware tbody td {
+    width: 200px;
+}
+//-->
+    </style>
+</head>
+<body>
+<div clas="container">
+    <div class="columns">
+        <div class="one-half column centered">
+            <div><a href="./">Back to list of all traces</a></div>
+            <h2></h2>
+            <h3>Parameters</h3>
+            <table id="parameters">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr id="parameter">
+                    <td class="name">foo</td>
+                    <td class="value">bar</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Headers</h3>
+            <table id="headers">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr id="header">
+                    <td class="name">User-Agent</td>
+                    <td class="value">HogeHoge</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3>Trace</h3>
+            <div id="traces" class="container">
+                <div id="trace" class="columns">
+                    <div class="single-column">
+                        <table class="middleware">
+                            <thead>
+                            <tr>
+                                <th colspan="2" class="middleware-name">ServiceAvailable</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="inbound">3ms</td>
+                                <td class="outbound">10ms</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="single-column">Param</div>
+                    <div class="one-half column">100ms</div>
+                    <div class="one-half column">10ms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

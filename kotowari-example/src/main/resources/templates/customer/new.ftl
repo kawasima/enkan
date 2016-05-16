@@ -1,14 +1,16 @@
 <#import "../layout/defaultLayout.ftl" as layout>
 <@layout.layout "New customer">
    <h1>New customer</h1>
+
    <form method="post" action="${urlFor('create')}">
      <div class="form-group">
        <label for="name">Account</label>
        <input id="name" class="form-control" type="text" name="name" value="${customer.name!''}"/><#if customer.hasErrors("name")!false>${customer.getErrors("name")?join(",")}</#if>
      </div>
-     <div class="form-group">
+     <div class="form-group<#if customer.hasErrors("password")> has-error</#if>">
        <label for="password">Password</label>
        <input id="password" class="form-control" type="password" name="password" value=""/>
+       <span class="help-block"><#if customer.hasErrors("password")>${customer.getErrors("password")?join(",")}</#if></span>
      </div>
      <div class="form-group">
        <label for="email">Email address</label>

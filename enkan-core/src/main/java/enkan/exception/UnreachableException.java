@@ -1,23 +1,16 @@
 package enkan.exception;
 
 /**
+ * We think unreachable Unreachable
+ *
  * @author kawasima
  */
 public final class UnreachableException extends UnrecoverableException {
-    private UnreachableException() {
+    public UnreachableException() {
         this(null);
     }
 
-    private UnreachableException(Throwable cause) {
+    public UnreachableException(Throwable cause) {
         super("This exception has proved a framework bug.", cause);
     }
-
-    public static UnreachableException create() {
-        return new UnreachableException();
-    }
-
-    public static UnreachableException create(Throwable cause) {
-        return new UnreachableException(cause);
-    }
-
 }

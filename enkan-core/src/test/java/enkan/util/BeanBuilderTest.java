@@ -3,10 +3,8 @@ package enkan.util;
 import enkan.exception.MisconfigurationException;
 import org.junit.Test;
 
-import javax.validation.Validation;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
-import java.util.function.Function;
 
 import static org.junit.Assert.*;
 
@@ -16,9 +14,8 @@ import static org.junit.Assert.*;
 public class BeanBuilderTest {
     @Test
     public void builder() {
-        Function<Person, BeanBuilder<Person>> builder = BeanBuilder.builderWithValidation(Validation.buildDefaultValidatorFactory());
         try {
-            Person p1 = builder.apply(new Person())
+            Person p1 = BeanBuilder.builder(new Person())
                     .set(Person::setName, "kawasima")
                     .set(Person::setAge, 3)
                     .build();

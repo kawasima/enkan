@@ -9,11 +9,12 @@ import enkan.security.UserPrincipal;
 import enkan.system.inject.ComponentInjector;
 import kotowari.data.BodyDeserializable;
 
-import java.io.Serializable;
+import javax.enterprise.context.Conversation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static enkan.util.ReflectionUtils.tryReflection;
 
@@ -44,6 +45,8 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         Object bodyObj = BodyDeserializable.class.cast(request).getDeserializedBody();
         Object[] arguments = new Object[method.getParameterCount()];
 
+        // This code is quite ugly
+        // TODO I think injectable type can be defined also out of this class.
         int parameterIndex = 0;
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();
@@ -52,13 +55,29 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             } else if (Session.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getSession();
             } else if (Flash.class.isAssignableFrom(type)) {
-                // TODO flash
+                arguments[parameterIndex] = Stream.of(request)
+                        .filter(FlashAvailable.class::isInstance)
+                        .map(FlashAvailable.class::cast)
+                        .map(FlashAvailable::getFlash)
+                        .findFirst()
+                        .orElse(null);
             } else if (Parameters.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getParams();
             } else if (UserPrincipal.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = PrincipalAvailable.class.cast(request).getPrincipal();
+            } else if (Conversation.class.isAssignableFrom(type)) {
+                arguments[parameterIndex] = request.getConversation();
+            } else if (ConversationState.class.isAssignableFrom(type)) {
+                ConversationState state = request.getConversationState();
+                if (state == null) {
+                    state = new ConversationState();
+                    request.setConversationState(state);
+                }
+                arguments[parameterIndex] = state;
             } else if (bodyObj != null && bodyObj.getClass().equals(type)) {
                 arguments[parameterIndex] = bodyObj;
+            } else {
+                throw new MisconfigurationException("PARAMETER_TYPE_MISMATCH", parameterIndex, type);
             }
             parameterIndex++;
         }
@@ -86,7 +105,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 return (RES) controllerMethod.invoke(controller, arguments);
             });
         } else {
-            throw MisconfigurationException.create("DONT_IMPLEMENT", Routable.class);
+            throw new MisconfigurationException("kotowari.MISSING_IMPLEMENTATION", Routable.class);
         }
     }
 }

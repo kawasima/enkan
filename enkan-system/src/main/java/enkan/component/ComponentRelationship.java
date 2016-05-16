@@ -43,7 +43,7 @@ public class ComponentRelationship {
         Map<String, SystemComponent> dependencies = new HashMap<>();
         for (String key : dependents) {
             if (!components.containsKey(key)) {
-                throw MisconfigurationException.create("COMPONENT_NOT_FOUND", key, target);
+                throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", key, target);
             }
             dependencies.put(key, components.get(key));
         }

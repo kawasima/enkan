@@ -5,6 +5,7 @@ import enkan.annotation.Middleware;
 import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 
 import java.util.Locale;
@@ -45,8 +46,7 @@ public class FrameOptionsMiddleware extends AbstractWebMiddleware {
 
     public void setFrameOptions(Parameters frameOptions) {
         if (!frameOptions.containsKey("allow-from")) {
-            // TODO Use MisconfigurationException
-            throw new IllegalArgumentException("frameOptions is allowed `ALLOW-FROM`.");
+            throw new MisconfigurationException("web.ILLEGAL_FRAME_OPTIONS");
         }
         this.frameOptions = frameOptions;
     }

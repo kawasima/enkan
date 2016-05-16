@@ -14,7 +14,7 @@ public class OptionMap extends HashMap<String, Object> {
 
     public static OptionMap of(OptionMap init) {
         OptionMap m = empty();
-        init.forEach((k, v) -> m.put(k, v));
+        init.forEach(m::put);
         return m;
     }
 

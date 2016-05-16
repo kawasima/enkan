@@ -23,7 +23,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "contentNegotiation")
-public class ContentNegotiationMiddleware extends AbstractWebMiddleware{
+public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
     private Set<String> allowedLanguages;

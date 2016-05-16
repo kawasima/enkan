@@ -2,8 +2,6 @@ package kotowari.example.model;
 
 import enkan.security.UserPrincipal;
 
-import java.io.Serializable;
-
 /**
  * @author kawasima
  */

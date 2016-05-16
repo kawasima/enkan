@@ -8,7 +8,6 @@ import enkan.data.ForgeryDetectable;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.Session;
-import enkan.util.HttpResponseUtils;
 import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 
@@ -36,8 +35,8 @@ public class AntiForgeryMiddleware extends AbstractWebMiddleware {
     protected Optional<String> sessionToken(HttpRequest request) {
         return ThreadingUtils.some(request,
                 HttpRequest::getSession,
-                s -> s.getAttribute(TOKEN_KEY),
-                String::toString);
+                s -> s.get(TOKEN_KEY),
+                Objects::toString);
     }
 
     /**
@@ -52,7 +51,7 @@ public class AntiForgeryMiddleware extends AbstractWebMiddleware {
         if (!Objects.equals(token, oldToken)) {
             Session session = Optional.ofNullable(request.getSession())
                     .orElse(new Session());
-            session.setAttribute(TOKEN_KEY, token);
+            session.put(TOKEN_KEY, token);
             response.setSession(session);
         }
     }

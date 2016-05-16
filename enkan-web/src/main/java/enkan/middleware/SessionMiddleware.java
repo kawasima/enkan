@@ -5,7 +5,7 @@ import enkan.annotation.Middleware;
 import enkan.collection.OptionMap;
 import enkan.data.*;
 import enkan.middleware.session.MemoryStore;
-import enkan.middleware.session.SessionStore;
+import enkan.middleware.session.KeyValueStore;
 import enkan.util.MixinUtils;
 
 import javax.validation.constraints.NotNull;
@@ -17,16 +17,13 @@ import static enkan.util.ThreadingUtils.some;
  */
 @Middleware(name = "session", dependencies = {"cookies"})
 public class SessionMiddleware extends AbstractWebMiddleware {
-    private String storeName;
-    private String root;
-
     @NotNull
     private String cookieName;
 
     private OptionMap cookieAttrs;
 
     @NotNull
-    private SessionStore store;
+    private KeyValueStore store;
 
     public SessionMiddleware() {
         store = new MemoryStore();
@@ -35,18 +32,34 @@ public class SessionMiddleware extends AbstractWebMiddleware {
                 "path", "/");
     }
 
-    protected void sessionRequest(HttpRequest request) {
-        if (request instanceof WebSessionAvailable) {
-            some(request.getCookies(), cs -> cs.get(cookieName))
-                    .ifPresent(sessionCookie -> {
-                        String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
-                        Session session = reqKey != null ? store.read(reqKey) : null;
-                        request.setSession(session);
-                        if (session != null) {
-                            ((WebSessionAvailable) request).setSessionKey(reqKey);
-                        }
-                    });
+    protected void populteAttrs(Cookie cookie) {
+        if (cookieAttrs.containsValue("domain")) {
+            cookie.setDomain(cookieAttrs.getString("domain"));
         }
+
+        if (cookieAttrs.containsValue("path")) {
+            cookie.setPath(cookieAttrs.getString("path"));
+        }
+
+        if (cookieAttrs.containsValue("secure")) {
+            cookie.setSecure(cookieAttrs.getBoolean("secure"));
+        }
+
+        if (cookieAttrs.containsValue("httpOnly")) {
+            cookie.setHttpOnly(cookieAttrs.getBoolean("httpOnly"));
+        }
+    }
+
+    protected void sessionRequest(HttpRequest request) {
+        some(request.getCookies(), cs -> cs.get(cookieName))
+                .ifPresent(sessionCookie -> {
+                    String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
+                    Session session = reqKey != null ? (Session) store.read(reqKey) : null;
+                    request.setSession(session);
+                    if (session != null) {
+                        ((WebSessionAvailable) request).setSessionKey(reqKey);
+                    }
+                });
     }
 
     protected void sessionResponse(HttpResponse response, HttpRequest request) {
@@ -56,18 +69,23 @@ public class SessionMiddleware extends AbstractWebMiddleware {
         }
         if (response instanceof WebSessionAvailable) {
             Session session = response.getSession();
+
+            // Invalidate session.
+            // - Call response.session == null
+            // - response.session.isNew && request.session != null
+            if (session == null || (session.isNew() && request.getSession() != null)) {
+                store.delete(((WebSessionAvailable) request).getSessionKey());
+            }
+
             String newSessionKey = null;
             if (session != null) {
-                if (session.isValid()) {
+                if (!PersistentMarkedSession.class.isInstance(session)) {
+                    session.persist();
                     newSessionKey = store.write(sessionKey, session);
-                } else {
-                    if (sessionKey != null) {
-                        newSessionKey = store.delete(sessionKey);
-                    }
                 }
             }
             Cookie cookie = Cookie.create(cookieName, newSessionKey != null ? newSessionKey : sessionKey);
-
+            populteAttrs(cookie);
             if (newSessionKey != null && !newSessionKey.equals(sessionKey)) {
                 response.getCookies().put(cookieName, cookie);
             }
@@ -84,14 +102,6 @@ public class SessionMiddleware extends AbstractWebMiddleware {
         return response;
     }
 
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }
-
-    public void setRoot(String root) {
-        this.root = root;
-    }
-
     public void setCookieName(String cookieName) {
         this.cookieName = cookieName;
     }
@@ -100,7 +110,7 @@ public class SessionMiddleware extends AbstractWebMiddleware {
         this.cookieAttrs = cookieAttrs;
     }
 
-    public void setStore(SessionStore store) {
+    public void setStore(KeyValueStore store) {
         this.store = store;
     }
 }

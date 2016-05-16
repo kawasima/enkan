@@ -11,7 +11,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +40,7 @@ public class ConfigurationLoader extends ClassLoader {
                     try {
                         return new File(url.toURI());
                     } catch(URISyntaxException e) {
-                        throw UnreachableException.create(e);
+                        throw new UnreachableException(e);
                     }
                 })
                 .collect(Collectors.toList());

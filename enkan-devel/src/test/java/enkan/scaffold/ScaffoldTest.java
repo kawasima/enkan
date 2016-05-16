@@ -15,9 +15,10 @@ import enkan.Application;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.application.WebApplication;
-import enkan.collection.Parameters;
 import enkan.endpoint.ResourceEndpoint;
 import enkan.middleware.*;
+import enkan.middleware.devel.HttpStatusCatMiddleware;
+import enkan.middleware.devel.StacktraceMiddleware;
 import enkan.predicate.NonePredicate;
 import org.junit.Test;
 

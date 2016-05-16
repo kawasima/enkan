@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
+ * TODO This middleware is in development. Don't use.
+ *
  * @author kawasima
  */
 public class PreventDDoSMiddleWare extends AbstractWebMiddleware {

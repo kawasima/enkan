@@ -60,7 +60,7 @@ public class MultipartParser {
         try {
             return File.createTempFile("EnkanMultipart", extName);
         } catch (IOException e) {
-            throw FalteringEnvironmentException.create(e);
+            throw new FalteringEnvironmentException(e);
         }
     };
 

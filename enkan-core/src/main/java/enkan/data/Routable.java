@@ -3,6 +3,8 @@ package enkan.data;
 import java.lang.reflect.Method;
 
 /**
+ * Holds the controller method.
+ *
  * @author kawasima
  */
 public interface Routable extends Extendable {

@@ -15,4 +15,18 @@ public class ExampleController {
         System.out.println(params);
         return "method2 " + params.get("name");
     }
+
+    public String method3() {
+        return "method3";
+    }
+    public String method4() {
+        return "method4";
+    }
+    public String method5() {
+        return "method5";
+    }
+    public String method6() {
+        return "method6";
+    }
+
 }

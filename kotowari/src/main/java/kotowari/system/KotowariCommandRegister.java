@@ -1,6 +1,7 @@
 package kotowari.system;
 
 import enkan.Application;
+import enkan.MiddlewareChain;
 import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
 import enkan.system.Repl;
@@ -28,7 +29,7 @@ public class KotowariCommandRegister implements SystemCommandRegister {
                     return true;
                 }
                 app.getMiddlewareStack().stream()
-                        .map(chain -> chain.getMiddleware())
+                        .map(MiddlewareChain::getMiddleware)
                         .filter(middleware -> middleware instanceof RoutingMiddleware)
                         .map(m -> ReplResponse.withOut(((RoutingMiddleware) m).getRoutes().toString()))
                         .forEach(transport::send);

@@ -38,7 +38,7 @@ public class ApplicationComponent extends SystemComponent {
                         Application<?, ?> app = factory.create(injector);
                         app.getMiddlewareStack().stream()
                                 .map(MiddlewareChain::getMiddleware)
-                                .forEach(middleware -> injector.inject(middleware));
+                                .forEach(injector::inject);
                         app.validate();
                         return app;
                     });

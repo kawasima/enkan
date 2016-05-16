@@ -16,7 +16,7 @@ public class OptimizedRecognizer implements Recognizer {
 
     public String[] toPlainSegments(String str) {
         str = str.replaceAll("^/+", "").replaceAll("/+$", "");
-        return str.split("\\.[^/]+\\/+|" + "[" + RegexpUtils.escape(String.join("", RouteBuilder.SEPARATORS)) + "]+|\\.[^/]+\\Z");
+        return str.split("\\.[^/]+/+|" + "[" + RegexpUtils.escape(String.join("", RouteBuilder.SEPARATORS)) + "]+|\\.[^/]+\\Z");
     }
 
     public void setRoutes(List<Route> routes) {

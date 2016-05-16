@@ -18,7 +18,7 @@ public abstract class SystemComponent {
         return (T) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
                 .findFirst()
-                .orElseThrow(() -> MisconfigurationException.create("CLASS_NOT_FOUND", componentClass));
+                .orElseThrow(() -> new MisconfigurationException("core.CLASS_NOT_FOUND", componentClass));
     }
 
     protected Map<String, SystemComponent> getAllDependencies() {

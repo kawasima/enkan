@@ -80,11 +80,9 @@ public interface Application<REQ, RES> {
                     .collect(Collectors.toSet());
 
             if (!lackMiddlewares.isEmpty()) {
-                throw MisconfigurationException.create("MIDDLEWARE_DEPENDENCY", name, lackMiddlewares);
+                throw new MisconfigurationException("core.MIDDLEWARE_DEPENDENCY", name, lackMiddlewares);
             }
-            if (!priorMiddelwares.add(name)) {
-                throw MisconfigurationException.create("DUPLICATE_MIDDLEWARES", name);
-            }
+            priorMiddelwares.add(name);
         }
     }
 

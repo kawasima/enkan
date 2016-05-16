@@ -1,37 +1,36 @@
 package enkan.middleware.session;
 
-import enkan.data.Session;
-
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
+import java.io.Serializable;
 
 /**
  * @author kawasima
  */
-public class JCacheStore implements SessionStore {
-    private Cache<String, Session> cache;
+public class JCacheStore implements KeyValueStore {
+    private Cache<String, Serializable> cache;
 
     public JCacheStore() {
         CachingProvider cachingProvider = Caching.getCachingProvider();
         CacheManager cacheManager = cachingProvider.getCacheManager();
 
-        Configuration<String, Session> config = new MutableConfiguration<String, Session>()
-                .setTypes(String.class, Session.class);
+        Configuration<String, Serializable> config = new MutableConfiguration<String, Serializable>()
+                .setTypes(String.class, Serializable.class);
         cache = cacheManager.createCache("session", config);
     }
 
     @Override
-    public Session read(String key) {
+    public Serializable read(String key) {
         return cache.get(key);
     }
 
     @Override
-    public String write(String key, Session session) {
-        cache.put(key, session);
+    public String write(String key, Serializable value) {
+        cache.put(key, value);
         return key;
     }
 

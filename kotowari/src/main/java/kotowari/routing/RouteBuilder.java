@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class RouteBuilder {
     public static final String[] SEPARATORS = {"/", ".", "?", "(", ")"};
-    private static final Pattern PTN_OPTIONAL_FORMAT = Pattern.compile("\\A\\.(:format?)\\/");
+    private static final Pattern PTN_OPTIONAL_FORMAT = Pattern.compile("\\A\\.(:format?)/");
     private static final Pattern PTN_SYMBOL          = Pattern.compile("\\A(?::(\\w+)|\\(:(\\w+)\\))");
     private static final Pattern PTN_PATH            = Pattern.compile("\\A\\*(\\w+)");
     private static final Pattern PTN_STATIC          = Pattern.compile("\\A\\?(.*?)\\?");

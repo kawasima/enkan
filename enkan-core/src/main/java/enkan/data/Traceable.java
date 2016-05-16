@@ -2,12 +2,19 @@ package enkan.data;
 
 import enkan.exception.MisconfigurationException;
 
+import java.util.UUID;
+
 /**
  * @author kawasima
  */
 public interface Traceable extends Extendable {
     default String getId() {
-        return getExtension("id").toString();
+        String id = (String) getExtension("id");
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+            setId(id);
+        }
+        return id;
     }
 
     default void setId(String id) {
@@ -25,7 +32,7 @@ public interface Traceable extends Extendable {
         if (extension instanceof TraceLog) {
             return (TraceLog) extension;
         } else {
-            throw MisconfigurationException.create("EXTENSION_MISMATCH.problem", extension, "TraceLog");
+            throw new MisconfigurationException("core.EXTENSION_MISMATCH", extension, "TraceLog");
         }
     }
 }

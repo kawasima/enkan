@@ -7,6 +7,8 @@ import enkan.data.Traceable;
 import java.util.function.Predicate;
 
 /**
+ * The default chain of middleware.
+ *
  * @author kawasima
  */
 public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RES> {
@@ -16,6 +18,15 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
     private MiddlewareChain<Object, Object> next;
 
 
+    /**
+     * Creates the chain of middleware.
+     *
+     * If middlewareName is not given, the name of middleware is given the default from the annotation.
+     *
+     * @param predicate       a condition of applying the middleware
+     * @param middlewareName  a name of middleware
+     * @param middleware      a middleware
+     */
     public DefaultMiddlewareChain(Predicate<REQ> predicate, String middlewareName, Middleware<REQ, RES> middleware) {
         this.predicate = predicate;
         this.middleware = middleware;
@@ -29,12 +40,23 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
         }
     }
 
+    /**
+     * Sets the next chain of middleware.
+     *
+     * @param next {@inheritDoc}
+     * @return     {@inheritDoc}
+     */
     @Override
     public MiddlewareChain<REQ, RES> setNext(MiddlewareChain next) {
         this.next = next;
         return this;
     }
 
+    /**
+     * Gets middleware.
+     *
+     * @return {@inheritDoc}
+     */
     @Override
     public Middleware<REQ, RES> getMiddleware() {
         return middleware;
@@ -46,6 +68,12 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
         }
     }
 
+    /**
+     * Dispatches a request to the next chain of middleware.
+     *
+     * @param req  {@inheritDoc}
+     * @return     {@inheritDoc}
+     */
     @Override
     public RES next(REQ req) {
         writeTraceLog(req, middlewareName);
@@ -63,16 +91,33 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
         }
     }
 
+    /**
+     * Gets the name of middleware.
+     *
+     * @return {@inheritDoc}
+     */
     @Override
     public String getName() {
         return middlewareName;
     }
 
+    /**
+     * Gets the predicate.
+     *
+     * @return {@inheritDoc}
+     */
     @Override
     public Predicate<REQ> getPredicate() {
         return predicate;
     }
 
+    /**
+     * Sets the predicate.
+     *
+     * If this predicate returns true, middleware will be applied.
+     *
+     * @param predicate predicate for applying the middleware.
+     */
     @Override
     public void setPredicate(Predicate<REQ> predicate) {
         this.predicate = predicate;

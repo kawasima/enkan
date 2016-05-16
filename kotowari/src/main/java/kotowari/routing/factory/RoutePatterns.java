@@ -8,6 +8,10 @@ import kotowari.routing.Routes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Routing patterns.
@@ -16,15 +20,16 @@ import java.util.List;
  */
 public class RoutePatterns {
     private List<Route> routeList;
-    private Routes routes;
     private PatternsContext context;
     private RouteBuilder builder;
+    private Function<List<Route>, Routes> routeCompiler;
 
-    public RoutePatterns(Routes routes) {
-        this.routes = routes;
+    public RoutePatterns(String prefix, Function<List<Route>, Routes> routeCompiler) {
+        this.routeCompiler = routeCompiler;
+
         routeList = new ArrayList<>();
         builder = new RouteBuilder();
-        context = new PatternsContext(this);
+        context = new PatternsContext(prefix, this);
     }
 
     RoutingCondition httpMethodCondition(String method, String path) {
@@ -45,6 +50,10 @@ public class RoutePatterns {
         return httpMethodCondition("PUT", path);
     }
 
+    public RoutingCondition patch(String path) {
+        return httpMethodCondition("PATCH", path);
+    }
+
     public RoutingCondition delete(String path) {
         return httpMethodCondition("DELETE", path);
     }
@@ -60,6 +69,7 @@ public class RoutePatterns {
             return s;
         }
     }
+
     public Route resource(Class<?> controller, OptionMap options) {
         String name = decapitalize(controller.getSimpleName().replaceAll("Controller$", ""));
         get(name + "/").to(controller, "index");
@@ -73,20 +83,10 @@ public class RoutePatterns {
         return null;
     }
 
-    public Route resources(Class<?>... controllers) {
-        Arrays.stream(controllers).map(c -> resource(c, null));
-        return null;
+    public void scope(String path, RoutePatternsDescriptor subDesc) {
+        RoutePatterns subPatterns = Routes.define(context.joinPaths(path), subDesc);
+        routeList.addAll(subPatterns.routeList);
     }
-
-    public void namespace(String ns, RoutePatternsDescriptor subDesc) {
-        /*
-        RoutePatterns patterns = new RoutePatterns(new Routes());
-        subDesc.describe(patterns);
-        return patterns;
-        */
-        // TODO merge definitions.
-    }
-
 
     private void addRoute_(Route route) {
         routeList.add(route);
@@ -98,14 +98,15 @@ public class RoutePatterns {
 
 
     public Routes compile() {
-        routes.setRouteList(routeList);
-        return routes;
+        return routeCompiler.apply(routeList);
     }
 
     static class PatternsContext {
+        private String prefix;
         private RoutePatterns patterns;
 
-        public PatternsContext(RoutePatterns routes) {
+        public PatternsContext(String prefix, RoutePatterns routes) {
+            this.prefix = prefix;
             this.patterns = routes;
         }
 
@@ -113,8 +114,13 @@ public class RoutePatterns {
             patterns.addRoute_(route);
         }
 
+        String joinPaths(String path) {
+            if (prefix == null) return path;
+            return (prefix + "/" + path).replaceAll("//+", "/");
+        }
+
         public Route build(String path, OptionMap options) {
-            return patterns.getBuilder().build(path, options);
+            return patterns.getBuilder().build(joinPaths(path), options);
         }
 
     }

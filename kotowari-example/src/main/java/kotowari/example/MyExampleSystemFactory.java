@@ -3,6 +3,7 @@ package kotowari.example;
 import enkan.Env;
 import enkan.collection.OptionMap;
 import enkan.component.*;
+import enkan.component.builtin.HmacEncoder;
 import enkan.component.doma2.DomaProvider;
 import enkan.component.flyway.FlywayMigration;
 import enkan.component.freemarker.FreemarkerTemplateEngine;
@@ -23,6 +24,7 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
     @Override
     public EnkanSystem create() {
         return EnkanSystem.of(
+                "hmac", new HmacEncoder(),
                 "doma", new DomaProvider(),
                 "jackson", new JacksonBeansConverter(),
                 "flyway", new FlywayMigration(),
@@ -35,7 +37,7 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                         .build()
         ).relationships(
                 component("http").using("app"),
-                component("app").using("datasource", "template", "doma", "jackson", "metrics"),
+                component("app").using("datasource", "template", "doma", "jackson", "metrics", "hmac"),
                 component("doma").using("datasource", "flyway"),
                 component("flyway").using("datasource")
         );

@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * The utilities of environments.
@@ -27,6 +26,16 @@ public class Env {
     }
 
     /**
+     * Normalize the given key to lower case delimited by dot..
+     *
+     * @param key The key of the environment variable.
+     * @return a normalized String
+     */
+    private static String normalizeKey(String key) {
+        return key.toLowerCase(Locale.US).replace('_', '.');
+    }
+
+    /**
      * Read environments from a file.
      */
     private static void readEnvFile() {
@@ -35,9 +44,12 @@ public class Env {
         if (url != null) {
             try (Reader reader=new InputStreamReader(url.openStream(), "UTF-8")) {
                 properties.load(reader);
-                properties.stringPropertyNames().forEach(k -> envMap.put(k, System.getProperty(k)));
+                properties.stringPropertyNames()
+                        .stream()
+                        .map(Env::normalizeKey)
+                        .forEach(k -> envMap.put(k, properties.getProperty(k)));
             } catch (IOException e) {
-                throw FalteringEnvironmentException.create(e);
+                throw new FalteringEnvironmentException(e);
             }
         }
     }
@@ -47,6 +59,8 @@ public class Env {
      */
     private static void readSystemProps() {
         System.getProperties().stringPropertyNames()
+                .stream()
+                .map(Env::normalizeKey)
                 .forEach(k -> envMap.put(k, System.getProperty(k)));
     }
 
@@ -54,7 +68,7 @@ public class Env {
      * Read environments from environment variables.
      */
     private static void readSystemEnv() {
-        System.getenv().forEach((k, v) -> envMap.put(k, v));
+        System.getenv().forEach((k, v) -> envMap.put(normalizeKey(k), v));
     }
 
     /**
@@ -75,8 +89,12 @@ public class Env {
      * @return value
      */
     public static String getString(String name, String defaultValue) {
-        String val = envMap.get(name);
-        return val != null ? val : defaultValue;
+        return Stream.of(name)
+                .map(Env::normalizeKey)
+                .map(envMap::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(defaultValue);
     }
 
     /**
@@ -87,8 +105,13 @@ public class Env {
      * @return integer value
      */
     public static int getInt(String name, int defaultValue) {
-        String val = envMap.get(name);
-        return val != null ? Integer.parseInt(val) : defaultValue;
+        return Stream.of(name)
+                .map(Env::normalizeKey)
+                .map(envMap::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(Integer::parseInt)
+                .orElse(defaultValue);
     }
 
     /**
@@ -99,8 +122,13 @@ public class Env {
      * @return long value
      */
     public static long getLong(String name, long defaultValue) {
-        String val = envMap.get(name);
-        return val != null ? Long.parseLong(val) : defaultValue;
+        return Stream.of(name)
+                .map(Env::normalizeKey)
+                .map(envMap::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(Long::parseLong)
+                .orElse(defaultValue);
     }
 
 }

@@ -6,9 +6,6 @@ import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.collection.Headers;
 import enkan.data.*;
-
-import static enkan.util.BeanBuilder.builder;
-
 import enkan.predicate.AnyPredicate;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
@@ -19,10 +16,9 @@ import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
+import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ReflectionUtils.tryReflection;
-import static org.junit.Assert.*;
 
 /**
  * @author kawasima

@@ -14,7 +14,7 @@ import static jline.internal.Preconditions.checkNotNull;
  * @author kawasima
  */
 public class CommandCompleter implements Completer {
-    private final SortedSet<String> commands = new TreeSet<String>();
+    private final SortedSet<String> commands = new TreeSet<>();
 
 
     @Override

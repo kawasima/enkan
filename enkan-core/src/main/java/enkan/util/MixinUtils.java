@@ -1,7 +1,5 @@
 package enkan.util;
 
-import enkan.exception.UnreachableException;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
@@ -54,7 +52,11 @@ public class MixinUtils {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (method.getDeclaringClass().isAssignableFrom(original.getClass())) {
-                return method.invoke(original, args);
+                if (method.getName().equals("equals") && args.length == 1) {
+                    return args[0] == proxy;
+                } else {
+                    return method.invoke(original, args);
+                }
             } else {
                 return getMethodHandle(method)
                         .bindTo(proxy)

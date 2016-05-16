@@ -36,7 +36,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         String[] tokens = ACCEPT_DELIMITER.split(accept);
         if (tokens.length > 0) {
             Optional<Double> q = Arrays.stream(tokens).skip(1)
-                    .map(param -> ACCEPT_FRAGMENT_PARAM_RE.matcher(param))
+                    .map(ACCEPT_FRAGMENT_PARAM_RE::matcher)
                     .filter(Matcher::find)
                     .filter(m -> m.group(1).equals("q"))
                     .map(m -> parseQ(m.group(2)))

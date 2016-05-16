@@ -39,7 +39,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
         }
     }
 
-    Snippet stackTraceElementSnippet = moshas.defineSnippet("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
+    Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
         s.select("td.source", (el, ctx) ->
                 el.text(ctx.getString("stackTraceElement", "fileName") +
                         ":" +
@@ -62,12 +62,12 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
         return response;
     }
     protected HttpResponse<String> htmlUnreachableExResponse(UnreachableException ex) {
-        Template template = moshas.defineTemplate("templates/unreachable.html", t -> {});
+        Template template = moshas.describe("templates/unreachable.html", t -> {});
         return render(template);
     }
 
     protected HttpResponse htmlMisconfigExResponse(MisconfigurationException ex, HttpRequest request) {
-        Template template = moshas.defineTemplate("templates/misconfiguration.html", t -> {
+        Template template = moshas.describe("templates/misconfiguration.html", t -> {
             t.select("#primer", (el, ctx) -> el.text(primer));
             t.select(".problem", text("exception", "problem"));
             t.select(".solution", text("exception", "solution"));
@@ -87,8 +87,9 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     }
 
     protected HttpResponse htmlExResponse(Throwable ex) {
-        Template template = moshas.defineTemplate("templates/stacktrace.html", t -> {
-            t.select("#class-name", text("exception","message"));
+        Template template = moshas.describe("templates/stacktrace.html", t -> {
+            t.select("#class-name", (el, ctx) -> el.text(
+                    ctx.get("exception") + ":" + ctx.getString("exception","message")));
             t.select(".trace table tbody", (el, ctx) -> {
                 el.empty();
                 ctx.getCollection("exception", "stackTrace").forEach(

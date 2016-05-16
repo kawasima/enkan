@@ -3,7 +3,7 @@ package enkan;
 import java.util.function.Predicate;
 
 /**
- * A chain of middlewares.
+ * A chain of middleware.
  *
  * @author kawasima
  */

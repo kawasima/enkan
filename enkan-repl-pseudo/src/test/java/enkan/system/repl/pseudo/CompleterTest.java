@@ -1,6 +1,5 @@
 package enkan.system.repl.pseudo;
 
-import jline.console.completer.AggregateCompleter;
 import jline.console.completer.StringsCompleter;
 import org.junit.Test;
 

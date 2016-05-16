@@ -12,10 +12,7 @@ import java.util.List;
 public interface Validatable extends Extendable {
     default boolean hasErrors() {
         Multimap<String, String> errors = (Multimap<String, String>) getExtension("errors");
-        if (errors != null) {
-            return !errors.isEmpty();
-        }
-        return false;
+        return errors != null && !errors.isEmpty();
     }
 
     default boolean hasErrors(String key) {

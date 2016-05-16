@@ -1,7 +1,5 @@
 package enkan.util;
 
-import enkan.exception.FalteringEnvironmentException;
-
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -34,8 +32,10 @@ public class ThreadingUtils {
             } catch (Exception e) {
                 if (DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS.contains(e.getClass())) {
                     throw new IllegalArgumentException(e);
+                } else if (e instanceof RuntimeException) {
+                    throw (RuntimeException) e;
                 } else {
-                    throw FalteringEnvironmentException.create(e);
+                    throw new RuntimeException(e);
                 }
             }
             if (v == null) {

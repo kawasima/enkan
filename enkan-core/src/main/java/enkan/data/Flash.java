@@ -3,6 +3,8 @@ package enkan.data;
 import java.io.Serializable;
 
 /**
+ * Holds a flashing value.
+ *
  * @author kawasima
  */
 public class Flash<T extends Serializable> implements Serializable {
@@ -12,6 +14,11 @@ public class Flash<T extends Serializable> implements Serializable {
         this.value = value;
     }
 
+    /**
+     * Gets the flashing value.
+     *
+     * @return a flashing value
+     */
     public T getValue() {
         return value;
     }

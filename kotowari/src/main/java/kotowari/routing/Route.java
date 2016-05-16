@@ -135,7 +135,7 @@ public class Route {
             onlyKeys = new ArrayList<>(hash.keySet());
 
         elements.addAll(onlyKeys.stream()
-                .filter(key -> hash.containsKey(key))
+                .filter(hash::containsKey)
                 .map(key -> getUrlEncodedString(hash, key))
                 .collect(Collectors.toList()));
         return elements.isEmpty() ? "" : "?" + String.join("&", elements);
@@ -221,10 +221,9 @@ public class Route {
     private List<String> extraKeys(OptionMap hash) {
         List<String> extraKeys = new ArrayList<>();
         if (hash != null) {
-            for (String key : hash.keySet()) {
-                if (!significantKeys.contains(key))
-                    extraKeys.add(key);
-            }
+            extraKeys.addAll(hash.keySet().stream()
+                    .filter(key -> !significantKeys.contains(key))
+                    .collect(Collectors.toList()));
         }
         return extraKeys;
     }

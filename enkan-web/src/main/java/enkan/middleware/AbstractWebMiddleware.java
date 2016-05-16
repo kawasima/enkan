@@ -16,7 +16,7 @@ public abstract class AbstractWebMiddleware implements Middleware<HttpRequest, H
         } else if (objectResponse instanceof HttpResponse) {
             return (HttpResponse) objectResponse;
         } else {
-            throw MisconfigurationException.create("RESPONSE_TYPE_MISTMATCH");
+            throw new MisconfigurationException("web.RESPONSE_TYPE_MISMATCH");
         }
     }
 }

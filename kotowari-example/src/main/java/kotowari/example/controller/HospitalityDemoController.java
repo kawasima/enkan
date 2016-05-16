@@ -14,7 +14,7 @@ public class HospitalityDemoController {
     private TemplateEngine templateEngine;
 
     public String unreachable() {
-        throw UnreachableException.create();
+        throw new UnreachableException();
     }
 
     public HttpResponse misconfiguration() {

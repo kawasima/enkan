@@ -1,7 +1,6 @@
 package enkan.util;
 
 import enkan.collection.Headers;
-import enkan.data.DefaultHttpResponse;
 import enkan.data.HttpResponse;
 import org.junit.Test;
 

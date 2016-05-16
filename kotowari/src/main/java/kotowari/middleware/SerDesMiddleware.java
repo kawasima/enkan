@@ -83,7 +83,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                     }
                 })
                 .filter(Objects::nonNull)
-                .map(bytes -> new ByteArrayInputStream(bytes))
+                .map(ByteArrayInputStream::new)
                 .findFirst()
                 .orElse(null);
     }
@@ -119,10 +119,17 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
             return (HttpResponse) response;
         } else {
             MediaType responseType = ContentNegotiable.class.cast(request).getAccept();
-            return builder(HttpResponse.of(serialize(response, responseType)))
-                    .set(HttpResponse::setHeaders,
-                            Headers.of("Content-Type", CodecUtils.printMediaType(responseType)))
-                    .build();
+            InputStream in = serialize(response, responseType);
+            if (in != null) {
+                return builder(HttpResponse.of(in))
+                        .set(HttpResponse::setHeaders,
+                                Headers.of("Content-Type", CodecUtils.printMediaType(responseType)))
+                        .build();
+            } else {
+                return builder(HttpResponse.of("Not acceptable"))
+                        .set(HttpResponse::setStatus, 406)
+                        .build();
+            }
         }
     }
 

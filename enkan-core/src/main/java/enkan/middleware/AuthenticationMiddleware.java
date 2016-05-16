@@ -8,7 +8,6 @@ import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 

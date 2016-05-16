@@ -1,13 +1,13 @@
 package enkan;
 
 /**
- * A middleware.
+ * Handles a request and calls the next middleware chain and  returns a response.
  *
  * @author kawasima
  */
 public interface Middleware<REQ, RES> {
     /**
-     * Handle a request.
+     * Handles the given request.
      *
      * @param req   A request object
      * @param chain A chain of middlewares

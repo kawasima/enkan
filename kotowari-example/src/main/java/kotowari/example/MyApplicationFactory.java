@@ -8,16 +8,16 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.endpoint.ResourceEndpoint;
 import enkan.middleware.*;
+import enkan.middleware.devel.HttpStatusCatMiddleware;
+import enkan.middleware.devel.StacktraceMiddleware;
+import enkan.middleware.devel.TraceWebMiddleware;
 import enkan.middleware.doma2.DomaTransactionMiddleware;
 import enkan.middleware.metrics.MetricsMiddleware;
-import enkan.predicate.NonePredicate;
+import enkan.predicate.PathPredicate;
 import enkan.security.backend.SessionBackend;
 import enkan.system.inject.ComponentInjector;
 import enkan.util.HttpResponseUtils;
-import kotowari.example.controller.CustomerController;
-import kotowari.example.controller.ExampleController;
-import kotowari.example.controller.HospitalityDemoController;
-import kotowari.example.controller.MiscController;
+import kotowari.example.controller.*;
 import kotowari.example.controller.guestbook.GuestbookController;
 import kotowari.example.controller.guestbook.LoginController;
 import kotowari.middleware.*;
@@ -41,10 +41,15 @@ public class MyApplicationFactory implements ApplicationFactory {
             r.get("/m2").to(ExampleController.class, "method2");
             r.get("/m3").to(ExampleController.class, "method3");
             r.get("/m4").to(ExampleController.class, "method4");
+
             r.get("/guestbook/login").to(LoginController.class, "loginForm");
             r.post("/guestbook/login").to(LoginController.class, "login");
             r.get("/guestbook/").to(GuestbookController.class, "list");
             r.post("/guestbook/").to(GuestbookController.class, "post");
+
+            r.get("/conversation/1").to(ConversationStateController.class, "page1");
+            r.post("/conversation/2").to(ConversationStateController.class, "page2");
+            r.post("/conversation/3").to(ConversationStateController.class, "page3");
             r.get("/misc/counter").to(MiscController.class, "counter");
             r.get("/misc/upload").to(MiscController.class, "uploadForm");
             r.post("/misc/upload").to(MiscController.class, "upload");
@@ -52,16 +57,18 @@ public class MyApplicationFactory implements ApplicationFactory {
             r.get("/hospitality/misconfiguration").to(HospitalityDemoController.class, "misconfiguration");
             r.resource(CustomerController.class);
             r.get("/customer/list").to(CustomerController.class, "list");
+            r.post("/customer/validate").to(CustomerController.class, "validate");
         }).compile();
 
         // Enkan
         app.use(new DefaultCharsetMiddleware());
         app.use(new MetricsMiddleware<>());
-        app.use(new NonePredicate(), new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
-        app.use(new StacktraceMiddleware());
+        app.use(NONE, new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
+        app.use(envIn("development"), new StacktraceMiddleware());
+        app.use(envIn("development"), new TraceWebMiddleware());
         app.use(new TraceMiddleware<>());
         app.use(new ContentTypeMiddleware());
-        app.use(new HttpStatusCatMiddleware());
+        app.use(envIn("development"), new HttpStatusCatMiddleware());
         app.use(new ParamsMiddleware());
         app.use(new MultipartParamsMiddleware());
         app.use(new MethodOverrideMiddleware());
@@ -69,6 +76,7 @@ public class MyApplicationFactory implements ApplicationFactory {
         app.use(new NestedParamsMiddleware());
         app.use(new CookiesMiddleware());
         app.use(new SessionMiddleware());
+        app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware());
 
         app.use(new AuthenticationMiddleware<>(Arrays.asList(new SessionBackend())));
         app.use(and(path("^/guestbook/"), authenticated().negate()),

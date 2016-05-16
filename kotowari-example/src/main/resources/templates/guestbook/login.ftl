@@ -1,6 +1,7 @@
 <#import "../layout/defaultLayout.ftl" as layout>
 <@layout.layout "Login">
 <form method="post" action="${urlFor("login")}">
+    <input type="hidden" name="__conversation-token" value="${conversationToken!''}"/>
     <input type="hidden" name="url" value="${url!''}"/>
     <div class="form-group">
       <label for="email">Email Address</label>

@@ -3,6 +3,7 @@ package enkan.util;
 import enkan.exception.MisconfigurationException;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class BeanBuilder<X> {
+    private static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
     private X x;
     private ValidatorFactory validatorFactory;
 
@@ -29,7 +31,7 @@ public class BeanBuilder<X> {
     }
 
     public static <Y> BeanBuilder<Y> builder(Y x) {
-        return new BeanBuilder<>(x, null);
+        return new BeanBuilder<>(x, DEFAULT_VALIDATOR_FACTORY);
     }
 
     public <V> BeanBuilder<X> set(BiConsumer<X, V> caller, V v) {
@@ -42,8 +44,7 @@ public class BeanBuilder<X> {
             Validator validator = validatorFactory.getValidator();
             Set<ConstraintViolation<X>> violations = validator.validate(x);
             if (!violations.isEmpty()) {
-
-                throw MisconfigurationException.create("BUILD_ERROR", x.getClass().getName(),
+                throw new MisconfigurationException("core.BUILD_ERROR", x.getClass().getName(),
                         violations.stream().map(ConstraintViolation::getMessage)
                                 .collect(Collectors.joining(",")));
             }

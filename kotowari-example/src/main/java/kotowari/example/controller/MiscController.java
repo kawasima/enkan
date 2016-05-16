@@ -33,12 +33,12 @@ public class MiscController {
     public HttpResponse counter(Session session) {
         int count = 0;
         if (session != null) {
-            count = session.getAttribute("count");
+            count = (Integer) session.get("count");
             count++;
         } else {
             session = new Session();
         }
-        session.setAttribute("count", count);
+        session.put("count", count);
         return builder(response(count + "times."))
                 .set(HttpResponse::setContentType, "text/plain")
                 .set(HttpResponse::setSession, session)

@@ -36,7 +36,7 @@ public class SocketTransport implements Transport {
             packer.write(response);
             socket.getOutputStream().flush();
         } catch (IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 
@@ -45,7 +45,7 @@ public class SocketTransport implements Transport {
         try {
             return unpacker.readString();
         } catch (IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 
@@ -53,7 +53,7 @@ public class SocketTransport implements Transport {
         try {
             socket.close();
         } catch (IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 

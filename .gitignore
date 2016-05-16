@@ -1,5 +1,6 @@
 .idea
 *.iml
+nb-configuration.xml
 target
 *.class
 

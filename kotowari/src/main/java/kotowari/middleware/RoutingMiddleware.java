@@ -99,7 +99,7 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
                                 Thread.currentThread().getContextClassLoader());
                         return routes.generate(UrlRewriter.urlFor(ctrlClass, arguments.get(1).toString()).getOptions());
                     } catch (ClassNotFoundException e) {
-                        throw MisconfigurationException.create("CLASS_NOT_FOUND", arguments.get(0).toString(), e);
+                        throw new MisconfigurationException("core.CLASS_NOT_FOUND", arguments.get(0).toString(), e);
                     }
                 }
             };

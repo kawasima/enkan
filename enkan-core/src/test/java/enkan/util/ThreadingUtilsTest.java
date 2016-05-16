@@ -1,19 +1,14 @@
 package enkan.util;
 
 
-import enkan.exception.MisconfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.validation.Validation;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static enkan.util.ThreadingUtils.partial;
 import static enkan.util.ThreadingUtils.some;

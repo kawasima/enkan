@@ -88,7 +88,7 @@ public class CodecUtils {
             m.appendTail(sb);
             return sb.toString();
         } catch (UnsupportedEncodingException e) {
-            throw MisconfigurationException.create("UNSUPPORTED_ENCODING", encoding, e);
+            throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
         }
     }
 
@@ -162,8 +162,6 @@ public class CodecUtils {
      *
      * MediaType#toString requires a JAX-RS implementation.
      * To avoid that enkan requires a JAX-RS implementation, Use this method.
-     *
-     * TODO MediaType parameters
      *
      * @param mediaType MediaType
      * @return a String represents the MediaType

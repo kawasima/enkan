@@ -5,6 +5,8 @@
     <li><a href="${urlFor("kotowari.example.controller.MiscController", "counter")}">Counter (Using session)</a></li>
     <li><a href="${urlFor("kotowari.example.controller.MiscController", "uploadForm")}">File upload</a></li>
     <li><a href="${urlFor("kotowari.example.controller.CustomerController", "index")}">CRUD</a></li>
+    <li><a href="${urlFor("kotowari.example.controller.guestbook.GuestbookController", "list")}">Guestbook (with login)</a></li>
+    <li><a href="${urlFor("kotowari.example.controller.ConversationStateController", "page1")}">Conversation</a></li>
   </ul>
   <hr/>
   <ul>

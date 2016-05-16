@@ -9,7 +9,7 @@ import java.io.InputStream;
 /**
  * @author kawasima
  */
-public interface HttpResponse<T> extends SessionAvailable {
+public interface HttpResponse<T> extends SessionAvailable, FlashAvailable, Traceable, ConversationAvailable {
 
     static HttpResponse<String> of(String body) {
         HttpResponse response = new DefaultHttpResponse(200,

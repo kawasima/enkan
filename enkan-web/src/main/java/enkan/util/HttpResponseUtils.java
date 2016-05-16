@@ -179,7 +179,7 @@ public class HttpResponseUtils {
                             new Date((file.lastModified() / 1000) * 1000));
                 }
             } catch (URISyntaxException e) {
-                throw UnreachableException.create(e);
+                throw new UnreachableException(e);
             }
         } else if ("jar".equals(protocol)) {
             try {
@@ -190,7 +190,7 @@ public class HttpResponseUtils {
                             connectionLastModified(connection));
                 }
             } catch (IOException e) {
-                throw FalteringEnvironmentException.create(e);
+                throw new FalteringEnvironmentException(e);
             }
         }
 
@@ -207,7 +207,7 @@ public class HttpResponseUtils {
         } else if (data instanceof StreamContentData) {
             response = HttpResponse.of(((StreamContentData) data).getContent());
         } else {
-            throw MisconfigurationException.create("CLASSPATH", url.getProtocol(), url);
+            throw new MisconfigurationException("web.CLASSPATH", url.getProtocol(), url);
         }
         contentLength(response, data.getContentLength());
         lastModified(response, data.getLastModifiedDate());

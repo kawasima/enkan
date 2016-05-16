@@ -3,11 +3,14 @@ package enkan.exception;
 import enkan.util.MergeableResourceBundleControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
 
 import java.util.*;
 
 /**
+ * If the exception is caused by a misconfiguration, throws this exception.
+ *
+ * MisconfigurationException is for the developers.
+ *
  * @author kawasima
  */
 public class MisconfigurationException extends UnrecoverableException {
@@ -26,21 +29,21 @@ public class MisconfigurationException extends UnrecoverableException {
         return super.getMessage() + ":" + problem;
     }
 
-    protected MisconfigurationException(String code, Throwable cause, Object... arguments) {
-        super(code, cause);
+    public MisconfigurationException(String code, Object... arguments) {
+        super(code, Arrays.stream(arguments)
+                .filter(arg -> arg instanceof Throwable)
+                .map(arg -> (Throwable) arg)
+                .findFirst().orElse(null));
         String problemFmt = misconfigurationMessages.getString(code + ".problem");
         problem = String.format(Locale.US, problemFmt, arguments);
 
         String solutionFmt = misconfigurationMessages.getString(code + ".solution");
         solution = String.format(Locale.US, solutionFmt, arguments);
+
     }
 
-    public static MisconfigurationException create(String code, Object... arguments){
-        Optional<Throwable> cause = Arrays.stream(arguments)
-                .filter(arg -> arg instanceof Throwable)
-                .map(arg -> (Throwable) arg)
-                .findFirst();
-        return new MisconfigurationException(code, cause.orElse(null), arguments);
+    public String getCode() {
+        return super.getMessage();
     }
 
     public String getProblem() {

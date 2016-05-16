@@ -52,7 +52,7 @@ public class ContentTypeMiddlewareTest {
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("application/octet-stream", HttpResponseUtils.getHeader(response, "content-type"));
+        assertEquals("text/plain", HttpResponseUtils.getHeader(response, "content-type"));
     }
 
     @Test
@@ -66,6 +66,6 @@ public class ContentTypeMiddlewareTest {
 
         HttpResponse response = middleware.handle(request, chain);
         assertEquals("This is a specification of ring content_type middleware",
-                "application/octet-stream", HttpResponseUtils.getHeader(response, "content-type"));
+                "text/plain", HttpResponseUtils.getHeader(response, "content-type"));
     }
 }

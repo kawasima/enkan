@@ -3,7 +3,6 @@ package enkan.system.inject;
 import enkan.component.SystemComponent;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import enkan.util.SearchUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -38,7 +37,7 @@ public class ComponentInjector {
         try {
             f.set(target, value);
         } catch (IllegalAccessException e) {
-            throw UnreachableException.create(e);
+            throw new UnreachableException(e);
         }
     }
 
@@ -56,9 +55,9 @@ public class ComponentInjector {
                         .sorted(Comparator.comparing(n -> levenshteinDistance(n, name)))
                         .findFirst();
                 if (correctName.isPresent()) {
-                    throw MisconfigurationException.create("INJECT_WRONG_NAMED_COMPONENT", name, correctName.get());
+                    throw new MisconfigurationException("core.INJECT_WRONG_NAMED_COMPONENT", name, correctName.get());
                 } else {
-                    throw MisconfigurationException.create("INJECT_WRONG_TYPE_COMPONENT", name, f.getType());
+                    throw new MisconfigurationException("core.INJECT_WRONG_TYPE_COMPONENT", name, f.getType());
                 }
             }
         } else {

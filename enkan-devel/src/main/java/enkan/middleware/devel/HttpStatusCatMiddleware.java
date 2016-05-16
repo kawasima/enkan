@@ -23,7 +23,7 @@ import static net.unit8.moshas.RenderUtils.text;
 @Middleware(name = "httpStatusCat", dependencies = {"contentType"})
 public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     private MoshasEngine moshas = new MoshasEngine();
-    private Template template = moshas.defineTemplate("templates/httpStatusCat.html", t -> {
+    private Template template = moshas.describe("templates/httpStatusCat.html", t -> {
         t.select("head > title", text("status"));
         t.select("img#cat", (el, ctx) -> el.attr("src", "//http.cat/" + ctx.getString("status")));
     });
@@ -32,8 +32,7 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         HttpResponse response = castToHttpResponse(next.next(request));
         if (response != null && isEmptyBody(response)) {
-            List<Object> types = getHeader(response, "Content-Type");
-            String type = (types == null || types.isEmpty()) ? null : types.get(0).toString();
+            String type = getHeader(response, "Content-Type");
             if (type == null || "text/html".equals(type)) {
                 HttpResponseUtils.header(response, "Content-Type", "text/html");
                 Context context = new Context();

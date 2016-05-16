@@ -10,6 +10,7 @@ import kotowari.example.dao.CustomerDao;
 import kotowari.example.entity.Customer;
 import kotowari.example.model.LoginPrincipal;
 
+import javax.enterprise.context.Conversation;
 import javax.inject.Inject;
 
 import static enkan.util.BeanBuilder.builder;
@@ -25,12 +26,14 @@ public class LoginController {
     @Inject
     private TemplateEngine templateEngine;
 
-    public HttpResponse loginForm(Parameters params) {
+    public HttpResponse loginForm(Parameters params, Conversation conversation) {
+        if (conversation.isTransient()) conversation.begin();
         return templateEngine.render("guestbook/login",
                 "url", params.get("url"));
     }
 
-    public HttpResponse login(Parameters params) {
+    public HttpResponse login(Parameters params, Conversation conversation) {
+        if (!conversation.isTransient()) conversation.end();
         CustomerDao dao = daoProvider.getDao(CustomerDao.class);
         String email = params.get("email");
         Customer customer = dao.loginByPassword(email, params.get("password"));
@@ -38,7 +41,7 @@ public class LoginController {
             return templateEngine.render("guestbook/login");
         } else {
             Session session = new Session();
-            session.setAttribute("principal", new LoginPrincipal(email));
+            session.put("principal", new LoginPrincipal(email));
             return builder(redirect(GuestbookController.class, "list", HttpResponseUtils.RedirectStatusCode.SEE_OTHER))
                     .set(HttpResponse::setSession, session)
                     .build();

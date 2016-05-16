@@ -27,7 +27,7 @@ public class SessionMiddlewareTest {
 
         UUID sessionKey = UUID.randomUUID();
         Session session = new Session();
-        session.setAttribute("name", "kawasima");
+        session.put("name", "kawasima");
 
         tryReflection(() -> {
             Field storeField = SessionMiddleware.class.getDeclaredField("store");
@@ -40,7 +40,7 @@ public class SessionMiddlewareTest {
         params.put("enkan-session", Cookie.create("enkan-session", sessionKey.toString()));
         request.setCookies(params);
         middleware.sessionRequest(request);
-        assertEquals("kawasima", request.getSession().getAttribute("name"));
+        assertEquals("kawasima", request.getSession().get("name"));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class SessionMiddlewareTest {
 
         UUID sessionKey = UUID.randomUUID();
         Session session = new Session();
-        session.setAttribute("name", "kawasima");
+        session.put("name", "kawasima");
 
         tryReflection(() -> {
             Field storeField = SessionMiddleware.class.getDeclaredField("store");

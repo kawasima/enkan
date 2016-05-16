@@ -2,8 +2,6 @@ package kotowari.data;
 
 import enkan.data.Extendable;
 
-import java.io.Serializable;
-
 /**
  * Binds the http parameters to a specified form object.
  *

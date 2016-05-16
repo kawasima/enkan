@@ -55,7 +55,7 @@ public class ParamsMiddleware extends AbstractWebMiddleware {
                     sb.append((char) c);
                 }
             } catch (IOException e) {
-                throw FalteringEnvironmentException.create(e);
+                throw new FalteringEnvironmentException(e);
             }
             Parameters params = parseParams(sb.toString(), encoding);
             request.setFormParams(params);

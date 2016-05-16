@@ -4,8 +4,8 @@ import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.component.TransactionComponent;
 import enkan.data.Routable;
-import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 
 import javax.inject.Inject;
 import javax.transaction.*;
@@ -39,19 +39,19 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
                             res = (RES) next.next(req);
                             tm.commit();
                         } catch (NotSupportedException e) {
-                            throw MisconfigurationException.create("TRANSACTION_NOT_SUPPORTED");
+                            throw new UnreachableException(e);
                         } catch (SystemException e) {
-                            throw FalteringEnvironmentException.create(e);
+                            throw new MisconfigurationException("kotowari.TX_UNEXPECTED_CONDITION", e);
                         } catch (HeuristicMixedException e) {
-                            e.printStackTrace();
+                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_MIXED", e);
                         } catch (HeuristicRollbackException e) {
-                            e.printStackTrace();
+                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_ROLLBACK", e);
                         } catch (RollbackException e) {
-                            e.printStackTrace();
+                            throw new MisconfigurationException("kotowari.TX_ROLLBACK", e);
                         }
                         break;
                     default:
-                        throw MisconfigurationException.create("UNSUPPORTED_TX_TYPE");
+                        throw new MisconfigurationException("kotowari.UNSUPPORTED_TX_TYPE", type);
                 }
             } else {
                 res = (RES) next.next(req);

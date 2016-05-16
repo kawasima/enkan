@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author kawasima
  */
-public interface HttpRequest extends UriAvailable, SessionAvailable, Extendable {
+public interface HttpRequest extends UriAvailable, SessionAvailable, FlashAvailable, ConversationAvailable, Traceable, Extendable {
     int getServerPort();
 
     void setServerPort(int serverPort);

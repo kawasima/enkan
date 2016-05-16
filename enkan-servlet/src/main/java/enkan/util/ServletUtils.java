@@ -1,7 +1,6 @@
 package enkan.util;
 
 import enkan.collection.Headers;
-import enkan.collection.Multimap;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
@@ -12,7 +11,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author kawasima
@@ -95,7 +97,7 @@ public class ServletUtils {
                 setBody(servletResponse, in);
             }
         } else {
-            throw UnreachableException.create();
+            throw new UnreachableException();
         }
     }
 
@@ -107,7 +109,7 @@ public class ServletUtils {
         try {
             setBody(servletResponse, response.getBody());
         } catch(IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 }

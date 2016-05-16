@@ -19,8 +19,9 @@ public class ContentTypeMiddleware extends AbstractWebMiddleware {
             String uri = request.getUri();
 
             String type = MimeTypeUtils.extMimeType(uri);
-            if (type == null)
-                type = "application/octet-stream";
+            if (type == null) {
+                type = response.getBody() instanceof String ? "text/plain" : "application/octet-stream";
+            }
             HttpResponseUtils.contentType(response, type);
         }
     }

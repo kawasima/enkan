@@ -13,10 +13,13 @@ import org.msgpack.unpacker.Unpacker;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
@@ -24,7 +27,7 @@ import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 /**
  * @author kawasima
  */
-public class ReplClient {
+public class ReplClient implements AutoCloseable {
 
     ExecutorService clientThread = Executors.newFixedThreadPool(2);
     ConsoleReader console;
@@ -46,7 +49,25 @@ public class ReplClient {
             socket = new Socket("localhost", port);
             packer = msgpack.createPacker(socket.getOutputStream());
             unpacker = msgpack.createUnpacker(socket.getInputStream());
+
+            packer.write("/?\n");
+            List<String> availableCommands = new ArrayList<>();
+            while (true) {
+                ReplResponse res = unpacker.read(ReplResponse.class);
+                if (res.getOut() != null) {
+                    Stream.of(res.getOut())
+                            .map(String::trim)
+                            .filter(s -> s.startsWith("/"))
+                            .forEach(availableCommands::add);
+                }
+
+                if (res.getStatus().contains(DONE)) {
+                    break;
+                }
+            }
+            console.addCompleter(new StringsCompleter(availableCommands));
             console.println("Connected to server (port = " + port +")");
+            console.flush();
         }
 
         @Override
@@ -69,12 +90,13 @@ public class ReplClient {
                             console.println("/connect [port]");
                         }
                     } else if (line.equals("/exit")) {
-                        socket.close();
+                        close();
                         return;
                     } else {
                         if (socket == null) {
                             console.println("Unconnected to enkan system.");
                         } else {
+                            ((FileHistory) console.getHistory()).flush();
                             packer.write(line);
                             while (true) {
                                 ReplResponse res = unpacker.read(ReplResponse.class);
@@ -116,11 +138,11 @@ public class ReplClient {
         History history = new FileHistory(new File(System.getProperty("user.home"), ".enkan_history"));
         console.setHistory(history);
 
-        console.addCompleter(new StringsCompleter("/connect", "/exit"));
         CandidateListCompletionHandler handler = new CandidateListCompletionHandler();
         console.setCompletionHandler(handler);
         consoleHandler = new ConsoleHandler(console);
         clientThread.execute(consoleHandler);
+        clientThread.shutdown();
     }
 
     public void start(int initialPort) throws Exception {

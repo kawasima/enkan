@@ -3,9 +3,6 @@ package kotowari.routing.factory;
 import enkan.collection.OptionMap;
 import kotowari.routing.Route;
 
-import javax.swing.text.html.Option;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**

@@ -3,7 +3,6 @@ package enkan.predicate;
 import enkan.data.PrincipalAvailable;
 import enkan.security.UserPrincipal;
 
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**

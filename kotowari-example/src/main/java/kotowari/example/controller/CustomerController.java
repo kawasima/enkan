@@ -8,6 +8,8 @@ import kotowari.component.TemplateEngine;
 import kotowari.example.dao.CustomerDao;
 import kotowari.example.entity.Customer;
 import kotowari.example.form.CustomerForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -23,6 +25,8 @@ import static kotowari.routing.UrlRewriter.redirect;
  * @author kawasima
  */
 public class CustomerController {
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerController.class);
+
     @Inject
     private TemplateEngine templateEngine;
 
@@ -44,9 +48,15 @@ public class CustomerController {
         return customerDao.selectAll();
     }
 
+    public Boolean validate(CustomerForm customer) {
+        LOG.info(customer.toString());
+        return true;
+    }
+
     public HttpResponse show(Parameters params) {
         CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
         Customer customer = customerDao.selectById(params.getLong("id"));
+        customer.getBirthday();
         return templateEngine.render("customer/show", "customer", customer);
     }
 

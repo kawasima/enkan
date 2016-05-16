@@ -22,7 +22,7 @@ public class TemplatedHttpResponse extends DefaultHttpResponse {
 
     public static TemplatedHttpResponse create(String templateName, Object... keyVals) {
         if (keyVals.length % 2 != 0) {
-            throw MisconfigurationException.create("MISSING_KEY_VALUE_PAIR");
+            throw new MisconfigurationException("core.MISSING_KEY_VALUE_PAIR");
         }
         TemplatedHttpResponse response = new TemplatedHttpResponse(templateName);
         for (int i = 0; i < keyVals.length; i += 2) {

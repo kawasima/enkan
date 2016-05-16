@@ -5,7 +5,6 @@ import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.*;
 import enkan.system.command.MiddlewareCommand;
-import enkan.system.repl.pseudo.ReplClient;
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
@@ -20,11 +19,7 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
+import java.util.concurrent.*;
 
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
@@ -38,8 +33,7 @@ public class PseudoRepl implements Repl {
     private final ExecutorService threadPool;
     private final Map<String, SystemCommand> commands = new HashMap<>();
     private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
-
-    private final Preferences prefs;
+    private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
         try {
@@ -53,8 +47,6 @@ public class PseudoRepl implements Repl {
             throw new IllegalStateException(ex);
         }
 
-        prefs = Preferences.userRoot().node("enkan/PseudoRepl");
-
         registerCommand("start", (system, transport, args) -> {
             system.start();
             transport.sendOut("Started server");
@@ -66,7 +58,6 @@ public class PseudoRepl implements Repl {
                             .findFirst();
                     webServerComponent.ifPresent(web -> {
                         try {
-
                             Desktop.getDesktop().browse(URI.create("http://localhost:" + web.getPort() + "/" + args[0].replaceAll("^/", "")));
                         } catch (IOException ignore) {
                             // ignore
@@ -88,6 +79,13 @@ public class PseudoRepl implements Repl {
             transport.sendOut("Reset server");
             return true;
         });
+        registerCommand("?", (system, transport, args) -> {
+            commands.keySet().stream().forEach(
+                    command -> transport.send(ReplResponse.withOut("/" + command))
+            );
+            transport.sendOut("");
+            return true;
+        });
         registerCommand("middleware", new MiddlewareCommand());
     }
 
@@ -100,13 +98,16 @@ public class PseudoRepl implements Repl {
     }
 
     @Override
+    public CompletableFuture<Integer> getPort() {
+        return replPort;
+    }
+    @Override
     public void registerCommand(String name, SystemCommand command) {
         commands.put(name, command);
     }
 
     @Override
     public void run() {
-        ReplClient replClient = null;
         try (ServerSocket serverSock = new ServerSocket()) {
             InetSocketAddress addr = new InetSocketAddress("localhost", 0);
             serverSock.setReuseAddress(true);
@@ -119,14 +120,12 @@ public class PseudoRepl implements Repl {
                     serverSock.close();
                     return false;
                 } catch (IOException ex) {
-                    throw FalteringEnvironmentException.create(ex);
+                    throw new FalteringEnvironmentException(ex);
                 }
             });
 
-            System.out.println("Listen " + serverSock.getLocalPort());
-
-            replClient = new ReplClient();
-            replClient.start(serverSock.getLocalPort());
+            LOG.info("Listen " + serverSock.getLocalPort());
+            replPort.complete(serverSock.getLocalPort());
 
             do {
                 Socket socket = serverSock.accept();
@@ -191,8 +190,6 @@ public class PseudoRepl implements Repl {
             } catch (InterruptedException ex) {
                 threadPool.shutdownNow();
             }
-            LOG.info("REPL client close");
-            replClient.close();
         }
     }
 

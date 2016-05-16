@@ -2,9 +2,7 @@ package enkan.util;
 
 import enkan.data.PrincipalAvailable;
 import enkan.data.UriAvailable;
-import enkan.predicate.AuthenticatedPredicate;
-import enkan.predicate.PathPredicate;
-import enkan.predicate.PermissionPredicate;
+import enkan.predicate.*;
 
 import java.util.function.Predicate;
 
@@ -12,6 +10,9 @@ import java.util.function.Predicate;
  * @author kawasima
  */
 public class Predicates {
+    public static final NonePredicate NONE = new NonePredicate();
+    public static final AnyPredicate ANY = new AnyPredicate<>();
+
     private Predicates() {
     }
 
@@ -22,8 +23,8 @@ public class Predicates {
         return pred;
     }
 
-    public static <REQ> Predicate<REQ> or(Predicate<REQ> pred, Predicate<REQ>... preds) {
-        for (Predicate<REQ> p : preds) {
+    public static Predicate or(Predicate pred, Predicate... preds) {
+        for (Predicate p : preds) {
             pred = pred.or(p);
         }
         return pred;
@@ -41,4 +42,7 @@ public class Predicates {
         return new AuthenticatedPredicate<>();
     }
 
+    public static EnvPredicate envIn(String... envs) {
+        return new EnvPredicate(envs);
+    }
 }

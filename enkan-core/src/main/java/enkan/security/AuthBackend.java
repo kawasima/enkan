@@ -7,7 +7,7 @@ import java.security.Principal;
  */
 public interface AuthBackend<REQ, T> {
     /**
-     * Parse a request
+     * Parse the given request for eliciting an authentication data.
      *
      * @param request
      * @return authenticationData
@@ -15,7 +15,7 @@ public interface AuthBackend<REQ, T> {
     T parse(REQ request);
 
     /**
-     * Authenticate request
+     * Authenticate the given request.
      *
      * @param request
      * @param authenticationData

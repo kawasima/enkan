@@ -35,7 +35,7 @@ public class ClassWatcher implements Runnable {
                 }
             });
         } catch (IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 
@@ -45,7 +45,7 @@ public class ClassWatcher implements Runnable {
             WatchKey key = dir.register(this.watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
             watchings.put(key, dir);
         } catch(IOException ex) {
-            throw FalteringEnvironmentException.create(ex);
+            throw new FalteringEnvironmentException(ex);
         }
     }
 

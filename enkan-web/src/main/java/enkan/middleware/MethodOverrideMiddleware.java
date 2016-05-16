@@ -30,8 +30,6 @@ public class MethodOverrideMiddleware extends AbstractWebMiddleware {
     /**
      * Create a getter function from headers.
      *
-     * TODO Vary header
-     *
      * @param str header
      * @return A getter function
      */
@@ -50,7 +48,6 @@ public class MethodOverrideMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         String val = getterFunction.apply(request);
-        // TODO Check method is valid.
         if (val != null) {
             request.setRequestMethod(val);
         }

@@ -30,7 +30,7 @@ public class AntiForgeryMiddlewareTest {
         request.setSession(session);
         assertFalse(middleware.sessionToken(request).isPresent());
 
-        session.setAttribute(AntiForgeryMiddleware.class.getName() + "/antiForgeryToken",
+        session.put(AntiForgeryMiddleware.class.getName() + "/antiForgeryToken",
                 "token");
         assertEquals("token", middleware.sessionToken(request).get());
     }

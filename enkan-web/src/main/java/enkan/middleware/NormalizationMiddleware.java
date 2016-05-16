@@ -2,31 +2,73 @@ package enkan.middleware;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
-import enkan.collection.Multimap;
 import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.middleware.normalizer.Normalizer;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * The middleware for normalizing parameter values.
- *
- * TODO implements various normalizers and configuration for deciding target parameters.
  *
  * @author kawasima
  */
 @Middleware(name = "normalization", dependencies = {"params"})
 public class NormalizationMiddleware extends AbstractWebMiddleware {
+    private List<NormalizationSpec> normalizationSpecs;
+
+    public NormalizationMiddleware() {
+        this.normalizationSpecs = new ArrayList<>();
+    }
+
+    public NormalizationMiddleware(NormalizationSpec<?> spec, NormalizationSpec<?>... specs) {
+        this();
+        normalizationSpecs.add(spec);
+        normalizationSpecs.addAll(Arrays.asList(specs));
+    }
+
+    public static <T> NormalizationSpec<T> normalization(Predicate<String> predicate, Normalizer<T> normalizer) {
+        return new NormalizationSpec<>(predicate, normalizer);
+    }
+
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         Parameters params = request.getParams();
         if (params != null) {
             params.keySet().stream()
                     .forEach(key -> {
                         Object obj = params.getRawType(key);
+                        if (obj == null) return;
+
+                        normalizationSpecs.forEach(c -> {
+                            if (c.getPredicate().test(key) && c.getNormalizer().canNormalize(obj.getClass())) {
+                                params.replace(key, c.getNormalizer().normalize(obj));
+                            }
+                        });
                     });
         }
-        return (HttpResponse) next.next(request);
+        return (HttpResponse) chain.next(request);
+    }
+
+    public static class NormalizationSpec<T> {
+        private Normalizer<T> normalizer;
+        private Predicate<String> predicate;
+
+        public NormalizationSpec(Predicate<String> predicate, Normalizer<T> normalizer) {
+            this.predicate = predicate;
+            this.normalizer = normalizer;
+        }
+
+        public Normalizer<T> getNormalizer() {
+            return normalizer;
+        }
+
+        public Predicate<String> getPredicate() {
+            return predicate;
+        }
     }
 }

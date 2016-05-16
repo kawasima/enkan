@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static enkan.util.HttpRequestUtils.contentLength;
-import static enkan.util.HttpRequestUtils.contentType;
 
 /**
  * @author kawasima
@@ -36,7 +35,7 @@ public class MultipartParamsMiddleware extends AbstractWebMiddleware {
                         try {
                             Files.deleteIfExists(f);
                         } catch (IOException ex) {
-                            throw FalteringEnvironmentException.create(ex);
+                            throw new FalteringEnvironmentException(ex);
                         }
                     });
                 });
@@ -47,7 +46,7 @@ public class MultipartParamsMiddleware extends AbstractWebMiddleware {
             return MultipartParser.parse(request.getBody(), contentLength(request),
                     request.getHeaders().get("content-type"), 16384);
         } catch (IOException e) {
-            throw FalteringEnvironmentException.create(e);
+            throw new FalteringEnvironmentException(e);
         }
     }
 

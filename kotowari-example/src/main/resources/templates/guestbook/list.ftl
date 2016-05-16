@@ -1,6 +1,7 @@
 <#import "../layout/defaultLayout.ftl" as layout>
 <@layout.layout "Login">
   <form method="post" action="${urlFor('post')}">
+     <input type="hidden" name="__conversation-token" value="${conversationToken!''}"/>
      <input type="text" name="message">
      <button class="btn btn-primary" type="submit">Post</button>
   </form>

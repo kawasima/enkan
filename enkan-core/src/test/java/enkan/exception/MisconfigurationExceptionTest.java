@@ -11,7 +11,7 @@ public class MisconfigurationExceptionTest {
     @Test
     public void test() {
         try {
-            throw MisconfigurationException.create("MIDDLEWARE_DEPENDENCY", "A", "B");
+            throw new MisconfigurationException("core.MIDDLEWARE_DEPENDENCY", "A", "B");
         } catch (MisconfigurationException ex) {
             assertNotNull(ex.getProblem());
             assertNotNull(ex.getSolution());

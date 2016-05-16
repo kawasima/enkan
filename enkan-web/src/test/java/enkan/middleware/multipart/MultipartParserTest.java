@@ -2,7 +2,6 @@ package enkan.middleware.multipart;
 
 import enkan.collection.Parameters;
 import enkan.util.ThreadingUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;

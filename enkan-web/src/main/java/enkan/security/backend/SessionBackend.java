@@ -15,7 +15,7 @@ public class SessionBackend implements AuthBackend<HttpRequest, Principal> {
     public Principal parse(HttpRequest request) {
         Optional<Principal> principal = ThreadingUtils.some(request,
                 HttpRequest::getSession,
-                s -> (Principal) s.getAttribute("principal"));
+                s -> (Principal) s.get("principal"));
         return principal.orElse(null);
     }
 

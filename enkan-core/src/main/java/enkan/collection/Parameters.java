@@ -1,12 +1,15 @@
 package enkan.collection;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
+ * Represents the parameters have some pairs of a String key and a value.
+ *
  * @author kawasima
  */
-public class Parameters implements Map<String, Object> {
-    private HashMap<String, Object> params = new HashMap<>();
+public class Parameters implements Map<String, Object>, Serializable {
+    private TreeMap<String, Object> params = new TreeMap<>();
     private boolean caseSensitive = true;
 
     protected Parameters() {
@@ -48,7 +51,7 @@ public class Parameters implements Map<String, Object> {
     public static Parameters of(Object... init) {
         Parameters params = Parameters.empty();
         for(int i = 0; i < init.length; i += 2) {
-            params.put(init[i].toString(), init[i + 1]);
+            params.put(Objects.toString(init[i]), init[i + 1]);
         }
         return params;
     }

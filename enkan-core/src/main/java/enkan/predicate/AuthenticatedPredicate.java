@@ -2,7 +2,6 @@ package enkan.predicate;
 
 import enkan.data.PrincipalAvailable;
 
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**

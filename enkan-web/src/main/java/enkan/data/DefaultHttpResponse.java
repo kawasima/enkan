@@ -26,6 +26,7 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
         this.headers = headers;
         this.cookies = Multimap.empty();
         this.extensions = new HashMap<>();
+        this.session = new PersistentMarkedSession();
     }
 
     @Override
