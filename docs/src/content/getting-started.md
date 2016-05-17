@@ -39,7 +39,7 @@ By default, following components is enabled.
 ### Create table
 
 ```language-bash
-enkan> /generate table PRODUCT (id bigint primary key, name varchar(255))
+enkan> /generate table PRODUCT (id identity primary key, name varchar(255))
 ```
 
 If automatic building is unavailable, the `/compile` command is useful. 
