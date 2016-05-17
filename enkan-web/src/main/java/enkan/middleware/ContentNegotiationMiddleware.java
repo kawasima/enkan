@@ -15,7 +15,7 @@ import java.util.*;
 import static enkan.util.ThreadingUtils.some;
 
 /**
- * Accept => Convert response format.
+ * Accept =&gt; Convert response format.
  *
  * @author kawasima
  */

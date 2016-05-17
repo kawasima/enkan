@@ -52,14 +52,16 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
     /**
      * Association
      *
-     * <li>foo[bar]=[aaa,bbb] => {foo: {bar: [aaa, bbb]}}</li>
-     * <li>for[][bar]=[aaa,bbb] => {foo: [{bar: aaa}, {bar: bbb}]}</li>
-     * <li>for[]=[aaa,bbb] => {foo: [aaa, bbb]}</li>
+     * <ul>
+     *   <li>foo[bar]=[aaa,bbb] =&gt; {foo: {bar: [aaa, bbb]}}</li>
+     *   <li>for[][bar]=[aaa,bbb] =&gt; {foo: [{bar: aaa}, {bar: bbb}]}</li>
+     *   <li>for[]=[aaa,bbb] =&gt; {foo: [aaa, bbb]}</li>
+     * </ul>
      *
-     * @param map
-     * @param key
-     * @param value
-     * @return
+     * @param map    a Parameters
+     * @param key    a String key
+     * @param value  a Object associated with the key
+     * @return a Parameters contains the given key and value
      */
     protected Parameters assocConj(Parameters map, String key, Object value) {
         Object cur = map.getRawType(key);

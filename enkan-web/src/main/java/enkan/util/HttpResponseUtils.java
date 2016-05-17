@@ -115,7 +115,7 @@ public class HttpResponseUtils {
      *
      * @param response a response object
      * @param type the type of the content
-     * @return
+     * @return a HttpResponse contains content-type header
      */
     public static HttpResponse contentType(HttpResponse response, String type) {
         if (type != null) {
@@ -130,7 +130,7 @@ public class HttpResponseUtils {
      *
      * @param response a response object
      * @param len the length of response message
-     * @return
+     * @return a HttpResponse contains content-length header
      */
     public static HttpResponse contentLength(HttpResponse response, Long len) {
         if (len != null) {

@@ -31,8 +31,8 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     /**
      * Strip quotes from argument string.
      *
-     * @param value
-     * @return stripped string
+     * @param value a String contains quote character
+     * @return a stripped string
      */
     protected String stripQuotes(String value) {
         return value.replaceAll("^\"|\"$", "");
