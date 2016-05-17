@@ -20,4 +20,9 @@ public class EnvPredicate<REQ> implements PrintablePredicate<REQ> {
     public boolean test(REQ req) {
         return allowedEnv.contains(Env.getString("enkan.env", "development"));
     }
+
+    @Override
+    public String toString() {
+        return "env = {" + String.join(", ", allowedEnv) + "}";
+    }
 }
