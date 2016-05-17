@@ -3,10 +3,7 @@ package enkan.endpoint.devel;
 import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -16,7 +13,7 @@ import java.util.stream.Collectors;
  *
  * @author kawasima
  */
-public abstract class MoshasPage {
+public abstract class MoshasPage implements Serializable {
     protected String primer;
     {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/css/primer.css"), StandardCharsets.ISO_8859_1))) {

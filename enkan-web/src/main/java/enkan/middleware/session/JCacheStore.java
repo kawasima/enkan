@@ -7,6 +7,7 @@ import javax.cache.configuration.Configuration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * @author kawasima
@@ -30,6 +31,9 @@ public class JCacheStore implements KeyValueStore {
 
     @Override
     public String write(String key, Serializable value) {
+        if (key == null) {
+            key = UUID.randomUUID().toString();
+        }
         cache.put(key, value);
         return key;
     }

@@ -2,6 +2,7 @@ package kotowari.example;
 
 import enkan.Application;
 import enkan.Endpoint;
+import enkan.Env;
 import enkan.application.WebApplication;
 import enkan.config.ApplicationFactory;
 import enkan.data.HttpRequest;
@@ -13,6 +14,9 @@ import enkan.middleware.devel.StacktraceMiddleware;
 import enkan.middleware.devel.TraceWebMiddleware;
 import enkan.middleware.doma2.DomaTransactionMiddleware;
 import enkan.middleware.metrics.MetricsMiddleware;
+import enkan.middleware.session.JCacheStore;
+import enkan.middleware.session.KeyValueStore;
+import enkan.middleware.session.MemoryStore;
 import enkan.predicate.PathPredicate;
 import enkan.security.backend.SessionBackend;
 import enkan.system.inject.ComponentInjector;
@@ -25,6 +29,7 @@ import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static enkan.util.BeanBuilder.builder;
 import static enkan.util.Predicates.*;
@@ -77,7 +82,11 @@ public class MyApplicationFactory implements ApplicationFactory {
         app.use(new NormalizationMiddleware());
         app.use(new NestedParamsMiddleware());
         app.use(new CookiesMiddleware());
-        app.use(new SessionMiddleware());
+
+        KeyValueStore store = Objects.equals(Env.get("ENKAN_ENV"), "jcache") ? new JCacheStore() : new MemoryStore();
+        app.use(builder(new SessionMiddleware())
+                .set(SessionMiddleware::setStore, store)
+                .build());
         app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware());
 
         app.use(new AuthenticationMiddleware<>(Arrays.asList(new SessionBackend())));
