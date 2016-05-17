@@ -21,10 +21,12 @@ import kotowari.example.controller.*;
 import kotowari.example.controller.guestbook.GuestbookController;
 import kotowari.example.controller.guestbook.LoginController;
 import kotowari.middleware.*;
+import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
 import java.util.Arrays;
 
+import static enkan.util.BeanBuilder.builder;
 import static enkan.util.Predicates.*;
 
 /**
@@ -91,7 +93,9 @@ public class MyApplicationFactory implements ApplicationFactory {
         app.use(new RoutingMiddleware(routes));
         app.use(new DomaTransactionMiddleware<>());
         app.use(new FormMiddleware());
-        app.use(new SerDesMiddleware());
+        app.use(builder(new SerDesMiddleware())
+                .set(SerDesMiddleware::setBodyWriters, new ToStringBodyWriter())
+                .build());
         app.use(new ValidateFormMiddleware());
         app.use(new ControllerInvokerMiddleware(injector));
 

@@ -19,6 +19,7 @@ import kotowari.routing.RoutingGenerationContext;
 import kotowari.routing.UrlRewriter;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.function.Function;
  */
 @Middleware(name = "routing")
 public class RoutingMiddleware extends AbstractWebMiddleware {
+    @NotNull
     private Routes routes;
 
     @Inject
@@ -111,5 +113,9 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
 
     public Routes getRoutes() {
         return routes;
+    }
+
+    public void setRoutes(Routes routes) {
+        this.routes = routes;
     }
 }
