@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.0-beta1</version>
     </parent>
 
     <groupId>net.unit8.enkan</groupId>
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-web</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.moshas</groupId>
