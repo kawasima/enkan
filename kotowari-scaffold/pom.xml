@@ -22,14 +22,9 @@
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>net.unit8.moshas</groupId>
-            <artifactId>moshas</artifactId>
-            <version>0.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>net.unit8.amagicman</groupId>
             <artifactId>amagicman-generator</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.seasar.doma</groupId>
@@ -39,7 +34,7 @@
         <dependency>
             <groupId>net.unit8.erebus</groupId>
             <artifactId>erebus</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
