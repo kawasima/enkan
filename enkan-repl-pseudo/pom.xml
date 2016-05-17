@@ -7,6 +7,7 @@
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
         <version>0.1.0-beta1</version>
+        <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>enkan-repl-pseudo</artifactId>

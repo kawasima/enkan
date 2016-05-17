@@ -7,6 +7,7 @@
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
         <version>0.1.0-beta1</version>
+        <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>docs</artifactId>
@@ -64,6 +65,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.18.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
