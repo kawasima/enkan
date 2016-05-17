@@ -134,6 +134,8 @@ public class UndertowAdapter {
                     HttpResponse response = application.handle(request);
                     exchange.setStatusCode(response.getStatus());
                     setResponseHeaders(response.getHeaders(), exchange);
+
+                    exchange.startBlocking();
                     setBody(exchange.getResponseSender(), response.getBody());
                 } catch (ServiceUnavailableException ex) {
                     exchange.setStatusCode(503);
