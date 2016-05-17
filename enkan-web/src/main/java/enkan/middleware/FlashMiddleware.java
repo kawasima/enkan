@@ -5,10 +5,6 @@ import enkan.annotation.Middleware;
 import enkan.data.*;
 import enkan.util.MixinUtils;
 
-import java.util.Optional;
-
-import static enkan.util.ThreadingUtils.some;
-
 /**
  * Adds session-based flash store.
  *

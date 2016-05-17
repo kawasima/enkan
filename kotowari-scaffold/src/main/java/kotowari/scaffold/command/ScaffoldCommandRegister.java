@@ -15,7 +15,6 @@ import kotowari.scaffold.util.BasePackageDetector;
 import kotowari.scaffold.util.EntitySourceAnalyzer;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.unit8.amagicman.Generator;
 import net.unit8.amagicman.PathResolver;
@@ -271,7 +270,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                         });
                         transport.sendOut("Generated CRUD " + args[0]);
                     } else {
-                        transport.sendOut(String.format(Locale.US, "Usage: generate crud [tableName]"));
+                        transport.sendOut("Usage: generate crud [tableName]");
                     }
                     break;
                 default:

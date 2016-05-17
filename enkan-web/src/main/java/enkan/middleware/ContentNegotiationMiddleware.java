@@ -10,10 +10,7 @@ import enkan.middleware.negotiation.ContentNegotiator;
 import enkan.util.MixinUtils;
 
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static enkan.util.ThreadingUtils.some;
 
@@ -30,8 +27,8 @@ public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
 
     public ContentNegotiationMiddleware() {
         negotiator = new AcceptHeaderNegotiator();
-        allowedTypes = new HashSet<>(Arrays.asList("text/html"));
-        allowedLanguages = new HashSet<>(Arrays.asList("*"));
+        allowedTypes = new HashSet<>(Collections.singletonList("text/html"));
+        allowedLanguages = new HashSet<>(Collections.singletonList("*"));
     }
 
     @Override

@@ -74,7 +74,7 @@ public class FlywayTask implements GenTask {
         migrateMethod.setBody(block);
 
         TryStmt tryStmt = new TryStmt(createStatementExecuteBlock(), null, null);
-        tryStmt.setResources(Arrays.asList(createAssignStatement()));
+        tryStmt.setResources(Collections.singletonList(createAssignStatement()));
         ASTHelper.addStmt(block, tryStmt);
 
         try (Writer writer = new OutputStreamWriter(
@@ -86,7 +86,7 @@ public class FlywayTask implements GenTask {
 
     private VariableDeclarationExpr createAssignStatement() {
         VariableDeclarationExpr expr = ASTHelper.createVariableDeclarationExpr(ASTHelper.createReferenceType("Statement", 0), "stmt");
-        expr.setVars(Arrays.asList(new VariableDeclarator(
+        expr.setVars(Collections.singletonList(new VariableDeclarator(
                 new VariableDeclaratorId("stmt"),
                 new MethodCallExpr(ASTHelper.createNameExpr("connection"), "createStatement")
         )));

@@ -75,10 +75,6 @@ public class DomaEntityTask implements GenTask {
         genTask.setUrl(getURL());
         genTask.setUser("");
         genTask.setPassword("");
-        String[] urlTokens = getURL().split(":", 3);
-        switch (urlTokens[1]) {
-
-        }
         genTask.setTableNamePattern(tableName);
         genTask.createEntityConfig();
         //genTask.createDaoConfig();

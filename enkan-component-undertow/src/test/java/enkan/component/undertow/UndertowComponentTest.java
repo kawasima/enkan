@@ -4,7 +4,6 @@ import enkan.exception.MisconfigurationException;
 import org.junit.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
 
 /**
  * @author kawasima

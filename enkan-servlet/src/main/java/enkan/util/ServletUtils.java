@@ -65,9 +65,9 @@ public class ServletUtils {
                     if (values == null) return;
                     values.forEach(v -> {
                         if (servletResponse.getHeaders(k).isEmpty()) {
-                            servletResponse.setHeader(k, v.toString());
+                            servletResponse.setHeader(k, v);
                         } else {
-                            servletResponse.addHeader(k, v.toString());
+                            servletResponse.addHeader(k, v);
                         }
                     });
             });

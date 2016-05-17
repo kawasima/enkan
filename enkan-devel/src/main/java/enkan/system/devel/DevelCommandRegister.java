@@ -70,6 +70,7 @@ public class DevelCommandRegister implements SystemCommandRegister {
                     transport.sendOut("Finished compiling.");
                 } else {
                     StringWriter sw = new StringWriter();
+                    //noinspection ThrowableResultOfMethodCallIgnored
                     CommandLineException exception = result.getExecutionException();
                     if (exception != null) {
                         exception.printStackTrace(new PrintWriter(sw));

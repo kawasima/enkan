@@ -27,9 +27,7 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
     protected HttpResponse resourceRequest(HttpRequest request, String rootPath) {
         if (ACCEPTABLE_METHODS.contains(request.getRequestMethod())) {
             String path = urlDecode(pathInfo(request)).substring(1);
-            if (path != null) {
-                return resourceResponse(path, OptionMap.of("root", rootPath));
-            }
+            return resourceResponse(path, OptionMap.of("root", rootPath));
         }
 
         return null;

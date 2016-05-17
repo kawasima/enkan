@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class AcceptHeaderNegotiatorTest {
     }
     @Test
     public void acceptFragment() {
-        Set<String> allowedTypes = new HashSet<>(Arrays.asList("text/html"));
+        Set<String> allowedTypes = new HashSet<>(Collections.singletonList("text/html"));
         MediaType mt = neg.bestAllowedContentType("text/plain; q=0.8", allowedTypes);
         assertEquals("text", mt.getType());
         assertEquals("plain", mt.getSubtype());
@@ -36,10 +37,10 @@ public class AcceptHeaderNegotiatorTest {
         allowedLangs = new HashSet<>(Arrays.asList("en-gb", "en"));
         assertEquals("en-gb", neg.bestAllowedLanguage("da, en-gb;q=0.8, en; q=0.7", allowedLangs));
 
-        allowedLangs = new HashSet<>(Arrays.asList("en"));
+        allowedLangs = new HashSet<>(Collections.singletonList("en"));
         assertEquals("en", neg.bestAllowedLanguage("da, en-gb;q=0.8, en; q=0.7", allowedLangs));
 
-        allowedLangs = new HashSet<>(Arrays.asList("en-cockney"));
+        allowedLangs = new HashSet<>(Collections.singletonList("en-cockney"));
         assertEquals(null, neg.bestAllowedLanguage("da, en-gb;q=0.8", allowedLangs));
     }
 }

@@ -253,6 +253,7 @@ public class MultipartParser {
 
     private BoundaryState consumeBoundary() {
         while (true) {
+            //noinspection StatementWithEmptyBody
             while (buf.hasRemaining() && buf.get() == '\n');
             if (buf.hasRemaining()) {
                 buf.position(buf.position() - 1);

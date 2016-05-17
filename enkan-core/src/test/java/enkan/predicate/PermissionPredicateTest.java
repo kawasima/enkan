@@ -54,7 +54,7 @@ public class PermissionPredicateTest {
         req.setPrincipal(user);
         assertTrue(pred.test(req));
 
-        TestUser user2 = new TestUser("kawasima", new HashSet<>(Arrays.asList("readRepository")));
+        TestUser user2 = new TestUser("kawasima", new HashSet<>(Collections.singletonList("readRepository")));
         req.setPrincipal(user2);
         assertFalse(pred.test(req));
     }

@@ -29,6 +29,7 @@ import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 import static enkan.util.BeanBuilder.builder;
@@ -89,7 +90,7 @@ public class MyApplicationFactory implements ApplicationFactory {
                 .build());
         app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware());
 
-        app.use(new AuthenticationMiddleware<>(Arrays.asList(new SessionBackend())));
+        app.use(new AuthenticationMiddleware<>(Collections.singletonList(new SessionBackend())));
         app.use(and(path("^/guestbook/"), authenticated().negate()),
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         HttpResponseUtils.redirect("/guestbook/login?url=" + req.getUri(),

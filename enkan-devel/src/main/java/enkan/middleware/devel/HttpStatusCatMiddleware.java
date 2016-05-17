@@ -11,7 +11,6 @@ import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Objects;
 
 import static enkan.util.HttpResponseUtils.getHeader;

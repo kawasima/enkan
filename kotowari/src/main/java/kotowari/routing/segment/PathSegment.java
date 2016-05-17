@@ -1,7 +1,6 @@
 package kotowari.routing.segment;
 
 import enkan.collection.OptionMap;
-import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 
 import java.util.regex.Matcher;

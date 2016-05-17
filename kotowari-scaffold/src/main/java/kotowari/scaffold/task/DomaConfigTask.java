@@ -19,6 +19,7 @@ import net.unit8.amagicman.PathResolver;
 
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author kawasima
@@ -44,19 +45,19 @@ public class DomaConfigTask implements GenTask {
         ));
 
         ClassOrInterfaceDeclaration type = new ClassOrInterfaceDeclaration(ModifierSet.PUBLIC, false, "DomaConfig");
-        type.setImplements(Arrays.asList(new ClassOrInterfaceType("Config")));
+        type.setImplements(Collections.singletonList(new ClassOrInterfaceType("Config")));
         ASTHelper.addTypeDeclaration(cu, type);
 
 
         MethodDeclaration getDataSourceMethod = new MethodDeclaration(ModifierSet.PUBLIC, ASTHelper.createReferenceType("DataSource", 0), "getDataSource");
-        getDataSourceMethod.setAnnotations(Arrays.asList(OVERRIDE_ANNOTATION));
+        getDataSourceMethod.setAnnotations(Collections.singletonList(OVERRIDE_ANNOTATION));
         BlockStmt getDataSourceBody = new BlockStmt();
         ASTHelper.addStmt(getDataSourceBody, new ReturnStmt(new NullLiteralExpr()));
         getDataSourceMethod.setBody(getDataSourceBody);
         ASTHelper.addMember(type, getDataSourceMethod);
 
         MethodDeclaration getDialectMethod = new MethodDeclaration(ModifierSet.PUBLIC, ASTHelper.createReferenceType("Dialect", 0), "getDialect");
-        getDialectMethod.setAnnotations(Arrays.asList(OVERRIDE_ANNOTATION));
+        getDialectMethod.setAnnotations(Collections.singletonList(OVERRIDE_ANNOTATION));
         BlockStmt getDialectBody = new BlockStmt();
 
         ObjectCreationExpr newDialect = new ObjectCreationExpr(null, new ClassOrInterfaceType("H2Dialect"), null);

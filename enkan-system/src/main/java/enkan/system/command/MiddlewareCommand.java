@@ -64,7 +64,7 @@ public class MiddlewareCommand implements SystemCommand {
                         }
                         transport.sendOut(String.format(Locale.US, "Middleware %s's predicate has changed to %s.", middlewareName, predicateName));
                     } else {
-                        transport.sendOut(String.format(Locale.US, "Usage: /middleware [app name] predicate [middleware name] [predicate nme]"));
+                        transport.sendOut("Usage: /middleware [app name] predicate [middleware name] [predicate nme]");
                     }
                 } else {
                     transport.sendErr(String.format("Middleware %s not found.", middlewareName));
