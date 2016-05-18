@@ -32,6 +32,12 @@ By default, following components is enabled.
 % mvn -e compile exec:java
 ```
 
+If you execute the `/start` command, application will start.
+
+```language-bash
+enkan> /start /
+```
+
 ## Scaffolding
 
 `enkan-devel` is a useful tool in development. it contains the command to generate an application scaffold.
@@ -67,6 +73,10 @@ If necessary, compile it.
 ```language-bash
 enkan> /compile
 ```
+
+> In 0.1.0-beta1, a compile error will occur. Please remove an unneeded generics diamond operator.
+
+
 
 When you reset your application, the generated routes are reloaded and become available. 
 

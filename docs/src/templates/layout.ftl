@@ -16,7 +16,7 @@
     <nav class="navbar navbar-default navbar-fixed-top <#if (content.uri??) && content.uri != "/">navbar-shrink</#if>">
       <div class="container">
         <div class="navbar-header page-scroll">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -24,7 +24,7 @@
           </button>
           <a class="navbar-brand" href="${content.rootpath}index.html">enkan</a>
         </div>
-        <div class="collapse navbar-collapse">
+        <div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             <li class="hidden active"><a href="#page-top"></a></li>
             <li class="page-scroll">
@@ -49,6 +49,8 @@
         </div>
       </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/jquery/1.12.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/prism/1.5.0/prism.js"></script>
     <script src="https://cdn.jsdelivr.net/prism/1.5.0/components/prism-java.min.js"></script>
     <script src="https://cdn.jsdelivr.net/prism/1.5.0/components/prism-bash.min.js"></script>
