@@ -13,6 +13,7 @@
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-devel</artifactId>
     <packaging>jar</packaging>
+    <version>0.1.0-beta2</version>
 
     <name>enkan-devel</name>
 

@@ -16,7 +16,12 @@ public class MavenCompiler {
         request.setGoals(Collections.singletonList("compile"));
 
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(Env.getString("M2_HOME", "/opt/maven")));
+        File mavenHome = new File(Env.getString("MAVEN_HOME",
+                Env.getString("M2_HOME", "/opt/maven")));
+        if (!mavenHome.exists()) {
+            throw new IllegalStateException("MAVEN_HOME not set");
+        }
+        invoker.setMavenHome(mavenHome);
         return invoker.execute(request);
     }
 }

@@ -10,6 +10,5 @@ public class MavenCompilerTest {
     @Test
     public void test() throws MavenInvocationException {
         new MavenCompiler().execute();
-
     }
 }
