@@ -10,8 +10,8 @@
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
-    <groupId>net.unit8.enkan</groupId>
     <artifactId>kotowari-scaffold</artifactId>
+    <version>0.1.0-beta2</version>
     <packaging>jar</packaging>
 
     <name>kotowari-scaffold</name>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>net.unit8.amagicman</groupId>
             <artifactId>amagicman-generator</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.seasar.doma</groupId>

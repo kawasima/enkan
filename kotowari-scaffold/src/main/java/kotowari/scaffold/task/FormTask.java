@@ -36,7 +36,7 @@ public class FormTask implements GenTask {
         this.tableName = tableName;
         this.fields = fields;
         destination = "src/main/java/" + pkgName.replace('.', '/')
-                + "/" + CaseConverter.pascalCase(tableName) + "Form.java";
+                + "form/" + CaseConverter.pascalCase(tableName) + "Form.java";
     }
 
     @Override

@@ -40,13 +40,13 @@ public class BasePackageDetector {
             }
         } else {
 
-            packages.add(pkg == null ? dir.getName() : pkg);
+            packages.add(pkg == null ? dir.getName() : pkg + "." + dir.getName());
         }
     }
 
     private static int packageDepth(String pkgName) {
         int cnt = 0, i = 0;
-        while ((i = pkgName.indexOf(".", i)) < -1) {
+        while ((i = pkgName.indexOf(".", i)) == -1) {
             cnt++;
         }
         return cnt;
@@ -55,13 +55,14 @@ public class BasePackageDetector {
 
     protected static String detectInMavenProject(File sourceDirectory) {
         return scan(sourceDirectory).stream()
-                .sorted(Comparator.comparingInt(BasePackageDetector::packageDepth).reversed())
+                .filter(pkg -> !pkg.equals("db.migration"))
+                .sorted(Comparator.comparing(BasePackageDetector::packageDepth).reversed())
                 .findFirst()
                 .orElse("");
     }
 
-    public static String detect() {
-        File sourceDirectory = new File("src/main/java");
+    public static String detect(String sourcePath) {
+        File sourceDirectory = new File(sourcePath);
         if (sourceDirectory.exists()) {
             String pkg = detectInMavenProject(sourceDirectory);
             return pkg.isEmpty() ? pkg : pkg + ".";
@@ -69,5 +70,9 @@ public class BasePackageDetector {
             // Unknown package
             return "";
         }
+    }
+
+    public static String detect() {
+        return detect("src/main/java");
     }
 }
