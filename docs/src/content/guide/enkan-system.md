@@ -10,13 +10,15 @@ It's inspired by [clojure component](https://github.com/stuartsierra/component).
 ## Usage
 
 
+Enkan system is composed of components.
+
 ```language-java
 EnkanSystem system = EnkanSystem.of(
     "http", new UndertowComponent()
 );
 ```
 
-Enkan system
+Using `of` method, components are registered to Enkan system. 
 
 ### Creating components
 

@@ -14,7 +14,7 @@ status=published
 You can create an Enkan's blank project from maven archetype.  
 
 ```language bash
-% mvn archetype:generate -DarchetypeGroupId=net.unit8.enkan -DarchetypeArtifactId=kotowari-archetype -DarchetypeVersion=0.1.0-beta1
+% mvn archetype:generate -DarchetypeGroupId=net.unit8.enkan -DarchetypeArtifactId=kotowari-archetype -DarchetypeVersion=0.1.0-beta2
 ```
 
 By default, following components is enabled.
@@ -73,10 +73,6 @@ If necessary, compile it.
 ```language-bash
 enkan> /compile
 ```
-
-> In 0.1.0-beta1, a compile error will occur. Please remove an unneeded generics diamond operator.
-
-
 
 When you reset your application, the generated routes are reloaded and become available. 
 
