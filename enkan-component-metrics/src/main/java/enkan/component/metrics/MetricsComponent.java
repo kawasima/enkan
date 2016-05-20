@@ -35,6 +35,10 @@ public class MetricsComponent extends SystemComponent {
             @Override
             public void stop(MetricsComponent component) {
                 metricRegistry = null;
+                component.timeoutsMeter = null;
+                component.errorsMeter = null;
+                component.activeRequests = null;
+                component.requestTimer = null;
             }
         };
     }

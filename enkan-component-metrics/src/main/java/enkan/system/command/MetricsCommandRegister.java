@@ -92,11 +92,14 @@ public class MetricsCommandRegister implements SystemCommandRegister {
         repl.registerCommand("metrics", ((system, transport, args) -> {
             findMetrics(system).ifPresent(metrics -> {
                 transport.send(ReplResponse.withOut("-- Active Requests ----------------------------------"));
-                printCounter(transport, metrics.getActiveRequests());
+                printCounter(transport, Optional.ofNullable(metrics.getActiveRequests())
+                        .orElse(new Counter()));
                 transport.send(ReplResponse.withOut("-- Errors ------------------------------------"));
-                printMeter(transport, metrics.getErrors());
+                printMeter(transport, Optional.ofNullable(metrics.getErrors())
+                        .orElse(new Meter()));
                 transport.send(ReplResponse.withOut("-- Request Timer -----------------------------"));
-                printTimer(transport, metrics.getRequestTimer());
+                printTimer(transport, Optional.ofNullable(metrics.getRequestTimer())
+                        .orElse(new Timer()));
                 transport.sendOut("", ReplResponse.ResponseStatus.DONE);
             });
             return true;
