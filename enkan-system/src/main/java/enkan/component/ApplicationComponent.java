@@ -49,7 +49,9 @@ public class ApplicationComponent extends SystemComponent {
             public void stop(ApplicationComponent component) {
                 component.application = null;
                 component.loader = null;
-                Thread.currentThread().setContextClassLoader(originalLoader);
+                if (originalLoader != null) {
+                    Thread.currentThread().setContextClassLoader(originalLoader);
+                }
             }
         };
     }
