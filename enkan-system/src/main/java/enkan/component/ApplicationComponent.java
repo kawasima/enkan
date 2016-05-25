@@ -9,6 +9,8 @@ import enkan.system.inject.ComponentInjector;
 import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
+ * Provides an application.
+ *
  * @author kawasima
  */
 public class ApplicationComponent extends SystemComponent {

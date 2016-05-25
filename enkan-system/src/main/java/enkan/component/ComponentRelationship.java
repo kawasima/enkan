@@ -50,6 +50,11 @@ public class ComponentRelationship {
         targetComponent.setDependencies(dependencies);
     }
 
+    /**
+     * Sorts the components in a dependent component first.
+     *
+     * @param componentsOrder the order between components
+     */
     public void sort(List<String> componentsOrder) {
         int targetIndex = index(componentsOrder, target);
         for (String dep : dependents) {

@@ -20,6 +20,8 @@ import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ThreadingUtils.some;
 
 /**
+ * Creates/Restores and conversation.
+ *
  * @author kawasima
  */
 @Middleware(name = "conversation")

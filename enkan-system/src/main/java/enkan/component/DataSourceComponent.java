@@ -3,8 +3,15 @@ package enkan.component;
 import javax.sql.DataSource;
 
 /**
+ * Manages a data source.
+ *
  * @author kawasima
  */
 public abstract class DataSourceComponent extends SystemComponent {
+    /**
+     * Gets the data source that it holds.
+     *
+     * @return a DataSource
+     */
     public abstract DataSource getDataSource();
 }
