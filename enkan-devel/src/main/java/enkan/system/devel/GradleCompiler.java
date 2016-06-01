@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
@@ -12,23 +11,24 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import enkan.Env;
 
-/**
- * @author kawasima
- */
-public class MavenCompiler implements Compiler {
+public class GradleCompiler implements Compiler {
+
     @Override
     public InvocationResult execute() throws MavenInvocationException {
         final InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File("pom.xml"));
-        request.setGoals(Collections.singletonList("compile"));
+        request.setPomFile(new File("build.gradle"));
+        request.setGoals(Collections.singletonList("compileJava"));
 
-        final Invoker invoker = new DefaultInvoker();
-        final File mavenHome = new File(Env.getString("MAVEN_HOME",
-                Env.getString("M2_HOME", "/opt/maven")));
-        if (!mavenHome.exists()) {
-            throw new IllegalStateException("MAVEN_HOME not set");
+        final Invoker invoker = new GradleInvoker();
+        final String pathToGradle = Env.getString("GRADLE_HOME",
+                Env.getString("gradle.home", "/bin/gradle"));
+
+        final File gradleHome = new File(pathToGradle);
+        if (!gradleHome.exists()) {
+            throw new IllegalStateException("GRADLE_HOME not set");
         }
-        invoker.setMavenHome(mavenHome);
+        invoker.setMavenHome(gradleHome);
         return invoker.execute(request);
     }
+
 }
