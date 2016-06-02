@@ -66,7 +66,7 @@ private TemplateEngine freemarker;
 
 @Named("thymeleaf")
 @Inject
-private TemplateEngine freemarker;
+private TemplateEngine thymeleaf;
 ```
 
 ## Bootstrap the Enkan system
