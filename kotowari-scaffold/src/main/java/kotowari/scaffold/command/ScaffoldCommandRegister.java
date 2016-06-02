@@ -268,7 +268,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                                     .addTaskListener(new LoggingTaskListener(transport))
                                     .invoke();
                         });
-                        transport.sendOut("Generated CRUD " + args[0]);
+                        transport.sendOut("Generated CRUD " + args[1]);
                     } else {
                         transport.sendOut("Usage: generate crud [tableName]");
                     }
