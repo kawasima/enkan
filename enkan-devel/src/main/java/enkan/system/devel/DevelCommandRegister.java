@@ -7,9 +7,7 @@ import java.io.StringWriter;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.codehaus.plexus.util.cli.CommandLineException;
+import enkan.system.devel.compiler.MavenCompiler;
 
 import enkan.component.ApplicationComponent;
 import enkan.config.ConfigurationLoader;
@@ -25,7 +23,7 @@ import enkan.system.repl.SystemCommandRegister;
 public class DevelCommandRegister implements SystemCommandRegister {
 
     /** compiling build tool. */
-    private final Compiler compiler;
+    private Compiler compiler;
 
     /**
      * init with MavenCompiler.
@@ -83,26 +81,25 @@ public class DevelCommandRegister implements SystemCommandRegister {
         });
 
         repl.registerCommand("compile", (system, transport, args) -> {
-            try {
-                final InvocationResult result = compiler.execute();
-                if (result.getExitCode() == 0) {
-                    transport.sendOut("Finished compiling.");
-                } else {
-                    final StringWriter sw = new StringWriter();
-                    //noinspection ThrowableResultOfMethodCallIgnored
-                    final CommandLineException exception = result.getExecutionException();
-                    if (exception != null) {
-                        exception.printStackTrace(new PrintWriter(sw));
-                    }
-                    sw.append("Failed to compile.");
-                    transport.sendErr(sw.toString());
-                }
-            } catch (final MavenInvocationException ex) {
+            final CompileResult result = compiler.execute(transport);
+            Throwable exception = result.getExecutionException();
+            if (exception == null) {
+                transport.sendOut("Finished compiling.");
+            } else {
                 final StringWriter sw = new StringWriter();
-                ex.printStackTrace(new PrintWriter(sw));
+                //noinspection ThrowableResultOfMethodCallIgnored
+
+                if (exception != null) {
+                    exception.printStackTrace(new PrintWriter(sw));
+                }
+                sw.append("Failed to compile.");
                 transport.sendErr(sw.toString());
             }
             return true;
         });
+    }
+
+    public void setCompiler(Compiler compiler) {
+        this.compiler = compiler;
     }
 }

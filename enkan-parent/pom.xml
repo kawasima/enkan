@@ -30,6 +30,7 @@
         <module>../enkan-system</module>
         <module>../enkan-repl-pseudo</module>
         <module>../enkan-devel</module>
+        <module>../enkan-devel-gradle</module>
         <module>../enkan-component-HikariCP</module>
         <module>../enkan-component-freemarker</module>
         <module>../enkan-component-thymeleaf</module>

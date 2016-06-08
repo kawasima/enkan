@@ -11,12 +11,18 @@
     </parent>
 
     <groupId>net.unit8.enkan</groupId>
-    <artifactId>enkan-devel</artifactId>
+    <artifactId>enkan-devel-gradle</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0-beta3</version>
+    <version>0.1.0-SNAPSHOT</version>
 
-    <name>enkan-devel</name>
+    <name>enkan-devel-gradle</name>
 
+    <repositories>
+        <repository>
+            <id>gradle</id>
+            <url>https://repo.gradle.org/gradle/repo</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
@@ -25,18 +31,13 @@
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-system</artifactId>
-            <version>0.1.0-beta1</version>
+            <artifactId>enkan-devel</artifactId>
+            <version>0.1.0-beta2</version>
         </dependency>
         <dependency>
-            <groupId>net.unit8.moshas</groupId>
-            <artifactId>moshas</artifactId>
-            <version>0.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-invoker</artifactId>
-            <version>2.2</version>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-tooling-api</artifactId>
+            <version>2.13</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
