@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Enkan System | Enkan
 ~~~~~~
 
 # Enkan System

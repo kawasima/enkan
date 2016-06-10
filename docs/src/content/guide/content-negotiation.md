@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Content negotiation | Enkan
 ~~~~~~
 
 # Content negotiation

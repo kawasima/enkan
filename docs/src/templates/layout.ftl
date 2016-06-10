@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset=utf-8"/>
+    <title><#if (content.title)??><#escape x as x?xml>${content.title}</#escape><#else>ENKAN</#if></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 

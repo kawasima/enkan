@@ -1,2 +1,2 @@
 <!DOCTYPE html>
-<html lange>
+<html lang="en">
