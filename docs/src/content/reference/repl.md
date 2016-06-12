@@ -1,5 +1,6 @@
 type=page
 status=published
+title=REPL command | Enkan
 ~~~~~~
 
 # REPL command

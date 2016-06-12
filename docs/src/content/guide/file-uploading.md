@@ -1,5 +1,6 @@
 type=page
 status=published
+title=File uploading | Enkan
 ~~~~~~
 
 # File uploading

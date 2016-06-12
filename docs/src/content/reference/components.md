@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Component Catalog | Enkan
 ~~~~~~
 
 # Component Catalog

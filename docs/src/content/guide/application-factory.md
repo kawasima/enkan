@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Application Factory | Enkan
 ~~~~~~
 
 # Application Factory

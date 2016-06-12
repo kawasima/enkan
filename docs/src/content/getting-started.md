@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Getting started | Enkan
 ~~~~~~
 
 # Getting started

@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Authentication and Authorization | Enkan
 ~~~~~~
 
 # Authentication and Authorization
