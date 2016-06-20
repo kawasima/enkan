@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Kotowari 理 | Enkan
 ~~~~~~
 
 # Kotowari 理

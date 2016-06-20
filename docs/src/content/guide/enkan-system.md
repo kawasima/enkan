@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Enkan System | Enkan
 ~~~~~~
 
 # Enkan System
@@ -66,7 +67,7 @@ private TemplateEngine freemarker;
 
 @Named("thymeleaf")
 @Inject
-private TemplateEngine freemarker;
+private TemplateEngine thymeleaf;
 ```
 
 ## Bootstrap the Enkan system

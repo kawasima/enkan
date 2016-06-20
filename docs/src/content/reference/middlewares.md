@@ -1,5 +1,6 @@
 type=page
 status=published
+title=Middleware catalog | Enkan
 ~~~~~~
 
 # Middleware catalog
