@@ -4,7 +4,7 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 import org.seasar.doma.jdbc.ConfigProvider;
-import org.seasar.doma.jdbc.GreedyCacheSqlFileRepository;
+import org.seasar.doma.jdbc.SqlFileRepository;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -51,9 +51,9 @@ public class DomaProvider extends SystemComponent {
                         .filter(ConfigProvider.class::isInstance)
                         .map(ConfigProvider.class::cast)
                         .map(ConfigProvider::getConfig)
-                        .filter(GreedyCacheSqlFileRepository.class::isInstance)
-                        .map(GreedyCacheSqlFileRepository.class::cast)
-                        .forEach(GreedyCacheSqlFileRepository::clearCache);
+                        .filter(SqlFileRepository.class::isInstance)
+                        .map(SqlFileRepository.class::cast)
+                        .forEach(SqlFileRepository::clearCache);
                 daoCache.clear();
             }
         };
