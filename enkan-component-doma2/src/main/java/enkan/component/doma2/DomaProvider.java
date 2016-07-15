@@ -4,11 +4,10 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 import org.seasar.doma.jdbc.ConfigProvider;
-import org.seasar.doma.jdbc.GreedyCacheSqlFileRepository;
+import org.seasar.doma.jdbc.SqlFileRepository;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static enkan.util.ReflectionUtils.tryReflection;
@@ -17,14 +16,6 @@ import static enkan.util.ReflectionUtils.tryReflection;
  * @author kawasima
  */
 public class DomaProvider extends SystemComponent {
-    private static final Field SQL_FILE_MAP_FIELD;
-    static {
-        try {
-             SQL_FILE_MAP_FIELD = GreedyCacheSqlFileRepository.class.getDeclaredField("sqlFileMap");
-        } catch (NoSuchFieldException ex) {
-            throw new IllegalStateException(ex);
-        }
-    }
     private DataSource dataSource;
     private ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
 
@@ -60,13 +51,9 @@ public class DomaProvider extends SystemComponent {
                         .filter(ConfigProvider.class::isInstance)
                         .map(ConfigProvider.class::cast)
                         .map(ConfigProvider::getConfig)
-                        .filter(GreedyCacheSqlFileRepository.class::isInstance)
-                        .map(GreedyCacheSqlFileRepository.class::cast)
-                        .forEach(repo ->
-                                tryReflection(()-> {
-                                    ((ConcurrentHashMap) SQL_FILE_MAP_FIELD.get(repo)).clear();
-                                    return null;
-                                }));
+                        .filter(SqlFileRepository.class::isInstance)
+                        .map(SqlFileRepository.class::cast)
+                        .forEach(SqlFileRepository::clearCache);
                 daoCache.clear();
             }
         };
