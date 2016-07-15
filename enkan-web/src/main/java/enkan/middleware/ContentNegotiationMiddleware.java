@@ -53,7 +53,7 @@ public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
         this.allowedTypes = allowedTypes;
     }
 
-    public void setAlowedLanguages(Set<String> allowedLanguages) {
+    public void setAllowedLanguages(Set<String> allowedLanguages) {
         this.allowedLanguages = allowedLanguages;
     }
 }
