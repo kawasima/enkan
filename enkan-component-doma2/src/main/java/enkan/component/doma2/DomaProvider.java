@@ -3,6 +3,7 @@ package enkan.component.doma2;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
+import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.ConfigProvider;
 import org.seasar.doma.jdbc.SqlFileRepository;
 
@@ -51,8 +52,7 @@ public class DomaProvider extends SystemComponent {
                         .filter(ConfigProvider.class::isInstance)
                         .map(ConfigProvider.class::cast)
                         .map(ConfigProvider::getConfig)
-                        .filter(SqlFileRepository.class::isInstance)
-                        .map(SqlFileRepository.class::cast)
+                        .map(Config::getSqlFileRepository)
                         .forEach(SqlFileRepository::clearCache);
                 daoCache.clear();
             }
