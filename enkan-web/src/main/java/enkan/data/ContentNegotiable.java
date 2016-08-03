@@ -7,19 +7,19 @@ import java.util.Locale;
  * @author kawasima
  */
 public interface ContentNegotiable extends Extendable {
-    default MediaType getAccept() {
-        return (MediaType) getExtension("accept");
+    default MediaType getMediaType() {
+        return (MediaType) getExtension("mediaType");
     }
 
-    default void setAccept(MediaType mediaType) {
-        setExtension("accept", mediaType);
+    default void setMediaType(MediaType mediaType) {
+        setExtension("mediaType", mediaType);
     }
 
-    default Locale getAcceptLanguage() {
-        return (Locale) getExtension("acceptLanguage");
+    default Locale getLocale() {
+        return (Locale) getExtension("locale");
     }
 
-    default void setAcceptLanguage(Locale locale) {
-        setExtension("acceptLanguage", locale);
+    default void setLocale(Locale locale) {
+        setExtension("locale", locale);
     }
 }

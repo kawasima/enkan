@@ -12,8 +12,7 @@ import enkan.predicate.AnyPredicate;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static enkan.util.BeanBuilder.builder;
@@ -32,7 +31,7 @@ public class ContentNegotiationMiddlewareTest {
     }
 
     @Test
-    public void acceptLanguage() {
+    public void acceptLanguageWithoutAllowedLanguages() {
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
                         Headers.of("Accept-Language", "ja,en;q=0.8,en-US;q=0.6"))
@@ -41,16 +40,40 @@ public class ContentNegotiationMiddlewareTest {
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     Optional<Locale> locale = Stream.of(req)
                             .map(ContentNegotiable.class::cast)
-                            .map(ContentNegotiable::getAcceptLanguage)
+                            .map(ContentNegotiable::getLocale)
+                            .filter(Objects::nonNull)
                             .findFirst();
 
-                    assertTrue(locale.isPresent());
-                    assertEquals(Locale.JAPAN, locale.get());
-
+                    assertFalse(locale.isPresent());
                     return builder(HttpResponse.of("hello"))
                             .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                             .build();
                 });
         middleware.handle(request, chain);
     }
+
+    @Test
+    public void acceptLanguage() {
+        middleware.setAllowedLanguages(new HashSet<>(Collections.singletonList("ja")));
+        request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders,
+                        Headers.of("Accept-Language", "ja,en;q=0.8,en-US;q=0.6"))
+                .build();
+        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+                (Endpoint<HttpRequest, HttpResponse>) req -> {
+                    Optional<Locale> locale = Stream.of(req)
+                            .map(ContentNegotiable.class::cast)
+                            .map(ContentNegotiable::getLocale)
+                            .filter(Objects::nonNull)
+                            .findFirst();
+
+                    assertTrue(locale.isPresent());
+                    assertEquals(Locale.JAPANESE, locale.get());
+                    return builder(HttpResponse.of("hello"))
+                            .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
+                            .build();
+                });
+        middleware.handle(request, chain);
+    }
+
 }

@@ -36,12 +36,12 @@ public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
         String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
         String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");
-        String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedTypes);
-        Locale locale = some(lang, Locale::forLanguageTag).orElse(Locale.getDefault());
+        String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedLanguages);
+        Locale locale = Objects.equals(lang, "*")? null : some(lang, Locale::forLanguageTag).orElse(null);
 
         request = MixinUtils.mixin(request, ContentNegotiable.class);
-        ContentNegotiable.class.cast(request).setAccept(mediaType);
-        ContentNegotiable.class.cast(request).setAcceptLanguage(locale);
+        ContentNegotiable.class.cast(request).setMediaType(mediaType);
+        ContentNegotiable.class.cast(request).setLocale(locale);
         return castToHttpResponse(chain.next(request));
     }
 
