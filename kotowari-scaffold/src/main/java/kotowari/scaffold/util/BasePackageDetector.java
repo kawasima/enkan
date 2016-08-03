@@ -31,7 +31,7 @@ public class BasePackageDetector {
 
         Boolean isAllDirectory = true;
         for (File f : files) {
-            isAllDirectory &= (f != null && f.isDirectory());
+            isAllDirectory &= (f != null && (f.isDirectory() || f.isHidden()));
         }
         if (isAllDirectory) {
             for (File f : files) {
