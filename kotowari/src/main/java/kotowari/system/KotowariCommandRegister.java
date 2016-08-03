@@ -10,6 +10,8 @@ import enkan.system.repl.SystemCommandRegister;
 import kotowari.middleware.RoutingMiddleware;
 
 /**
+ * Registers commands for routes.
+ *
  * @author kawasima
  */
 public class KotowariCommandRegister implements SystemCommandRegister {

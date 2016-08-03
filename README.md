@@ -2,6 +2,8 @@
 
 Enkan(円環) is a microframework implemented middleware pattern like ring or connect.  
 
+[![CircleCI](https://circleci.com/gh/kawasima/enkan.svg?style=svg&circle-token=e3d88ba4abde99dabc9fe527d0681d236ff49548)](https://circleci.com/gh/kawasima/enkan)
+
 ## Concept
 
 - Minimal (Simple made easy)
