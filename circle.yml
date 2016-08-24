@@ -3,3 +3,6 @@ general:
 machine:
   java:
     version: oraclejdk8
+dependencies:
+  override:
+    - mvn --fail-never dependency:go-offline || true
