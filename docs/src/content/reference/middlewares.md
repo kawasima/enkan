@@ -225,7 +225,7 @@ Returns the asset file that is searched from classpath.
 #### Usage
 
 ```language-java
-app.use(new ResourcesMiddleware());
+app.use(new ResourceMiddleware());
 ```
 
 #### Properties
