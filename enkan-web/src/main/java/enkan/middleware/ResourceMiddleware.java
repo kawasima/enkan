@@ -7,6 +7,8 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import static enkan.util.CodecUtils.urlDecode;
@@ -20,12 +22,13 @@ import static enkan.util.HttpResponseUtils.resourceResponse;
 public class ResourceMiddleware extends AbstractWebMiddleware {
     private String rootPath = "public";
     private static final Set<String> ACCEPTABLE_METHODS = new HashSet<String>() {{
-        add("get");
-        add("head");
+        add("GET");
+        add("HEAD");
     }};
 
     protected HttpResponse resourceRequest(HttpRequest request, String rootPath) {
-        if (ACCEPTABLE_METHODS.contains(request.getRequestMethod())) {
+        if (ACCEPTABLE_METHODS.contains(
+                Objects.toString(request.getRequestMethod(), "").toUpperCase(Locale.US))) {
             String path = urlDecode(pathInfo(request)).substring(1);
             return resourceResponse(path, OptionMap.of("root", rootPath));
         }
