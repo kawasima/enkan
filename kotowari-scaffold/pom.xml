@@ -6,12 +6,12 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.0-beta1</version>
+        <version>0.1.0</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>kotowari-scaffold</artifactId>
-    <version>0.1.0-beta3</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>kotowari-scaffold</name>
@@ -20,7 +20,6 @@
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
-            <version>0.1.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.amagicman</groupId>
@@ -46,7 +45,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -58,19 +56,17 @@
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-web</artifactId>
-            <version>0.1.0-beta1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-component-HikariCP</artifactId>
-            <version>0.1.0-beta1</version>
+            <version>0.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>kotowari</artifactId>
-            <version>0.1.0-beta1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
