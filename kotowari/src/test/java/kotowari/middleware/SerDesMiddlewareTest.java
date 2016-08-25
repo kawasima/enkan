@@ -69,7 +69,7 @@ public class SerDesMiddlewareTest {
                 .set(HttpRequest::setHeaders, Headers.of("Content-Type", "application/json"))
                 .set(HttpRequest::setBody, new ByteArrayInputStream(body.getBytes()))
                 .build(), Routable.class, ContentNegotiable.class);
-        ContentNegotiable.class.cast(request).setAccept(new MediaType("application", "json"));
+        ContentNegotiable.class.cast(request).setMediaType(new MediaType("application", "json"));
         TestController controller = new TestController();
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
                 (Endpoint<HttpRequest, ?>) req ->

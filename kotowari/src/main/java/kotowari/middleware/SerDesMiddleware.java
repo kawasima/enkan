@@ -118,7 +118,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
         if (HttpResponse.class.isInstance(response)) {
             return (HttpResponse) response;
         } else {
-            MediaType responseType = ContentNegotiable.class.cast(request).getAccept();
+            MediaType responseType = ContentNegotiable.class.cast(request).getMediaType();
             InputStream in = serialize(response, responseType);
             if (in != null) {
                 return builder(HttpResponse.of(in))
