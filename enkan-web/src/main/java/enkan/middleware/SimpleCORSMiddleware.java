@@ -9,6 +9,7 @@ import enkan.data.HttpResponse;
 import java.util.Objects;
 
 import static enkan.util.BeanBuilder.builder;
+import static enkan.util.HttpResponseUtils.header;
 
 /**
  * CORS setting.
@@ -30,7 +31,7 @@ public class SimpleCORSMiddleware extends AbstractWebMiddleware {
 
         HttpResponse httpResponse = castToHttpResponse(chain.next(httpRequest));
         if (isCORSRequest(httpRequest)) {
-            httpResponse.setHeaders(Headers.of("Access-Control-Allow-Origin", httpRequest.getHeaders().get("Origin")));
+            header(httpResponse, "Access-Control-Allow-Origin", httpRequest.getHeaders().get("Origin"));
         }
         return httpResponse;
     }

@@ -54,7 +54,8 @@ public class SimpleCORSMiddlewareTest {
 
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
-                builder(HttpResponse.of("hello")).build());
+                builder(HttpResponse.of("hello"))
+                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
         SimpleCORSMiddleware sut = new SimpleCORSMiddleware();
@@ -63,6 +64,8 @@ public class SimpleCORSMiddlewareTest {
         // Verify
         Headers headers = result.getHeaders();
         assertThat(headers.get("Access-Control-Allow-Origin"), is("http://sample.com"));
+        assertThat(result.getBody(), is("hello"));
+        assertThat(headers.get("Content-Type"), is("text/html"));
     }
 
     @Test
@@ -73,7 +76,8 @@ public class SimpleCORSMiddlewareTest {
 
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
-                builder(HttpResponse.of("hello")).build());
+                builder(HttpResponse.of("hello"))
+                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
         SimpleCORSMiddleware sut = new SimpleCORSMiddleware();
@@ -86,6 +90,7 @@ public class SimpleCORSMiddlewareTest {
         assertThat(headers.get("Access-Control-Allow-Headers"), nullValue());
         assertThat(headers.get("Access-Control-Allow-Credentials"), nullValue());
         assertThat(result.getBody(), is("hello"));
+        assertThat(headers.get("Content-Type"), is("text/html"));
     }
 
 }
