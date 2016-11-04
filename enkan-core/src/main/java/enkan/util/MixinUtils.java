@@ -30,7 +30,7 @@ public class MixinUtils {
                 modifiersField.setAccessible(true);
                 modifiersField.setInt(f, modifiers & ~Modifier.FINAL);
                 f.setAccessible(true);
-                f.set(lookup, MethodHandles.Lookup.PRIVATE);
+                f.set(lookup, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE);
             }
             return lookup.unreflectSpecial(method, declaringClass);
         });

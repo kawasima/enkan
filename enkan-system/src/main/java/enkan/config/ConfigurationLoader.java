@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,7 +26,13 @@ public class ConfigurationLoader extends ClassLoader {
 
     public ConfigurationLoader(ClassLoader parent) {
         super(parent);
-        URL[] urls = ((URLClassLoader) parent).getURLs();
+        URL[] urls;
+        if (parent instanceof URLClassLoader) {
+            final URLClassLoader ucl = (URLClassLoader) parent;
+            urls = ucl.getURLs();
+        } else {
+            urls = getURLs();
+        }
 
         dirs = Arrays.stream(urls)
                 .filter(this::isDirectory)
@@ -44,6 +51,24 @@ public class ConfigurationLoader extends ClassLoader {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    private URL[] getURLs() {
+        String cp = System.getProperty("java.class.path");
+        String[] elements = cp.split(File.pathSeparator);
+        if (elements.length == 0) {
+            elements = new String[]{""};
+        }
+        URL[] urls = new URL[elements.length];
+        for (int i = 0; i < elements.length; i++) {
+            try {
+                URL url = new File(elements[i]).toURI().toURL();
+                urls[i] = url;
+            } catch (MalformedURLException ignore) {
+                // malformed file string or class path element does not exist
+            }
+        }
+        return urls;
     }
 
     protected boolean contains(File dir, String path) {
