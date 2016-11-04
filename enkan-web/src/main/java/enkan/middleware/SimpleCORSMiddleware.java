@@ -19,12 +19,7 @@ import static enkan.util.BeanBuilder.builder;
 public class SimpleCORSMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain chain) {
-        if (Objects.isNull(httpRequest.getHeaders().get("Origin"))) {
-            return castToHttpResponse(chain.next(httpRequest));
-        }
-
-        if (Objects.equals(httpRequest.getRequestMethod(), "OPTIONS")
-                && httpRequest.getHeaders().containsKey("Access-Control-Request-Method")) {
+        if (isPreflightRequest(httpRequest)) {
             HttpResponse<String> httpResponse = builder(HttpResponse.of("")).set(HttpResponse::setStatus, 200).build();
             httpResponse.setHeaders(Headers.of("Access-Control-Allow-Origin", httpRequest.getHeaders().get("Origin"),
                     "Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS",
@@ -34,7 +29,19 @@ public class SimpleCORSMiddleware extends AbstractWebMiddleware {
         }
 
         HttpResponse httpResponse = castToHttpResponse(chain.next(httpRequest));
-        httpResponse.setHeaders(Headers.of("Access-Control-Allow-Origin", httpRequest.getHeaders().get("Origin")));
+        if (isCORSRequest(httpRequest)) {
+            httpResponse.setHeaders(Headers.of("Access-Control-Allow-Origin", httpRequest.getHeaders().get("Origin")));
+        }
         return httpResponse;
     }
+
+    private boolean isPreflightRequest(HttpRequest httpRequest) {
+        return Objects.equals(httpRequest.getRequestMethod(), "OPTIONS")
+                && httpRequest.getHeaders().containsKey("Access-Control-Request-Method");
+    }
+
+    private boolean isCORSRequest(HttpRequest httpRequest) {
+        return Objects.nonNull(httpRequest.getHeaders().get("Origin"));
+    }
+
 }
