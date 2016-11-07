@@ -15,11 +15,11 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
- * {@link SimpleCORSMiddleware} Test.
+ * {@link CorsMiddleware} Test.
  *
  * @author syobochim
  */
-public class SimpleCORSMiddlewareTest {
+public class CorsMiddlewareTest {
 
     @Test
     public void testPreflightRequest() throws Exception {
@@ -34,23 +34,25 @@ public class SimpleCORSMiddlewareTest {
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
         // Exercise
-        SimpleCORSMiddleware sut = new SimpleCORSMiddleware();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
         assertThat(result.getStatus(), is(200));
         Headers headers = result.getHeaders();
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("http://sample.com"));
-        assertThat(headers.get("Access-Control-Allow-Methods"), is("GET, POST, DELETE, PUT, OPTIONS"));
-        assertThat(headers.get("Access-Control-Allow-Headers"), is("Content-Type"));
+        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
+        assertThat(headers.get("Access-Control-Allow-Methods"), containsString("OPTIONS"));
+        assertThat(headers.get("Access-Control-Allow-Headers"), containsString("Content-Type"));
         assertThat(headers.get("Access-Control-Allow-Credentials"), is("true"));
     }
 
     @Test
     public void testAddHeaders() throws Exception {
         // SetUp
-        HttpRequest request = builder(new DefaultHttpRequest()).build();
-        request.setHeaders(Headers.of("Origin", "http://sample.com"));
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Origin", "http://sample.com"))
+                .set(HttpRequest::setRequestMethod, "POST")
+                .build();
 
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
@@ -58,12 +60,13 @@ public class SimpleCORSMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        SimpleCORSMiddleware sut = new SimpleCORSMiddleware();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
         Headers headers = result.getHeaders();
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("http://sample.com"));
+        assertThat(result.getStatus(), is(200));
+        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
         assertThat(result.getBody(), is("hello"));
         assertThat(headers.get("Content-Type"), is("text/html"));
     }
@@ -80,7 +83,7 @@ public class SimpleCORSMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        SimpleCORSMiddleware sut = new SimpleCORSMiddleware();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
