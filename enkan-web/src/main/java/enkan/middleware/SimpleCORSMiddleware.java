@@ -37,7 +37,8 @@ public class SimpleCORSMiddleware extends AbstractWebMiddleware {
     }
 
     private boolean isPreflightRequest(HttpRequest httpRequest) {
-        return Objects.equals(httpRequest.getRequestMethod(), "OPTIONS")
+        return Objects.nonNull(httpRequest.getRequestMethod())
+                && httpRequest.getRequestMethod().equalsIgnoreCase("OPTIONS")
                 && httpRequest.getHeaders().containsKey("Access-Control-Request-Method");
     }
 
