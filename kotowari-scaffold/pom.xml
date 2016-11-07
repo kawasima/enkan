@@ -6,12 +6,12 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>kotowari-scaffold</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>kotowari-scaffold</name>
