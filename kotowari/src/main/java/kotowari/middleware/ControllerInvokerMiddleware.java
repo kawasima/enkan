@@ -13,10 +13,12 @@ import javax.enterprise.context.Conversation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.ThreadingUtils.some;
 
 /**
  * Kotowari endpoint.
@@ -55,12 +57,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             } else if (Session.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getSession();
             } else if (Flash.class.isAssignableFrom(type)) {
-                arguments[parameterIndex] = Stream.of(request)
-                        .filter(FlashAvailable.class::isInstance)
-                        .map(FlashAvailable.class::cast)
-                        .map(FlashAvailable::getFlash)
-                        .findFirst()
-                        .orElse(null);
+                arguments[parameterIndex] = request.getFlash();
             } else if (Parameters.class.isAssignableFrom(type)) {
                 arguments[parameterIndex] = request.getParams();
             } else if (UserPrincipal.class.isAssignableFrom(type)) {

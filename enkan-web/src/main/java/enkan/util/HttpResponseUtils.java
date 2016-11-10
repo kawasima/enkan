@@ -184,7 +184,7 @@ public class HttpResponseUtils {
         } else if ("jar".equals(protocol)) {
             try {
                 JarURLConnection connection = (JarURLConnection) url.openConnection();
-                if (connection != null && isJarDirectory(connection)) {
+                if (connection != null && !isJarDirectory(connection)) {
                     return new StreamContentData(connection.getInputStream(),
                             connectionContentLength(connection),
                             connectionLastModified(connection));

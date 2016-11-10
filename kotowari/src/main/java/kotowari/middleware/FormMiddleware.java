@@ -38,6 +38,7 @@ public class FormMiddleware extends AbstractWebMiddleware {
             Class<?> type = parameter.getType();
             if (HttpRequest.class.isAssignableFrom(type)
                     || Session.class.isAssignableFrom(type)
+                    || Flash.class.isAssignableFrom(type)
                     || Conversation.class.isAssignableFrom(type)
                     || ConversationState.class.isAssignableFrom(type)
                     || UserPrincipal.class.isAssignableFrom(type)
