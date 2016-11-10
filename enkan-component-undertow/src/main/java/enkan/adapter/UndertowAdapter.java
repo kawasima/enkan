@@ -149,7 +149,7 @@ public class UndertowAdapter {
         Undertow undertow = builder
                 .addHttpListener(
                         options.getInt("port", 3000),
-                        options.getString("host", "localhost"))
+                        options.getString("host", "0.0.0.0"))
                 .build();
         undertow.start();
 

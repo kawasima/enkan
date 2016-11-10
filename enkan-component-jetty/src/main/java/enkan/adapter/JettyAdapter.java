@@ -48,7 +48,7 @@ public class JettyAdapter {
         HttpConnectionFactory factory = new HttpConnectionFactory(httpConfiguration(options));
         ServerConnector connector = new ServerConnector(server, factory);
         connector.setPort(options.getInt("port", 80));
-        connector.setHost(options.getString("host"));
+        connector.setHost(options.getString("host", "0.0.0.0"));
         connector.setIdleTimeout(options.getLong("maxIdleTime", 200000));
         return connector;
     }

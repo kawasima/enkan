@@ -19,6 +19,9 @@ public class JettyComponent extends WebServerComponent {
     @DecimalMax("65535")
     @DecimalMin("1")
     private Integer port;
+
+    private String host;
+
     private Server server;
 
     public JettyComponent() {
@@ -34,6 +37,7 @@ public class JettyComponent extends WebServerComponent {
                 if (server == null) {
                     OptionMap options = OptionMap.of("join?", false);
                     if (port != null) options.put("port", port);
+                    if (host != null) options.put("host", host);
                     server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
                 }
             }
@@ -59,6 +63,9 @@ public class JettyComponent extends WebServerComponent {
         this.port = port;
     }
 
+    public void setHost(String host) {
+        this.host = host;
+    }
 
     @Override
     public int getPort() {
