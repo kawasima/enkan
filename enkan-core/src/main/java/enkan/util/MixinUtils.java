@@ -121,7 +121,7 @@ public class MixinUtils {
             addedIndex = targetInterfaces.length;
         }
         Arrays.asList(interfaces).forEach(i ->
-                Arrays.asList(i.getMethods()).stream()
+                Arrays.stream(i.getMethods())
                         .filter(Method::isDefault)
                         .forEach(MixinUtils::getMethodHandle));
 

@@ -21,7 +21,7 @@ public class ComponentInjectorTest {
 
     @Before
     public void setup() {
-        componentMap = new HashMap();
+        componentMap = new HashMap<>();
     }
 
     @Test

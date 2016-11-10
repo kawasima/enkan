@@ -39,17 +39,16 @@ public class NormalizationMiddleware extends AbstractWebMiddleware {
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         Parameters params = request.getParams();
         if (params != null) {
-            params.keySet().stream()
-                    .forEach(key -> {
-                        Object obj = params.getRawType(key);
-                        if (obj == null) return;
+            params.keySet().forEach(key -> {
+                Object obj = params.getRawType(key);
+                if (obj == null) return;
 
-                        normalizationSpecs.forEach(c -> {
-                            if (c.getPredicate().test(key) && c.getNormalizer().canNormalize(obj.getClass())) {
-                                params.replace(key, c.getNormalizer().normalize(obj));
-                            }
-                        });
-                    });
+                normalizationSpecs.forEach(c -> {
+                    if (c.getPredicate().test(key) && c.getNormalizer().canNormalize(obj.getClass())) {
+                        params.replace(key, c.getNormalizer().normalize(obj));
+                    }
+                });
+            });
         }
         return (HttpResponse) chain.next(request);
     }

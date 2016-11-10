@@ -61,11 +61,10 @@ public class CorsMiddleware extends AbstractWebMiddleware {
                 if (maxage > 0L) {
                     responseHeaders.put("Access-Control-Max-Age", maxage);
                 }
-                HttpResponse<String> httpResponse = builder(HttpResponse.of(""))
+                return builder(HttpResponse.of(""))
                         .set(HttpResponse::setStatus, 200)
                         .set(HttpResponse::setHeaders, responseHeaders)
                         .build();
-                return httpResponse;
             }
         }
 

@@ -59,18 +59,17 @@ public class ServletUtils {
     }
 
     private static void setHeaders(HttpServletResponse servletResponse, Headers headers) {
-        headers.keySet().stream()
-                .forEach(k  -> {
-                    List<String> values = headers.getList(k);
-                    if (values == null) return;
-                    values.forEach(v -> {
-                        if (servletResponse.getHeaders(k).isEmpty()) {
-                            servletResponse.setHeader(k, v);
-                        } else {
-                            servletResponse.addHeader(k, v);
-                        }
-                    });
+        headers.keySet().forEach(k -> {
+            List<String> values = headers.getList(k);
+            if (values == null) return;
+            values.forEach(v -> {
+                if (servletResponse.getHeaders(k).isEmpty()) {
+                    servletResponse.setHeader(k, v);
+                } else {
+                    servletResponse.addHeader(k, v);
+                }
             });
+        });
     }
 
     private static void setBody(HttpServletResponse servletResponse, Object body) throws IOException {

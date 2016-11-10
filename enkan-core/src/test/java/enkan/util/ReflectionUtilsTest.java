@@ -31,8 +31,7 @@ public class ReflectionUtilsTest {
     public void occursNoSuchField() {
         try {
             ReflectionUtils.tryReflection(() -> {
-                Field f = TestPrivate.class.getDeclaredField("no-such-field");
-                return f;
+                return TestPrivate.class.getDeclaredField("no-such-field");
             });
         } catch (MisconfigurationException ex) {
             assertEquals("core.NO_SUCH_FIELD", ex.getCode());
@@ -43,8 +42,7 @@ public class ReflectionUtilsTest {
     public void occursNoSuchMethod() {
         try {
             ReflectionUtils.tryReflection(() -> {
-                Method m = TestPrivate.class.getDeclaredMethod("no-such-method");
-                return m;
+                return TestPrivate.class.getDeclaredMethod("no-such-method");
             });
         } catch (MisconfigurationException ex) {
             assertEquals("core.NO_SUCH_METHOD", ex.getCode());
@@ -61,7 +59,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void occursInstanciationException() {
+    public void occursInstantiationException() {
         try {
             ReflectionUtils.tryReflection(InstantiationableClass.class::newInstance);
         } catch (MisconfigurationException ex) {

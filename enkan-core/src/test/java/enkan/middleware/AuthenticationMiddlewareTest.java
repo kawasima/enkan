@@ -31,8 +31,8 @@ public class AuthenticationMiddlewareTest {
     }
 
     private class Request implements PrincipalAvailable {
-        private Map<String ,Object> extensions = new HashMap<>();
-        private String name;
+        private final Map<String ,Object> extensions = new HashMap<>();
+        private final String name;
 
         public Request(String name) {
             this.name = name;

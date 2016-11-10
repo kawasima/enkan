@@ -20,7 +20,7 @@ import static enkan.util.SearchUtils.levenshteinDistance;
  * @author kawasima
  */
 public class ComponentInjector {
-    private Map<String, SystemComponent> components;
+    private final Map<String, SystemComponent> components;
 
     public ComponentInjector(Map<String, SystemComponent> components) {
         this.components = components;

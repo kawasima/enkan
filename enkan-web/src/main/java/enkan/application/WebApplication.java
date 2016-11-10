@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  * @author kawasima
  */
 public class WebApplication implements Application<HttpRequest, HttpResponse> {
-    private LinkedList<MiddlewareChain<?, ?>> middlewareStack = new LinkedList<>();
+    private final LinkedList<MiddlewareChain<?, ?>> middlewareStack = new LinkedList<>();
 
     public void get(String path, Middleware middleware) {
         use(PathPredicate.GET(path), middleware);

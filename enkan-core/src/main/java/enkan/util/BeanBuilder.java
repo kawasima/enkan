@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  */
 public class BeanBuilder<X> {
     private static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
-    private X x;
-    private ValidatorFactory validatorFactory;
+    private final X x;
+    private final ValidatorFactory validatorFactory;
 
     private BeanBuilder(X x, ValidatorFactory validatorFactory) {
         this.x = x;

@@ -71,12 +71,11 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
 
     @Override
     public String toString() {
-        String sb = "{status=" +
+        return "{status=" +
                 status +
                 ", headers=" + Objects.toString(headers.toString(), "{}") +
                 ", body=" + body +
                 '}';
-        return sb;
     }
 
     @Override

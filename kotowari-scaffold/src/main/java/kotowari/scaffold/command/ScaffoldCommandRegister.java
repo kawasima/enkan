@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Registers commands to REPL for scaffold.
@@ -140,8 +141,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                     }
                 })
                 .writing("ftl", g -> {
-                    Arrays.asList("edit.ftl", "list.ftl", "new.ftl", "show.ftl")
-                            .stream().forEach(ftl ->
+                    Stream.of("edit.ftl", "list.ftl", "new.ftl", "show.ftl").forEach(ftl ->
                             g.task(new ContentsReplaceTask(
                                     "src/main/resources/templates/user/" + ftl,
                                     "src/main/resources/templates/"

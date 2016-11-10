@@ -16,8 +16,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 public class ClassWatcher implements Runnable {
     private WatchService watchService;
-    private ConcurrentHashMap<WatchKey, Path> watchings = new ConcurrentHashMap<>();
-    private Runnable callback;
+    private final ConcurrentHashMap<WatchKey, Path> watchings = new ConcurrentHashMap<>();
+    private final Runnable callback;
 
     public ClassWatcher(Set<Path> directories, Runnable callback) throws IOException {
         this.callback = callback;

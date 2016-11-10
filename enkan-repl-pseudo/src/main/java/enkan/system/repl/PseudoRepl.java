@@ -80,7 +80,7 @@ public class PseudoRepl implements Repl {
             return true;
         });
         registerCommand("?", (system, transport, args) -> {
-            commands.keySet().stream().forEach(
+            commands.keySet().forEach(
                     command -> transport.send(ReplResponse.withOut("/" + command))
             );
             transport.sendOut("");

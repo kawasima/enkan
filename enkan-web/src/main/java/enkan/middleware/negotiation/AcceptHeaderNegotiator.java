@@ -163,8 +163,8 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
 
 
     private static class AcceptFragment<T> implements Serializable {
-        private double q;
-        private T fragment;
+        private final double q;
+        private final T fragment;
 
         public AcceptFragment(T fragment, double q) {
             this.fragment = fragment;

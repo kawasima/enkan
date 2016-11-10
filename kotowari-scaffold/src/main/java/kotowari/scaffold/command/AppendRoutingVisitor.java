@@ -12,7 +12,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
  * @author kawasima
  */
 public class AppendRoutingVisitor extends VoidVisitorAdapter<RoutingDefineContext> {
-    private String controllerClassName;
+    private final String controllerClassName;
 
     public AppendRoutingVisitor(String controllerClassName) {
         this.controllerClassName = controllerClassName;

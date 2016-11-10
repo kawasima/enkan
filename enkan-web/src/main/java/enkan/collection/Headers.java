@@ -2,13 +2,13 @@ package enkan.collection;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author kawasima
  */
 public class Headers extends Parameters {
-    private static final Map<String, String> KEYWORDS = Arrays.asList("CSP", "ATT", "WAP", "IP", "HTTP", "CPU", "DNT", "SSL", "UA", "TE", "WWW", "XSS", "MD5")
-            .stream()
+    private static final Map<String, String> KEYWORDS = Stream.of("CSP", "ATT", "WAP", "IP", "HTTP", "CPU", "DNT", "SSL", "UA", "TE", "WWW", "XSS", "MD5")
             .collect(Collectors.toMap(k -> k, k -> k));
 
 

@@ -10,8 +10,8 @@ import java.util.*;
  * @author kawasima
  */
 public class ComponentRelationship {
-    private String target;
-    private List<String> dependents;
+    private final String target;
+    private final List<String> dependents;
 
     private ComponentRelationship(String target, List<String> dependents) {
         this.target = target;
@@ -66,7 +66,7 @@ public class ComponentRelationship {
     }
 
     public static class ComponentRelationshipBuilder {
-        private String componentName;
+        private final String componentName;
 
         ComponentRelationshipBuilder(String componentName) {
             this.componentName = componentName;

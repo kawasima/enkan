@@ -21,7 +21,7 @@ public class BeanBuilderTest {
                     .build();
             fail("MisconfigurationException occur");
         } catch (MisconfigurationException ex) {
-
+            // Successful case
         }
     }
 

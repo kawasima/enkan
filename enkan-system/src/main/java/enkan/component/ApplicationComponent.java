@@ -16,7 +16,7 @@ import static enkan.util.ReflectionUtils.tryReflection;
 public class ApplicationComponent extends SystemComponent {
     private Application application;
     private ConfigurationLoader loader;
-    private String factoryClassName;
+    private final String factoryClassName;
     private ClassLoader originalLoader;
 
     public ApplicationComponent(String className) {

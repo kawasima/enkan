@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 @Middleware(name = "authentication")
 public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<REQ, RES> {
-    private List<AuthBackend<REQ, T>> backends;
+    private final List<AuthBackend<REQ, T>> backends;
 
     public AuthenticationMiddleware(List<AuthBackend<REQ, T>> backends) {
         this.backends = backends;

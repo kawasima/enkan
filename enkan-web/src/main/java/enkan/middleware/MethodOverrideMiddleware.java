@@ -51,7 +51,6 @@ public class MethodOverrideMiddleware extends AbstractWebMiddleware {
         if (val != null) {
             request.setRequestMethod(val);
         }
-        HttpResponse response = castToHttpResponse(chain.next(request));
-        return response;
+        return castToHttpResponse(chain.next(request));
     }
 }

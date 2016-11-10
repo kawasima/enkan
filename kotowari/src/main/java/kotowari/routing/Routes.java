@@ -51,8 +51,7 @@ public class Routes {
         }
         return routeList.stream()
                 .filter(r -> {
-                    boolean b = r.matchesControllerAndAction(controller, action);
-                    return b;
+                    return r.matchesControllerAndAction(controller, action);
                 })
                 .filter(r -> r.significantKeys().stream().allMatch(options::containsKey))
                 .map(r -> r.generate(options, merged))
