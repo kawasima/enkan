@@ -96,4 +96,29 @@ public class CorsMiddlewareTest {
         assertThat(headers.get("Content-Type"), is("text/html"));
     }
 
+    @Test
+    public void testPreflightRequestWithLowerCaseMethod() throws Exception {
+        // SetUp
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("options");
+        request.setHeaders(Headers.of("Origin", "http://sample.com",
+                "Access-Control-Request-Method", "post"));
+
+        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        // Exercise
+        CorsMiddleware sut = new CorsMiddleware();
+        HttpResponse result = sut.handle(request, chain);
+
+        // Verify
+        assertThat(result.getStatus(), is(200));
+        Headers headers = result.getHeaders();
+        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
+        assertThat(headers.get("Access-Control-Allow-Methods"), containsString("OPTIONS"));
+        assertThat(headers.get("Access-Control-Allow-Headers"), containsString("Content-Type"));
+        assertThat(headers.get("Access-Control-Allow-Credentials"), is("true"));
+    }
+
 }
