@@ -47,7 +47,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
             if (isPreflightRequest(request)) {
                 Headers responseHeaders = Headers.empty();
                 if (origins != null && !origins.isEmpty()) {
-                    responseHeaders.put("Access-Control-Allow-Origin", String.join(", ", origins));
+                    responseHeaders.put("Access-Control-Allow-Origin", String.join(" ", origins));
                 }
                 if (methods != null && !methods.isEmpty()) {
                     responseHeaders.put("Access-Control-Allow-Methods", String.join(", ", methods));
