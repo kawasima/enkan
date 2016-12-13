@@ -11,10 +11,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * @author kawasima
@@ -60,13 +57,13 @@ public class ServletUtils {
 
     private static void setHeaders(HttpServletResponse servletResponse, Headers headers) {
         headers.keySet().forEach(k -> {
-            List<String> values = headers.getList(k);
+            List<?> values = headers.getList(k);
             if (values == null) return;
             values.forEach(v -> {
                 if (servletResponse.getHeaders(k).isEmpty()) {
-                    servletResponse.setHeader(k, v);
+                    servletResponse.setHeader(k, Objects.toString(v));
                 } else {
-                    servletResponse.addHeader(k, v);
+                    servletResponse.addHeader(k, Objects.toString(v));
                 }
             });
         });
