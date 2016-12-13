@@ -41,7 +41,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         if (isCORSRequest(request)) {
-            if (!isOriginAllowed(request) || !methods.contains(request.getRequestMethod())) {
+            if (!isOriginAllowed(request) || !methods.stream().anyMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);
             }
             if (isPreflightRequest(request)) {
@@ -59,7 +59,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
                     responseHeaders.put("Access-Control-Allow-Credentials", "true");
                 }
                 if (maxage > 0L) {
-                    responseHeaders.put("Access-Control-Max-Age", maxage);
+                    responseHeaders.put("Access-Control-Max-Age", String.valueOf(maxage));
                 }
                 return builder(HttpResponse.of(""))
                         .set(HttpResponse::setStatus, 200)
@@ -96,7 +96,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     }
 
     private boolean isPreflightRequest(HttpRequest httpRequest) {
-        return Objects.equals(httpRequest.getRequestMethod(), "OPTIONS")
+        return Objects.equals(httpRequest.getRequestMethod().toUpperCase(), "OPTIONS")
                 && httpRequest.getHeaders().containsKey("Access-Control-Request-Method");
     }
 
