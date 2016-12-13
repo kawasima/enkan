@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.1</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.3.5.v20151012</version>
+            <version>9.4.0.v20161208</version>
         </dependency>
     </dependencies>
 </project>
