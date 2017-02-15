@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.1</version>
+        <version>0.1.2-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -16,7 +16,7 @@
     <name>kotowari-example</name>
 
     <properties>
-        <enkan.version>0.1.1</enkan.version>
+        <enkan.version>0.1.2-SNAPSHOT</enkan.version>
     </properties>
 
     <build>
@@ -95,19 +95,18 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.189</version>
+            <version>1.4.193</version>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.21</version>
+            <version>1.7.22</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -133,7 +132,7 @@
                 <dependency>
                     <groupId>net.unit8.enkan</groupId>
                     <artifactId>enkan-devel</artifactId>
-                    <version>0.1.1</version>
+                    <version>${enkan.version}</version>
                 </dependency>
             </dependencies>
         </profile>
