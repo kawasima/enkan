@@ -46,8 +46,16 @@ public class CorsMiddleware extends AbstractWebMiddleware {
             }
             if (isPreflightRequest(request)) {
                 Headers responseHeaders = Headers.empty();
+                if (isAnyOriginAllowed()) {
+                    responseHeaders.put("Access-Control-Allow-Origin", "*");
+                } else {
+                    String origin = some(request.getHeaders(),
+                            headers -> headers.get("origin"))
+                            .orElse("*");
+                    responseHeaders.put("Access-Control-Allow-Origin", origin);
+                }
+
                 if (origins != null && !origins.isEmpty()) {
-                    responseHeaders.put("Access-Control-Allow-Origin", String.join(" ", origins));
                 }
                 if (methods != null && !methods.isEmpty()) {
                     responseHeaders.put("Access-Control-Allow-Methods", String.join(", ", methods));
@@ -91,8 +99,17 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     private boolean isOriginAllowed(HttpRequest request) {
         return some(request.getHeaders(),
                 headers -> headers.get("origin"),
-                origin -> origins.contains("*") || origins.contains(origin))
+                origin -> isAnyOriginAllowed() || origins.contains(origin))
                 .orElse(false);
+    }
+
+    /**
+     * Determines if any origin is allowed.
+     *
+     * @return true if any origin is allowed
+     */
+    private boolean isAnyOriginAllowed() {
+        return origins.contains("*");
     }
 
     private boolean isPreflightRequest(HttpRequest httpRequest) {
