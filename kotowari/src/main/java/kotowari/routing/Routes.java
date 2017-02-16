@@ -6,6 +6,7 @@ import kotowari.routing.factory.RoutePatterns;
 import kotowari.routing.factory.RoutePatternsDescriptor;
 import kotowari.routing.recognizer.OptimizedRecognizer;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,9 +51,7 @@ public class Routes {
             throw new MisconfigurationException("kotowari.ROUTING_GENERATION");
         }
         return routeList.stream()
-                .filter(r -> {
-                    return r.matchesControllerAndAction(controller, action);
-                })
+                .filter(r -> r.matchesControllerAndAction(controller, action))
                 .filter(r -> r.significantKeys().stream().allMatch(options::containsKey))
                 .map(r -> r.generate(options, merged))
                 .findFirst()
@@ -65,8 +64,7 @@ public class Routes {
                         routeList.stream()
                                 .filter(r -> r.matchesController(controller))
                                 .map(Route::getActionRequirement)
-                                .sorted((a, b) ->
-                                        levenshteinDistance(a, action) - levenshteinDistance(b, action))
+                                .sorted(Comparator.comparingInt(a -> levenshteinDistance(a, action)))
                                 .findFirst()
                                 .orElse("")
                 ));

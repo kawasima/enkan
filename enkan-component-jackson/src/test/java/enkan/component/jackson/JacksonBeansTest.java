@@ -35,7 +35,7 @@ public class JacksonBeansTest {
         });
         TestBean bean = new TestBean("ABC", "12", "Tokyo");
         Person person = mapper.convertValue(bean, Person.class);
-        person.getName();
+        assertEquals("ABC", person.getName());
     }
 
     @Test

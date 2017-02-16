@@ -53,7 +53,7 @@ public class SessionMiddleware extends AbstractWebMiddleware {
     protected void sessionRequest(HttpRequest request) {
         some(request.getCookies(), cs -> cs.get(cookieName))
                 .ifPresent(sessionCookie -> {
-                    String reqKey = sessionCookie != null ? sessionCookie.getValue() : null;
+                    String reqKey = sessionCookie.getValue();
                     Session session = reqKey != null ? (Session) store.read(reqKey) : null;
                     request.setSession(session);
                     if (session != null) {
@@ -74,7 +74,7 @@ public class SessionMiddleware extends AbstractWebMiddleware {
             // - Call response.session == null
             // - response.session.isNew && request.session != null
             if (session == null || (session.isNew() && request.getSession() != null)) {
-                store.delete(((WebSessionAvailable) request).getSessionKey());
+                store.delete(sessionKey);
             }
 
             String newSessionKey = null;

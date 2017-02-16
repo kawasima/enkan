@@ -24,9 +24,7 @@ public class AuthenticationMiddlewareTest {
         AuthenticationMiddleware middleware = new AuthenticationMiddleware(Collections.singletonList(createAuthBackend()));
         Request request = new Request("kawasima");
         middleware.handle(request, new DefaultMiddlewareChain<>(Predicates.ANY, "",
-                (req, chain) -> {
-                    return "ok";
-                }));
+                (req, chain) -> "ok"));
         assertNotNull(request.getPrincipal());
     }
 

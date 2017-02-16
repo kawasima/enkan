@@ -22,7 +22,7 @@ public class TestApplicationFactory implements ApplicationFactory {
 
             @Override
             public <IN, OUT> void use(Predicate<IN> predicate, String middlewareName, Middleware<IN, OUT> middleware) {
-                middlewares.add(new DefaultMiddlewareChain<IN, OUT>(predicate, middlewareName, middleware));
+                middlewares.add(new DefaultMiddlewareChain<>(predicate, middlewareName, middleware));
             }
 
             @Override

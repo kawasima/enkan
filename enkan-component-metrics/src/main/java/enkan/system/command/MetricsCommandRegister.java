@@ -42,12 +42,6 @@ public class MetricsCommandRegister implements SystemCommandRegister {
                 String.format(Locale.US, "             count = %d", counter.getCount())));
     }
 
-    private void printGauge(Transport t, Gauge gauge) {
-        t.send(ReplResponse.withOut(
-                String.format(Locale.US, "             value = %d", gauge.getValue())
-        ));
-    }
-
     private double convertDuration(double duration) {
         return duration * (1.0 / TimeUnit.SECONDS.toNanos(1));
 

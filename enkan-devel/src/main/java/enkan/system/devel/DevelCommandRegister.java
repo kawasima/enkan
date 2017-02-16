@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class DevelCommandRegister implements SystemCommandRegister {
         final Optional<ConfigurationLoader> loader = system.getAllComponents().stream()
                 .filter(c -> c instanceof ApplicationComponent)
                 .map(c -> ((ApplicationComponent) c).getLoader())
-                .filter(l -> l != null)
+                .filter(Objects::nonNull)
                 .findFirst();
         return loader.orElseGet(null);
     }
@@ -88,10 +89,7 @@ public class DevelCommandRegister implements SystemCommandRegister {
             } else {
                 final StringWriter sw = new StringWriter();
                 //noinspection ThrowableResultOfMethodCallIgnored
-
-                if (exception != null) {
-                    exception.printStackTrace(new PrintWriter(sw));
-                }
+                exception.printStackTrace(new PrintWriter(sw));
                 sw.append("Failed to compile.");
                 transport.sendErr(sw.toString());
             }

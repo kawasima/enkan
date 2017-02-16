@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author kawasima
  */
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class AntiForgeryMiddlewareTest {
     AntiForgeryMiddleware middleware;
 

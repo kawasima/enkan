@@ -51,7 +51,7 @@ public class DefaultConversation implements Conversation {
 
     @Override
     public long getTimeout() {
-        return -1;
+        return timeout;
     }
 
     @Override

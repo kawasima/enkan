@@ -71,7 +71,7 @@ public class Multimap<K, V> implements Map<K, V> {
         return values.get(0);
     }
 
-    public List<V> getAll(Object key) {
+    public List<V> getAll(K key) {
         return hashMap.get(key);
     }
 

@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 /**
  * @author kawasima
  */
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class MultipartParserTest {
     private Optional<String> getFileContents(Parameters params, String parameterName) {
         return ThreadingUtils.some(((File) params.getIn(parameterName, "tempfile")).toPath(),

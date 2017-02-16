@@ -56,7 +56,6 @@ public class CustomerController {
     public HttpResponse show(Parameters params) {
         CustomerDao customerDao = daoProvider.getDao(CustomerDao.class);
         Customer customer = customerDao.selectById(params.getLong("id"));
-        customer.getBirthday();
         return templateEngine.render("customer/show", "customer", customer);
     }
 

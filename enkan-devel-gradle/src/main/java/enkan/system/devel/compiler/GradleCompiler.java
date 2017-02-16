@@ -33,9 +33,7 @@ public class GradleCompiler implements Compiler {
                 .forProjectDirectory(new File(projectDirectory));
 
         String gradleHome = Env.get("GRADLE_HOME");
-        if (gradleHome != null) {
-            c.useInstallation(new File(gradleHome));
-        }
+        c.useInstallation(new File(gradleHome));
         ProjectConnection connection = c.connect();
 
         BuildLauncher launcher = connection.newBuild();

@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 public class MultipartCollector {
     private BiFunction<String, String, File> tempfileFactory;
     private List<MimePart> mimeParts = new ArrayList<>();
-    private int openFiles = 0;
 
     public MultipartCollector(BiFunction<String, String, File> tempfileFactory) {
         this.tempfileFactory = tempfileFactory;
@@ -21,15 +20,10 @@ public class MultipartCollector {
     public void onMimeHead(int mimeIndex, String head, String filename, String contentType, String name) throws IOException {
         if (filename != null) {
             File tempfile = tempfileFactory.apply(filename, contentType);
-            openFiles += 1;
             mimeParts.add(new TempfilePart(tempfile, head, filename, contentType, name));
         } else {
-            mimeParts.add(new BufferPart(head, filename, contentType, name));
+            mimeParts.add(new BufferPart(head, null, contentType, name));
         }
-
-    }
-
-    private void checkOpenFiles() {
 
     }
 

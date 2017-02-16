@@ -6,11 +6,10 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.2-SNAPSHOT</version>
+        <version>0.1.2</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
-    <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-devel-gradle</artifactId>
     <packaging>jar</packaging>
 

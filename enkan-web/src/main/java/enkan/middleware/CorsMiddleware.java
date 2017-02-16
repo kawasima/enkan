@@ -6,10 +6,7 @@ import enkan.collection.Headers;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static enkan.util.BeanBuilder.builder;
 import static enkan.util.HttpResponseUtils.header;
@@ -30,7 +27,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
 
     public CorsMiddleware() {
         methods = new HashSet<>(Arrays.asList("GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS"));
-        origins = new HashSet<>(Arrays.asList("*"));
+        origins = new HashSet<>(Collections.singletonList("*"));
         headers = new HashSet<>(Arrays.asList(
                 "Origin", "Accept", "X-Requested-With", "Content-Type",
                 "Access-Control-Request-Method", "Access-Control-Request-Headers"));
@@ -55,8 +52,6 @@ public class CorsMiddleware extends AbstractWebMiddleware {
                     responseHeaders.put("Access-Control-Allow-Origin", origin);
                 }
 
-                if (origins != null && !origins.isEmpty()) {
-                }
                 if (methods != null && !methods.isEmpty()) {
                     responseHeaders.put("Access-Control-Allow-Methods", String.join(", ", methods));
                 }

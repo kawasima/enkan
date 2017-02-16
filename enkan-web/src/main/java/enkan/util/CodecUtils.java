@@ -23,7 +23,7 @@ public class CodecUtils {
     private static final Pattern RE_URL_ENCODED_CHARS = Pattern.compile("(?:%[A-Za-z0-9]{2})+");
     private static final Pattern RE_URL_ENCODED_CHAR = Pattern.compile("%[A-Za-z0-9]{2}");
     private static final Pattern RE_URL_ENCODE_TARGET = Pattern.compile("[^A-Za-z0-9_~\\.+\\-]+");
-    private static final Pattern RE_ACCEPT_FRAGMENT = Pattern.compile("^\\s*(\\*|[^()<>@,;:\"/\\[\\]?={}         ]+)/(\\*|[^()<>@,;:\"/\\[\\]?={}         ]+)$");
+    private static final Pattern RE_ACCEPT_FRAGMENT = Pattern.compile("^\\s*(\\*|[^()<>@,;:\"/\\[\\]?={} ]+)/(\\*|[^()<>@,;:\"/\\[\\]?={} ]+)$");
 
 
     public static byte[] parseBytes(String encodedBytes) {

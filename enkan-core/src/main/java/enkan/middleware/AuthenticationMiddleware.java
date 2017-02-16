@@ -31,9 +31,7 @@ public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<R
             Optional<Principal> principal = ThreadingUtils.some(
                     backend.parse(request),
                     data -> backend.authenticate(request, data));
-            if (principal.isPresent()) {
-                ((PrincipalAvailable) request).setPrincipal(principal.get());
-            }
+            principal.ifPresent(((PrincipalAvailable) request)::setPrincipal);
         }
         return (RES) next.next(request);
     }

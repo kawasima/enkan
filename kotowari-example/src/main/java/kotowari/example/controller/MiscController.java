@@ -4,6 +4,8 @@ import enkan.collection.Parameters;
 import enkan.data.HttpResponse;
 import enkan.data.Session;
 import kotowari.component.TemplateEngine;
+import kotowari.example.model.LoginPrincipal;
+import sun.misc.VM;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -35,8 +37,10 @@ public class MiscController {
         if (session != null) {
             count = (Integer) session.get("count");
             count++;
+            LoginPrincipal principal = (LoginPrincipal) session.get("principal");
         } else {
             session = new Session();
+            session.put("principal", new LoginPrincipal("test"));
         }
         session.put("count", count);
         return builder(response(count + "times."))

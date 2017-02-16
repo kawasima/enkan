@@ -22,6 +22,7 @@ public class EntityField {
         return type;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isId() {
         return id;
     }

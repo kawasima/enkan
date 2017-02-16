@@ -75,11 +75,7 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
             } else {
                 List<Object> values = new ArrayList<>();
                 values.add(cur);
-                if (values instanceof List) {
-                    values.addAll((List<?>) value);
-                } else {
-                    values.add(value);
-                }
+                values.addAll((List<?>) value);
             }
         } else {
             if (value instanceof List) {

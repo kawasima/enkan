@@ -3,6 +3,7 @@
 nb-configuration.xml
 target
 *.class
+pom.xml.*
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

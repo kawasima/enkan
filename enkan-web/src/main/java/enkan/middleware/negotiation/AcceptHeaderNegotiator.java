@@ -65,11 +65,9 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                     })
                     .filter(Objects::nonNull)
                     .findFirst();
-            if (matched.isPresent()) {
-                return new AcceptFragment(matched.get(), 1.0);
-            } else {
-                return fragment;
-            }
+            return matched
+                    .map(mediaType -> new AcceptFragment(mediaType, 1.0))
+                    .orElse(fragment);
 
         };
     }
@@ -94,8 +92,8 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(serverWeightFunc)
                 .sorted(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
                 .findFirst()
-                .get()
-                .fragment;
+                .map(af -> af.fragment)
+                .orElse(null);
     }
 
     @Override
@@ -108,7 +106,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                         AcceptFragment::getFragment,
                         AcceptFragment::getQ));
         return selectBest(available, charset -> {
-            charset.toLowerCase(Locale.US);
+            charset = charset.toLowerCase(Locale.US);
             return accepts.getOrDefault(charset,
                     accepts.getOrDefault("*",
                             charset.equals("ISO_8859_1") ? 1.0 : 0.0));
