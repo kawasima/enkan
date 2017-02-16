@@ -10,6 +10,7 @@
 
     <name>enkan-parent</name>
     <url>https://github.com/kawasima/enkan</url>
+    <description>An parent pom for Enkan</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

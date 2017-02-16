@@ -14,6 +14,7 @@
     <packaging>jar</packaging>
 
     <name>kotowari-example</name>
+    <description>An example of Kotowari application</description>
 
     <properties>
         <enkan.version>0.1.2</enkan.version>
