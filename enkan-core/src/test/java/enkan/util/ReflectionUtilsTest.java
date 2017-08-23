@@ -4,7 +4,6 @@ import enkan.exception.MisconfigurationException;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
@@ -27,6 +26,7 @@ public class ReflectionUtilsTest {
         }
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     @Test
     public void occursNoSuchField() {
         try {
@@ -39,6 +39,7 @@ public class ReflectionUtilsTest {
     @Test
     public void occursNoSuchMethod() {
         try {
+            //noinspection JavaReflectionMemberAccess
             ReflectionUtils.tryReflection(() -> TestPrivate.class.getDeclaredMethod("no-such-method"));
         } catch (MisconfigurationException ex) {
             assertEquals("core.NO_SUCH_METHOD", ex.getCode());

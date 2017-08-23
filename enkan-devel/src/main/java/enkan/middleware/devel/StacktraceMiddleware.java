@@ -67,6 +67,8 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     }
 
     protected HttpResponse htmlMisconfigExResponse(MisconfigurationException ex, HttpRequest request) {
+        String primer = this.primer;
+        Snippet snippet = stackTraceElementSnippet;
         Template template = moshas.describe("templates/misconfiguration.html", t -> {
             t.select("#primer", (el, ctx) -> el.text(primer));
             t.select(".problem", text("exception", "problem"));
@@ -75,7 +77,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
                 el.empty();
                 ctx.getCollection("exception", "stackTrace").forEach(
                         stel -> ctx.localScope("stackTraceElement", stel,
-                                () -> el.appendChild(stackTraceElementSnippet.render(ctx))));
+                                () -> el.appendChild(snippet.render(ctx))));
             });
             t.select(".request .uri", text("request", "uri"));
             t.select(".request .server-name", text("request", "serverName"));
@@ -87,6 +89,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     }
 
     protected HttpResponse htmlExResponse(Throwable ex) {
+        Snippet snippet = stackTraceElementSnippet;
         Template template = moshas.describe("templates/stacktrace.html", t -> {
             t.select("#class-name", (el, ctx) -> el.text(
                     ctx.get("exception") + ":" + ctx.getString("exception","message")));
@@ -94,7 +97,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
                 el.empty();
                 ctx.getCollection("exception", "stackTrace").forEach(
                         stel -> ctx.localScope("stackTraceElement", stel,
-                                () -> el.appendChild(stackTraceElementSnippet.render(ctx))));
+                                () -> el.appendChild(snippet.render(ctx))));
             });
         });
 

@@ -144,9 +144,7 @@ public class PseudoRepl implements Repl {
                                     printHelp();
                                 } else if (command != null) {
                                     String[] args = new String[cmd.length - 1];
-                                    if (cmd.length > 0) {
-                                        System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
-                                    }
+                                    System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
                                     try {
                                         boolean ret = command.execute(system, transport, args);
                                         if (!ret) return;

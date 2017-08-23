@@ -55,12 +55,13 @@ public class ComponentRelationship {
      *
      * @param componentsOrder the order between components
      */
-    public void sort(List<String> componentsOrder) {
-        int targetIndex = index(componentsOrder, target);
+    public void sort(LinkedList<String> componentsOrder) {
         for (String dep : dependents) {
+            int targetIndex = index(componentsOrder, target);
             int depIndex = index(componentsOrder, dep);
             if (depIndex > targetIndex) {
-                Collections.swap(componentsOrder, targetIndex, depIndex);
+                componentsOrder.add(targetIndex, dep);
+                componentsOrder.remove(depIndex + 1);
             }
         }
     }

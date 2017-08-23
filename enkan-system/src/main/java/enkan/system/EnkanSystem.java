@@ -13,12 +13,12 @@ import java.util.*;
  */
 public class EnkanSystem {
     Map<String, SystemComponent> components;
-    List<String> componentsOrder;
+    LinkedList<String> componentsOrder;
 
 
     private EnkanSystem() {
         components = new HashMap<>();
-        componentsOrder = new ArrayList<>();
+        componentsOrder = new LinkedList<>();
     }
 
     /**

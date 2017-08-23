@@ -323,21 +323,4 @@ public class MultipartParser {
 
         return filename;
     }
-
-    private void tagMultipartEncoding(String filename, String contentType, String name, InputStream body) {
-        if (filename != null) return;
-
-        if (contentType != null) {
-            List<String> tokens = Arrays.stream(contentType.split(";"))
-                    .map(String::trim)
-                    .collect(Collectors.toList());
-
-            String typeSubtype = tokens.remove(0);
-
-            if (typeSubtype.equals("text/plain")) {
-                tokens.stream()
-                        .map(s -> s.split("=", 2));
-            }
-        }
-    }
 }

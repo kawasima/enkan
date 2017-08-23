@@ -5,9 +5,11 @@ import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.MisconfigurationException;
 import enkan.util.ServletUtils;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
@@ -15,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.KeyStore;
 
 /**
  * @author kawasima
@@ -44,6 +47,55 @@ public class JettyAdapter {
         return config;
     }
 
+    private SslContextFactory createSslContextFactory(OptionMap options) {
+        SslContextFactory context = new SslContextFactory();
+        Object keystoreObj = options.get("keystore");
+        if (keystoreObj instanceof String) {
+            context.setKeyStorePath((String) keystoreObj);
+        } else if (keystoreObj instanceof KeyStore) {
+            context.setKeyStore((KeyStore) keystoreObj);
+        } else {
+            throw new MisconfigurationException("");
+        }
+        context.setKeyStorePassword(options.getString("keyPassword"));
+
+        Object trustStore = options.get("truststore");
+        if (trustStore instanceof String) {
+            context.setTrustStorePath((String) trustStore);
+        } else if (trustStore instanceof KeyStore) {
+            context.setTrustStore((KeyStore) trustStore);
+        }
+
+        if (options.containsKey("trustPassword")) {
+            context.setTrustStorePassword(options.getString("trustPassword"));
+        }
+
+        String clientAuth = options.getString("clientAuth", "none");
+        switch (clientAuth) {
+            case "need": context.setNeedClientAuth(true); break;
+            case "want": context.setWantClientAuth(true); break;
+        }
+
+        return context;
+    }
+
+    private ServerConnector createSslConnector(Server server, OptionMap options) {
+        int sslPort = options.getInt("sslPort", 443);
+        HttpConfiguration config = httpConfiguration(options);
+        config.setSecureScheme("https");
+        config.setSecurePort(sslPort);
+        config.addCustomizer(new SecureRequestCustomizer());
+        HttpConnectionFactory httpFactory = new HttpConnectionFactory(config);
+
+        SslConnectionFactory sslFactory = new SslConnectionFactory(createSslContextFactory(options), "http/1.1");
+
+        ServerConnector connector = new ServerConnector(server, sslFactory, httpFactory);
+        connector.setPort(sslPort);
+        connector.setHost(options.getString("host"));
+        connector.setIdleTimeout(options.getInt("maxIdleTime", 200000));
+        return connector;
+    }
+
     private ServerConnector createHttpConnector(Server server, OptionMap options) {
         HttpConnectionFactory factory = new HttpConnectionFactory(httpConfiguration(options));
         ServerConnector connector = new ServerConnector(server, factory);
@@ -52,6 +104,7 @@ public class JettyAdapter {
         connector.setIdleTimeout(options.getLong("maxIdleTime", 200000));
         return connector;
     }
+
     private ThreadPool createThreadPool() {
         QueuedThreadPool pool = new QueuedThreadPool(50);
         pool.setMinThreads(8);
@@ -60,7 +113,14 @@ public class JettyAdapter {
 
     private Server createServer(OptionMap options) {
         Server server = new Server(createThreadPool());
-        server.addConnector(createHttpConnector(server, options));
+        if (options.getBoolean("http?", true)) {
+            server.addConnector(createHttpConnector(server, options));
+        }
+
+        if (options.getBoolean("ssl?", false) || options.getInt("sslPort", 0) != 0) {
+            server.addConnector(createSslConnector(server, options));
+        }
+
         return server;
     }
 

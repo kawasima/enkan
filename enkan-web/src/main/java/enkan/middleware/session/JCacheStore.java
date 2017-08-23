@@ -21,7 +21,9 @@ public class JCacheStore implements KeyValueStore {
 
         Configuration<String, Serializable> config = new MutableConfiguration<String, Serializable>()
                 .setTypes(String.class, Serializable.class);
-        cache = cacheManager.createCache("session", config);
+        cache = cacheManager.getCache("session", String.class, Serializable.class);
+        if (cache == null)
+            cache = cacheManager.createCache("session", config);
     }
 
     @Override

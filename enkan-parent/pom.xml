@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.1.2</enkan.version>
+        <enkan.version>0.2.0-SNAPSHOT</enkan.version>
     </properties>
 
     <modules>
@@ -36,8 +36,10 @@
         <module>../enkan-component-jackson</module>
         <module>../enkan-component-metrics</module>
         <module>../kotowari</module>
+        <module>../enkan-throttling</module>
         <!--<module>../kotowari-scaffold</module>-->
         <module>../kotowari-example</module>
+
     </modules>
     <build>
         <plugins>

@@ -6,6 +6,8 @@ import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
+import freemarker.ext.beans.BeanModel;
+import freemarker.ext.beans.StringModel;
 import freemarker.template.*;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
@@ -18,6 +20,7 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Template engine component using by Freemarker.
@@ -84,6 +87,13 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
 
     @Override
     public Object createFunction(Function<List, Object> func) {
-        return (TemplateMethodModelEx) func::apply;
+        return (TemplateMethodModelEx) arguments ->
+                func.apply((List)arguments.stream().map(arg -> {
+                    if (arg instanceof BeanModel) {
+                        return ((StringModel) arg).getWrappedObject();
+                    } else {
+                        return arg;
+                    }
+                }).collect(Collectors.toList()));
     }
 }

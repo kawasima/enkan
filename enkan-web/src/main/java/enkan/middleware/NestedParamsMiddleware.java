@@ -75,7 +75,12 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
             } else {
                 List<Object> values = new ArrayList<>();
                 values.add(cur);
-                values.addAll((List<?>) value);
+                if (value instanceof List) {
+                    values.addAll((List<?>) value);
+                } else {
+                    values.add(value);
+                }
+                map.put(key, values);
             }
         } else {
             if (value instanceof List) {
@@ -101,6 +106,7 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
 
                 String j = ks[0];
                 if (j.isEmpty()) {
+                    // Array
                     String[] js = new String[keys.length - 2];
                     if (js.length > 0) {
                         System.arraycopy(keys, 2, js, 0, js.length);
@@ -122,9 +128,14 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
                         }
 
                     }
-                    map.put(keys[0], nestedList);
+                    if (map.containsKey(keys[0])) {
+                        map.replace(keys[0], nestedList);
+                    } else {
+                        map.put(keys[0], nestedList);
+                    }
                     return map;
                 } else {
+                    // Map
                     Parameters submap = (Parameters) map.getRawType(keys[0]);
                     if (submap == null) submap = Parameters.empty();
                     map.put(keys[0], assocNested(submap, ks, values));

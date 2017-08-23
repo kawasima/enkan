@@ -29,10 +29,11 @@ import java.util.*;
 @Middleware(name = "traceWeb")
 public class TraceWebMiddleware extends AbstractWebMiddleware {
     private MoshasEngine moshas = new MoshasEngine();
-    private List<LogKey> idList;
+    private LinkedList<LogKey> idList;
     private KeyValueStore store;
     private String mountPath = "/x-enkan/requests";
     private TraceRouting traceRouting;
+    private long storeSize = 100;
 
     public static class ElapseTime {
         private Long inbound;
@@ -63,9 +64,10 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
             return middlewareName;
         }
     }
+
     public TraceWebMiddleware() {
         store = new MemoryStore();
-        idList = new ArrayList<>();
+        idList = new LinkedList<>();
 
         TraceList traceList = new TraceList(moshas);
         TraceDetail traceDetail = new TraceDetail(moshas);
@@ -109,8 +111,15 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
             HttpResponse response = castToHttpResponse(next.next(request));
             Traceable requestTrace  = Traceable.class.cast(request);
             Traceable responseTrace = Traceable.class.cast(response);
-            store.write(requestTrace.getId(), new RequestLog(request.getHeaders(), request.getParams(),
-                    requestTrace.getTraceLog(), responseTrace.getTraceLog()));
+            synchronized (this) {
+                if (idList.size() >= storeSize) {
+                    LogKey oldestLogKey = idList.removeLast();
+                    store.delete(oldestLogKey.getId());
+                }
+                idList.addFirst(new LogKey(requestTrace.getId(), request.getRequestMethod(), request.getUri()));
+                store.write(requestTrace.getId(), new RequestLog(request.getHeaders(), request.getParams(),
+                        requestTrace.getTraceLog(), responseTrace.getTraceLog()));
+            }
             idList.add(new LogKey(requestTrace.getId(), request.getRequestMethod(), request.getUri()));
 
             return response;
@@ -194,5 +203,14 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
         public TraceLog getOutboundLog() {
             return outboundLog;
         }
+    }
+
+    /**
+     * Set the number of stored requests.
+     *
+     * @param storeSize the number of stored requests
+     */
+    public void setStoreSize(long storeSize) {
+        this.storeSize = storeSize;
     }
 }

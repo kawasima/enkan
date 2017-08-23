@@ -3,6 +3,7 @@ package enkan.component.doma2;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
+import enkan.exception.MisconfigurationException;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.ConfigProvider;
 import org.seasar.doma.jdbc.SqlFileRepository;
@@ -30,9 +31,14 @@ public class DomaProvider extends SystemComponent {
     public <T> T getDao(Class<? extends T> daoInterface) {
         return (T) daoCache.computeIfAbsent(daoInterface.getName(), key ->
                 tryReflection(() -> {
-                Class<? extends T> daoClass = (Class<? extends T>) Class.forName(daoInterface.getName() + "Impl", true, daoInterface.getClassLoader());
-                Constructor<? extends T> daoConstructor = daoClass.getConstructor(DataSource.class);
-                return daoConstructor.newInstance(dataSource);
+                    Class<? extends T> daoClass;
+                    try {
+                         daoClass = (Class<? extends T>) Class.forName(daoInterface.getName() + "Impl", true, daoInterface.getClassLoader());
+                    } catch (ClassNotFoundException ex) {
+                        throw new MisconfigurationException("doma2.DAO_IMPL_NOT_FOUND", daoInterface.getName(), ex);
+                    }
+                    Constructor<? extends T> daoConstructor = daoClass.getConstructor(DataSource.class);
+                    return daoConstructor.newInstance(dataSource);
             }));
     }
 

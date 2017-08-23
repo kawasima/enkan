@@ -28,7 +28,6 @@ import kotowari.middleware.*;
 import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 

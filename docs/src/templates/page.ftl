@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-    <section>
+    </section>
   </div>
   </div>
 </@layout.myLayout>

@@ -89,6 +89,14 @@ public class SerDesMiddlewareTest {
         }
     }
 
+    @Test
+    public void nullSerialize() {
+        SerDesMiddleware middleware = builder(new SerDesMiddleware())
+                .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                .build();
+        middleware.serialize(null, new MediaType("application", "json"));
+    }
+
     @Data
     static class TestDto {
         private int a;

@@ -33,7 +33,7 @@ public interface MiddlewareChain<REQ, RES> {
     /**
      * Get a predicate.
      *
-     * @return
+     * @return an predicate
      */
     Predicate<REQ> getPredicate();
 

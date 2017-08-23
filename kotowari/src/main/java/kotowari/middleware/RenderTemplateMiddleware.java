@@ -8,7 +8,10 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.PrincipalAvailable;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.MisconfigurationException;
 import enkan.middleware.AbstractWebMiddleware;
+import enkan.security.UserPrincipal;
+import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.scope.ExportSetting;
 import static kotowari.scope.ExportableScope.*;
@@ -21,6 +24,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -33,7 +39,51 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
     @Inject
     private HmacEncoder hmacEncoder;
 
+    @Inject
+    private TemplateEngine templateEngine;
+
     private ExportSetting exports = ExportSetting.DEFAULT_EXPORTS;
+    private static Function<List, Object> HAS_PERMISSION = arguments -> {
+        if (arguments.size() == 2) {
+            Object principal = arguments.get(0);
+            String permission = Objects.toString(arguments.get(1));
+            if (UserPrincipal.class.isInstance(principal)) {
+                return ((UserPrincipal) principal).hasPermission(permission);
+            } else {
+                throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasPermission");
+            }
+        } else {
+            throw new MisconfigurationException("kotowari.HAS_PERMISSION_WRONG_ARGS");
+        }
+    };
+    private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
+        if (arguments.size() > 2) {
+            Object principal = arguments.get(0);
+            if (principal instanceof UserPrincipal) {
+                return arguments.subList(1, arguments.size() - 1)
+                        .stream()
+                        .anyMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
+            } else {
+                throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasAnyPermission");
+            }
+        } else {
+            throw new MisconfigurationException("kotowari.HAS_ANY_PERMISSION_WRONG_ARGS");
+        }
+    };
+    private static Function<List, Object> HAS_ALL_PERMISSIONS = arguments -> {
+        if (arguments.size() > 2) {
+            Object principal = arguments.get(0);
+            if (principal instanceof UserPrincipal) {
+                return arguments.subList(1, arguments.size() - 1)
+                        .stream()
+                        .allMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
+            } else {
+                throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasAllPermission");
+            }
+        } else {
+            throw new MisconfigurationException("kotowari.HAS_ALL_PERMISSION_WRONG_ARGS");
+        }
+    };
 
     protected void render(TemplatedHttpResponse response) {
         InputStream is = (InputStream) response.getBody();
@@ -73,6 +123,9 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
                         .findFirst()
                         .ifPresent(principal -> tres.getContext()
                                 .put(exports.getExportName(USER_PRINCIPAL), principal.getPrincipal()));
+                tres.getContext().put("hasPermission", templateEngine.createFunction(HAS_PERMISSION));
+                tres.getContext().put("hasAnyPermissions", templateEngine.createFunction(HAS_ANY_PERMISSIONS));
+                tres.getContext().put("hasAllPermissions", templateEngine.createFunction(HAS_ALL_PERMISSIONS));
             }
             if (exports.contains(SESSION)) {
                 tres.getContext().put(exports.getExportName(SESSION), request.getSession());

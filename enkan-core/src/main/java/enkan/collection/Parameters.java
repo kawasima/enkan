@@ -163,7 +163,7 @@ public class Parameters implements Map<String, Object>, Serializable {
             key = String.class.cast(key).toLowerCase(Locale.US);
         }
 
-        return params.get(key);
+        return params.get(key.toString());
     }
 
     public <T> List<T> getList(Object key, Object... keys) {

@@ -13,12 +13,9 @@ import javax.enterprise.context.Conversation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 import static enkan.util.ReflectionUtils.tryReflection;
-import static enkan.util.ThreadingUtils.some;
 
 /**
  * Kotowari endpoint.

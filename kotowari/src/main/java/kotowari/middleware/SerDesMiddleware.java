@@ -72,6 +72,10 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
     protected InputStream serialize(Object obj, MediaType mediaType) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+
+        if (obj == null) {
+            return new ByteArrayInputStream(new byte[0]);
+        }
         return bodyWriters.stream()
                 .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
                 .map(writer -> {

@@ -1,7 +1,6 @@
 package kotowari.example;
 
 import enkan.system.command.MetricsCommandRegister;
-import enkan.system.devel.DevelCommandRegister;
 import enkan.system.repl.PseudoRepl;
 import enkan.system.repl.ReplBoot;
 import enkan.system.repl.pseudo.ReplClient;
@@ -15,7 +14,6 @@ public class Main {
         PseudoRepl repl = new PseudoRepl(MyExampleSystemFactory.class.getName());
         ReplBoot.start(repl,
                 new KotowariCommandRegister(),
-                new DevelCommandRegister(),
                 new MetricsCommandRegister());
 
         new ReplClient().start(repl.getPort().get());

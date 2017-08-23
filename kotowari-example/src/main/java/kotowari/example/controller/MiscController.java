@@ -5,7 +5,6 @@ import enkan.data.HttpResponse;
 import enkan.data.Session;
 import kotowari.component.TemplateEngine;
 import kotowari.example.model.LoginPrincipal;
-import sun.misc.VM;
 
 import javax.inject.Inject;
 import java.io.File;
