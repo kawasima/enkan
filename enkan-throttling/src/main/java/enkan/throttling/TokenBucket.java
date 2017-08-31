@@ -36,7 +36,6 @@ public class TokenBucket {
      * Returns the amount of time in the specified time unit until the next group of tokens can be added to the token
      * bucket.
      *
-     * @see org.isomorphism.util.TokenBucket.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
      * @param unit The time unit to express the return value in.
      * @return The amount of time until the next group of tokens can be added to the token bucket.
      */
