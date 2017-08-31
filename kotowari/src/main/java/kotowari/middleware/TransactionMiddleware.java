@@ -25,7 +25,7 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
 
     @Override
     public RES handle(REQ req, MiddlewareChain next) {
-        RES res = null;
+        RES res;
         if (req instanceof Routable) {
             Routable routable = (Routable) req;
             Method m = routable.getControllerMethod();

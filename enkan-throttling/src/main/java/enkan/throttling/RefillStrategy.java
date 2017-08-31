@@ -1,5 +1,6 @@
 package enkan.throttling;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -11,9 +12,9 @@ public class RefillStrategy {
     private long lastRefillTime;
     private long nextRefillTime;
 
-    public RefillStrategy(long numTokensPerPeriod, long period, TimeUnit unit) {
+    public RefillStrategy(long numTokensPerPeriod, Duration duration) {
         this.numTokensPerPeriod = numTokensPerPeriod;
-        this.periodDurationInNanos = unit.toNanos(period);
+        this.periodDurationInNanos = duration.toNanos();
         this.lastRefillTime = -periodDurationInNanos;
         this.nextRefillTime = -periodDurationInNanos;
     }

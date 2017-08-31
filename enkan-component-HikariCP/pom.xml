@@ -14,13 +14,17 @@
     <packaging>jar</packaging>
 
     <name>enkan-component-HikariCP</name>
-    <url>http://maven.apache.org</url>
+    <url>http://github.com/kawasima/enkan</url>
+
+    <properties>
+        <hikaricp.version>2.6.3</hikaricp.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>2.6.0</version>
+            <version>${hikaricp.version}</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>

@@ -37,7 +37,7 @@
         <module>../enkan-component-metrics</module>
         <module>../kotowari</module>
         <module>../enkan-throttling</module>
-        <!--<module>../kotowari-scaffold</module>-->
+        <module>../kotowari-scaffold</module>
         <module>../kotowari-example</module>
 
     </modules>

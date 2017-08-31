@@ -34,6 +34,7 @@ public class ReflectionUtils {
         try {
             return runnable.run();
         } catch (InstantiationException e) {
+
             throw new MisconfigurationException("core.INSTANTIATION", e.getMessage(), e);
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();

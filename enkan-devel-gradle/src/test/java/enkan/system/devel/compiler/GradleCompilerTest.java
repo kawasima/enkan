@@ -64,7 +64,7 @@ public class GradleCompilerTest {
                 if (response.getStatus().contains(ReplResponse.ResponseStatus.ERROR)) {
                     assertTrue(response.getErr().contains("FAILURE"));
                 } else {
-                    assertTrue(response.getOut().contains("BUILD FAILED"));
+                    assertTrue(response.getOut().contains(":compileJava FAILED"));
                 }
             }
 

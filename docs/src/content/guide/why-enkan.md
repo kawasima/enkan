@@ -31,6 +31,6 @@ Enkan is a minimal framework inspired by [ring-clojure](https://github.com/ring-
 
 Kotowari is a minimal web framework on Enkan.
 
-- Rails-like routing
+- Routing like Ruby on Rails
 - HTML template rendering
-- Serialize/Deserialize a java object from various message formats.
+- Serialize/Deserialize a java object to/from various message formats.

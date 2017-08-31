@@ -1,18 +1,22 @@
 Enkan
-Copyright 2016 kawasima <kawasima1016@gmail.com>
+Copyright 2016-2017 kawasima <kawasima1016@gmail.com>
 
 Core library from
 https://github.com/ring-clojure/ring
-Copyright © 2009-2015 Mark McGranaghan, James Reeves & contributors.
+Copyright © 2009-2017 Mark McGranaghan, James Reeves & contributors.
 
 Enkan system from
 https://github.com/weavejester/duct
-Copyright © 2015 James Reeves
+Copyright © 2015-2017 James Reeves
 
-Conent negotiation from
+Content negotiation from
 https://github.com/clojure-liberator/liberator
 Copyright (c) The Liberator developers. All rights reserved.
 
 Multipart parser from
 https://github.com/rack/rack/
 Copyright (c) 2007-2015 Christian Neukirchen
+
+Token Bucket from
+https://github.com/bbeck/token-bucket
+Copyright 2012-2015 Brandon Beck

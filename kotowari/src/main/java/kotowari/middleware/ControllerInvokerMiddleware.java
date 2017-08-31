@@ -71,7 +71,9 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             } else if (bodyObj != null && bodyObj.getClass().equals(type)) {
                 arguments[parameterIndex] = bodyObj;
             } else {
-                throw new MisconfigurationException("PARAMETER_TYPE_MISMATCH", parameterIndex, type);
+                throw new MisconfigurationException("PARAMETER_TYPE_MISMATCH",
+                        method.getDeclaringClass().getSimpleName(),
+                        method.getName(), parameterIndex, type);
             }
             parameterIndex++;
         }

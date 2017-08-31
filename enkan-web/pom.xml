@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>57.1</version>
+            <version>59.1</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.4.0.Final</version>
+            <version>6.0.2.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
