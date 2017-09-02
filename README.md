@@ -1,6 +1,6 @@
 # enkan
 
-Enkan(円環) is a microframework implemented middleware pattern like ring or connect.  
+Enkan(円環) is a microframework implementing a middleware pattern like ring or connect.  
 
 [![CircleCI](https://circleci.com/gh/kawasima/enkan.svg?style=svg&circle-token=e3d88ba4abde99dabc9fe527d0681d236ff49548)](https://circleci.com/gh/kawasima/enkan)
 
@@ -59,7 +59,7 @@ Enkan(円環) is a microframework implemented middleware pattern like ring or co
 - Undertow
 - Doma2
 
-Using enkan and kotowari, your code is following
+Using enkan and kotowari, the following will be your code
 
 ```java
 public class ExampleController {
@@ -101,7 +101,7 @@ Add sonatype snapshots repository to your pom.xml
 
 ### EnkanSystem
 
-Enkan system is consist of components. Component is a singleton instance sharing data between requests.
+The Enkan system consist of components. A component is a singleton instance that shares data between requests.
 
 ```java
 EnkanSystem.of(
@@ -208,7 +208,7 @@ Connected to server (port = 35677)
 
 Kotowari is a web routing framework on Enkan.
 
-It's rails-like syntax in the routing definition.
+It provides a rails-like syntax for routing definition.
 
 ```java
 Routes routes = Routes.define(r -> {
