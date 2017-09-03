@@ -4,6 +4,8 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.component.BeansConverter;
 import enkan.data.*;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.middleware.AbstractWebMiddleware;
 import enkan.security.UserPrincipal;
 import enkan.util.MixinUtils;
@@ -27,7 +29,15 @@ public class FormMiddleware extends AbstractWebMiddleware {
     protected BeansConverter beans;
 
     protected <T extends Serializable> T createForm(Class<T> formClass, Map<String, ?> params) {
-        return beans.createFrom(params, formClass);
+        try {
+            return beans.createFrom(params, formClass);
+        } catch (ClassCastException e) {
+            if (!Serializable.class.isAssignableFrom(formClass)) {
+                throw new MisconfigurationException("kotowari.FORM_IS_NOT_SERIALIZABLE", formClass);
+            } else {
+                throw new UnreachableException(e);
+            }
+        }
     }
 
     @Override

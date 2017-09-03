@@ -5,11 +5,14 @@ import enkan.collection.Parameters;
 import enkan.component.jackson.JacksonBeansConverter;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
+import enkan.exception.MisconfigurationException;
 import enkan.middleware.NestedParamsMiddleware;
 import enkan.middleware.ParamsMiddleware;
+import kotowari.test.form.BadForm;
 import kotowari.test.form.NestedForm;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +85,23 @@ public class FormMiddlewareTest extends FormMiddleware {
         assertEquals("item1", form.getItem().getName());
         assertEquals(2, form.getItemList().size());
         assertEquals("item3", form.getItemList().get(1).getName());
+    }
+
+    @Test(expected = MisconfigurationException.class)
+    public void formIsSerializable() {
+        beans = new JacksonBeansConverter() {{
+            lifecycle().start(this);
+        }};
+        HttpRequest request = new DefaultHttpRequest();
+        request.setHeaders(Headers.empty());
+        request.setRequestMethod("GET");
+        request.setQueryString("a=b");
+
+        new ParamsMiddleware().paramsRequest(request);
+        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
+
+        Class<?> badFormClass = BadForm.class;
+        createForm((Class<? extends Serializable>) badFormClass, request.getParams());
     }
 
     @Test
