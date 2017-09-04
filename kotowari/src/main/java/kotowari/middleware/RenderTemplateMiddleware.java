@@ -57,7 +57,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
         }
     };
     private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
-        if (arguments.size() > 2) {
+        if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
                 return arguments.subList(1, arguments.size() - 1)
@@ -71,7 +71,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
         }
     };
     private static Function<List, Object> HAS_ALL_PERMISSIONS = arguments -> {
-        if (arguments.size() > 2) {
+        if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
                 return arguments.subList(1, arguments.size() - 1)
