@@ -60,7 +60,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
-                return arguments.subList(1, arguments.size() - 1)
+                return arguments.subList(1, arguments.size())
                         .stream()
                         .anyMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
             } else {
@@ -74,7 +74,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
-                return arguments.subList(1, arguments.size() - 1)
+                return arguments.subList(1, arguments.size())
                         .stream()
                         .allMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
             } else {
