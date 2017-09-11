@@ -56,6 +56,7 @@ public class ClassWatcher implements Runnable {
 
             try {
                 key = watchService.poll(3, TimeUnit.SECONDS);
+                if (key == null) continue;
             } catch (InterruptedException ex) {
                 return;
             }

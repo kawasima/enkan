@@ -1,6 +1,7 @@
 package kotowari.example.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.seasar.doma.Entity;
 import org.seasar.doma.Id;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Data
+@EqualsAndHashCode
 public class User {
     @Id
     private String id;

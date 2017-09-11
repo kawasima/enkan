@@ -1,6 +1,7 @@
 package kotowari.example.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.seasar.doma.Entity;
 import org.seasar.doma.GeneratedValue;
 import org.seasar.doma.GenerationType;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Data
+@EqualsAndHashCode
 public class Guestbook {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
