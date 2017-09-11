@@ -100,21 +100,23 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
 
         if (contentType != null && !HttpRequestUtils.isUrlEncodedForm(request)) {
             String[] mediaTypeTokens = contentType.split("/", 2);
-            MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
-            for (Parameter parameter : method.getParameters()) {
+            if (mediaTypeTokens.length != 2) {
+                MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
+                for (Parameter parameter : method.getParameters()) {
 
-                Class type = parameter.getType();
-                Type genericType = parameter.getParameterizedType();
+                    Class type = parameter.getType();
+                    Type genericType = parameter.getParameterizedType();
 
-                if (HttpRequest.class.isAssignableFrom(type)
-                        || Session.class.isAssignableFrom(type)
-                        || UserPrincipal.class.isAssignableFrom(type)
-                        || Map.class.isAssignableFrom(type)) {
-                    continue;
+                    if (HttpRequest.class.isAssignableFrom(type)
+                            || Session.class.isAssignableFrom(type)
+                            || UserPrincipal.class.isAssignableFrom(type)
+                            || Map.class.isAssignableFrom(type)) {
+                        continue;
+                    }
+
+                    ((BodyDeserializable) request).setDeserializedBody(
+                            deserialize(request, type, genericType, mediaType));
                 }
-
-                ((BodyDeserializable) request).setDeserializedBody(
-                        deserialize(request, type, genericType, mediaType));
             }
         }
 
