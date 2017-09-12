@@ -100,7 +100,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
 
         if (contentType != null && !HttpRequestUtils.isUrlEncodedForm(request)) {
             String[] mediaTypeTokens = contentType.split("/", 2);
-            if (mediaTypeTokens.length != 2) {
+            if (mediaTypeTokens.length == 2) {
                 MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
                 for (Parameter parameter : method.getParameters()) {
 
