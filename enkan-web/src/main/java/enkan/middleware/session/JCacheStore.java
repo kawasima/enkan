@@ -4,7 +4,9 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.Configuration;
+import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
 import java.util.UUID;
@@ -16,11 +18,18 @@ public class JCacheStore implements KeyValueStore {
     private Cache<String, Serializable> cache;
 
     public JCacheStore() {
+        this(null);
+    }
+
+    public JCacheStore(Factory<ExpiryPolicy> expiryPolicyFactory) {
         CachingProvider cachingProvider = Caching.getCachingProvider();
         CacheManager cacheManager = cachingProvider.getCacheManager();
 
-        Configuration<String, Serializable> config = new MutableConfiguration<String, Serializable>()
+        MutableConfiguration<String, Serializable> config = new MutableConfiguration<String, Serializable>()
                 .setTypes(String.class, Serializable.class);
+        if (expiryPolicyFactory != null) {
+            config.setExpiryPolicyFactory(expiryPolicyFactory);
+        }
         cache = cacheManager.getCache("session", String.class, Serializable.class);
         if (cache == null)
             cache = cacheManager.createCache("session", config);
