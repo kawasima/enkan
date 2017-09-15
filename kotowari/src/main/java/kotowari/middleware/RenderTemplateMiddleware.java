@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -41,6 +43,8 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
 
     @Inject
     private TemplateEngine templateEngine;
+
+    private Map<String, Function<List, Object>> userFunctions = Collections.emptyMap();
 
     private ExportSetting exports = ExportSetting.DEFAULT_EXPORTS;
     private static Function<List, Object> HAS_PERMISSION = arguments -> {
@@ -120,7 +124,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
                 Stream.of(request)
                         .filter(PrincipalAvailable.class::isInstance)
                         .map(PrincipalAvailable.class::cast)
-                        .findFirst()
+                        .findAny()
                         .ifPresent(principal -> tres.getContext()
                                 .put(exports.getExportName(USER_PRINCIPAL), principal.getPrincipal()));
                 tres.getContext().put("hasPermission", templateEngine.createFunction(HAS_PERMISSION));
@@ -146,8 +150,15 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
                 ConversationState conversationState = request.getConversationState();
                 tres.getContext().put(exports.getExportName(CONVERSATION_STATE), conversationState);
             }
+
+            userFunctions.entrySet().stream()
+                    .forEach(e -> tres.getContext().put(e.getKey(), templateEngine.createFunction(e.getValue())));
             render(tres);
         }
         return response;
+    }
+
+    public void setUserFunctions(Map<String, Function<List, Object>> userFunctions) {
+        this.userFunctions = userFunctions;
     }
 }
