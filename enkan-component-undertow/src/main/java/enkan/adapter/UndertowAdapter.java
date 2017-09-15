@@ -6,6 +6,7 @@ import enkan.collection.OptionMap;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 import enkan.exception.ServiceUnavailableException;
 import enkan.exception.UnreachableException;
 import io.undertow.Undertow;
@@ -17,6 +18,7 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import org.xnio.streams.ChannelInputStream;
 
+import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.security.*;
 
 /**
  * Undertow exchange adapter.
@@ -94,11 +97,10 @@ public class UndertowAdapter {
     }
 
     private void setOptions(Undertow.Builder builder, OptionMap options) {
-        if (options.containsKey("ioThreads")) builder = builder.setIoThreads(options.getInt("ioThreads"));
-        if (options.containsKey("workerThreads")) builder = builder.setWorkerThreads(options.getInt("workerThreads"));
-        if (options.containsKey("bufferSize")) builder = builder.setBufferSize(options.getInt("bufferSize"));
-        if (options.containsKey("buffersPerRegion")) builder = builder.setBuffersPerRegion(options.getInt("buffersPerRegion"));
-        if (options.containsKey("directBuffers")) builder = builder.setDirectBuffers(options.getBoolean("directBuffers"));
+        if (options.containsKey("ioThreads")) builder.setIoThreads(options.getInt("ioThreads"));
+        if (options.containsKey("workerThreads")) builder.setWorkerThreads(options.getInt("workerThreads"));
+        if (options.containsKey("bufferSize")) builder.setBufferSize(options.getInt("bufferSize"));
+        if (options.containsKey("directBuffers")) builder.setDirectBuffers(options.getBoolean("directBuffers"));
     }
 
     public Undertow runUndertow(WebApplication application, OptionMap options) {
@@ -146,13 +148,53 @@ public class UndertowAdapter {
         });
 
         setOptions(builder, options);
-        Undertow undertow = builder
-                .addHttpListener(
-                        options.getInt("port", 3000),
-                        options.getString("host", "0.0.0.0"))
-                .build();
+        if (options.getBoolean("http?", true)) {
+            builder.addHttpListener(options.getInt("port", 80),
+                    options.getString("host", "0.0.0.0"));
+        }
+
+        if (options.getBoolean("ssl?", false)) {
+            builder.addHttpsListener(options.getInt("sslPort", 443),
+                    options.getString("host", "0.0.0.0"),
+                    createSslContext(options));
+        }
+        Undertow undertow = builder.build();
         undertow.start();
 
         return undertow;
+    }
+
+    private SSLContext createSslContext(OptionMap options) {
+        try {
+            SSLContext context = SSLContext.getInstance("TLSv1.2");
+            KeyManager[] keyManagers = null;
+            TrustManager[] trustManagers = null;
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            KeyStore keystore = (KeyStore) options.get("keystore");
+            if (keystore != null) {
+                kmf.init(keystore, options.getString("keystorePassword", "").toCharArray());
+                keyManagers = kmf.getKeyManagers();
+            }
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            KeyStore truststore = (KeyStore) options.get("truststore");
+            if (truststore != null) {
+                tmf.init(truststore);
+                trustManagers = tmf.getTrustManagers();
+            }
+
+            context.init(keyManagers, trustManagers, null);
+            return context;
+        } catch (UnrecoverableKeyException e) {
+            throw new MisconfigurationException("core.UNRECOVERABLE_KEY", e.getMessage(), e);
+        } catch (NoSuchAlgorithmException e) {
+            // This cannot be thrown because it use only DefaultAlgorithm.
+            throw new UnreachableException(e);
+        } catch (KeyStoreException e) {
+            throw new MisconfigurationException("core.KEY_STORE", e.getMessage(), e);
+        } catch (KeyManagementException e) {
+            throw new MisconfigurationException("core.KEY_MANAGEMENT", e.getMessage(), e);
+        }
     }
 }

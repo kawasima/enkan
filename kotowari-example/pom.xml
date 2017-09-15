@@ -65,6 +65,11 @@
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-component-jetty</artifactId>
+            <version>${enkan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-component-doma2</artifactId>
             <version>${enkan.version}</version>
         </dependency>

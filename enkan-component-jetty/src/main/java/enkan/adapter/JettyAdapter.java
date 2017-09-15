@@ -49,26 +49,19 @@ public class JettyAdapter {
 
     private SslContextFactory createSslContextFactory(OptionMap options) {
         SslContextFactory context = new SslContextFactory();
-        Object keystoreObj = options.get("keystore");
-        if (keystoreObj instanceof String) {
-            context.setKeyStorePath((String) keystoreObj);
-        } else if (keystoreObj instanceof KeyStore) {
-            context.setKeyStore((KeyStore) keystoreObj);
+        Object keystore = options.get("keystore");
+        if (keystore instanceof KeyStore) {
+            context.setKeyStore((KeyStore) keystore);
         } else {
             throw new MisconfigurationException("");
         }
-        context.setKeyStorePassword(options.getString("keyPassword"));
+        context.setKeyStorePassword(options.getString("keystorePassword"));
 
-        Object trustStore = options.get("truststore");
-        if (trustStore instanceof String) {
-            context.setTrustStorePath((String) trustStore);
-        } else if (trustStore instanceof KeyStore) {
-            context.setTrustStore((KeyStore) trustStore);
+        Object truststore = options.get("truststore");
+         if (truststore instanceof KeyStore) {
+            context.setTrustStore((KeyStore) truststore);
         }
-
-        if (options.containsKey("trustPassword")) {
-            context.setTrustStorePassword(options.getString("trustPassword"));
-        }
+        context.setTrustStorePassword(options.getString("truststorePassword"));
 
         String clientAuth = options.getString("clientAuth", "none");
         switch (clientAuth) {
@@ -117,7 +110,7 @@ public class JettyAdapter {
             server.addConnector(createHttpConnector(server, options));
         }
 
-        if (options.getBoolean("ssl?", false) || options.getInt("sslPort", 0) != 0) {
+        if (options.getBoolean("ssl?", false)) {
             server.addConnector(createSslConnector(server, options));
         }
 

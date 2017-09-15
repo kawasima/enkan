@@ -16,12 +16,6 @@ import javax.validation.constraints.DecimalMin;
  * @author kawasima
  */
 public class JettyComponent extends WebServerComponent {
-    @DecimalMax("65535")
-    @DecimalMin("1")
-    private Integer port;
-
-    private String host;
-
     private Server server;
 
     public JettyComponent() {
@@ -35,9 +29,8 @@ public class JettyComponent extends WebServerComponent {
             public void start(JettyComponent component) {
                 ApplicationComponent app = getDependency(ApplicationComponent.class);
                 if (server == null) {
-                    OptionMap options = OptionMap.of("join?", false);
-                    if (port != null) options.put("port", port);
-                    if (host != null) options.put("host", host);
+                    OptionMap options = buildOptionMap();
+                    options.put("join?", false);
                     server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
                 }
             }
@@ -57,18 +50,5 @@ public class JettyComponent extends WebServerComponent {
 
             }
         };
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    @Override
-    public int getPort() {
-        return port;
     }
 }

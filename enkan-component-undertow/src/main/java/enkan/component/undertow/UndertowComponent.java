@@ -15,12 +15,6 @@ import javax.validation.constraints.DecimalMin;
  * @author kawasima
  */
 public class UndertowComponent extends WebServerComponent {
-    @DecimalMin("1")
-    @DecimalMax("65535")
-    private Integer port;
-
-    private String host;
-
     private Undertow server;
 
     @Override
@@ -30,9 +24,7 @@ public class UndertowComponent extends WebServerComponent {
             public void start(UndertowComponent component) {
                 ApplicationComponent app = getDependency(ApplicationComponent.class);
                 if (server == null) {
-                    OptionMap options = OptionMap.of("join?", false);
-                    if (port != null) options.put("port", port);
-                    if (host != null) options.put("host", host);
+                    OptionMap options = buildOptionMap();
                     server = new UndertowAdapter().runUndertow((WebApplication) app.getApplication(), options);
                 }
 
@@ -46,18 +38,5 @@ public class UndertowComponent extends WebServerComponent {
                 }
             }
         };
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    @Override
-    public int getPort() {
-        return port;
     }
 }

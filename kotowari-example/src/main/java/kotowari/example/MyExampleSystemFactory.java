@@ -9,6 +9,7 @@ import enkan.component.flyway.FlywayMigration;
 import enkan.component.freemarker.FreemarkerTemplateEngine;
 import enkan.component.hikaricp.HikariCPComponent;
 import enkan.component.jackson.JacksonBeansConverter;
+import enkan.component.jetty.JettyComponent;
 import enkan.component.metrics.MetricsComponent;
 import enkan.component.undertow.UndertowComponent;
 import enkan.config.EnkanSystemFactory;
@@ -33,7 +34,11 @@ public class MyExampleSystemFactory implements EnkanSystemFactory {
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
                 "app", new ApplicationComponent("kotowari.example.MyApplicationFactory"),
                 "http", builder(new UndertowComponent())
-                        .set(UndertowComponent::setPort, Env.getInt("PORT", 3000))
+                        .set(WebServerComponent::setPort, Env.getInt("PORT", 3000))
+                        .set(WebServerComponent::setSslPort, Env.getInt("SSL_PORT", 3002))
+                        .set(WebServerComponent::setSsl, Env.getInt("SSL_PORT", 0) != 0)
+                        .set(WebServerComponent::setKeystorePath, Env.get("KEYSTORE_PATH"))
+                        .set(WebServerComponent::setKeystorePassword, Env.get("KEYSTORE_PASSWORD"))
                         .build()
         ).relationships(
                 component("http").using("app"),
