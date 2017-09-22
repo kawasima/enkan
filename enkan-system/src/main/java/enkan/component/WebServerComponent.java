@@ -84,7 +84,7 @@ public abstract class WebServerComponent extends SystemComponent {
     }
 
     public void setKeystorePath(String keystorePath) {
-        if (keystorePath != null) {
+        if (keystorePath != null && !keystorePath.isEmpty()) {
             this.keystoreFile = new File(keystorePath);
         }
     }
@@ -126,7 +126,7 @@ public abstract class WebServerComponent extends SystemComponent {
     }
 
     public void setTruststorePath(String truststorePath) {
-        if (truststorePath != null) {
+        if (truststorePath != null && !truststorePath.isEmpty()) {
             this.truststoreFile = new File(truststorePath);
         }
     }

@@ -121,7 +121,9 @@ public class UndertowAdapter {
                 request.setCharacterEncoding(exchange.getRequestCharset());
                 request.setBody(new ChannelInputStream(exchange.getRequestChannel()));
                 request.setContentLength(exchange.getRequestContentLength());
-                request.setRemoteAddr(exchange.getSourceAddress().toString());
+                request.setRemoteAddr(exchange.getSourceAddress()
+                        .getAddress()
+                        .getHostAddress());
                 request.setScheme(exchange.getRequestScheme());
                 request.setServerName(exchange.getHostName());
                 request.setServerPort(exchange.getHostPort());

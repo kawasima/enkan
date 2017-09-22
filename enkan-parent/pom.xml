@@ -34,6 +34,7 @@
         <module>../enkan-component-flyway</module>
         <module>../enkan-component-doma2</module>
         <module>../enkan-component-jackson</module>
+        <module>../enkan-component-s2util-beans</module>
         <module>../enkan-component-metrics</module>
         <module>../kotowari</module>
         <module>../enkan-throttling</module>

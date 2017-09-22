@@ -21,6 +21,7 @@ import kotowari.routing.UrlRewriter;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -55,10 +56,10 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
         if (routing.containsKey("controller")) {
             controllerClass = (Class<?>) routing.get("controller");
             String action = routing.getString("action");
-            Optional<Method> actionMethod = Arrays.stream(controllerClass.getMethods())
+            Optional<Method> actionMethod = Arrays.stream(controllerClass.getDeclaredMethods())
                     .filter(m -> m.getName().equals(action))
-                    .findFirst();
-
+                    .filter(m -> Modifier.isPublic(m.getModifiers()))
+                    .findAny();
 
             if (actionMethod.isPresent()) {
                 ((Routable) request).setControllerMethod(actionMethod.get());
