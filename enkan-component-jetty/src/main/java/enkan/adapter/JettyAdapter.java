@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.util.function.BiFunction;
 
 /**
  * @author kawasima
@@ -106,7 +107,12 @@ public class JettyAdapter {
 
     private Server createServer(OptionMap options) {
         Server server = new Server(createThreadPool());
-        if (options.getBoolean("http?", true)) {
+
+        BiFunction<Server, OptionMap, ServerConnector> serverConnectorFactory = (BiFunction<Server, OptionMap, ServerConnector>) options.get("serverConnectorFactory");
+        if (serverConnectorFactory != null) {
+            Connector connector = serverConnectorFactory.apply(server, options);
+            server.addConnector(connector);
+        } else if (options.getBoolean("http?", true)) {
             server.addConnector(createHttpConnector(server, options));
         }
 
@@ -125,6 +131,8 @@ public class JettyAdapter {
         Server server = createServer(options);
         server.setHandler(new ProxyHandler(application));
         try {
+            server.setStopAtShutdown(true);
+            server.setStopTimeout(3000);
             server.start();
             if (options.getBoolean("join?", true)) {
                 server.join();

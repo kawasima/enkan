@@ -7,20 +7,19 @@ import enkan.component.ApplicationComponent;
 import enkan.component.ComponentLifecycle;
 import enkan.component.WebServerComponent;
 import enkan.exception.FalteringEnvironmentException;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
+import java.util.function.BiFunction;
 
 /**
  * @author kawasima
  */
 public class JettyComponent extends WebServerComponent {
     private Server server;
-
-    public JettyComponent() {
-
-    }
+    private BiFunction<Server, OptionMap, Connector> serverConnectorFactory;
 
     @Override
     protected ComponentLifecycle lifecycle() {
@@ -30,6 +29,7 @@ public class JettyComponent extends WebServerComponent {
                 ApplicationComponent app = getDependency(ApplicationComponent.class);
                 if (server == null) {
                     OptionMap options = buildOptionMap();
+                    if (serverConnectorFactory != null) options.put("serverConnectorFactory", serverConnectorFactory);
                     options.put("join?", false);
                     server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
                 }
@@ -50,5 +50,14 @@ public class JettyComponent extends WebServerComponent {
 
             }
         };
+    }
+
+    /**
+     * Set a factory of jetty connector.
+     *
+     * @param  factory A factory of Jetty connector
+     */
+    public void setServerConnectorFactory(BiFunction<Server, OptionMap, Connector> factory) {
+        this.serverConnectorFactory = factory;
     }
 }

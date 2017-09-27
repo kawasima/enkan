@@ -6,7 +6,10 @@ package enkan.exception;
  * @author kawasima
  */
 public class FalteringEnvironmentException extends UnrecoverableException {
+    public FalteringEnvironmentException() {
+        super("May be success if retry");
+    }
     public FalteringEnvironmentException(Throwable cause) {
-        super("Retry. May be success.", cause);
+        super("May be success if retry", cause);
     }
 }

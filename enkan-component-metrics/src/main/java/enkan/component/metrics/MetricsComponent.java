@@ -1,44 +1,58 @@
 package enkan.component.metrics;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
+import com.codahale.metrics.*;
 import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
+
+import java.util.Collections;
+import java.util.SortedSet;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
 /**
+ * Metrics component.
+ *
  * @author kawasima
  */
 public class MetricsComponent extends SystemComponent {
-    MetricRegistry metricRegistry;
+    private String metricName = "enkan";
+
     private Meter timeoutsMeter;
     private Meter errorsMeter;
     private Counter activeRequests;
     private Timer requestTimer;
+
+    final JmxReporter reporter;
+    final MetricRegistry metricRegistry;
+
+    public MetricsComponent() {
+        metricRegistry = new MetricRegistry();
+        reporter = JmxReporter.forRegistry(metricRegistry).build();
+    }
 
     @Override
     protected ComponentLifecycle<MetricsComponent> lifecycle() {
         return new ComponentLifecycle<MetricsComponent>() {
             @Override
             public void start(MetricsComponent component) {
-                String metricName = "enkan";
-                metricRegistry = new MetricRegistry();
                 component.timeoutsMeter = metricRegistry.meter(name(metricName, "timeouts"));
                 component.errorsMeter = metricRegistry.meter(name(metricName, "errors"));
                 component.activeRequests = metricRegistry.counter(name(metricName, "activeRequests"));
                 component.requestTimer = metricRegistry.timer(name(metricName, "requestTimer"));
+                reporter.start();
             }
 
             @Override
             public void stop(MetricsComponent component) {
-                metricRegistry = null;
+                SortedSet<String> names = Collections.unmodifiableSortedSet(metricRegistry.getNames());
+                names.stream().forEach(name -> metricRegistry.remove(name));
+
                 component.timeoutsMeter = null;
                 component.errorsMeter = null;
                 component.activeRequests = null;
                 component.requestTimer = null;
+
+                reporter.stop();
             }
         };
     }
@@ -57,5 +71,9 @@ public class MetricsComponent extends SystemComponent {
 
     public Counter getActiveRequests() {
         return activeRequests;
+    }
+
+    public void setMetricName(String metricName) {
+        this.metricName = metricName;
     }
 }
