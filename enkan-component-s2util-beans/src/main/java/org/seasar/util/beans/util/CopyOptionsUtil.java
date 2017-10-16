@@ -26,28 +26,28 @@ import org.seasar.util.beans.converter.TimestampConverter;
 
 /**
  * {@link CopyOptions}のインスタンス化を容易にするために{@literal static import}して使うためのユーティリティです。
- * 
+ *
  * <pre>
  * import static org.seasar.util.beans.util.CopyOptionsUtil.*;
- * 
+ *
  * copyBeanToBean(srcBean, destBean, excludeNull());
  * </pre>
  * <p>
  * {@literal CopyOptionsUtil}の戻り値は{@link CopyOptions}
  * なので、メソッドチェーンでオプションを複数指定することもできます。
  * </p>
- * 
+ *
  * <pre>
  * copyBeanToBean(srcBean, destBean, excludeNull().dateConverter("date", "MM/dd"));
  * </pre>
- * 
+ *
  * @author koichik
  */
 public abstract class CopyOptionsUtil {
 
     /**
      * 操作の対象に含めるプロパティ名を指定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param propertyNames
      *            プロパティ名の配列。{@literal null}や空配列であってはいけません
      * @return 操作の対象に含めるプロパティ名を指定した{@link CopyOptions}
@@ -59,7 +59,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 操作の対象に含めないプロパティ名を指定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param propertyNames
      *            プロパティ名の配列。{@literal null}や空配列であってはいけません
      * @return 操作の対象に含めないプロパティ名を指定した{@link CopyOptions}
@@ -71,7 +71,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * {@literal null}値のプロパティを操作の対象外にした{@link CopyOptions}を返します。
-     * 
+     *
      * @return {@literal null}値のプロパティを操作の対象外にした{@link CopyOptions}を返します。
      * @see CopyOptions#excludeNull()
      */
@@ -81,7 +81,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 空白のプロパティを操作の対象外にした{@link CopyOptions}を返します。
-     * 
+     *
      * @return 空白のプロパティを操作の対象外にした{@link CopyOptions}
      * @see CopyOptions#excludeWhitespace()
      */
@@ -95,7 +95,7 @@ public abstract class CopyOptionsUtil {
      * プレフィックスを指定すると、コピー元のプロパティ名がプレフィックスで始まるプロパティだけがコピーの対象となります。
      * また、コピー元のプロパティ名からプレフィックスを除去した名前がコピー先のプロパティ名となります。
      * </p>
-     * 
+     *
      * @param prefix
      *            プレフィックス。{@literal null}や空文字列であってはいけません
      * @return プレフィックスを指定した{@link CopyOptions}
@@ -112,7 +112,7 @@ public abstract class CopyOptionsUtil {
      * 例えばJavaBeans側のデリミタにアンダースコア、{@link Map}側のデリミタにピリオドを指定した場合、
      * コピー元とコピー先のプリパティ名は次のようになります。
      * </p>
-     * <table border="1">
+     * <table border="1" summary="The property name of JavaBeans">
      * <tr>
      * <th>JavaBeansのプロパティ名</th>
      * <th>{@literal Map}のプロパティ名</th>
@@ -130,7 +130,7 @@ public abstract class CopyOptionsUtil {
      * <td>{@literal foo.bar.baz}</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param beanDelimiter
      *            JavaBeansのデリミタ
      * @return JavaBeansのデリミタを設定した{@link CopyOptions}
@@ -147,7 +147,7 @@ public abstract class CopyOptionsUtil {
      * 例えばJavaBeans側のデリミタにアンダースコア、{@link Map}側のデリミタにピリオドを指定した場合、
      * コピー元とコピー先のプリパティ名は次のようになります。
      * </p>
-     * <table border="1">
+     * <table border="1" summary="The property name of JavaBeans">
      * <tr>
      * <th>JavaBeansのプロパティ名</th>
      * <th>{@literal Map}のプロパティ名</th>
@@ -165,7 +165,7 @@ public abstract class CopyOptionsUtil {
      * <td>{@literal foo.bar.baz}</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param mapDelimiter
      *            {@literal Map}のデリミタ
      * @return {@literal Map}のデリミタを設定した{@link CopyOptions}
@@ -177,7 +177,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * コンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param converter
      *            コンバータ。{@literal null}であってはいけません
      * @param propertyNames
@@ -192,7 +192,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 日付のコンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param pattern
      *            日付のパターン。{@literal null}や空文字列であってはいけません
      * @param propertyNames
@@ -208,7 +208,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * SQL用日付のコンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param pattern
      *            日付のパターン。{@literal null}や空文字列であってはいけません
      * @param propertyNames
@@ -224,7 +224,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 時間のコンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param pattern
      *            時間のパターン。{@literal null}や空文字列であってはいけません
      * @param propertyNames
@@ -240,7 +240,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 日時のコンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param pattern
      *            日時のパターン。{@literal null}や空文字列であってはいけません
      * @param propertyNames
@@ -256,7 +256,7 @@ public abstract class CopyOptionsUtil {
 
     /**
      * 数値のコンバータを設定した{@link CopyOptions}を返します。
-     * 
+     *
      * @param pattern
      *            数値のパターン。{@literal null}や空文字列であってはいけません
      * @param propertyNames

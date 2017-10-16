@@ -51,7 +51,7 @@ import static enkan.util.ReflectionUtils.tryReflection;
  * <pre>
  * DestBean destBean = copyBeanToNewBean(srcBean, DestBean.class);
  * DestBean destBean = copyMapToNewBean(srcMap, DestBean.class);
- * Map<String, Object> destMap = copyBeanToNewMap(srcBean);
+ * Map&gt;String, Object&lt; destMap = copyBeanToNewMap(srcBean);
  * </pre>
  * <p>
  * コピーする際のオプションを指定することも出来ます。

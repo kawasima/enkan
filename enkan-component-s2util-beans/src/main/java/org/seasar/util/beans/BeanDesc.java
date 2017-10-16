@@ -15,46 +15,45 @@
  */
 package org.seasar.util.beans;
 
-import java.lang.reflect.Constructor;
+import org.seasar.util.beans.factory.BeanDescFactory;
+
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
-
-import org.seasar.util.beans.factory.BeanDescFactory;
 
 /**
  * JavaBeansのメタデータを扱うためのインターフェースです。
  * <p>
  * {@link BeanDesc}のインスタンスは{@link BeanDescFactory}から取得します。
- * <p>
- * 
+ * </p>
+ *
  * <pre>
  * BeanDesc beanDesc = BeanDescFactory.getBeanDesc(Foo.class);
  * </pre>
  * <p>
  * 取得した{@link BeanDesc}から，対象となるJavaBeansのプロパティやフィールド、コンストラクタ、メソッドのメタデータを取得できます。
  * </p>
- * 
+ *
  * <pre>
  * for (PropertyDesc propertyDesc : beanDesc.getPropertyDescs()) {
  *     propertyDesc.getValue(foo); // Foo のプロパティの値を取得
  * }
- * 
+ *
  * for (FieldDesc fieldDesc : beanDesc.getFieldDescs()) {
  *     fieldDesc.getFileldValue(foo); // Foo のフィールドの値を取得
  * }
- * 
+ *
  * for (ConstructorDesc constructorDesc : beanDesc.getConstructorDescs()) {
  *     constructorDesc.newInstance(...); // Foo のインスタンスを生成
  * }
- * 
+ *
  * for (String methodName : beanDesc.getMethodNames()) {
  *     for (MethodDesc methodDesc : beanDesc.getMethodDescs(methodName)) {
  *         methodDesc.invoke(foo, ...); // Foo のメソッドを起動
  *     }
  * }
  * </pre>
- * 
+ *
  * @author higa
  * @see BeanDescFactory
  */
@@ -62,7 +61,7 @@ public interface BeanDesc {
 
     /**
      * Beanのクラスを返します。
-     * 
+     *
      * @param <T>
      *            Beanのクラス
      * @return Beanのクラス
@@ -71,14 +70,14 @@ public interface BeanDesc {
 
     /**
      * 型変数から型引数へのマップを返します。
-     * 
+     *
      * @return 型変数から型引数へのマップ
      */
     Map<TypeVariable<?>, Type> getTypeVariables();
 
     /**
      * {@link PropertyDesc}を持っているかどうかを返します。
-     * 
+     *
      * @param propertyName
      *            プロパティ名。{@literal null}や空文字列であってはいけません
      * @return {@link PropertyDesc}を持っているかどうか
@@ -87,7 +86,7 @@ public interface BeanDesc {
 
     /**
      * {@link PropertyDesc}を返します。
-     * 
+     *
      * @param propertyName
      *            プロパティ名。{@literal null}や空文字列であってはいけません
      * @return {@link PropertyDesc}
@@ -96,7 +95,7 @@ public interface BeanDesc {
 
     /**
      * {@link PropertyDesc}を返します。
-     * 
+     *
      * @param index
      *            {@link PropertyDesc}のインデックス
      * @return {@link PropertyDesc}
@@ -105,21 +104,21 @@ public interface BeanDesc {
 
     /**
      * {@link PropertyDesc}の数を返します。
-     * 
+     *
      * @return {@link PropertyDesc}の数
      */
     int getPropertyDescSize();
 
     /**
      * {@link PropertyDesc}の{@link Iterable}を返します。
-     * 
+     *
      * @return {@link PropertyDesc}の{@link Iterable}
      */
     Iterable<PropertyDesc> getPropertyDescs();
 
     /**
      * {@link FieldDesc}を持っているかどうかを返します。
-     * 
+     *
      * @param fieldName
      *            フィールド名。{@literal null}や空文字列であってはいけません
      * @return {@link FieldDesc}を持っているかどうか
@@ -128,7 +127,7 @@ public interface BeanDesc {
 
     /**
      * {@link FieldDesc}を返します。
-     * 
+     *
      * @param fieldName
      *            フィールド名。{@literal null}や空文字列であってはいけません
      * @return {@link FieldDesc}
@@ -137,7 +136,7 @@ public interface BeanDesc {
 
     /**
      * {@link FieldDesc}を返します。
-     * 
+     *
      * @param index
      *            {@link FieldDesc}のインデックス
      * @return {@link FieldDesc}
@@ -146,21 +145,21 @@ public interface BeanDesc {
 
     /**
      * {@link FieldDesc}の数を返します。
-     * 
+     *
      * @return {@link FieldDesc}の数
      */
     int getFieldDescSize();
 
     /**
      * {@link FieldDesc}の{@link Iterable}を返します。
-     * 
+     *
      * @return {@link FieldDesc}の{@link Iterable}
      */
     Iterable<FieldDesc> getFieldDescs();
 
     /**
      * 新しいインスタンスを作成します。
-     * 
+     *
      * @param <T>
      *            Beanクラスの型
      * @param args
@@ -171,7 +170,7 @@ public interface BeanDesc {
 
     /**
      * 引数の型に応じた{@link ConstructorDesc}を返します。
-     * 
+     *
      * @param paramTypes
      *            コンストラクタに渡す引数型の並び
      * @return 引数の型に応じた{@link ConstructorDesc}
@@ -180,16 +179,16 @@ public interface BeanDesc {
 
     /**
      * 引数に適合する{@link ConstructorDesc}を返します。
-     * 
+     *
      * @param args
      *            コンストラクタに渡す引数の並び
-     * @return 引数に適合する{@link Constructor}
+     * @return 引数に適合するConstructor
      */
     ConstructorDesc getSuitableConstructorDesc(Object... args);
 
     /**
      * {@link ConstructorDesc}を返します。
-     * 
+     *
      * @param index
      *            {@link ConstructorDesc}のインデックス
      * @return {@link ConstructorDesc}
@@ -198,21 +197,21 @@ public interface BeanDesc {
 
     /**
      * {@link ConstructorDesc}の数を返します。
-     * 
+     *
      * @return {@link ConstructorDesc}の数
      */
     int getConstructorDescSize();
 
     /**
      * {@link ConstructorDesc}の{@link Iterable}を返します。
-     * 
+     *
      * @return {@link ConstructorDesc}の{@link Iterable}
      */
     Iterable<ConstructorDesc> getConstructorDescs();
 
     /**
      * 引数の型に応じた{@link MethodDesc}を返します。
-     * 
+     *
      * @param methodName
      *            メソッド名。{@literal null}や空文字列であってはいけません
      * @param paramTypes
@@ -223,7 +222,7 @@ public interface BeanDesc {
 
     /**
      * 引数の型に応じた{@link MethodDesc}を返します。見つからない場合は、{@literal null}を返します。
-     * 
+     *
      * @param methodName
      *            メソッド名。{@literal null}や空文字列であってはいけません
      * @param paramTypes
@@ -235,7 +234,7 @@ public interface BeanDesc {
 
     /**
      * 引数に適合する{@link MethodDesc}を返します。
-     * 
+     *
      * @param methodName
      *            メソッド名。{@literal null}や空文字列であってはいけません
      * @param args
@@ -246,7 +245,7 @@ public interface BeanDesc {
 
     /**
      * {@link MethodDesc}があるかどうか返します。
-     * 
+     *
      * @param methodName
      *            メソッド名。{@literal null}や空文字列であってはいけません
      * @return {@link MethodDesc}があるかどうか
@@ -255,7 +254,7 @@ public interface BeanDesc {
 
     /**
      * {@link MethodDesc}の配列を返します。
-     * 
+     *
      * @param methodName
      *            メソッド名。{@literal null}や空文字列であってはいけません
      * @return {@link MethodDesc}の配列
@@ -264,7 +263,7 @@ public interface BeanDesc {
 
     /**
      * メソッド名の配列を返します。
-     * 
+     *
      * @return メソッド名の配列
      */
     String[] getMethodNames();

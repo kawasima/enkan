@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.2.1-SNAPSHOT</version>
+        <version>0.2.1</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -17,7 +17,7 @@
     <description>An example of Kotowari application</description>
 
     <properties>
-        <enkan.version>0.2.1-SNAPSHOT</enkan.version>
+        <enkan.version>0.2.1</enkan.version>
     </properties>
 
     <build>
