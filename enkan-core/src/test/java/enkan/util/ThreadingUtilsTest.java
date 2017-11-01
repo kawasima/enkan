@@ -1,8 +1,7 @@
 package enkan.util;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URI;
@@ -10,9 +9,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
 
-import static enkan.util.ThreadingUtils.partial;
-import static enkan.util.ThreadingUtils.some;
-import static org.junit.Assert.*;
+import static enkan.util.ThreadingUtils.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -24,14 +22,14 @@ public class ThreadingUtilsTest {
                 env -> env.get("HOME1"), // Null
                 String::isEmpty,
                 Object::toString);
-        assertFalse(booleanName.isPresent());
+        assertThat(booleanName.isPresent()).isFalse();
     }
 
     @Test
     public void file() {
         String path = "^/hoge";
         Optional<URL> url = ThreadingUtils.some(path, File::new, File::toURI, URI::toURL);
-        assertTrue(url.isPresent());
+        assertThat(url.isPresent()).isTrue();
     }
 
     @Test
@@ -40,12 +38,11 @@ public class ThreadingUtilsTest {
 
         Optional<String> encoded = some(str,
                 partial(URLEncoder::encode, "UTF-8"));
-        assertTrue(encoded.isPresent());
+        assertThat(encoded.isPresent()).isTrue();
 
         str = null;
         //noinspection ConstantConditions
         encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, "UTF-8"));
-        Assert.assertFalse(encoded.isPresent());
+        assertThat(encoded.isPresent()).isFalse();
     }
-
 }

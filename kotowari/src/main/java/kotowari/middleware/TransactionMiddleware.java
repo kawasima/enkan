@@ -41,13 +41,13 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
                         } catch (NotSupportedException e) {
                             throw new UnreachableException(e);
                         } catch (SystemException e) {
-                            throw new MisconfigurationException("kotowari.TX_UNEXPECTED_CONDITION", e);
+                            throw new MisconfigurationException("kotowari.TX_UNEXPECTED_CONDITION", e.errorCode, e);
                         } catch (HeuristicMixedException e) {
-                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_MIXED", e);
+                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_MIXED", e.getMessage(), e);
                         } catch (HeuristicRollbackException e) {
-                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_ROLLBACK", e);
+                            throw new MisconfigurationException("kotowari.TX_HEURISTIC_ROLLBACK", e.getMessage(), e);
                         } catch (RollbackException e) {
-                            throw new MisconfigurationException("kotowari.TX_ROLLBACK", e);
+                            throw new MisconfigurationException("kotowari.TX_ROLLBACK", e.getMessage(), e);
                         }
                         break;
                     default:

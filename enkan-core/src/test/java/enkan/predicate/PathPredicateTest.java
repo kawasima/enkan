@@ -4,12 +4,10 @@ import enkan.data.UriAvailable;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static enkan.predicate.PathPredicate.ANY;
-import static enkan.predicate.PathPredicate.GET;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static enkan.predicate.PathPredicate.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -26,20 +24,18 @@ public class PathPredicateTest {
 
     @Test
     public void anyMethod() {
-        assertTrue(ANY("/any").test(new Request("/any", "GET")));
-        assertTrue(ANY("/any").test(new Request("/any", "POST")));
-        assertFalse(ANY("/any").test(new Request("/anyy", "GET")));
+        assertThat(ANY("/any").test(new Request("/any", "GET"))).isTrue();
+        assertThat(ANY("/any").test(new Request("/any", "POST"))).isTrue();
+        assertThat(ANY("/any").test(new Request("/anyy", "GET"))).isFalse();
 
-        assertTrue(ANY("/any/?.*").test(new Request("/any", "POST")));
-        assertFalse(ANY("/any(/?$|/.*)").test(new Request("/anyo", "POST")));
-        assertTrue(ANY("/any/?.*").test(new Request("/any/asvao", "POST")));
+        assertThat(ANY("/any/?.*").test(new Request("/any", "POST"))).isTrue();
+        assertThat(ANY("/any(/?$|/.*)").test(new Request("/anyo", "POST"))).isFalse();
+        assertThat(ANY("/any/?.*").test(new Request("/any/asvao", "POST"))).isTrue();
     }
 
     @Test
     public void getMethod() {
-        assertTrue(GET("/get").test(new Request("/get", "GET")));
-        assertFalse(GET("/get").test(new Request("/get", "POST")));
+        assertThat(GET("/get").test(new Request("/get", "GET"))).isTrue();
+        assertThat(GET("/get").test(new Request("/get", "POST"))).isFalse();
     }
-
-
 }

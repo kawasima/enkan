@@ -6,12 +6,11 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.1.2</version>
+        <version>0.2.2-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>docs</artifactId>
-    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>docs</name>
@@ -99,7 +98,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.22</version>
+            <version>1.7.25</version>
         </dependency>
     </dependencies>
 

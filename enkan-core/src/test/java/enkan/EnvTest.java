@@ -1,15 +1,15 @@
 package enkan;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
  */
 public class EnvTest {
-    @BeforeClass
+    @BeforeAll
     public static void setupProperties() {
         System.setProperty("test.prop", "1234");
         // Overwrite the value from file
@@ -18,15 +18,14 @@ public class EnvTest {
 
     @Test
     public void fromProperty() {
-
-        assertEquals(1234, Env.getInt("TEST_PROP", 3));
-        assertEquals(1234, Env.getInt("test.prop", 3));
-        assertEquals(3, Env.getInt("test-prop", 3));
+        assertThat(Env.getInt("TEST_PROP", 3)).isEqualTo(1234);
+        assertThat(Env.getInt("test.prop", 3)).isEqualTo(1234);
+        assertThat(Env.getInt("test-prop", 3)).isEqualTo(3);
     }
 
     @Test
     public void fromFile() {
-        assertEquals(1234, Env.getLong("aaa.bbb", 3));
-        assertEquals(5678, Env.getLong("ccc.ddd", 0));
+        assertThat(Env.getLong("aaa.bbb", 3)).isEqualTo(1234);
+        assertThat(Env.getLong("ccc.ddd", 0)).isEqualTo(5678);
     }
 }

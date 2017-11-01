@@ -18,25 +18,25 @@ public class Multimap<K, V> implements Map<K, V> {
         return new Multimap<>();
     }
 
-    public static <K, V> Multimap of(K k1, V v1) {
+    public static <K, V> Multimap<K, V> of(K k1, V v1) {
         Multimap<K, V> m = new Multimap<>();
         m.put(k1, v1);
         return m;
     }
 
-    public static <K, V> Multimap of(K k1, V v1, K k2, V v2) {
+    public static <K, V> Multimap<K, V> of(K k1, V v1, K k2, V v2) {
         Multimap<K, V> m = Multimap.of(k1, v1);
         m.put(k2, v2);
         return m;
     }
 
-    public static <K, V> Multimap of(K k1, V v1, K k2, V v2, K k3, V v3) {
+    public static <K, V> Multimap<K, V> of(K k1, V v1, K k2, V v2, K k3, V v3) {
         Multimap<K, V> m = Multimap.of(k1, v1, k2, v2);
         m.put(k3, v3);
         return m;
     }
 
-    public static <K, V> Multimap of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
+    public static <K, V> Multimap<K, V> of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
         Multimap<K, V> m = Multimap.of(k1, v1, k2, v2, k3, v3);
         m.put(k4, v4);
         return m;

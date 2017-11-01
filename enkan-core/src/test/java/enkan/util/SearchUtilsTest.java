@@ -1,10 +1,10 @@
 package enkan.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -19,25 +19,25 @@ public class SearchUtilsTest {
     @Test
     public void match() {
         byte[] sought = new byte[]{ 3,3,8,3 };
-        assertEquals(24, SearchUtils.kmp(buf, sought));
+        assertThat(SearchUtils.kmp(buf, sought)).isEqualTo(24);
     }
 
     @Test
     public void notMatch() {
         byte[] sought = new byte[]{ 3,3,9,3 };
-        assertEquals(-1, SearchUtils.kmp(buf, sought));
+        assertThat(SearchUtils.kmp(buf, sought)).isEqualTo(-1);
     }
 
     @Test
     public void empty() {
         byte[] sought = new byte[]{};
-        assertEquals(-1, SearchUtils.kmp(buf, sought));
+        assertThat(SearchUtils.kmp(buf, sought)).isEqualTo(-1);
     }
 
     @Test
     public void oneByte() {
         byte[] sought = new byte[]{9};
-        assertEquals(5, SearchUtils.kmp(buf, sought));
+        assertThat(SearchUtils.kmp(buf, sought)).isEqualTo(5);
     }
 
     @Test
@@ -47,7 +47,6 @@ public class SearchUtilsTest {
         directBuf.flip();
 
         byte[] sought = new byte[]{ 3,3,8,3 };
-        assertEquals(24, SearchUtils.kmp(directBuf, sought));
+        assertThat(SearchUtils.kmp(directBuf, sought)).isEqualTo(24);
     }
-
 }

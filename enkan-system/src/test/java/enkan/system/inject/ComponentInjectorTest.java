@@ -3,15 +3,15 @@ package enkan.system.inject;
 import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
 import enkan.exception.MisconfigurationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class ComponentInjectorTest {
     private Map<String, SystemComponent> componentMap;
 
-    @Before
+    @BeforeEach
     public void setup() {
         componentMap = new HashMap<>();
     }
@@ -31,7 +31,7 @@ public class ComponentInjectorTest {
         ComponentInjector injector = new ComponentInjector(componentMap);
         InjectTarget1 target1 = new InjectTarget1();
         injector.inject(target1);
-        assertEquals("A", target1.tc.getId());
+        assertThat(target1.tc.getId()).isEqualTo("A");
     }
 
     @Test
@@ -42,7 +42,7 @@ public class ComponentInjectorTest {
         ComponentInjector injector = new ComponentInjector(componentMap);
         InjectTarget2 target2 = new InjectTarget2();
         injector.inject(target2);
-        assertEquals("B", target2.tc.getId());
+        assertThat(target2.tc.getId()).isEqualTo("B");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ComponentInjectorTest {
             injector.inject(target2);
             fail("MisconfigurationException will occur");
         } catch (MisconfigurationException ex) {
-            assertTrue(ex.getSolution().contains("MyNameIsB"));
+            assertThat(ex.getSolution().contains("MyNameIsB")).isTrue();
         }
     }
 

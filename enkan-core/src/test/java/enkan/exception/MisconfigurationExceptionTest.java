@@ -1,8 +1,8 @@
 package enkan.exception;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -13,8 +13,8 @@ public class MisconfigurationExceptionTest {
         try {
             throw new MisconfigurationException("core.MIDDLEWARE_DEPENDENCY", "A", "B");
         } catch (MisconfigurationException ex) {
-            assertNotNull(ex.getProblem());
-            assertNotNull(ex.getSolution());
+            assertThat(ex.getProblem()).isNotNull();
+            assertThat(ex.getSolution()).isNotNull();
         }
     }
 }

@@ -11,20 +11,20 @@ import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
 import enkan.predicate.AnyPredicate;
 import enkan.util.MixinUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.transaction.Transactional;
-
 import java.lang.reflect.Method;
 
-import static enkan.util.BeanBuilder.builder;
-import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.BeanBuilder.*;
+import static enkan.util.ReflectionUtils.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
  */
 public class DomaTransactionMiddlewareTest {
-    @Test(expected = MisconfigurationException.class)
+    @Test
     public void configuration() {
         DomaTransactionMiddleware middleware = new DomaTransactionMiddleware<>();
         HttpRequest request = MixinUtils.mixin(new DefaultHttpRequest(), Routable.class);
@@ -34,11 +34,11 @@ public class DomaTransactionMiddlewareTest {
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                                 .build());
 
-        HttpResponse res = (HttpResponse) tryReflection(() -> {
+        assertThatThrownBy(() -> tryReflection(() -> {
             Method controllerMethod = TestController.class.getMethod("index");
             Routable.class.cast(request).setControllerMethod(controllerMethod);
             return middleware.handle(request, chain);
-        });
+        })).isExactlyInstanceOf(MisconfigurationException.class);
     }
 
     private static class TestController {

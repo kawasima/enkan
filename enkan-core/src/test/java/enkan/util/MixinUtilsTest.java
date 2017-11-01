@@ -1,9 +1,8 @@
 package enkan.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -14,19 +13,24 @@ public class MixinUtilsTest {
         Money m1 = new MoneyImpl(5);
         m1 = MixinUtils.mixin(m1, ComparableMoney.class);
 
-        assertTrue(ComparableMoney.class.cast(m1).isBigger(new MoneyImpl(3)));
+        assertThat(ComparableMoney.class.cast(m1).isBigger(new MoneyImpl(3)))
+                .isTrue();
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void argumentIsNotInterface() {
-        ImplOnly impl = new ImplOnly();
-        impl = MixinUtils.mixin(impl, ComparableMoney.class);
+        assertThatThrownBy(() -> {
+            ImplOnly impl = new ImplOnly();
+            MixinUtils.mixin(impl, ComparableMoney.class);
+        }).isExactlyInstanceOf(ClassCastException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void proxyImplClass() {
-        ImplOnly impl = new ImplOnly();
-        impl = MixinUtils.mixin(impl, MoneyImpl.class);
+        assertThatThrownBy(() -> {
+            ImplOnly impl = new ImplOnly();
+            MixinUtils.mixin(impl, MoneyImpl.class);
+        }).isExactlyInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -34,7 +38,7 @@ public class MixinUtilsTest {
         Money m1 = new MoneyImpl(5);
         m1 = MixinUtils.mixin(m1, ComparableMoney.class);
         Money m2 = MixinUtils.mixin(m1, ComparableMoney.class);
-        Assert.assertEquals(m2, m1);
+        assertThat(m2).isEqualTo(m1);
     }
 
     public static class MoneyImpl implements Money {

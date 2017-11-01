@@ -2,9 +2,9 @@ package enkan.system;
 
 import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -30,7 +30,7 @@ public class EnkanSystemTest {
             }
         };
         EnkanSystem system = EnkanSystem.of("c1", c1, "c2", c2);
-        assertEquals(2, system.getAllComponents().size());
-        assertEquals("c2 component", system.getComponent("c2").toString());
+        assertThat(system.getAllComponents().size()).isEqualTo(2);
+        assertThat(system.getComponent("c2").toString()).isEqualTo("c2 component");
     }
 }

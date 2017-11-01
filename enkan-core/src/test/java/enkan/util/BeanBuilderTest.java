@@ -1,12 +1,12 @@
 package enkan.util;
 
 import enkan.exception.MisconfigurationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima

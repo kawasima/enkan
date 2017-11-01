@@ -32,3 +32,8 @@ public List<Customer> list() {
 ```
 
 You don't need any annotations! `SerDesMiddleware` converts the Java object to the appropriate format.
+
+## Internationalization
+
+ContentNegotiationMiddleware decides an optimal language for each user.
+

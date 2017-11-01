@@ -2,6 +2,7 @@ package enkan.middleware.devel;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
+import enkan.collection.Headers;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
@@ -13,14 +14,12 @@ import net.unit8.moshas.Snippet;
 import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static enkan.util.BeanBuilder.builder;
 import static net.unit8.moshas.RenderUtils.text;
 
 /**
@@ -34,7 +33,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/css/primer.css"), StandardCharsets.ISO_8859_1))) {
             primer = reader.lines().collect(Collectors.joining());
-        } catch (IOException e) {
+        } catch (Exception e) {
             primer = "";
         }
     }
@@ -63,7 +62,10 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     }
     protected HttpResponse<String> htmlUnreachableExResponse(UnreachableException ex) {
         Template template = moshas.describe("templates/unreachable.html", t -> {});
-        return render(template);
+        return builder(render(template))
+                .set(HttpResponse::setStatus, 500)
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html; charset=UTF-8"))
+                .build();
     }
 
     protected HttpResponse htmlMisconfigExResponse(MisconfigurationException ex, HttpRequest request) {
@@ -85,14 +87,18 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
             t.select(".request .remote-addr", text("request", "remoteAddr"));
             t.select(".request .parameters", text("request", "params"));
         });
-        return render(template, "exception", ex, "request", request);
+        return builder(render(template, "exception", ex, "request", request))
+                .set(HttpResponse::setStatus, 500)
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html; charset=UTF-8"))
+                .build();
     }
 
     protected HttpResponse htmlExResponse(Throwable ex) {
         Snippet snippet = stackTraceElementSnippet;
         Template template = moshas.describe("templates/stacktrace.html", t -> {
             t.select("#class-name", (el, ctx) -> el.text(
-                    ctx.get("exception") + ":" + ctx.getString("exception","message")));
+                    ctx.get("exception").getClass().getName()));
+            t.select(".message", (el, ctx) -> el.text(ctx.getString("exception","message")));
             t.select(".trace table tbody", (el, ctx) -> {
                 el.empty();
                 ctx.getCollection("exception", "stackTrace").forEach(
@@ -101,13 +107,21 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
             });
         });
 
-        return render(template, "exception", ex);
+        return builder(render(template, "exception", ex))
+                .set(HttpResponse::setStatus, 500)
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html; charset=UTF-8"))
+                .build();
     }
 
     protected HttpResponse exResponse(HttpRequest request, Throwable ex) {
         String accept = request.getHeaders().get("accept");
         if (accept != null && accept.matches("^text/javascript")) {
-            return null;
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            return builder(HttpResponse.of(sw.toString()))
+                    .set(HttpResponse::setStatus, 500)
+                    .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/javascript"))
+                    .build();
         } else {
             if (ex instanceof UnreachableException) {
                 return htmlUnreachableExResponse((UnreachableException) ex);

@@ -4,6 +4,7 @@ import enkan.util.MergeableResourceBundleControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -35,10 +36,9 @@ public class MisconfigurationException extends UnrecoverableException {
                 .map(arg -> (Throwable) arg)
                 .findFirst().orElse(null));
         String problemFmt = misconfigurationMessages.getString(code + ".problem");
-        problem = String.format(Locale.US, problemFmt, arguments);
-
+        problem = new MessageFormat(problemFmt, misconfigurationMessages.getLocale()).format(arguments);
         String solutionFmt = misconfigurationMessages.getString(code + ".solution");
-        solution = String.format(Locale.US, solutionFmt, arguments);
+        solution = new MessageFormat(solutionFmt, misconfigurationMessages.getLocale()).format(arguments);
 
     }
 

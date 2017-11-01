@@ -42,7 +42,7 @@ public class ValidateFormMiddleware<RES> implements Middleware<HttpRequest, RES>
     public RES handle(HttpRequest request, MiddlewareChain next) {
 
         Optional<Validatable> validatableForm = ThreadingUtils.some(getValidatableForm(request), form -> {
-            Multimap<String, String> errors = Multimap.empty();
+            Multimap<String, Object> errors = Multimap.empty();
             Set<ConstraintViolation<Object>> violations = validator.validate(form);
             for (ConstraintViolation<Object> violation : violations) {
                 errors.add(violation.getPropertyPath().toString(), violation.getMessage());

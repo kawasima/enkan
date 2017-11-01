@@ -1,12 +1,12 @@
 package enkan.util;
 
 import enkan.exception.MisconfigurationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -17,12 +17,12 @@ public class ReflectionUtilsTest {
         try {
             ReflectionUtils.tryReflection(() -> {
                 Method m = TestPrivate.class.getDeclaredMethod("forbidden");
-                assertNotNull(m);
+                assertThat(m).isNotNull();
                 return m.invoke(new TestPrivate());
             });
-            fail();
+            fail("Unreachable");
         } catch (MisconfigurationException ex) {
-            assertEquals("core.ILLEGAL_ACCESS", ex.getCode());
+            assertThat(ex.getCode()).isEqualTo("core.ILLEGAL_ACCESS");
         }
     }
 
@@ -32,7 +32,7 @@ public class ReflectionUtilsTest {
         try {
             ReflectionUtils.tryReflection(() -> TestPrivate.class.getDeclaredField("no-such-field"));
         } catch (MisconfigurationException ex) {
-            assertEquals("core.NO_SUCH_FIELD", ex.getCode());
+            assertThat(ex.getCode()).isEqualTo("core.NO_SUCH_FIELD");
         }
     }
 
@@ -42,7 +42,7 @@ public class ReflectionUtilsTest {
             //noinspection JavaReflectionMemberAccess
             ReflectionUtils.tryReflection(() -> TestPrivate.class.getDeclaredMethod("no-such-method"));
         } catch (MisconfigurationException ex) {
-            assertEquals("core.NO_SUCH_METHOD", ex.getCode());
+            assertThat(ex.getCode()).isEqualTo("core.NO_SUCH_METHOD");
         }
     }
 
@@ -51,7 +51,7 @@ public class ReflectionUtilsTest {
         try {
             ReflectionUtils.tryReflection(() -> Class.forName("no.such.clazz"));
         } catch (MisconfigurationException ex) {
-            assertEquals("core.CLASS_NOT_FOUND", ex.getCode());
+            assertThat(ex.getCode()).isEqualTo("core.CLASS_NOT_FOUND");
         }
     }
 
@@ -60,7 +60,7 @@ public class ReflectionUtilsTest {
         try {
             ReflectionUtils.tryReflection(InstantiationableClass.class::newInstance);
         } catch (MisconfigurationException ex) {
-            assertEquals("core.INSTANTIATION", ex.getCode());
+            assertThat(ex.getCode()).isEqualTo("core.INSTANTIATION");
         }
 
     }
@@ -71,12 +71,12 @@ public class ReflectionUtilsTest {
         }
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void occursInvocationTargetException() {
-        ReflectionUtils.tryReflection(() -> {
+        assertThatThrownBy(() -> ReflectionUtils.tryReflection(() -> {
             InvocationTarget t = new InvocationTarget();
             return InvocationTarget.class.getMethod("throwRuntimeException").invoke(t);
-        });
+        })).isExactlyInstanceOf(NumberFormatException.class);
     }
 
     @Test
@@ -86,9 +86,9 @@ public class ReflectionUtilsTest {
                 InvocationTarget t = new InvocationTarget();
                 return InvocationTarget.class.getMethod("throwCheckedException").invoke(t);
             });
-            fail();
+            fail("Unreachable");
         } catch (RuntimeException ex) {
-            assertEquals(IOException.class, ex.getCause().getClass());
+            assertThat(ex.getCause()).isOfAnyClassIn(IOException.class);
         }
     }
 

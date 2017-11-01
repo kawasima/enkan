@@ -6,12 +6,11 @@ import enkan.security.UserPrincipal;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -52,11 +51,11 @@ public class PermissionPredicateTest {
         PrincipalRequest req = new PrincipalRequest();
         TestUser user = new TestUser("kawasima", new HashSet<>(Arrays.asList("deleteRepository", "createRepository")));
         req.setPrincipal(user);
-        assertTrue(pred.test(req));
+        assertThat(pred.test(req)).isTrue();
 
         TestUser user2 = new TestUser("kawasima", new HashSet<>(Collections.singletonList("readRepository")));
         req.setPrincipal(user2);
-        assertFalse(pred.test(req));
+        assertThat(pred.test(req)).isFalse();
     }
 
 }

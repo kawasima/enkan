@@ -10,7 +10,7 @@ import enkan.predicate.AnyPredicate;
 import enkan.throttling.LimitRate;
 import enkan.throttling.Throttle;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -20,10 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static enkan.util.BeanBuilder.builder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import static enkan.util.BeanBuilder.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class ThrottlingMiddlewareTest {
     @Test
@@ -54,7 +52,7 @@ public class ThrottlingMiddlewareTest {
         service.schedule(() -> service.shutdown(), 3, TimeUnit.SECONDS);
         service.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertThat(count200.get(), greaterThan(3));
+        assertThat(count200.get()).isGreaterThan(3);
     }
 
     @Test
@@ -90,7 +88,6 @@ public class ThrottlingMiddlewareTest {
         service.schedule(() -> service.shutdown(), 3, TimeUnit.SECONDS);
         service.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertThat(count429.get(), equalTo(0));
+        assertThat(count429.get()).isEqualTo(0);
     }
-
 }

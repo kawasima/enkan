@@ -1,9 +1,9 @@
 package enkan.predicate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.Predicates.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -11,20 +11,19 @@ import static org.junit.Assert.*;
 public class PrintablePredicateTest {
     @Test
     public void testToString() {
-        String pred = new AnyPredicate().and(new AnyPredicate<>().negate()).toString();
-        assertEquals("ANY && !ANY", pred);
+        assertThat(new AnyPredicate().and(new AnyPredicate<>().negate()).toString())
+                .isEqualTo("ANY && !ANY");
     }
 
     @Test
     public void andMethod() {
-        String pred = and(new NonePredicate<>(), PathPredicate.GET("^/hoge")).toString();
-        assertEquals("NONE && method = GET && path = ^/hoge", pred);
+        assertThat(and(new NonePredicate<>(), PathPredicate.GET("^/hoge")).toString())
+                .isEqualTo("NONE && method = GET && path = ^/hoge");
     }
 
     @Test
     public void orMethod() {
-        String pred = or(new NonePredicate<>(), PathPredicate.GET("^/hoge")).toString();
-        assertEquals("(NONE) || (method = GET && path = ^/hoge)", pred);
+        assertThat(or(new NonePredicate<>(), PathPredicate.GET("^/hoge")).toString())
+                .isEqualTo("(NONE) || (method = GET && path = ^/hoge)");
     }
-
 }

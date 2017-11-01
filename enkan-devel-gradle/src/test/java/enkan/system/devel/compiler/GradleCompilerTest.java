@@ -3,20 +3,20 @@ package enkan.system.devel.compiler;
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
  */
 public class GradleCompilerTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         FileUtils.deleteDirectory(new File("target/proj"));
         FileUtils.forceMkdir(new File("target/proj/src/main/java"));
@@ -39,7 +39,7 @@ public class GradleCompilerTest {
         Transport t = new Transport() {
             @Override
             public void send(ReplResponse response) {
-                assertTrue(response.getOut().contains("BUILD SUCCESSFUL"));
+                assertThat(response.getOut().contains("BUILD SUCCESSFUL")).isTrue();
             }
 
             @Override
@@ -62,9 +62,9 @@ public class GradleCompilerTest {
             @Override
             public void send(ReplResponse response) {
                 if (response.getStatus().contains(ReplResponse.ResponseStatus.ERROR)) {
-                    assertTrue(response.getErr().contains("FAILURE"));
+                    assertThat(response.getErr().contains("FAILURE")).isTrue();
                 } else {
-                    assertTrue(response.getOut().contains(":compileJava FAILED"));
+                    assertThat(response.getOut().contains(":compileJava FAILED")).isTrue();
                 }
             }
 

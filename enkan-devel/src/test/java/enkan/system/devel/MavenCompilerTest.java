@@ -4,19 +4,20 @@ import enkan.system.ReplResponse;
 import enkan.system.Transport;
 import enkan.system.devel.compiler.MavenCompiler;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
  */
 public class MavenCompilerTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         FileUtils.deleteDirectory(new File("target/proj"));
         FileUtils.forceMkdir(new File("target/proj/src/main/java"));
@@ -50,6 +51,6 @@ public class MavenCompilerTest {
         };
 
         CompileResult result = compiler.execute(t);
-        Assert.assertNull(result.getExecutionException());
+        assertThat(result.getExecutionException()).isNull();
     }
 }

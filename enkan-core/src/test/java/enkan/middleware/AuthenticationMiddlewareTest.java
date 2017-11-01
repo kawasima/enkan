@@ -5,14 +5,14 @@ import enkan.data.PrincipalAvailable;
 import enkan.security.AuthBackend;
 import enkan.security.UserPrincipal;
 import enkan.util.Predicates;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @kawasima
@@ -24,7 +24,7 @@ public class AuthenticationMiddlewareTest {
         Request request = new Request("kawasima");
         middleware.handle(request, new DefaultMiddlewareChain<>(Predicates.ANY, "",
                 (req, chain) -> "ok"));
-        assertNotNull(request.getPrincipal());
+        assertThat(request.getPrincipal()).isNotNull();
     }
 
     private class Request implements PrincipalAvailable {

@@ -3,9 +3,10 @@ package enkan.middleware;
 import enkan.Endpoint;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.util.Predicates;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -17,9 +18,9 @@ public class ServiceUnavailableMiddlewareTest {
         ServiceUnavailableMiddleware middleware = new ServiceUnavailableMiddleware(endpoint);
         Object res = middleware.handle("1", new DefaultMiddlewareChain<>(Predicates.ANY, "",
                 (req, chain) -> {
-                    fail();
+                    fail("Unreachable");
                     return "ok";
                 }));
-        assertEquals("request: 1", res);
+        assertThat(res).isEqualTo("request: 1");
     }
 }
