@@ -1,7 +1,6 @@
 package enkan.component.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -29,7 +28,7 @@ public class JacksonBeansTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
                 return true;
             }
         });
@@ -43,7 +42,7 @@ public class JacksonBeansTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
                 return true;
             }
         });
@@ -79,7 +78,7 @@ public class JacksonBeansTest {
         mapper.registerModule(module);
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
                 return true;
             }
         });

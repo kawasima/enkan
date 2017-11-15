@@ -15,16 +15,14 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 
 import static enkan.util.BeanBuilder.builder;
+import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * Serialize a java object to response body and deserialize  a response body
@@ -60,13 +58,11 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                     try {
                         return (T) reader.readFrom(clazz, type, null, mediaType, headers, request.getBody());
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
+                        throw new UncheckedIOException(e);
                     }
                 })
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+                .findAny()
+                .orElse(tryReflection(() -> clazz.newInstance()));
     }
 
     protected InputStream serialize(Object obj, MediaType mediaType) {

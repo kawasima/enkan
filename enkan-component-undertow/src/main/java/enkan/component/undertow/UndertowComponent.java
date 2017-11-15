@@ -8,9 +8,6 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.WebServerComponent;
 import io.undertow.Undertow;
 
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-
 /**
  * @author kawasima
  */

@@ -2,7 +2,6 @@ package enkan.throttling;
 
 import enkan.data.HttpRequest;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,6 @@ public class Throttle {
                             boolean interrupted = false;
                             try {
                                 TimeUnit.NANOSECONDS.sleep(1);
-                                return;
                             } catch (InterruptedException e) {
                                 interrupted = true;
                             } finally {

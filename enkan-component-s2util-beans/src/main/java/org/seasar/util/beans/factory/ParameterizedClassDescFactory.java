@@ -136,8 +136,8 @@ public abstract class ParameterizedClassDescFactory {
      */
     public static ParameterizedClassDesc createParameterizedClassDesc(
             final Method method, final Map<TypeVariable<?>, Type> map) {
-        if (method == null) new IllegalArgumentException("method is null");
-        if (map    == null) new IllegalArgumentException("map is null");
+        if (method == null) throw new IllegalArgumentException("method is null");
+        if (map    == null) throw new IllegalArgumentException("map is null");
 
         return createParameterizedClassDesc(method.getGenericReturnType(), map);
     }

@@ -3,7 +3,6 @@ package enkan.middleware;
 import enkan.Endpoint;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.util.Predicates;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;

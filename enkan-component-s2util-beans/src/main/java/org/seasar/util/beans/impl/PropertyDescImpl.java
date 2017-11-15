@@ -148,7 +148,7 @@ public class PropertyDescImpl implements PropertyDesc {
 
     private void setUpParameterizedClassDesc() {
         final Map<TypeVariable<?>, Type> typeVariables =
-            ((BeanDescImpl) beanDesc).getTypeVariables();
+            beanDesc.getTypeVariables();
         if (field != null) {
             parameterizedClassDesc =
                 ParameterizedClassDescFactory.createParameterizedClassDesc(
@@ -286,7 +286,7 @@ public class PropertyDescImpl implements PropertyDesc {
                 try {
                     writeMethod.invoke(
                         target,
-                        new Object[] { convertedValue });
+                            convertedValue);
                 } catch (final Throwable t) {
                     final Class<?> clazz = writeMethod.getDeclaringClass();
                     final Class<?> valueClass =
@@ -383,7 +383,7 @@ public class PropertyDescImpl implements PropertyDesc {
             return tryReflection(() -> stringConstructor.newInstance(new Object[] { arg }));
         }
         if (valueOfMethod != null) {
-            return tryReflection(() -> valueOfMethod.invoke(null, new Object[] { arg }));
+            return tryReflection(() -> valueOfMethod.invoke(null, arg));
         }
         return arg;
     }

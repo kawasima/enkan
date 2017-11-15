@@ -201,7 +201,7 @@ public abstract class BeanUtil {
      * @param dest
      *            コピー先のBean。{@literal null}であってはいけません
      */
-    public static void copyMapToBean(final Map<String, ? extends Object> src,
+    public static void copyMapToBean(final Map<String, ?> src,
             final Object dest) {
         copyMapToBean(src, dest, DEFAULT_OPTIONS);
     }
@@ -217,7 +217,7 @@ public abstract class BeanUtil {
      *            コピーのオプション。{@literal null}であってはいけません
      * @see CopyOptionsUtil
      */
-    public static void copyMapToBean(final Map<String, ? extends Object> src,
+    public static void copyMapToBean(final Map<String, ?> src,
             final Object dest, final CopyOptions options) {
         if(src     == null) throw new IllegalArgumentException("src");
         if(dest    == null) throw new IllegalArgumentException("dest");
@@ -225,7 +225,7 @@ public abstract class BeanUtil {
 
         final BeanDesc destBeanDesc =
             BeanDescFactory.getBeanDesc(dest.getClass());
-        for (final Entry<String, ? extends Object> entry : src.entrySet()) {
+        for (final Entry<String, ?> entry : src.entrySet()) {
             final String srcPropertyName = entry.getKey();
             if (!options.isTargetProperty(srcPropertyName)) {
                 continue;
@@ -261,7 +261,7 @@ public abstract class BeanUtil {
      * @param dest
      *            コピー先の{@literal Map}。{@literal null}であってはいけません
      */
-    public static void copyMapToMap(final Map<String, ? extends Object> src,
+    public static void copyMapToMap(final Map<String, ?> src,
             final Map<String, Object> dest) {
         copyMapToMap(src, dest, DEFAULT_OPTIONS);
     }
@@ -277,14 +277,14 @@ public abstract class BeanUtil {
      *            コピーのオプション。{@literal null}であってはいけません
      * @see CopyOptionsUtil
      */
-    public static void copyMapToMap(final Map<String, ? extends Object> src,
+    public static void copyMapToMap(final Map<String, ?> src,
             final Map<String, Object> dest, final CopyOptions options) {
 
         if(src     == null) throw new IllegalArgumentException("src");
         if(dest    == null) throw new IllegalArgumentException("dest");
         if(options == null) throw new IllegalArgumentException("options");
 
-        for (final Entry<String, ? extends Object> entry : src.entrySet()) {
+        for (final Entry<String, ?> entry : src.entrySet()) {
             final String srcPropertyName = entry.getKey();
             if (!options.isTargetProperty(srcPropertyName)) {
                 continue;
@@ -353,7 +353,7 @@ public abstract class BeanUtil {
      * @return コピーされた新しい{@literal Map}
      */
     public static <T> T copyMapToNewBean(
-            final Map<String, ? extends Object> src, final Class<T> destClass) {
+            final Map<String, ?> src, final Class<T> destClass) {
         return copyMapToNewBean(src, destClass, DEFAULT_OPTIONS);
     }
 
@@ -372,7 +372,7 @@ public abstract class BeanUtil {
      * @see CopyOptionsUtil
      */
     public static <T> T copyMapToNewBean(
-            final Map<String, ? extends Object> src, final Class<T> destClass,
+            final Map<String, ?> src, final Class<T> destClass,
             final CopyOptions options) {
         if(src       == null) throw new IllegalArgumentException("src");
         if(destClass == null) throw new IllegalArgumentException("destClass");
@@ -464,7 +464,7 @@ public abstract class BeanUtil {
      * @return コピーされた新しい{@literal Map}
      */
     public static Map<String, Object> copyMapToNewMap(
-            final Map<String, ? extends Object> src) {
+            final Map<String, ?> src) {
         return copyMapToNewMap(src, DEFAULT_OPTIONS);
     }
 
@@ -479,7 +479,7 @@ public abstract class BeanUtil {
      * @see CopyOptionsUtil
      */
     public static Map<String, Object> copyMapToNewMap(
-            final Map<String, ? extends Object> src, final CopyOptions options) {
+            final Map<String, ?> src, final CopyOptions options) {
         if(src       == null) throw new IllegalArgumentException("src");
         if(options   == null) throw new IllegalArgumentException("options");
 
@@ -500,7 +500,7 @@ public abstract class BeanUtil {
      * @return コピーされた新しい{@literal Map}
      */
     public static <T extends Map<String, Object>> T copyMapToNewMap(
-            final Map<String, ? extends Object> src,
+            final Map<String, ?> src,
             final Class<? extends T> destClass) {
         return copyMapToNewMap(src, destClass, DEFAULT_OPTIONS);
     }
@@ -520,7 +520,7 @@ public abstract class BeanUtil {
      * @see CopyOptionsUtil
      */
     public static <T extends Map<String, Object>> T copyMapToNewMap(
-            final Map<String, ? extends Object> src,
+            final Map<String, ?> src,
             final Class<? extends T> destClass, final CopyOptions options) {
         if(src       == null) throw new IllegalArgumentException("src");
         if(destClass == null) throw new IllegalArgumentException("destClass");

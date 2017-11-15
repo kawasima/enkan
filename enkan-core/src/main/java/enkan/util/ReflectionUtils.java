@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 public class ReflectionUtils {
-    private static String getClasspathString() {
+    public static String getClasspathString() {
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(ClassLoader.getSystemClassLoader());
 
@@ -30,6 +30,7 @@ public class ReflectionUtils {
                 + "\n";
 
     }
+
     public static <T> T tryReflection(ReflectionRunnable<T> runnable) {
         try {
             return runnable.run();

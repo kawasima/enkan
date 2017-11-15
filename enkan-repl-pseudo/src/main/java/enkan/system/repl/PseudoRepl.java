@@ -148,7 +148,7 @@ public class PseudoRepl implements Repl {
                                     try {
                                         boolean ret = command.execute(system, transport, args);
                                         if (!ret) return;
-                                    } catch (Exception ex) {
+                                    } catch (Throwable ex) {
                                         StringWriter traceWriter = new StringWriter();
                                         ex.printStackTrace(new PrintWriter(traceWriter));
                                         transport.sendErr(traceWriter.toString());
@@ -162,7 +162,7 @@ public class PseudoRepl implements Repl {
                         }
                     } catch (EOFException ignore) {
                         // Disconnect from client.
-                    } catch (Exception ex) {
+                    } catch (Throwable ex) {
                         StringWriter traceWriter = new StringWriter();
                         ex.printStackTrace(new PrintWriter(traceWriter));
                         transport.sendErr(traceWriter.toString());

@@ -18,7 +18,7 @@ public class RouteBuilder {
     private static final Pattern PTN_PATH            = Pattern.compile("\\A\\*(\\w+)");
     private static final Pattern PTN_STATIC          = Pattern.compile("\\A\\?(.*?)\\?");
     private static final List<String> HTTP_METHODS =
-            Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS");
+            Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
 
 
     private static final List<String> optionalSeparators = Collections.singletonList("/");

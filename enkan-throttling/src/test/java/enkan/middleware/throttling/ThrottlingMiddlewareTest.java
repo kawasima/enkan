@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,8 +27,8 @@ import static org.assertj.core.api.Assertions.*;
 public class ThrottlingMiddlewareTest {
     @Test
     public void sameIP() throws InterruptedException {
-        List<Throttle> throttles = Arrays.asList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)),req -> req.getRemoteAddr())
+        List<Throttle> throttles = Collections.singletonList(
+                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), req -> req.getRemoteAddr())
         );
 
         ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
@@ -57,8 +58,8 @@ public class ThrottlingMiddlewareTest {
 
     @Test
     public void randomIP() throws InterruptedException {
-        List<Throttle> throttles = Arrays.asList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)),req -> req.getRemoteAddr())
+        List<Throttle> throttles = Collections.singletonList(
+                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), req -> req.getRemoteAddr())
         );
 
         ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())

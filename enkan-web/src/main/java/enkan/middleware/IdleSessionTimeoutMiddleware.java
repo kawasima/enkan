@@ -49,7 +49,7 @@ public class IdleSessionTimeoutMiddleware extends AbstractWebMiddleware {
 
         if (endTime.isPresent() && endTime.get() < currentTime()) {
             return builder(timeoutEndpoint.handle(request))
-                    .set(HttpResponse::setSession, (Session) null)
+                    .set(HttpResponse::setSession, null)
                     .build();
         } else {
             HttpResponse response = castToHttpResponse(chain.next(request));

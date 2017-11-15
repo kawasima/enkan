@@ -55,8 +55,8 @@ public class EnkanSystem {
      * @param name component name
      * @return component
      */
-    public SystemComponent getComponent(String name) {
-        return components.get(name);
+    public <T extends SystemComponent> T getComponent(String name) {
+        return (T) components.get(name);
     }
 
     /**

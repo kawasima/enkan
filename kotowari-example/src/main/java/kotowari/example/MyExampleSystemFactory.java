@@ -9,7 +9,6 @@ import enkan.component.flyway.FlywayMigration;
 import enkan.component.freemarker.FreemarkerTemplateEngine;
 import enkan.component.hikaricp.HikariCPComponent;
 import enkan.component.jackson.JacksonBeansConverter;
-import enkan.component.jetty.JettyComponent;
 import enkan.component.metrics.MetricsComponent;
 import enkan.component.undertow.UndertowComponent;
 import enkan.config.EnkanSystemFactory;
