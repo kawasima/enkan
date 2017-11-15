@@ -62,7 +62,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                     }
                 })
                 .findAny()
-                .orElse(tryReflection(() -> clazz.newInstance()));
+                .orElse(null);
     }
 
     protected InputStream serialize(Object obj, MediaType mediaType) {

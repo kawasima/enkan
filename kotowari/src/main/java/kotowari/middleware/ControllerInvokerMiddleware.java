@@ -68,7 +68,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                     request.setConversationState(state);
                 }
                 arguments[parameterIndex] = state;
-            } else if (bodyObj != null && bodyObj.getClass().equals(type)) {
+            } else if (bodyObj == null || (bodyObj != null && bodyObj.getClass().equals(type))) {
                 arguments[parameterIndex] = bodyObj;
             } else {
                 throw new MisconfigurationException("PARAMETER_TYPE_MISMATCH",
