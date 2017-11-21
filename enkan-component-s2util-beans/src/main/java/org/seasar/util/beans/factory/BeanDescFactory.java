@@ -65,7 +65,7 @@ public abstract class BeanDescFactory {
         }
         BeanDesc beanDesc = beanDescCache.get(clazz);
         if (beanDesc == null) {
-            beanDesc = beanDescCache.computeIfAbsent(clazz, clz -> new BeanDescImpl(clz));
+            beanDesc = beanDescCache.computeIfAbsent(clazz, BeanDescImpl::new);
         }
         return beanDesc;
     }

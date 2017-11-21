@@ -50,16 +50,16 @@ public abstract class ShortConversionUtil {
         } else if (o instanceof Short) {
             return (Short) o;
         } else if (o instanceof Number) {
-            return Short.valueOf(((Number) o).shortValue());
+            return ((Number) o).shortValue();
         } else if (o instanceof String) {
             return toShort((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
                 return Short.valueOf(new SimpleDateFormat(pattern).format(o));
             }
-            return Short.valueOf((short) ((java.util.Date) o).getTime());
+            return (short) ((java.util.Date) o).getTime();
         } else if (o instanceof Boolean) {
-            return ((Boolean) o).booleanValue() ? Short.valueOf((short) 1)
+            return (Boolean) o ? Short.valueOf((short) 1)
                 : Short.valueOf((short) 0);
         } else {
             return toShort(o.toString());
@@ -107,7 +107,7 @@ public abstract class ShortConversionUtil {
             }
             return (short) ((java.util.Date) o).getTime();
         } else if (o instanceof Boolean) {
-            return ((Boolean) o).booleanValue() ? (short) 1 : (short) 0;
+            return (Boolean) o ? (short) 1 : (short) 0;
         } else {
             return toPrimitiveShort(o.toString());
         }

@@ -16,7 +16,7 @@
     <name>kotowari</name>
 
     <properties>
-        <enkan.version>0.3.0</enkan.version>
+        <enkan.version>0.3.1-SNAPSHOT</enkan.version>
     </properties>
 
     <dependencies>

@@ -50,16 +50,16 @@ public abstract class LongConversionUtil {
         } else if (o instanceof Long) {
             return (Long) o;
         } else if (o instanceof Number) {
-            return Long.valueOf(((Number) o).longValue());
+            return ((Number) o).longValue();
         } else if (o instanceof String) {
             return toLong((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
                 return Long.valueOf(new SimpleDateFormat(pattern).format(o));
             }
-            return Long.valueOf(((java.util.Date) o).getTime());
+            return ((java.util.Date) o).getTime();
         } else if (o instanceof Boolean) {
-            return ((Boolean) o).booleanValue() ? Long.valueOf(1) : Long
+            return (Boolean) o ? Long.valueOf(1) : Long
                 .valueOf(0);
         } else {
             return toLong(o.toString());
@@ -106,7 +106,7 @@ public abstract class LongConversionUtil {
             }
             return ((java.util.Date) o).getTime();
         } else if (o instanceof Boolean) {
-            return ((Boolean) o).booleanValue() ? 1 : 0;
+            return (Boolean) o ? 1 : 0;
         } else {
             return toPrimitiveLong(o.toString());
         }

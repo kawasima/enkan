@@ -18,6 +18,7 @@ import java.util.Arrays;
  */
 public class FlywayMigration extends SystemComponent {
     private String[] locations;
+    private String table = "schema_version";
     private Flyway flyway;
 
     public FlywayMigration() {
@@ -45,6 +46,7 @@ public class FlywayMigration extends SystemComponent {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 DataSource dataSource = dataSourceComponent.getDataSource();
                 component.flyway = new Flyway();
+                component.flyway.setTable(table);
                 component.flyway.setDataSource(dataSource);
 
                 component.flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -66,5 +68,9 @@ public class FlywayMigration extends SystemComponent {
 
     public void setLocation(String[] locations) {
         this.locations = locations;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 }

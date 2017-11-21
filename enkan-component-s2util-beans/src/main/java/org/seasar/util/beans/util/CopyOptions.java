@@ -403,11 +403,8 @@ public class CopyOptions {
         if (value == null) {
             return !excludesNull;
         }
-        if (value instanceof String && excludesWhitespace
-            && ((String) value).trim().isEmpty()) {
-            return !excludesWhitespace;
-        }
-        return true;
+        return !(value instanceof String) || !excludesWhitespace
+                || !((String) value).trim().isEmpty() || !excludesWhitespace;
     }
 
     /**

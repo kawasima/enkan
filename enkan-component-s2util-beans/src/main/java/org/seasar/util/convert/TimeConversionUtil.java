@@ -454,7 +454,7 @@ public abstract class TimeConversionUtil {
                 .map(SimpleDateFormat.class::cast)
                 .map(format -> toPlainPattern(format.toPattern()))
                 .filter(pattern -> pattern.length() == str.length())
-                .map(pattern -> new SimpleDateFormat(pattern));
+                .map(SimpleDateFormat::new);
 
         return Stream.concat(dateFormats, simpleDateFormats)
                 .map(format -> toDate(str, format))

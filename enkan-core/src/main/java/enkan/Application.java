@@ -34,8 +34,8 @@ public interface Application<REQ, RES> {
     /**
      * Declare to use a middleware with a predication.
      *
-     * @param predicate
-     * @param middleware
+     * @param predicate A predicate for using the middleware
+     * @param middleware A middleware
      * @param <IN>
      * @param <OUT>
      */

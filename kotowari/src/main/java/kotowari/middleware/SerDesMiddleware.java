@@ -3,13 +3,18 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.collection.Headers;
+import enkan.component.BeansConverter;
 import enkan.data.*;
+import enkan.exception.MisconfigurationException;
+import enkan.exception.UnreachableException;
 import enkan.security.UserPrincipal;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
+import kotowari.util.ParameterUtils;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -32,6 +37,9 @@ import static enkan.util.ReflectionUtils.tryReflection;
  */
 @enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation"})
 public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
+    @Inject
+    protected BeansConverter beans;
+
     private final List<MessageBodyReader> bodyReaders = new ArrayList<>();
     private final List<MessageBodyWriter> bodyWriters = new ArrayList<>();
 
@@ -100,18 +108,18 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                 MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
                 for (Parameter parameter : method.getParameters()) {
 
-                    Class type = parameter.getType();
+                    Class<?> type = parameter.getType();
                     Type genericType = parameter.getParameterizedType();
 
-                    if (HttpRequest.class.isAssignableFrom(type)
-                            || Session.class.isAssignableFrom(type)
-                            || UserPrincipal.class.isAssignableFrom(type)
-                            || Map.class.isAssignableFrom(type)) {
-                        continue;
-                    }
+                    if (ParameterUtils.isReservedType(type)) continue;
 
-                    ((BodyDeserializable) request).setDeserializedBody(
-                            deserialize(request, type, genericType, mediaType));
+                    BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+                    Object orig = bodyDeserializable.getDeserializedBody();
+                    Object body = deserialize(request, type, genericType, mediaType);
+                    if (orig != null) {
+                        beans.copy(orig, body);
+                    }
+                    bodyDeserializable.setDeserializedBody(body);
                 }
             }
         }

@@ -526,7 +526,7 @@ public abstract class BeanUtil {
         if(destClass == null) throw new IllegalArgumentException("destClass");
         if(options   == null) throw new IllegalArgumentException("options");
 
-        final T dest = tryReflection(() -> destClass.newInstance());
+        final T dest = tryReflection(destClass::newInstance);
         copyMapToMap(src, dest, options);
         return dest;
     }

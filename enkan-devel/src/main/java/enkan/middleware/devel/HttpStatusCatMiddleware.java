@@ -32,7 +32,7 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     });
 
     public HttpStatusCatMiddleware() {
-        moreCats = true;
+        moreCats = false;
     }
 
     @Override

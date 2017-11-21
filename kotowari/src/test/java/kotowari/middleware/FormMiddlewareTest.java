@@ -1,18 +1,22 @@
 package kotowari.middleware;
 
+import enkan.chain.DefaultMiddlewareChain;
 import enkan.collection.Headers;
 import enkan.collection.Parameters;
 import enkan.component.jackson.JacksonBeansConverter;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import enkan.exception.MisconfigurationException;
+import enkan.data.Routable;
 import enkan.middleware.NestedParamsMiddleware;
 import enkan.middleware.ParamsMiddleware;
-import kotowari.test.form.BadForm;
+import enkan.util.MixinUtils;
+import enkan.util.Predicates;
+import kotowari.data.BodyDeserializable;
+import kotowari.test.controller.TestController;
 import kotowari.test.form.NestedForm;
 import org.junit.Test;
 
-import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +24,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static enkan.util.ReflectionUtils.*;
+import static org.junit.Assert.*;
 
 /**
  * @author kawasima
@@ -74,34 +78,25 @@ public class FormMiddlewareTest extends FormMiddleware {
         request.setQueryString("intVal=123&doubleVal=1.7320508&decimalVal=65536" +
                 "&item[name]=item1&itemList[][name]=item2&itemList[][name]=item3" +
                 "&itemArray[][name]=item4&itemArray[][name]=item5");
+        request = MixinUtils.mixin(request, BodyDeserializable.class);
 
         new ParamsMiddleware().paramsRequest(request);
         new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
-        NestedForm form = createForm(NestedForm.class, request.getParams());
+        FormMiddleware formMiddleware = new FormMiddleware();
+        formMiddleware.beans = beans;
+        request = MixinUtils.mixin(request, Routable.class);
+        Method method = tryReflection(() -> TestController.class.getMethod("index", NestedForm.class));
+        Routable.class.cast(request).setControllerMethod(method);
+        formMiddleware.handle(request, new DefaultMiddlewareChain(Predicates.NONE, "dummy", (o, chain) -> null));
+
+        NestedForm form = BodyDeserializable.class.cast(request).getDeserializedBody();
         assertEquals((Integer) 123, form.getIntVal());
         assertEquals((Double) 1.7320508, form.getDoubleVal());
         assertEquals(new BigDecimal("65536"), form.getDecimalVal());
         assertEquals("item1", form.getItem().getName());
         assertEquals(2, form.getItemList().size());
         assertEquals("item3", form.getItemList().get(1).getName());
-    }
-
-    @Test(expected = MisconfigurationException.class)
-    public void formIsSerializable() {
-        beans = new JacksonBeansConverter() {{
-            lifecycle().start(this);
-        }};
-        HttpRequest request = new DefaultHttpRequest();
-        request.setHeaders(Headers.empty());
-        request.setRequestMethod("GET");
-        request.setQueryString("a=b");
-
-        new ParamsMiddleware().paramsRequest(request);
-        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
-
-        Class<?> badFormClass = BadForm.class;
-        createForm((Class<? extends Serializable>) badFormClass, request.getParams());
     }
 
     @Test

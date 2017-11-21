@@ -10,6 +10,7 @@ import enkan.middleware.AbstractWebMiddleware;
 import enkan.security.UserPrincipal;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
+import kotowari.util.ParameterUtils;
 
 import javax.enterprise.context.Conversation;
 import javax.inject.Inject;
@@ -28,35 +29,30 @@ public class FormMiddleware extends AbstractWebMiddleware {
     @Inject
     protected BeansConverter beans;
 
-    protected <T extends Serializable> T createForm(Class<T> formClass, Map<String, ?> params) {
-        try {
-            return beans.createFrom(params, formClass);
-        } catch (ClassCastException e) {
-            if (!Serializable.class.isAssignableFrom(formClass)) {
-                throw new MisconfigurationException("kotowari.FORM_IS_NOT_SERIALIZABLE", formClass);
-            } else {
-                throw new UnreachableException(e);
-            }
-        }
-    }
-
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();
-            if (HttpRequest.class.isAssignableFrom(type)
-                    || Session.class.isAssignableFrom(type)
-                    || Flash.class.isAssignableFrom(type)
-                    || Conversation.class.isAssignableFrom(type)
-                    || ConversationState.class.isAssignableFrom(type)
-                    || UserPrincipal.class.isAssignableFrom(type)
-                    || Map.class.isAssignableFrom(type)) {
-                continue;
+            if (ParameterUtils.isReservedType(type)) continue;
+
+            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            Object body = bodyDeserializable.getDeserializedBody();
+            try {
+                if (body == null) {
+                    bodyDeserializable.setDeserializedBody(beans.createFrom(request.getParams(), type));
+                } else {
+                    beans.copy(request.getParams(), body);
+                    bodyDeserializable.setDeserializedBody(body);
+                }
+            } catch (ClassCastException e) {
+                if (!Serializable.class.isAssignableFrom(type)) {
+                    throw new MisconfigurationException("kotowari.FORM_IS_NOT_SERIALIZABLE", type);
+                } else {
+                    throw new UnreachableException(e);
+                }
             }
-            BodyDeserializable.class.cast(request)
-                    .setDeserializedBody(createForm((Class<? extends Serializable>) type, request.getParams()));
         }
 
         return castToHttpResponse(next.next(request));

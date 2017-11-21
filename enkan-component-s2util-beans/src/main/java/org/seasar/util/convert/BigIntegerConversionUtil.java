@@ -19,14 +19,14 @@ import java.math.BigInteger;
 
 /**
  * {@link BigInteger}用の変換ユーティリティです。
- * 
+ *
  * @author higa
  */
 public abstract class BigIntegerConversionUtil {
 
     /**
      * {@link BigInteger}に変換します。
-     * 
+     *
      * @param o
      *            変換元のオブジェクト
      * @return 変換された{@link BigInteger}
@@ -37,7 +37,7 @@ public abstract class BigIntegerConversionUtil {
 
     /**
      * {@link BigInteger}に変換します。
-     * 
+     *
      * @param o
      *            変換元のオブジェクト
      * @param pattern
@@ -54,7 +54,7 @@ public abstract class BigIntegerConversionUtil {
             if (l == null) {
                 return null;
             }
-            return BigInteger.valueOf(l.longValue());
+            return BigInteger.valueOf(l);
         }
     }
 

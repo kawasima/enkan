@@ -45,7 +45,7 @@ public class MetricsComponent extends SystemComponent {
             @Override
             public void stop(MetricsComponent component) {
                 SortedSet<String> names = Collections.unmodifiableSortedSet(metricRegistry.getNames());
-                names.stream().forEach(name -> metricRegistry.remove(name));
+                names.stream().forEach(metricRegistry::remove);
 
                 component.timeoutsMeter = null;
                 component.errorsMeter = null;

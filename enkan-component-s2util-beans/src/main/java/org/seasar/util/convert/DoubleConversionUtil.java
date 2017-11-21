@@ -50,14 +50,14 @@ public abstract class DoubleConversionUtil {
         } else if (o instanceof Double) {
             return (Double) o;
         } else if (o instanceof Number) {
-            return new Double(((Number) o).doubleValue());
+            return ((Number) o).doubleValue();
         } else if (o instanceof String) {
             return toDouble((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
                 return new Double(new SimpleDateFormat(pattern).format(o));
             }
-            return new Double(((java.util.Date) o).getTime());
+            return (double) ((java.util.Date) o).getTime();
         } else {
             return toDouble(o.toString());
         }

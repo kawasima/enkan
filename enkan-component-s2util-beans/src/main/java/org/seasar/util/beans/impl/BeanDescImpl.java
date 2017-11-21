@@ -612,11 +612,7 @@ public class BeanDescImpl implements BeanDesc {
                 continue;
             }
             final String methodName = method.getName();
-            List<MethodDesc> list = methodDescListMap.get(methodName);
-            if (list == null) {
-                list = new ArrayList<>();
-                methodDescListMap.put(methodName, list);
-            }
+            List<MethodDesc> list = methodDescListMap.computeIfAbsent(methodName, k -> new ArrayList<>());
             list.add(new MethodDescImpl(this, method));
         }
         for (Map.Entry<String, List<MethodDesc>> e : methodDescListMap.entrySet()) {

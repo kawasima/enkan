@@ -28,7 +28,7 @@ public class ThrottlingMiddlewareTest {
     @Test
     public void sameIP() throws InterruptedException {
         List<Throttle> throttles = Collections.singletonList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), req -> req.getRemoteAddr())
+                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
         ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
@@ -38,9 +38,7 @@ public class ThrottlingMiddlewareTest {
         DefaultHttpRequest req = new DefaultHttpRequest();
         req.setRemoteAddr("127.0.0.1");
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
-                (Endpoint<HttpRequest, HttpResponse>) request -> {
-                    return HttpResponse.of("");
-                });
+                (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
         final AtomicInteger count200 = new AtomicInteger(0);
         ScheduledExecutorService service = Executors.newScheduledThreadPool(3);
         service.scheduleAtFixedRate(() -> {
@@ -50,7 +48,7 @@ public class ThrottlingMiddlewareTest {
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
 
-        service.schedule(() -> service.shutdown(), 3, TimeUnit.SECONDS);
+        service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
         service.awaitTermination(5, TimeUnit.SECONDS);
 
         assertThat(count200.get()).isGreaterThan(3);
@@ -59,7 +57,7 @@ public class ThrottlingMiddlewareTest {
     @Test
     public void randomIP() throws InterruptedException {
         List<Throttle> throttles = Collections.singletonList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), req -> req.getRemoteAddr())
+                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
         ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
@@ -68,9 +66,7 @@ public class ThrottlingMiddlewareTest {
 
         DefaultHttpRequest req = new DefaultHttpRequest();
         MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
-                (Endpoint<HttpRequest, HttpResponse>) request -> {
-                    return HttpResponse.of("");
-                });
+                (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
 
         final AtomicInteger count429 = new AtomicInteger(0);
         ScheduledExecutorService service = Executors.newScheduledThreadPool(3);
@@ -86,7 +82,7 @@ public class ThrottlingMiddlewareTest {
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
 
-        service.schedule(() -> service.shutdown(), 3, TimeUnit.SECONDS);
+        service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
         service.awaitTermination(5, TimeUnit.SECONDS);
 
         assertThat(count429.get()).isEqualTo(0);

@@ -94,7 +94,7 @@ public abstract class WebServerComponent extends SystemComponent {
             try {
                 keystore = KeyStore.getInstance("JKS");
                 try (InputStream in = new FileInputStream(keystoreFile)) {
-                    keystore.load(in, some(keystorePassword, p -> p.toCharArray()).orElse(null));
+                    keystore.load(in, some(keystorePassword, String::toCharArray).orElse(null));
                 }
             } catch (KeyStoreException e) {
                 throw new MisconfigurationException("core.KEY_STORE", e.getMessage(), e);
@@ -136,7 +136,7 @@ public abstract class WebServerComponent extends SystemComponent {
             try {
                 truststore = KeyStore.getInstance("JKS");
                 try (InputStream in = new FileInputStream(truststoreFile)) {
-                    truststore.load(in, some(truststorePassword, p -> p.toCharArray()).orElse(null));
+                    truststore.load(in, some(truststorePassword, String::toCharArray).orElse(null));
                 }
             } catch (KeyStoreException e) {
                 throw new MisconfigurationException("core.KEY_STORE", e);

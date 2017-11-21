@@ -50,14 +50,14 @@ public abstract class FloatConversionUtil {
         } else if (o instanceof Float) {
             return (Float) o;
         } else if (o instanceof Number) {
-            return new Float(((Number) o).floatValue());
+            return ((Number) o).floatValue();
         } else if (o instanceof String) {
             return toFloat((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
                 return new Float(new SimpleDateFormat(pattern).format(o));
             }
-            return new Float(((java.util.Date) o).getTime());
+            return (float) ((java.util.Date) o).getTime();
         } else {
             return toFloat(o.toString());
         }

@@ -29,7 +29,7 @@ import static net.unit8.moshas.RenderUtils.text;
 public class StacktraceMiddleware extends AbstractWebMiddleware {
     private MoshasEngine moshas = new MoshasEngine();
 
-    String primer;
+    private String primer;
     {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/css/primer.css"), StandardCharsets.ISO_8859_1))) {
             primer = reader.lines().collect(Collectors.joining());
@@ -38,7 +38,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
         }
     }
 
-    Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
+    private Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
         s.select("td.source", (el, ctx) ->
                 el.text(ctx.getString("stackTraceElement", "fileName") +
                         ":" +
@@ -49,17 +49,18 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
                         ctx.getString("stackTraceElement", "methodName")));
     });
 
-    protected HttpResponse render(Template template, Object... args) {
+    protected HttpResponse<String> render(Template template, Object... args) {
         StringWriter sw = new StringWriter();
         Context ctx = new Context();
         for (int i = 0; i < args.length; i += 2) {
             ctx.setVariable(Objects.toString(args[i], ""), args[i+1]);
         }
         template.render(ctx, sw);
-        HttpResponse response = HttpResponse.of(sw.toString());
+        HttpResponse<String> response = HttpResponse.of(sw.toString());
         HttpResponseUtils.contentType(response, "text/html");
         return response;
     }
+
     protected HttpResponse<String> htmlUnreachableExResponse(UnreachableException ex) {
         Template template = moshas.describe("templates/unreachable.html", t -> {});
         return builder(render(template))
@@ -135,9 +136,9 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         try {
-            return castToHttpResponse(next.next(request));
+            return castToHttpResponse(chain.next(request));
         } catch (Throwable t) {
             t.printStackTrace(System.err);
             return exResponse(request, t);

@@ -17,14 +17,14 @@ package org.seasar.util.convert;
 
 /**
  * {@link Boolean}用の変換ユーティリティです。
- * 
+ *
  * @author higa
  */
 public abstract class BooleanConversionUtil {
 
     /**
      * {@link Boolean}に変換します。
-     * 
+     *
      * @param o
      *            変換元のオブジェクト
      * @return 変換された{@link Boolean}
@@ -36,7 +36,7 @@ public abstract class BooleanConversionUtil {
             return (Boolean) o;
         } else if (o instanceof Number) {
             final int num = ((Number) o).intValue();
-            return Boolean.valueOf(num != 0);
+            return num != 0;
         } else if (o instanceof String) {
             final String s = (String) o;
             if ("true".equalsIgnoreCase(s)) {
@@ -55,17 +55,14 @@ public abstract class BooleanConversionUtil {
 
     /**
      * {@literal boolean}に変換します。
-     * 
+     *
      * @param o
      *            変換元のオブジェクト
      * @return 変換された{@literal boolean}
      */
     public static boolean toPrimitiveBoolean(final Object o) {
         final Boolean b = toBoolean(o);
-        if (b != null) {
-            return b.booleanValue();
-        }
-        return false;
+        return b != null && b.booleanValue();
     }
 
 }
