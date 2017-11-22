@@ -7,12 +7,14 @@ import enkan.exception.MisconfigurationException;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.ConfigProvider;
 import org.seasar.doma.jdbc.SqlFileRepository;
+import org.seasar.doma.jdbc.dialect.Dialect;
+import org.seasar.doma.jdbc.dialect.StandardDialect;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.ReflectionUtils.*;
 
 /**
  * @author kawasima
@@ -20,6 +22,8 @@ import static enkan.util.ReflectionUtils.tryReflection;
 public class DomaProvider extends SystemComponent {
     private DataSource dataSource;
     private ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
+    private Config defaultConfig;
+    private Dialect dialect;
 
     /**
      * Gets the DAO.
@@ -37,8 +41,14 @@ public class DomaProvider extends SystemComponent {
                     } catch (ClassNotFoundException ex) {
                         throw new MisconfigurationException("doma2.DAO_IMPL_NOT_FOUND", daoInterface.getName(), ex);
                     }
-                    Constructor<? extends T> daoConstructor = daoClass.getConstructor(DataSource.class);
-                    return daoConstructor.newInstance(dataSource);
+                    try {
+                        Constructor<? extends T> daoConstructor = daoClass.getConstructor(DataSource.class);
+                        return daoConstructor.newInstance(dataSource);
+                    } catch (NoSuchMethodException e) {
+                        Constructor<? extends T> daoConstructor = daoClass.getConstructor(Config.class);
+                        return daoConstructor.newInstance(defaultConfig);
+                    }
+
             }));
     }
 
@@ -49,6 +59,18 @@ public class DomaProvider extends SystemComponent {
             public void start(DomaProvider component) {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 component.dataSource = dataSourceComponent.getDataSource();
+                if (component.dialect == null) component.dialect = new StandardDialect();
+                component.defaultConfig = new Config() {
+                    @Override
+                    public DataSource getDataSource() {
+                        return component.dataSource;
+                    }
+
+                    @Override
+                    public Dialect getDialect() {
+                        return component.dialect;
+                    }
+                };
             }
 
             @Override
@@ -63,5 +85,9 @@ public class DomaProvider extends SystemComponent {
                 daoCache.clear();
             }
         };
+    }
+
+    public void setDialect(Dialect dialect) {
+        this.dialect = dialect;
     }
 }
