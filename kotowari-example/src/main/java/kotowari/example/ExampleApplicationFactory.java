@@ -34,7 +34,7 @@ import static enkan.util.Predicates.*;
 /**
  * @author kawasima
  */
-public class MyApplicationFactory implements ApplicationFactory {
+public class ExampleApplicationFactory implements ApplicationFactory {
     @Override
     public Application create(ComponentInjector injector) {
         WebApplication app = new WebApplication();
