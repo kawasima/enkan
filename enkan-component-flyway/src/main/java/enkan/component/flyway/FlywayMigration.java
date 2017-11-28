@@ -47,6 +47,8 @@ public class FlywayMigration extends SystemComponent {
                 DataSource dataSource = dataSourceComponent.getDataSource();
                 component.flyway = new Flyway();
                 component.flyway.setTable(table);
+                component.flyway.setBaselineOnMigrate(true);
+                component.flyway.setBaselineVersionAsString("0");
                 component.flyway.setDataSource(dataSource);
 
                 component.flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
