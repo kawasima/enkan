@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.3.2</version>
+        <version>0.4.0-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -14,10 +14,6 @@
     <packaging>jar</packaging>
 
     <name>kotowari</name>
-
-    <properties>
-        <enkan.version>0.3.2</enkan.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -33,15 +29,10 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.2.Final</version>
+            <version>6.0.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -63,6 +54,16 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
             <version>2.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

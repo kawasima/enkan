@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.3.2</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.3.2</enkan.version>
+        <enkan.version>0.4.0-SNAPSHOT</enkan.version>
     </properties>
 
     <modules>
@@ -53,6 +53,23 @@
                     <target>${java.version}</target>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.0.2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -175,7 +192,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.0.1</version>
+                <version>5.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
