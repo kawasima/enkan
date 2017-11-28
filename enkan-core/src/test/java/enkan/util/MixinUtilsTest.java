@@ -21,7 +21,8 @@ public class MixinUtilsTest {
     public void argumentIsNotInterface() {
         assertThatThrownBy(() -> {
             ImplOnly impl = new ImplOnly();
-            MixinUtils.mixin(impl, ComparableMoney.class);
+            impl = MixinUtils.mixin(impl, ComparableMoney.class);
+            ComparableMoney.class.cast(impl);
         }).isExactlyInstanceOf(ClassCastException.class);
     }
 

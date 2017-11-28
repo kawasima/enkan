@@ -14,6 +14,6 @@ public class ApplicationComponentTest {
         assertThatThrownBy(() -> {
             ApplicationComponent component = new ApplicationComponent(TestApplicationFactory.class.getName());
             component.lifecycle().start(component);
-        }).hasCauseInstanceOf(MisconfigurationException.class);
+        }).isExactlyInstanceOf(MisconfigurationException.class);
     }
 }
