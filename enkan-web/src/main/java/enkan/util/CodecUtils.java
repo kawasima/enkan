@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -98,7 +99,7 @@ public class CodecUtils {
 
     public static <T> String formEncode(T x, String encoding) {
         if (x == null) {
-            return null;
+            return "";
         } else if (x instanceof String) {
             try {
                 return URLEncoder.encode((String) x, encoding);
@@ -108,7 +109,16 @@ public class CodecUtils {
         } else if (x instanceof Map) {
             Map<?, ?> m = (Map) x;
             return m.entrySet().stream()
-                    .map(e -> formEncode(e.getKey()) + "=" + formEncode(e.getValue()))
+                    .map(e -> {
+                        if (e.getValue() instanceof Collection) {
+                            String encodedKey = formEncode(e.getKey());
+                            return ((Collection<?>) e.getValue()).stream()
+                                    .map(v -> encodedKey + "=" + formEncode(v))
+                                    .collect(Collectors.joining("&"));
+                        } else {
+                            return formEncode(e.getKey()) + "=" + formEncode(e.getValue());
+                        }
+                    })
                     .collect(Collectors.joining("&"));
         } else {
             return formEncode(x.toString(), encoding);
