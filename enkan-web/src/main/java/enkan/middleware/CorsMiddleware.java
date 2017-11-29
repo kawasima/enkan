@@ -28,7 +28,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     public CorsMiddleware() {
         methods = new HashSet<>(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH", "HEAD", "OPTIONS"));
         origins = new HashSet<>(Collections.singletonList("*"));
-         = new HashSet<>(Arrays.asList(
+        headers = new HashSet<>(Arrays.asList(
                 "Origin", "Accept", "X-Requested-With", "Content-Type",
                 "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         maxage = 1800L;
