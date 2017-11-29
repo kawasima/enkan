@@ -3,9 +3,9 @@ package kotowari.routing;
 import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -18,8 +18,10 @@ public class GenerateTest {
             r.get("/a/b/:id").to(TestController.class, "show");
         }).compile();
 
-        assertEquals("/a/b/", routes.generate(OptionMap.of("controller", TestController.class, "action", "index")));
-        assertEquals("/a/b/1", routes.generate(OptionMap.of("controller", TestController.class, "action", "show", "id", 1)));
+        assertThat(routes.generate(OptionMap.of("controller", TestController.class, "action", "index")))
+                .isEqualTo("/a/b/");
+        assertThat(routes.generate(OptionMap.of("controller", TestController.class, "action", "show", "id", 1)))
+                .isEqualTo("/a/b/1");
     }
 
     public static class TestController {

@@ -14,7 +14,7 @@ import enkan.util.Predicates;
 import kotowari.data.BodyDeserializable;
 import kotowari.test.controller.TestController;
 import kotowari.test.form.NestedForm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -25,7 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static enkan.util.ReflectionUtils.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -91,12 +92,12 @@ public class FormMiddlewareTest extends FormMiddleware {
         formMiddleware.handle(request, new DefaultMiddlewareChain(Predicates.NONE, "dummy", (o, chain) -> null));
 
         NestedForm form = BodyDeserializable.class.cast(request).getDeserializedBody();
-        assertEquals((Integer) 123, form.getIntVal());
-        assertEquals((Double) 1.7320508, form.getDoubleVal());
-        assertEquals(new BigDecimal("65536"), form.getDecimalVal());
-        assertEquals("item1", form.getItem().getName());
-        assertEquals(2, form.getItemList().size());
-        assertEquals("item3", form.getItemList().get(1).getName());
+        assertThat(form.getIntVal()).isEqualTo(123);
+        assertThat(form.getDoubleVal()).isEqualTo(1.7320508);
+        assertThat(form.getDecimalVal()).isEqualTo(new BigDecimal("65536"));
+        assertThat(form.getItem().getName()).isEqualTo("item1");
+        assertThat(form.getItemList().size()).isEqualTo(2);
+        assertThat(form.getItemList().get(1).getName()).isEqualTo("item3");
     }
 
     @Test

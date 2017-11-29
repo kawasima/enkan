@@ -2,14 +2,14 @@ package kotowari.middleware;
 
 import enkan.exception.MisconfigurationException;
 import enkan.security.UserPrincipal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 public class RenderTemplateMiddlewareTest {
     private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
@@ -42,8 +42,7 @@ public class RenderTemplateMiddlewareTest {
                     }
                 }
         , "PERM1"));
-        assertTrue(ret instanceof Boolean);
-        assertTrue((Boolean) ret);
+        assertThat(ret instanceof Boolean).isTrue();
+        assertThat((Boolean) ret).isTrue();
     }
-
 }

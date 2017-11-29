@@ -43,7 +43,7 @@ public class FormMiddleware extends AbstractWebMiddleware {
                 if (body == null) {
                     bodyDeserializable.setDeserializedBody(beans.createFrom(request.getParams(), type));
                 } else {
-                    beans.copy(request.getParams(), body);
+                    beans.copy(request.getParams(), body, BeansConverter.CopyOption.REPLACE_NON_NULL);
                     bodyDeserializable.setDeserializedBody(body);
                 }
             } catch (ClassCastException e) {

@@ -19,20 +19,20 @@ import java.util.Set;
 /**
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "validateForm", dependencies = "form")
-public class ValidateFormMiddleware<RES> implements Middleware<HttpRequest, RES> {
+@enkan.annotation.Middleware(name = "validateBody")
+public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES> {
     private Validator validator;
 
-    public ValidateFormMiddleware() {
+    public ValidateBodyMiddleware() {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
 
-    protected Validatable getValidatableForm(HttpRequest request) {
+    protected Validatable getValidatable(HttpRequest request) {
         if (request instanceof BodyDeserializable) {
-            Object form = ((BodyDeserializable) request).getDeserializedBody();
-            if (form != null && form instanceof Validatable) {
-                return (Validatable) form;
+            Object body = ((BodyDeserializable) request).getDeserializedBody();
+            if (body != null && body instanceof Validatable) {
+                return (Validatable) body;
             }
         }
         return null;
@@ -41,7 +41,7 @@ public class ValidateFormMiddleware<RES> implements Middleware<HttpRequest, RES>
     @Override
     public RES handle(HttpRequest request, MiddlewareChain next) {
 
-        Optional<Validatable> validatableForm = ThreadingUtils.some(getValidatableForm(request), form -> {
+        Optional<Validatable> validatable = ThreadingUtils.some(getValidatable(request), form -> {
             Multimap<String, Object> errors = Multimap.empty();
             Set<ConstraintViolation<Object>> violations = validator.validate(form);
             for (ConstraintViolation<Object> violation : violations) {
@@ -53,8 +53,8 @@ public class ValidateFormMiddleware<RES> implements Middleware<HttpRequest, RES>
 
         RES response = (RES) next.next(request);
         if (HttpResponse.class.isInstance(response)
-                && validatableForm.isPresent()
-                && validatableForm.get().hasErrors()) {
+                && validatable.isPresent()
+                && validatable.get().hasErrors()) {
             HttpResponse.class.cast(response).setStatus(400);
         }
         return response;

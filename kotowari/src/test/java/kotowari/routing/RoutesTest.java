@@ -2,9 +2,9 @@ package kotowari.routing;
 
 import enkan.collection.OptionMap;
 import kotowari.routing.controller.ExampleController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -15,8 +15,8 @@ public class RoutesTest {
         Routes routes = Routes.define(r -> r.get("/").to(ExampleController.class, "method1")).compile();
 
         OptionMap m = routes.recognizePath("/", "GET");
-        assertEquals(ExampleController.class, m.get("controller"));
-        assertEquals("method1", m.get("action"));
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("action")).isEqualTo("method1");
     }
 
     @Test
@@ -27,13 +27,12 @@ public class RoutesTest {
         }).compile();
 
         OptionMap m = routes.recognizePath("/admin/list", "GET");
-        assertEquals(ExampleController.class, m.get("controller"));
-        assertEquals("method1", m.get("action"));
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("action")).isEqualTo("method1");
 
         m = routes.recognizePath("/home6", "GET");
-        assertEquals(ExampleController.class, m.get("controller"));
-        assertEquals("method6", m.get("action"));
-
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("action")).isEqualTo("method6");
     }
 
     @Test
@@ -45,9 +44,7 @@ public class RoutesTest {
         ).compile();
 
         OptionMap m = routes.recognizePath("/admin/user/list", "GET");
-        assertEquals(ExampleController.class, m.get("controller"));
-        assertEquals("method1", m.get("action"));
-
-
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("action")).isEqualTo("method1");
     }
 }

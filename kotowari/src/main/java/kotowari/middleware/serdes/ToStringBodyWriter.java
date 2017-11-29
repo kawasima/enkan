@@ -45,7 +45,9 @@ public class ToStringBodyWriter implements MessageBodyWriter<Object> {
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return Objects.equals(mediaType.getType(), "text") || mediaType.isWildcardType();
+        return (Objects.equals(mediaType.getType(), "text")
+                && Objects.equals(mediaType.getSubtype(), "plain"))
+                || mediaType.isWildcardType();
     }
 
     @Override

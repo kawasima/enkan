@@ -1,5 +1,8 @@
 package kotowari.middleware;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import enkan.Endpoint;
 import enkan.MiddlewareChain;
@@ -9,16 +12,20 @@ import enkan.data.*;
 import enkan.predicate.AnyPredicate;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
-import lombok.Data;
-import org.junit.Test;
+import kotowari.test.dto.TestDto;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
-import static enkan.util.BeanBuilder.builder;
-import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.BeanBuilder.*;
+import static enkan.util.ReflectionUtils.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -30,6 +37,7 @@ public class SerDesMiddlewareTest {
     public void test() {
         SerDesMiddleware middleware = builder(new SerDesMiddleware())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
 
         String body = "{\"a\":1, \"b\":\"ccb\"}";
@@ -39,13 +47,15 @@ public class SerDesMiddlewareTest {
                 .build();
 
         TestDto testDto = middleware.deserialize(request, TestDto.class, TestDto.class, new MediaType("application", "json"));
-        System.out.println(testDto);
+        assertThat(testDto.getA()).isEqualTo(1);
+        assertThat(testDto.getB()).isEqualTo("ccb");
     }
 
     @Test
     public void deserializeList() {
         SerDesMiddleware middleware = builder(new SerDesMiddleware())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
 
         String body = "[{\"a\":1, \"b\":\"ccb\"}, {\"a\":2, \"b\":\"ooo\"}]";
@@ -54,14 +64,17 @@ public class SerDesMiddlewareTest {
                 .set(HttpRequest::setBody, new ByteArrayInputStream(body.getBytes()))
                 .build();
 
-        Object testDto = middleware.deserialize(request, TestDto.class, List.class, new MediaType("application", "json"));
-        System.out.println(testDto);
+        Object testDto = middleware.deserialize(request, List.class, new TypeReference<List<TestDto>>(){}.getType(), new MediaType("application", "json"));
+        assertThat(testDto).isInstanceOf(List.class);
+        assertThat(((List) testDto).size()).isEqualTo(2);
+        assertThat(((List<TestDto>) testDto).get(0).getA()).isEqualTo(1);
     }
 
     @Test
     public void controller() throws IOException {
         SerDesMiddleware middleware = builder(new SerDesMiddleware())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
 
         String body = "[{\"a\":1, \"b\":\"ccb\"}, {\"a\":2, \"b\":\"ooo\"}]";
@@ -84,9 +97,10 @@ public class SerDesMiddlewareTest {
             return middleware.handle(request, chain);
         });
 
-        try(BufferedReader rdr = new BufferedReader(new InputStreamReader(resp.getBody()))) {
-            rdr.lines().forEach(System.out::println);
-        }
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> res = mapper.readValue(resp.getBody(), new TypeReference<Map<String, Object>>(){});
+        assertThat(res).containsEntry("a", 1);
+        assertThat(res).containsEntry("b", "ccb");
     }
 
     @Test
@@ -97,10 +111,22 @@ public class SerDesMiddlewareTest {
         middleware.serialize(null, new MediaType("application", "json"));
     }
 
-    @Data
-    static class TestDto {
-        private int a;
-        private String b;
+    @Test
+    public void raiseException() {
+        assertThatThrownBy(() -> {
+            SerDesMiddleware middleware = builder(new SerDesMiddleware())
+                    .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                    .set(SerDesMiddleware::setBodyWriters, jsonProvider)
+                    .build();
+
+            String body = "{\"a\":1, \"b\":\"ccb\", \"c\": \"This is an unknown property.\"}";
+            HttpRequest request = builder(new DefaultHttpRequest())
+                    .set(HttpRequest::setHeaders, Headers.of("Content-Type", "application/json"))
+                    .set(HttpRequest::setBody, new ByteArrayInputStream(body.getBytes()))
+                    .build();
+
+            middleware.deserialize(request, TestDto.class, TestDto.class, new MediaType("application", "json"));
+        }).hasCauseInstanceOf(UnrecognizedPropertyException.class);
     }
 
     static class TestController {

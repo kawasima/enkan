@@ -3,7 +3,7 @@ package enkan.component;
 import enkan.exception.MisconfigurationException;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima

@@ -3,17 +3,21 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.collection.Headers;
+import enkan.collection.Parameters;
 import enkan.component.BeansConverter;
+import enkan.component.SystemComponent;
 import enkan.data.*;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import enkan.security.UserPrincipal;
+import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.util.ParameterUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -35,7 +39,7 @@ import static enkan.util.ReflectionUtils.tryReflection;
  *
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation"})
+@enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation", "routing"})
 public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
     @Inject
     protected BeansConverter beans;
@@ -43,28 +47,30 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
     private final List<MessageBodyReader> bodyReaders = new ArrayList<>();
     private final List<MessageBodyWriter> bodyWriters = new ArrayList<>();
 
-    public SerDesMiddleware() {
-        loadReaderAndWriter();
-    }
-
+    @PostConstruct
     private void loadReaderAndWriter() {
+        Map<String, SystemComponent> components = new HashMap<>();
+        components.put("beans", beans);
+        ComponentInjector injector = new ComponentInjector(components);
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(getClass().getClassLoader());
         for (MessageBodyReader reader : ServiceLoader.load(MessageBodyReader.class, cl)) {
+            injector.inject(reader);
             bodyReaders.add(reader);
         }
         for (MessageBodyWriter writer : ServiceLoader.load(MessageBodyWriter.class, cl)) {
+            injector.inject(writer);
             bodyWriters.add(writer);
         }
     }
 
-    protected <T> T deserialize(HttpRequest request, Class<T> clazz, Type type, MediaType mediaType) {
+    protected <T> T deserialize(HttpRequest request, Class<T> type, Type genericType, MediaType mediaType) {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
         return bodyReaders.stream()
-                .filter(reader -> reader.isReadable(clazz, type, null, mediaType))
+                .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
                 .map(reader -> {
                     try {
-                        return (T) reader.readFrom(clazz, type, null, mediaType, headers, request.getBody());
+                        return (T) reader.readFrom(type, genericType, null, mediaType, headers, request.getBody());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -96,32 +102,43 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                 .orElse(null);
     }
 
+    private void deserializeBody(Method method, HttpRequest request) {
+        String contentType = HttpRequestUtils.contentType(request);
+        if (contentType == null) return;
+
+        String[] mediaTypeTokens = contentType.split("/", 2);
+        if (mediaTypeTokens.length == 2) {
+            MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
+            for (Parameter parameter : method.getParameters()) {
+
+                Class<?> type = parameter.getType();
+                Type genericType = parameter.getParameterizedType();
+
+                if (ParameterUtils.isReservedType(type)) continue;
+
+                BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+                Object body = deserialize(request, type, genericType, mediaType);
+                bodyDeserializable.setDeserializedBody(body);
+            }
+        }
+    }
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
-        String contentType = HttpRequestUtils.contentType(request);
-
-        if (contentType != null && !HttpRequestUtils.isUrlEncodedForm(request)) {
-            String[] mediaTypeTokens = contentType.split("/", 2);
-            if (mediaTypeTokens.length == 2) {
-                MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
+        if (HttpRequestUtils.isUrlEncodedForm(request)) {
+            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            if (bodyDeserializable.getDeserializedBody() == null) {
                 for (Parameter parameter : method.getParameters()) {
-
                     Class<?> type = parameter.getType();
-                    Type genericType = parameter.getParameterizedType();
-
                     if (ParameterUtils.isReservedType(type)) continue;
-
-                    BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
-                    Object orig = bodyDeserializable.getDeserializedBody();
-                    Object body = deserialize(request, type, genericType, mediaType);
-                    if (orig != null) {
-                        beans.copy(orig, body);
-                    }
-                    bodyDeserializable.setDeserializedBody(body);
+                    bodyDeserializable.setDeserializedBody(beans.createFrom(
+                            request.getParams(), type
+                    ));
                 }
             }
+        } else {
+            deserializeBody(method, request);
         }
 
         Object response = chain.next(request);
