@@ -1,5 +1,9 @@
 package kotowari.example;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import enkan.Application;
 import enkan.Endpoint;
 import enkan.Env;
@@ -21,10 +25,13 @@ import enkan.util.HttpResponseUtils;
 import kotowari.example.controller.*;
 import kotowari.example.controller.guestbook.GuestbookController;
 import kotowari.example.controller.guestbook.LoginController;
+import kotowari.example.jaxrs.JsonBodyReader;
+import kotowari.example.jaxrs.JsonBodyWriter;
 import kotowari.middleware.*;
 import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
+import javax.ws.rs.ext.MessageBodyWriter;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -38,6 +45,12 @@ public class ExampleApplicationFactory implements ApplicationFactory {
     @Override
     public Application create(ComponentInjector injector) {
         WebApplication app = new WebApplication();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // Routing
         Routes routes = Routes.define(r -> {
@@ -100,7 +113,12 @@ public class ExampleApplicationFactory implements ApplicationFactory {
         app.use(new DomaTransactionMiddleware<>());
         app.use(new FormMiddleware());
         app.use(builder(new SerDesMiddleware())
-                .set(SerDesMiddleware::setBodyWriters, new ToStringBodyWriter())
+                .set(SerDesMiddleware::setBodyWriters,
+                        new MessageBodyWriter[]{
+                                new ToStringBodyWriter(),
+                                new JsonBodyWriter(mapper)})
+                .set(SerDesMiddleware::setBodyReaders,
+                        new JsonBodyReader(mapper))
                 .build());
         app.use(new ValidateBodyMiddleware());
         app.use(new ControllerInvokerMiddleware(injector));
