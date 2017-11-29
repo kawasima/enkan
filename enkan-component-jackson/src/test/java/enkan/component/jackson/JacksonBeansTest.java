@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import enkan.component.BeansConverter;
+import enkan.system.EnkanSystem;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,13 +19,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
  */
 public class JacksonBeansTest {
+    private EnkanSystem system;
 
+    @BeforeEach
+    public void setUp() {
+        system = EnkanSystem.of("beans", new JacksonBeansConverter());
+        system.start();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        system.stop();
+    }
     @Test
     public void test() {
         ObjectMapper mapper = new ObjectMapper();
@@ -34,7 +48,7 @@ public class JacksonBeansTest {
         });
         TestBean bean = new TestBean("ABC", "12", "Tokyo");
         Person person = mapper.convertValue(bean, Person.class);
-        assertEquals("ABC", person.getName());
+        assertThat(person.getName()).isEqualTo("ABC");
     }
 
     @Test
@@ -50,7 +64,7 @@ public class JacksonBeansTest {
         m.put("name", "Jackson");
         m.put("age", 10);
         Person person = mapper.convertValue(m, Person.class);
-        assertEquals(person.getName(), "Jackson");
+        assertThat(person.getName()).isEqualTo("Jackson");
     }
 
     @Test
@@ -87,16 +101,40 @@ public class JacksonBeansTest {
         m.put("telNumbers", new ArrayList(){{add("A"); add("B"); add("C");}});
         m.put("age", new int[]{ 10, 20 });
         Person person = mapper.convertValue(m, Person.class);
-        assertEquals(person.getName(), "Jackson");
-        Assert.assertNotNull(person.getTelNumbers());
-        assertEquals(3, person.getTelNumbers().size());
-        // FIXME assertEquals(10, person.getAge());
+        assertThat(person.getName()).isEqualTo("Jackson");
+        assertThat(person.getTelNumbers()).isNotNull();
+        assertThat(person.getTelNumbers().size()).isEqualTo(3);
+    }
+
+    @Test
+    public void testNull() throws Exception {
+        BeansConverter beansConverter = system.getComponent("beans");
+
+        Object bean1 = new TestBean(null, "10", "TOKYO");
+        Person dest = new Person();
+        dest.name = "GGG";
+
+        beansConverter.copy(bean1, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
+        assertThat(dest.getName()).isEqualTo("GGG");
+    }
+
+    @Test
+    public void idempotence() {
+        BeansConverter beansConverter = system.getComponent("beans");
+
+        Object bean1 = new TestBean(null, "10", "TOKYO");
+        Person dest = new Person();
+        dest.name = "GGG";
+        beansConverter.copy(bean1, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
+        assertThat(dest.getName()).isEqualTo("GGG");
+
+        beansConverter.copy(bean1, dest);
+        assertThat(dest.getName()).isNull();
     }
 
     @Data
-    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class TestBean {
-        @NonNull
         String name;
         @NonNull
         String age;

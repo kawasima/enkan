@@ -1,5 +1,6 @@
 package enkan.component.jackson;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -9,6 +10,7 @@ import enkan.component.ComponentLifecycle;
 import enkan.exception.MisconfigurationException;
 
 import java.io.IOException;
+import java.nio.file.CopyOption;
 
 /**
  * @author kawasima
@@ -17,10 +19,25 @@ public class JacksonBeansConverter extends BeansConverter {
     private ObjectMapper mapper;
 
     @Override
-    public void copy(Object source, Object destination) {
+    public void copy(Object source, Object destination, CopyOption copyOption) {
         try {
-            byte[] buf = mapper.writeValueAsBytes(source);
-            mapper.readerForUpdating(destination).readValue(buf);
+            byte[] buf;
+            switch (copyOption) {
+                case REPLACE_NON_NULL:
+                     buf = mapper
+                            .copy()
+                            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                            .writeValueAsBytes(source);
+                    mapper.readerForUpdating(destination).readValue(buf);
+                    break;
+                case REPLACE_ALL:
+                    buf = mapper.writeValueAsBytes(source);
+                    mapper.readerForUpdating(destination).readValue(buf);
+                    break;
+                case PRESERVE_NON_NULL:
+                    throw new UnsupportedOperationException("PRESERVE_NON_NULL");
+            }
+
         } catch (IOException e) {
             throw new MisconfigurationException("jackson.IO_ERROR");
         }

@@ -2,25 +2,44 @@ package enkan.component.s2util.beans;
 
 import enkan.component.BeansConverter;
 import enkan.component.ComponentLifecycle;
+import enkan.exception.UnreachableException;
 import org.seasar.util.beans.factory.BeanDescFactory;
 import org.seasar.util.beans.util.BeanUtil;
+import org.seasar.util.beans.util.CopyOptions;
+import org.seasar.util.beans.util.CopyOptionsUtil;
 
 import java.util.Map;
 
 public class S2BeansConverter extends BeansConverter {
+    private static CopyOptions DEFAULT_OPTIONS = new CopyOptions();
+    private static CopyOptions EXCLUDE_NULL_OPTIONS = CopyOptionsUtil.excludeNull();
+
+    private CopyOptions createCopyOptions(CopyOption option) {
+        switch(option) {
+            case REPLACE_ALL:
+                return DEFAULT_OPTIONS;
+            case REPLACE_NON_NULL:
+                return EXCLUDE_NULL_OPTIONS;
+            case PRESERVE_NON_NULL:
+                throw new UnsupportedOperationException("PRESERVE_NON_NULL");
+            default:
+                throw new UnreachableException();
+        }
+    }
     @Override
-    public void copy(Object source, Object destination) {
+    public void copy(Object source, Object destination, CopyOption option) {
+        CopyOptions copyOptions = createCopyOptions(option);
         if (source instanceof Map) {
             if (destination instanceof Map) {
-                BeanUtil.copyMapToMap((Map)source, (Map)destination);
+                BeanUtil.copyMapToMap((Map)source, (Map)destination, copyOptions);
             } else {
-                BeanUtil.copyMapToBean((Map) source, destination);
+                BeanUtil.copyMapToBean((Map) source, destination, copyOptions);
             }
         } else {
             if (destination instanceof Map) {
-                BeanUtil.copyBeanToMap(source, (Map) destination);
+                BeanUtil.copyBeanToMap(source, (Map) destination, copyOptions);
             } else {
-                BeanUtil.copyBeanToBean(source, destination);
+                BeanUtil.copyBeanToBean(source, destination, copyOptions);
             }
         }
     }
