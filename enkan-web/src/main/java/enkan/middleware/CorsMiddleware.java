@@ -26,7 +26,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     private boolean credentials;
 
     public CorsMiddleware() {
-        methods = new HashSet<>(Arrays.asList("GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS"));
+        methods = new HashSet<>(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH", "HEAD", "OPTIONS"));
         origins = new HashSet<>(Collections.singletonList("*"));
         headers = new HashSet<>(Arrays.asList(
                 "Origin", "Accept", "X-Requested-With", "Content-Type",
@@ -76,6 +76,9 @@ public class CorsMiddleware extends AbstractWebMiddleware {
         if (isCORSRequest(request)) {
             if (origins != null && !origins.isEmpty()) {
                 header(response, "Access-Control-Allow-Origin", String.join(", ", origins));
+            }
+            if (credentials) {
+                header(response, "Access-Control-Allow-Credentials", "true");
             }
         }
         return response;
