@@ -21,6 +21,8 @@ import static enkan.util.HttpResponseUtils.resourceResponse;
 @Middleware(name = "resource")
 public class ResourceMiddleware extends AbstractWebMiddleware {
     private String rootPath = "public";
+    private String uriPrefix = "assets/";
+
     private static final Set<String> ACCEPTABLE_METHODS = new HashSet<String>() {{
         add("GET");
         add("HEAD");
@@ -30,6 +32,11 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
         if (ACCEPTABLE_METHODS.contains(
                 Objects.toString(request.getRequestMethod(), "").toUpperCase(Locale.US))) {
             String path = urlDecode(pathInfo(request)).substring(1);
+            if (!path.startsWith(uriPrefix)) {
+                return null;
+            }
+            int len = uriPrefix.length();
+            if (len > 0) path = path.substring(len);
             return resourceResponse(path, OptionMap.of("root", rootPath));
         }
 
@@ -37,15 +44,25 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         HttpResponse response = resourceRequest(request, rootPath);
         if (response == null) {
-            response = (HttpResponse) next.next(request);
+            response = (HttpResponse) chain.next(request);
         }
         return response;
     }
 
     public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
+    }
+
+    public void setUriPrefix(String uriPrefix) {
+        if (uriPrefix == null) {
+            this.uriPrefix = "";
+        } else {
+            if (uriPrefix.startsWith("/")) uriPrefix = uriPrefix.substring(1);
+            if (!uriPrefix.endsWith("/")) uriPrefix += "/";
+            this.uriPrefix = uriPrefix;
+        }
     }
 }
