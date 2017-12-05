@@ -62,7 +62,7 @@ public abstract class BooleanConversionUtil {
      */
     public static boolean toPrimitiveBoolean(final Object o) {
         final Boolean b = toBoolean(o);
-        return b != null && b.booleanValue();
+        return b != null && b;
     }
 
 }

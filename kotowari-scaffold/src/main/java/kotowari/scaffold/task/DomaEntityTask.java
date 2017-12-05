@@ -44,7 +44,7 @@ public class DomaEntityTask implements GenTask {
             @Override
             public EntityConfig createEntityConfig() {
                 entityConfig = new EntityConfig();
-                entityConfig.setProject(project);
+                entityConfig.setProject(getProject());
                 entityConfig.setUseListener(false);
                 entityConfig.setDestDir(destDir);
                 GenerationTypeAttribute generationType = new GenerationTypeAttribute();
@@ -57,7 +57,7 @@ public class DomaEntityTask implements GenTask {
             @Override
             public DaoConfig createDaoConfig() {
                 daoConfig = new DaoConfig();
-                daoConfig.setProject(project);
+                daoConfig.setProject(getProject());
                 daoConfig.setDestDir(destDir);
                 daoConfig.setPackageName(basePackage + "dao");
                 return daoConfig;
@@ -66,7 +66,7 @@ public class DomaEntityTask implements GenTask {
             @Override
             public SqlConfig createSqlConfig() {
                 sqlConfig = new SqlConfig();
-                sqlConfig.setProject(project);
+                sqlConfig.setProject(getProject());
                 sqlConfig.setDestDir(new File(destination));
                 return sqlConfig;
             }

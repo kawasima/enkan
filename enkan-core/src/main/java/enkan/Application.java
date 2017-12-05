@@ -36,8 +36,8 @@ public interface Application<REQ, RES> {
      *
      * @param predicate A predicate for using the middleware
      * @param middleware A middleware
-     * @param <IN>
-     * @param <OUT>
+     * @param <IN> A type of variable into middleware
+     * @param <OUT> A type of variable from middleware
      */
     default <IN, OUT> void use(Predicate<IN> predicate, Middleware<IN, OUT> middleware) {
         use(predicate, null, middleware);
@@ -46,11 +46,11 @@ public interface Application<REQ, RES> {
     /**
      * Declare to use a middleware with a predication and middleware's name.
      *
-     * @param predicate
-     * @param middlewareName
-     * @param middleware
-     * @param <IN>
-     * @param <OUT>
+     * @param predicate A predicate for using the middleware
+     * @param middlewareName the name of a middleware
+     * @param middleware A middleware
+     * @param <IN> A type of variable into middleware
+     * @param <OUT> A type of variable from middleware
      */
     <IN, OUT> void use(Predicate<IN> predicate, String middlewareName, Middleware<IN, OUT> middleware);
 

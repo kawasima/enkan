@@ -1,7 +1,6 @@
 package kotowari.example.dao;
 
 import kotowari.example.entity.Guestbook;
-import org.seasar.doma.Dao;
 import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
 

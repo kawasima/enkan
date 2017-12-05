@@ -18,9 +18,9 @@ public class ValidatableFormAdapter extends BeanModel {
         super(form, ow);
         this.hasErrors = arguments -> {
             if (arguments.size() == 0) {
-                return Boolean.valueOf(form.hasErrors());
+                return (Boolean) form.hasErrors();
             } else if (arguments.size() == 1) {
-                return Boolean.valueOf(form.hasErrors(arguments.get(0).toString()));
+                return (Boolean) form.hasErrors(arguments.get(0).toString());
             } else {
                 return null;
             }

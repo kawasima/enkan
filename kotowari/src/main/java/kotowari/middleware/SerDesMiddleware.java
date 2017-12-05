@@ -3,13 +3,12 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.collection.Headers;
-import enkan.collection.Parameters;
 import enkan.component.BeansConverter;
 import enkan.component.SystemComponent;
-import enkan.data.*;
-import enkan.exception.MisconfigurationException;
-import enkan.exception.UnreachableException;
-import enkan.security.UserPrincipal;
+import enkan.data.ContentNegotiable;
+import enkan.data.HttpRequest;
+import enkan.data.HttpResponse;
+import enkan.data.Routable;
 import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
@@ -30,8 +29,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static enkan.util.BeanBuilder.builder;
-import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.BeanBuilder.*;
 
 /**
  * Serialize a java object to response body and deserialize  a response body
