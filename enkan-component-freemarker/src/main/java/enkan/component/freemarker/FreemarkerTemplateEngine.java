@@ -6,6 +6,8 @@ import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
+import freemarker.core.HTMLOutputFormat;
+import freemarker.core.OutputFormat;
 import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.StringModel;
 import freemarker.template.*;
@@ -33,6 +35,8 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
     private String suffix = ".ftl";
     private ClassLoader classLoader;
     private String encoding = "UTF-8";
+
+    private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
 
     @Override
     public HttpResponse render(String name, Object... keyOrVals) {
@@ -63,10 +67,11 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
                 if (classLoader == null) {
                     classLoader = Thread.currentThread().getContextClassLoader();
                 }
-                config = new Configuration(new Version(2,3,23));
+                config = new Configuration(new Version(2,3,27));
                 ClassTemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
                 config.setTemplateLoader(classTemplateLoader);
-                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,23)) {
+                config.setOutputFormat(outputFormat);
+                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,27)) {
                     @Override
                     protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
                         if (obj instanceof Validatable) {
@@ -95,5 +100,14 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
                         return arg;
                     }
                 }).collect(Collectors.toList()));
+    }
+
+    /**
+     * Set an output format used by this freemarker.
+     *
+     * @param outputFormat FreeMarker output format
+     */
+    public void setOutputFormat(OutputFormat outputFormat) {
+        this.outputFormat = outputFormat;
     }
 }
