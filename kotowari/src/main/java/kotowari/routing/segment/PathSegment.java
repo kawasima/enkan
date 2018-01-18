@@ -2,6 +2,7 @@ package kotowari.routing.segment;
 
 import enkan.collection.OptionMap;
 import enkan.exception.UnreachableException;
+import enkan.util.CodecUtils;
 
 import java.util.regex.Matcher;
 
@@ -44,6 +45,6 @@ public class PathSegment extends DynamicSegment {
     @Override
     public void matchExtraction(OptionMap params, Matcher match, int nextCapture) {
         String value = match.group(nextCapture);
-        params.put(getKey(), value);
+        params.put(getKey(), CodecUtils.urlDecode(value));
     }
 }

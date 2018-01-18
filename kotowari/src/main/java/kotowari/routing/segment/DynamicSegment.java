@@ -1,6 +1,7 @@
 package kotowari.routing.segment;
 
 import enkan.collection.OptionMap;
+import enkan.util.CodecUtils;
 import kotowari.routing.RegexpUtils;
 import kotowari.routing.RouteBuilder;
 import kotowari.routing.Segment;
@@ -82,8 +83,8 @@ public class DynamicSegment extends Segment {
         String value;
         if (m != null) {
             try {
-                value = URLEncoder.encode(m, "UTF-8");
-            } catch(UnsupportedEncodingException e) {
+                value = CodecUtils.urlDecode(m);
+            } catch(Exception e) {
                 value = m;
             }
         } else {
@@ -102,8 +103,8 @@ public class DynamicSegment extends Segment {
     public String interpolationChunk(OptionMap hash) {
         String value = hash.getString(getKey());
         try {
-            return URLEncoder.encode(value, "UTF-8");
-        } catch(UnsupportedEncodingException e) {
+            return CodecUtils.urlEncode(value);
+        } catch(Exception e) {
             return value;
         }
     }
