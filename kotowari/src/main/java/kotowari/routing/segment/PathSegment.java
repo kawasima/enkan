@@ -5,18 +5,27 @@ import enkan.exception.UnreachableException;
 import enkan.util.CodecUtils;
 
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author kawasima
  */
 public class PathSegment extends DynamicSegment {
+    private static final Pattern ENCODED_SLASH = Pattern.compile("%2f", Pattern.CASE_INSENSITIVE);
     public PathSegment(String key, OptionMap options) {
         super(key, options);
     }
 
     @Override
     public String interpolationChunk(OptionMap hash) {
-        return hash.getString(getKey());
+        String value = hash.getString(getKey());
+        try {
+            value = CodecUtils.urlEncode(value);
+            Matcher m = ENCODED_SLASH.matcher(value);
+            return m.replaceAll("/");
+        } catch (Exception e) {
+            return value;
+        }
     }
 
     @Override

@@ -3,6 +3,8 @@ package kotowari.routing;
 import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.util.CodecUtils;
+import kotowari.routing.controller.ExampleController;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -22,6 +24,41 @@ public class GenerateTest {
                 .isEqualTo("/a/b/");
         assertThat(routes.generate(OptionMap.of("controller", TestController.class, "action", "show", "id", 1)))
                 .isEqualTo("/a/b/1");
+    }
+
+    @Test
+    public void generateUtf8Dynamic() {
+        Routes routes = Routes.define(r -> {
+            r.get("/:val1").to(ExampleController.class, "method1");
+            r.get("/*glob").to(ExampleController.class, "method2");
+        }).compile();
+
+        String path = routes.generate(OptionMap.of(
+                "controller", ExampleController.class,
+                "action", "method1",
+                "val1", "あいう"
+
+        ));
+        assertThat(path).isEqualTo("/" + CodecUtils.urlEncode("あいう"));
+
+    }
+
+    @Test
+    public void generateUtf8Path() {
+        Routes routes = Routes.define(r -> {
+            r.get("/:val1").to(ExampleController.class, "method1");
+            r.get("/*glob").to(ExampleController.class, "method2");
+        }).compile();
+
+        String path = routes.generate(OptionMap.of(
+                "controller", ExampleController.class,
+                "action", "method2",
+                "glob", "あいう/かきく",
+                "val2", "さしす"
+        ));
+        assertThat(path).isEqualTo("/" + CodecUtils.urlEncode("あいう")
+                + "/" + CodecUtils.urlEncode("かきく")
+                + "?val2=" + CodecUtils.urlEncode("さしす"));
     }
 
     public static class TestController {
