@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.5.0</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.4.1-SNAPSHOT</enkan.version>
+        <enkan.version>0.5.0</enkan.version>
     </properties>
 
     <modules>
@@ -207,7 +207,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.16.18</version>
+                <version>1.16.20</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -220,7 +220,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

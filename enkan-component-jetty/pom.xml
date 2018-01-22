@@ -6,14 +6,17 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.0</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>enkan-component-jetty</artifactId>
     <packaging>jar</packaging>
-
     <name>enkan-component-jetty</name>
+
+    <properties>
+        <jetty.version>9.4.8.v20171121</jetty.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -36,7 +39,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.4.7.v20170914</version>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
 </project>

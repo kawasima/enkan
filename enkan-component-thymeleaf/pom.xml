@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.0</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>3.0.7.RELEASE</version>
+            <version>3.0.9.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
