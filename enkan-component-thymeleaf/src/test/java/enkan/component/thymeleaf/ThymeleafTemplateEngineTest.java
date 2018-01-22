@@ -1,20 +1,25 @@
 package enkan.component.thymeleaf;
 
 import enkan.data.HttpResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.thymeleaf.dialect.IDialect;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static enkan.util.BeanBuilder.builder;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author kawasima
@@ -22,7 +27,7 @@ import static org.junit.Assert.*;
 public class ThymeleafTemplateEngineTest {
     ThymeleafTemplateEngine engine;
 
-    @Before
+    @BeforeEach
     public void setup() {
         engine = new ThymeleafTemplateEngine();
         engine.lifecycle().start(engine);
@@ -45,14 +50,31 @@ public class ThymeleafTemplateEngineTest {
                 .map(Object::toString)
                 .collect(Collectors.joining("&")));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) response.getBody()))) {
-            //assertTrue(reader.lines().anyMatch(s -> s.contains("<span>kawasima</span>")));
-            reader.lines().forEach(System.out::println);
+            String result = reader.lines().collect(Collectors.joining("\n"));
+            assertTrue(result.contains("<span>abc&amp;def</span>"));
         } catch (IOException e) {
             fail("IOException occurred");
         }
     }
 
-    @After
+    @Test
+    public void configure() {
+        Set<IDialect> dialects = new HashSet<>();
+        engine = builder(new ThymeleafTemplateEngine())
+                .set(ThymeleafTemplateEngine::setDialects, dialects)
+                .build();
+        engine.lifecycle().start(engine);
+        HttpResponse response = engine.render("test1", "name", "kawasima", "message", "hello");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) response.getBody()))) {
+            String result = reader.lines().collect(Collectors.joining("\n"));
+            System.out.println(result);
+            assertTrue(result.contains("<span th:text=\"${name}\">"));
+        } catch (IOException e) {
+            fail("IOException occurred");
+        }
+    }
+
+    @AfterEach
     public void tearDown() {
         engine.lifecycle().stop(engine);
     }
