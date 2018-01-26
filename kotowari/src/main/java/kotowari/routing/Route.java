@@ -1,9 +1,13 @@
 package kotowari.routing;
 
 import enkan.collection.OptionMap;
+import enkan.data.ContentNegotiable;
+import enkan.data.HttpRequest;
 import enkan.util.CodecUtils;
+import enkan.util.HttpRequestUtils;
 import kotowari.routing.segment.DividerSegment;
 
+import javax.ws.rs.core.MediaType;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,6 +83,30 @@ public class Route {
     }
 
     /*----recognize----*/
+    public OptionMap recognize(HttpRequest request) {
+        Set<MediaType> produces = (Set<MediaType>) conditions.get("produces");
+        if (produces != null) {
+            MediaType produceType = ((ContentNegotiable) request).getMediaType();
+            if (!produces.contains(produceType)) {
+                return null;
+            }
+        }
+
+        Set<MediaType> consumes = (Set<MediaType>) conditions.get("consumes");
+        if (consumes != null) {
+            try {
+                MediaType consumeType = MediaType.valueOf(HttpRequestUtils.contentType(request));
+                if (!consumes.contains(consumeType)) {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return recognize(request.getUri(), request.getRequestMethod());
+    }
+
     public OptionMap recognize(String path, String method) {
         List<Object> methods = conditions.getList("method");
         if (!methods.isEmpty() && !methods.contains(method)) {
