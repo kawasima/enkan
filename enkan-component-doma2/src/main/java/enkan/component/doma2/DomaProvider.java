@@ -6,6 +6,7 @@ import enkan.component.SystemComponent;
 import enkan.exception.MisconfigurationException;
 import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.ConfigProvider;
+import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.SqlFileRepository;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.StandardDialect;
@@ -24,7 +25,11 @@ public class DomaProvider extends SystemComponent {
     private ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
     private Config defaultConfig;
     private Dialect dialect;
-
+    private Naming naming = Naming.DEFAULT;
+    private int maxRows = 0;
+    private int fetchSize = 0;
+    private int queryTimeout = 0;
+    private int batchSize = 0;
     /**
      * Gets the DAO.
      *
@@ -62,6 +67,11 @@ public class DomaProvider extends SystemComponent {
                 if (component.dialect == null) component.dialect = new StandardDialect();
                 component.defaultConfig = new Config() {
                     @Override
+                    public Naming getNaming() {
+                        return component.naming;
+                    }
+
+                    @Override
                     public DataSource getDataSource() {
                         return component.dataSource;
                     }
@@ -69,6 +79,26 @@ public class DomaProvider extends SystemComponent {
                     @Override
                     public Dialect getDialect() {
                         return component.dialect;
+                    }
+
+                    @Override
+                    public int getMaxRows() {
+                        return component.maxRows;
+                    }
+
+                    @Override
+                    public int getFetchSize() {
+                        return component.fetchSize;
+                    }
+
+                    @Override
+                    public int getQueryTimeout() {
+                        return component.queryTimeout;
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return component.batchSize;
                     }
                 };
             }
@@ -89,5 +119,25 @@ public class DomaProvider extends SystemComponent {
 
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
+    }
+
+    public void setNaming(Naming naming) {
+        this.naming = naming;
+    }
+
+    public void setMaxRows(int maxRows) {
+        this.maxRows = maxRows;
+    }
+
+    public void setFetchSize(int fetchSize) {
+        this.fetchSize = fetchSize;
+    }
+
+    public void setQueryTimeout(int queryTimeout) {
+        this.queryTimeout = queryTimeout;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 }
