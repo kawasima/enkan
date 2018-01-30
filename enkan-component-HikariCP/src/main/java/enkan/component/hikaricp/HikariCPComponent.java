@@ -15,8 +15,12 @@ public class HikariCPComponent extends DataSourceComponent {
     private HikariConfig config;
     private HikariDataSource dataSource;
 
-    public HikariCPComponent(OptionMap options) {
+    public HikariCPComponent() {
         config = new HikariConfig();
+    }
+
+    public HikariCPComponent(OptionMap options) {
+        this();
         if (options.containsKey("uri")) config.setJdbcUrl(options.getString("uri"));
         if (options.containsKey("username")) config.setUsername(options.getString("username"));
         if (options.containsKey("password")) config.setPassword(options.getString("password"));
@@ -49,5 +53,9 @@ public class HikariCPComponent extends DataSourceComponent {
                 component.dataSource = null;
             }
         };
+    }
+
+    public void setConfig(HikariConfig config) {
+        this.config = config;
     }
 }

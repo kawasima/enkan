@@ -3,16 +3,19 @@ package enkan.middleware.doma2;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
-import enkan.component.DataSourceComponent;
+import enkan.component.doma2.DomaPrividerUtils;
+import enkan.component.doma2.DomaProvider;
 import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
+import org.seasar.doma.jdbc.Config;
 import org.seasar.doma.jdbc.ConfigSupport;
-import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
+import org.seasar.doma.jdbc.tx.EnkanLocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.lang.reflect.Method;
 
@@ -22,7 +25,7 @@ import java.lang.reflect.Method;
 @enkan.annotation.Middleware(name = "domaTransaction")
 public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
     @Inject
-    private DataSourceComponent dataSourceComponent;
+    private DomaProvider domaProvider;
 
     private TransactionManager tm;
 
@@ -33,8 +36,12 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES>
 
     @PostConstruct
     private void init() {
-        LocalTransactionDataSource ds = new LocalTransactionDataSource(dataSourceComponent.getDataSource());
-        tm = new LocalTransactionManager(ds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
+        Config defaultConfig = DomaPrividerUtils.getDefaultConfig(domaProvider);
+        DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
+        if (ds instanceof EnkanLocalTransactionDataSource) {
+            EnkanLocalTransactionDataSource ltds = (EnkanLocalTransactionDataSource) ds;
+            tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
+        }
     }
 
     @Override

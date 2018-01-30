@@ -10,6 +10,8 @@ import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.SqlFileRepository;
 import org.seasar.doma.jdbc.dialect.Dialect;
 import org.seasar.doma.jdbc.dialect.StandardDialect;
+import org.seasar.doma.jdbc.tx.EnkanLocalTransactionDataSource;
+import org.seasar.doma.jdbc.tx.LocalTransactionDataSource;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -26,6 +28,7 @@ public class DomaProvider extends SystemComponent {
     private Config defaultConfig;
     private Dialect dialect;
     private Naming naming = Naming.DEFAULT;
+    private boolean useLocalTransaction = true;
     private int maxRows = 0;
     private int fetchSize = 0;
     private int queryTimeout = 0;
@@ -64,6 +67,10 @@ public class DomaProvider extends SystemComponent {
             public void start(DomaProvider component) {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 component.dataSource = dataSourceComponent.getDataSource();
+
+                if (useLocalTransaction && !(component.dataSource instanceof LocalTransactionDataSource)) {
+                    component.dataSource = new EnkanLocalTransactionDataSource(component.dataSource);
+                }
                 if (component.dialect == null) component.dialect = new StandardDialect();
                 component.defaultConfig = new Config() {
                     @Override
@@ -117,6 +124,10 @@ public class DomaProvider extends SystemComponent {
         };
     }
 
+    protected Config getDefaultConfig() {
+        return defaultConfig;
+    }
+
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
     }
@@ -139,5 +150,9 @@ public class DomaProvider extends SystemComponent {
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    public void setUseLocalTransaction(boolean useLocalTransaction) {
+        this.useLocalTransaction = useLocalTransaction;
     }
 }
