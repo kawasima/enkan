@@ -5,6 +5,7 @@ import enkan.component.LifecycleManager;
 import enkan.component.SystemComponent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Enkan system.
@@ -12,9 +13,8 @@ import java.util.*;
  * @author kawasima
  */
 public class EnkanSystem {
-    Map<String, SystemComponent> components;
-    LinkedList<String> componentsOrder;
-
+    private Map<String, SystemComponent> components;
+    private LinkedList<String> componentsOrder;
 
     private EnkanSystem() {
         components = new HashMap<>();
@@ -57,6 +57,20 @@ public class EnkanSystem {
      */
     public <T extends SystemComponent> T getComponent(String name) {
         return (T) components.get(name);
+    }
+
+    /**
+     * Get a components by the type.
+     *
+     * @param componentType component type
+     * @return A list of components
+     */
+    public <T extends SystemComponent> List<T> getComponents(Class<T> componentType) {
+        return components.values()
+                .stream()
+                .filter(component -> componentType.isInstance(component))
+                .map(component -> componentType.cast(component))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -51,16 +51,17 @@ public class ClassWatcher implements Runnable {
 
     @Override
     public void run() {
-        for (;;) {
+        while (!Thread.currentThread().isInterrupted()) {
             WatchKey key;
 
             try {
-                key = watchService.poll(3, TimeUnit.SECONDS);
+                key = watchService.poll(10, TimeUnit.SECONDS);
                 if (key == null) continue;
             } catch (InterruptedException ex) {
                 return;
             }
 
+            boolean changed = false;
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind kind = event.kind();
 
@@ -71,19 +72,23 @@ public class ClassWatcher implements Runnable {
 
                 if (kind == ENTRY_MODIFY) {
                     if (!path.toFile().isDirectory()) {
-                        callback.run();
+                        changed = true;
                     }
                 }
 
                 if (kind == ENTRY_CREATE) {
 
                     if (!path.toFile().isDirectory()) {
-                        callback.run();
+                        changed = true;
                     }
                     if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                         registerAll(path);
                     }
                 }
+            }
+
+            if (changed) {
+                callback.run();
             }
 
             if (!key.reset()) {

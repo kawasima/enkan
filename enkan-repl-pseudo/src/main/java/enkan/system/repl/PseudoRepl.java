@@ -2,26 +2,26 @@ package enkan.system.repl;
 
 import enkan.component.WebServerComponent;
 import enkan.config.EnkanSystemFactory;
-import enkan.exception.FalteringEnvironmentException;
 import enkan.system.*;
 import enkan.system.command.MiddlewareCommand;
-import org.msgpack.MessagePack;
-import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeromq.ZContext;
+import org.zeromq.ZFrame;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMsg;
 
 import java.awt.*;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.*;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.*;
 
-import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
+import static enkan.system.ReplResponse.ResponseStatus.*;
 
 /**
  * @author kawasima
@@ -83,7 +83,7 @@ public class PseudoRepl implements Repl {
             commands.keySet().forEach(
                     command -> transport.send(ReplResponse.withOut("/" + command))
             );
-            transport.sendOut("");
+            transport.send(new ReplResponse().done());
             return true;
         });
         registerCommand("middleware", new MiddlewareCommand());
@@ -108,78 +108,53 @@ public class PseudoRepl implements Repl {
 
     @Override
     public void run() {
-        try (ServerSocket serverSock = new ServerSocket()) {
-            InetSocketAddress addr = new InetSocketAddress("localhost", 0);
-            serverSock.setReuseAddress(true);
-            serverSock.bind(addr);
+        Thread.currentThread().setName("pseudo-repl-server");
+        ZContext ctx = new ZContext();
+        try {
+            ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
+            int port = server.bindToRandomPort("tcp://localhost");
 
             registerCommand("shutdown", (system, transport, args) -> {
                 system.stop();
                 transport.sendOut("Shutdown server", SHUTDOWN);
-                try {
-                    serverSock.close();
-                    return false;
-                } catch (IOException ex) {
-                    throw new FalteringEnvironmentException(ex);
-                }
+                server.close();
+                return false;
             });
 
-            LOG.info("Listen " + serverSock.getLocalPort());
-            replPort.complete(serverSock.getLocalPort());
+            LOG.info("Listen " + port);
+            replPort.complete(port);
 
-            do {
-                Socket socket = serverSock.accept();
-                Transport transport = new SocketTransport(socket);
-
-                threadPool.submit(() -> {
-                    try {
-                        Unpacker unpacker = new MessagePack().createUnpacker(socket.getInputStream());
-
-                        while (true) {
-                            String msg = unpacker.readString();
-                            String[] cmd = msg.trim().split("\\s+");
-                            if (cmd[0].startsWith("/")) {
-                                SystemCommand command = commands.get(cmd[0].substring(1));
-                                if (cmd[0].isEmpty()) {
-                                    printHelp();
-                                } else if (command != null) {
-                                    String[] args = new String[cmd.length - 1];
-                                    System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
-                                    try {
-                                        boolean ret = command.execute(system, transport, args);
-                                        if (!ret) return;
-                                    } catch (Throwable ex) {
-                                        StringWriter traceWriter = new StringWriter();
-                                        ex.printStackTrace(new PrintWriter(traceWriter));
-                                        transport.sendErr(traceWriter.toString());
-                                    }
-                                } else {
-                                    transport.sendErr("Unknown command: " + cmd[0], ReplResponse.ResponseStatus.UNKNOWN_COMMAND);
-                                }
-                            } else {
-                                transport.sendOut("");
-                            }
-                        }
-                    } catch (EOFException ignore) {
-                        // Disconnect from client.
-                    } catch (Throwable ex) {
-                        StringWriter traceWriter = new StringWriter();
-                        ex.printStackTrace(new PrintWriter(traceWriter));
-                        transport.sendErr(traceWriter.toString());
-                    } finally {
+            while(!Thread.currentThread().isInterrupted()) {
+                ZMsg msg = ZMsg.recvMsg(server);
+                ZFrame clientAddress = msg.pop();
+                ZmqServerTransport transport = new ZmqServerTransport(server, clientAddress);
+                String[] cmd = msg.popString().trim().split("\\s+");
+                if (cmd[0].startsWith("/")) {
+                    SystemCommand command = commands.get(cmd[0].substring(1));
+                    if (cmd[0].isEmpty()) {
+                        printHelp();
+                    } else if (command != null) {
+                        String[] args = new String[cmd.length - 1];
+                        System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
                         try {
-                            socket.close();
-                        } catch (IOException ignore) {
-
+                            boolean ret = command.execute(system, transport, args);
+                            if (!ret) return;
+                        } catch (Throwable ex) {
+                            StringWriter traceWriter = new StringWriter();
+                            ex.printStackTrace(new PrintWriter(traceWriter));
+                            transport.sendErr(traceWriter.toString());
                         }
+                    } else {
+                        transport.sendErr("Unknown command: " + cmd[0], ReplResponse.ResponseStatus.UNKNOWN_COMMAND);
                     }
-                });
-            } while (!serverSock.isClosed());
-        } catch (SocketException e) {
-            LOG.info("Repl server closed");
+                } else {
+                    transport.sendOut("");
+                }
+            }
         } catch (Exception e) {
             LOG.error("Repl server error", e);
         } finally {
+            ctx.close();
             try {
                 threadPool.shutdown();
                 if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {

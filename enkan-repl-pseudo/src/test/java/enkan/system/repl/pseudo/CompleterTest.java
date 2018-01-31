@@ -1,7 +1,7 @@
 package enkan.system.repl.pseudo;
 
 import jline.console.completer.StringsCompleter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;

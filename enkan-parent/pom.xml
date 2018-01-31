@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.5.0</enkan.version>
+        <enkan.version>0.5.1-SNAPSHOT</enkan.version>
     </properties>
 
     <modules>
