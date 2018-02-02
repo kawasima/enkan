@@ -24,6 +24,7 @@ public class ZmqServerTransport implements Transport {
         msgpack.register(ReplResponse.class);
     }
 
+    private boolean isClosed = false;
     private Socket socket;
     private ZFrame clientAddress;
 
@@ -52,7 +53,11 @@ public class ZmqServerTransport implements Transport {
     }
 
     public void close() throws IOException {
-        // Do nothing
+        isClosed = true;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
     }
 
 }

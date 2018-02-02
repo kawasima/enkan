@@ -1,9 +1,9 @@
 package kotowari.example;
 
 import enkan.system.command.MetricsCommandRegister;
-import enkan.system.repl.PseudoRepl;
+import enkan.system.repl.JShellRepl;
 import enkan.system.repl.ReplBoot;
-import enkan.system.repl.pseudo.ReplClient;
+import enkan.system.repl.client.ReplClient;
 import kotowari.system.KotowariCommandRegister;
 
 /**
@@ -11,11 +11,11 @@ import kotowari.system.KotowariCommandRegister;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
-        PseudoRepl repl = new PseudoRepl(ExampleSystemFactory.class.getName());
+        JShellRepl repl = new JShellRepl(ExampleSystemFactory.class.getName());
         ReplBoot.start(repl,
                 new KotowariCommandRegister(),
                 new MetricsCommandRegister());
 
-        new ReplClient().start(repl.getPort().get());
+        new ReplClient().start(repl.getPort());
     }
 }

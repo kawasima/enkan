@@ -1,13 +1,12 @@
 package enkan.system.devel;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.beans.Transient;
+import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import enkan.system.SystemCommand;
 import enkan.system.devel.compiler.MavenCompiler;
 
 import enkan.component.ApplicationComponent;
@@ -21,10 +20,10 @@ import enkan.system.repl.SystemCommandRegister;
 /**
  * @author kawasima
  */
-public class DevelCommandRegister implements SystemCommandRegister {
+public class DevelCommandRegister implements SystemCommandRegister, Serializable {
 
     /** compiling build tool. */
-    private Compiler compiler;
+    private transient Compiler compiler;
 
     /**
      * init with MavenCompiler.
@@ -52,7 +51,7 @@ public class DevelCommandRegister implements SystemCommandRegister {
 
     @Override
     public void register(final Repl repl) {
-        repl.registerCommand("autoreset", (system, transport, args) -> {
+        repl.registerCommand("autoreset", (SystemCommand & Serializable) (system, transport, args) -> {
             if (repl.getBackgorundTask("classWatcher") != null) {
                 transport.sendOut("Autoreset is already running.");
                 return true;
@@ -81,7 +80,7 @@ public class DevelCommandRegister implements SystemCommandRegister {
             }
         });
 
-        repl.registerCommand("compile", (system, transport, args) -> {
+        repl.registerCommand("compile", (SystemCommand & Serializable) (system, transport, args) -> {
             final CompileResult result = compiler.execute(transport);
             Throwable exception = result.getExecutionException();
             if (exception == null) {

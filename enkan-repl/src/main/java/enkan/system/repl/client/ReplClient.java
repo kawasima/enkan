@@ -1,4 +1,4 @@
-package enkan.system.repl.pseudo;
+package enkan.system.repl.client;
 
 import enkan.system.ReplResponse;
 import jline.console.ConsoleReader;
@@ -51,7 +51,7 @@ public class ReplClient implements AutoCloseable {
         public void connect(int port) throws IOException {
             socket = ctx.createSocket(ZMQ.DEALER);
             socket.connect("tcp://localhost:" + port);
-            if (!socket.send("/?")) {
+            if (!socket.send("/help")) {
                 throw new IOException("Can't connect to repl server");
             }
             List<String> availableCommands = new ArrayList<>();

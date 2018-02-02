@@ -1,4 +1,4 @@
-package enkan.system.repl.pseudo;
+package enkan.system.repl.client;
 
 import jline.console.completer.Completer;
 

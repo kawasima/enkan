@@ -6,8 +6,11 @@ import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
 import enkan.system.Repl;
 import enkan.system.ReplResponse;
+import enkan.system.SystemCommand;
 import enkan.system.repl.SystemCommandRegister;
 import kotowari.middleware.RoutingMiddleware;
+
+import java.io.Serializable;
 
 /**
  * Registers commands for routes.

@@ -107,4 +107,18 @@ public class EnkanSystem {
                 .map(key -> components.get(key))
                 .forEach(LifecycleManager::stop);
     }
+
+    @Override
+    public String toString() {
+        String out = componentsOrder.stream()
+                .map(name -> "  \"" + name + "\": " +
+                        components.get(name).toString())
+                .collect(Collectors.joining(",\n"));
+
+        if (out.isEmpty()) {
+            return "EnkanSystem {}";
+        } else {
+            return "EnkanSystem {\n" + out + "\n}";
+        }
+    }
 }

@@ -29,7 +29,7 @@ public class ReplMock implements Repl {
     }
 
     @Override
-    public CompletableFuture<Integer> getPort() {
+    public Integer getPort() {
         return null;
     }
 

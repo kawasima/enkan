@@ -58,4 +58,14 @@ public class HikariCPComponent extends DataSourceComponent {
     public void setConfig(HikariConfig config) {
         this.config = config;
     }
+
+    @Override
+    public String toString() {
+        return "#HikariCPComponent {\n"
+                + "  \"jdbcUrl\": \"" + config.getJdbcUrl() + "\",\n"
+                + "  \"username\": \"" + config.getUsername() + "\",\n"
+                + "  \"dependencies\": " + dependenciesToString()
+                + "\n}";
+
+    }
 }

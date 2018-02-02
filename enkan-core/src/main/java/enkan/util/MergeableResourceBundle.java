@@ -1,7 +1,5 @@
 package enkan.util;
 
-import sun.util.ResourceBundleEnumeration;
-
 import java.util.*;
 
 /**
@@ -25,7 +23,36 @@ public class MergeableResourceBundle extends ResourceBundle {
     @Override
     public Enumeration<String> getKeys() {
         ResourceBundle parent = this.parent;
-        return new ResourceBundleEnumeration(lookup.keySet(),
-                (parent != null) ? parent.getKeys() : null);
+        Enumeration<String> enumeration = (parent != null) ? parent.getKeys() : null;
+        return new Enumeration<String>() {
+            private Iterator<String> iterator = lookup.keySet().iterator();
+            private String next = null;
+
+            @Override
+            public boolean hasMoreElements() {
+                if (next == null) {
+                    if (iterator.hasNext()) {
+                        next = iterator.next();
+                        while(next == null && enumeration.hasMoreElements()) {
+                            next = enumeration.nextElement();
+                            if (lookup.keySet().contains(next)) {
+                                next = null;
+                            }
+                        }
+                    }
+                }
+                return next != null;
+            }
+
+            @Override
+            public String nextElement() {
+                if (hasMoreElements()) {
+                    String result = next;
+                    next = null;
+                    return result;
+                }
+                throw new NoSuchElementException();
+            }
+        };
     }
 }

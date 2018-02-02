@@ -23,6 +23,7 @@
         <module>../enkan-system</module>
         <module>../enkan-web</module>
         <module>../enkan-servlet</module>
+        <module>../enkan-repl</module>
         <module>../enkan-repl-pseudo</module>
         <module>../enkan-devel</module>
         <module>../enkan-devel-gradle</module>

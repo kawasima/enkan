@@ -1,9 +1,12 @@
 package enkan.system.repl;
 
-import enkan.component.WebServerComponent;
 import enkan.config.EnkanSystemFactory;
-import enkan.system.*;
-import enkan.system.command.MiddlewareCommand;
+import enkan.exception.FalteringEnvironmentException;
+import enkan.system.EnkanSystem;
+import enkan.system.Repl;
+import enkan.system.ReplResponse;
+import enkan.system.SystemCommand;
+import enkan.system.command.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
@@ -11,14 +14,12 @@ import org.zeromq.ZFrame;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-import java.awt.*;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
@@ -31,6 +32,7 @@ public class PseudoRepl implements Repl {
 
     private final EnkanSystem system;
     private final ExecutorService threadPool;
+    private final Set<String> commandNames = new HashSet<>();
     private final Map<String, SystemCommand> commands = new HashMap<>();
     private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
     private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
@@ -47,45 +49,10 @@ public class PseudoRepl implements Repl {
             throw new IllegalStateException(ex);
         }
 
-        registerCommand("start", (system, transport, args) -> {
-            system.start();
-            transport.sendOut("Started server");
-            if (args.length > 0) {
-                if (Desktop.isDesktopSupported()) {
-                    Optional<WebServerComponent> webServerComponent = system.getAllComponents().stream()
-                            .filter(WebServerComponent.class::isInstance)
-                            .map(WebServerComponent.class::cast)
-                            .findFirst();
-                    webServerComponent.ifPresent(web -> {
-                        try {
-                            Desktop.getDesktop().browse(URI.create("http://localhost:" + web.getPort() + "/" + args[0].replaceAll("^/", "")));
-                        } catch (IOException ignore) {
-                            // ignore
-                        }
-                    });
-                }
-            }
-            return true;
-        } );
-        registerCommand("stop",  (system, transport, args) -> {
-            system.stop();
-            transport.sendOut("Stopped server");
-            return true;
-        });
-
-        registerCommand("reset", (system, transport, args) -> {
-            system.stop();
-            system.start();
-            transport.sendOut("Reset server");
-            return true;
-        });
-        registerCommand("?", (system, transport, args) -> {
-            commands.keySet().forEach(
-                    command -> transport.send(ReplResponse.withOut("/" + command))
-            );
-            transport.send(new ReplResponse().done());
-            return true;
-        });
+        registerCommand("start", new StartCommand());
+        registerCommand("stop",  new StopCommand());
+        registerCommand("reset", new ResetCommand());
+        registerCommand("help",  new HelpCommand(commandNames));
         registerCommand("middleware", new MiddlewareCommand());
     }
 
@@ -98,11 +65,16 @@ public class PseudoRepl implements Repl {
     }
 
     @Override
-    public CompletableFuture<Integer> getPort() {
-        return replPort;
+    public Integer getPort() {
+        try {
+            return replPort.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new FalteringEnvironmentException(e);
+        }
     }
     @Override
     public void registerCommand(String name, SystemCommand command) {
+        commandNames.add(name);
         commands.put(name, command);
     }
 

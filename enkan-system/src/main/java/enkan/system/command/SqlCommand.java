@@ -5,10 +5,15 @@ import enkan.system.EnkanSystem;
 import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
 import enkan.system.Transport;
+import lombok.Value;
 
+import javax.annotation.sql.DataSourceDefinition;
 import javax.sql.DataSource;
+import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
@@ -22,7 +27,11 @@ public class SqlCommand implements SystemCommand {
 
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
-        String sql = String.join(" ", args);
+        String sql = String.join(" ", args).trim();
+        if (sql.isEmpty()) {
+            transport.sendErr("/sql [SQL statement]", DONE);
+        }
+
         boolean isDML = Arrays.stream(args).anyMatch(s -> DML_KEYWORDS.contains(s));
         List<DataSourceComponent> components = system.getComponents(DataSourceComponent.class);
         if (components.isEmpty()) {
@@ -47,18 +56,28 @@ public class SqlCommand implements SystemCommand {
                 try (ResultSet rs = stmt.executeQuery(sql)) {
                     ResultSetMetaData rsMeta = rs.getMetaData();
                     int cols = rsMeta.getColumnCount();
-                    List<String> colNames = new ArrayList<>();
+
+                    List<ColumnMeta> colMetas = new ArrayList<>();
                     for (int i = 1; i <= cols; i++) {
-                        colNames.add(rsMeta.getColumnName(i));
+                        int size = rsMeta.getPrecision(i);
+                        if (size == 0) size = 10;
+                        if (size >= 20) size = 20;
+                        colMetas.add(new ColumnMeta(rsMeta.getColumnName(i), size));
                     }
-                    transport.send(ReplResponse.withOut(String.join("|", colNames)));
-                    transport.send(ReplResponse.withOut(""));
+
+                    String header = colMetas.stream().map(meta ->
+                            String.format(Locale.US, "%-" + meta.getDispSize() + "s", meta.name)
+                    ).collect(Collectors.joining("|"));
+                    transport.send(ReplResponse.withOut(header));
+                    transport.send(ReplResponse.withOut(new String(new char[header.length()]).replace("\0", "-")));
 
                     int cnt = 0;
                     while (rs.next()) {
                         List<String> values = new ArrayList<>();
-                        for (int i = 1; i <= cols; i++) {
-                            values.add(rs.getString(i));
+                        for (int i = 0; i < cols; i++) {
+                            values.add(String.format(Locale.US,
+                                    "%-" + colMetas.get(i).getDispSize() + "s",
+                                    rs.getString(i+1)));
                         }
                         transport.send(ReplResponse.withOut(String.join("|", values)));
                         cnt++;
@@ -70,5 +89,11 @@ public class SqlCommand implements SystemCommand {
             transport.sendErr(e.getLocalizedMessage(), DONE);
         }
         return true;
+    }
+
+    @Value
+    private static class ColumnMeta implements Serializable {
+        private String name;
+        private int dispSize;
     }
 }

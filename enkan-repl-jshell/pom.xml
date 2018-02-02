@@ -10,16 +10,26 @@
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
-    <artifactId>enkan-repl-pseudo</artifactId>
+    <artifactId>enkan-repl-jshell</artifactId>
     <packaging>jar</packaging>
 
-    <name>enkan-repl-pseudo</name>
+    <name>enkan-repl-jshell</name>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.9</maven.compiler.source>
+        <maven.compiler.target>1.9</maven.compiler.target>
     </properties>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -27,7 +37,6 @@
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
         </dependency>
-
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-repl</artifactId>
@@ -37,6 +46,11 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

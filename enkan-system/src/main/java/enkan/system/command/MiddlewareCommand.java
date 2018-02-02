@@ -27,17 +27,22 @@ public class MiddlewareCommand implements SystemCommand {
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         if (args == null || args.length < 2) {
-            transport.sendOut("middleware [appName]");
+            transport.sendOut("middleware [appName] [list/predicate]");
             return true;
         }
 
         String appName = args[0];
         SystemComponent component = system.getComponent(appName);
         if (component == null || !(component instanceof ApplicationComponent)) {
-            transport.sendErr(String.format("Application %s not found.", appName));
+            transport.sendErr(String.format("Application %s is not found.", appName));
             return true;
         }
         Application<?, ?> app = ((ApplicationComponent) component).getApplication();
+        if (app == null) {
+            transport.sendErr(String.format("Application %s is not started.", appName));
+            return true;
+        }
+
 
         switch (args[1]) {
             case "list":

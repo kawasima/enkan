@@ -65,4 +65,12 @@ public class HmacEncoder extends SystemComponent {
         this.secret = secret;
         createKeySpec();
     }
+
+    @Override
+    public String toString() {
+        return "#HmacEncoder {\n"
+                + "  \"algorithm\": \""+ algorithm + "\",\n"
+                + "  \"dependencies\": " + dependenciesToString()
+                + "\n}";
+    }
 }
