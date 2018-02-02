@@ -91,6 +91,7 @@ public class JShellRepl implements Repl {
             for (String path : elements) {
                 jshell.addToClasspath(path);
             }
+            executeStatement("import java.util.*");
             executeStatement("import enkan.system.*");
             executeStatement("import enkan.config.EnkanSystemFactory");
             executeStatement("import enkan.system.repl.jshell.JShellObjectTransferer");

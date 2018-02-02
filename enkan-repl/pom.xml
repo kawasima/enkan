@@ -43,7 +43,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <outputFile>enkan-repl-pseudo.jar</outputFile>
+                    <outputFile>enkan-repl-client.jar</outputFile>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>enkan.system.repl.client.ReplClient</mainClass>

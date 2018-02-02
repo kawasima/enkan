@@ -11,7 +11,7 @@ import java.io.UncheckedIOException;
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
 public class SystemIoTransport implements Transport {
-    public static final String CHUNK_DELEMETER = "-----------------END------------------";
+    public static final String CHUNK_DELIMITER = "-----------------END------------------";
     private BufferedReader reader;
 
     public SystemIoTransport() {
@@ -30,7 +30,7 @@ public class SystemIoTransport implements Transport {
         }
 
         if (response.getStatus().contains(DONE)) {
-            System.out.println(CHUNK_DELEMETER);
+            System.out.println(CHUNK_DELIMITER);
         }
     }
 

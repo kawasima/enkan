@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
 
@@ -45,7 +44,7 @@ public class JShellIoProxy {
                 if (transport.isClosed()) return;
                 try {
                     String line = outReader.readLine();
-                    if (Objects.equals(SystemIoTransport.CHUNK_DELEMETER, line)) {
+                    if (Objects.equals(SystemIoTransport.CHUNK_DELIMITER, line)) {
                         transport.sendOut("");
                     } else {
                         transport.send(ReplResponse.withOut(line));
