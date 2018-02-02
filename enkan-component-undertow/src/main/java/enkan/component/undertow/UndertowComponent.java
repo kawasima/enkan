@@ -36,4 +36,13 @@ public class UndertowComponent extends WebServerComponent {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        return "#UndertowComponent {\n"
+                + "  \"host\": \"" + getHost() + "\",\n"
+                + "  \"port\": \"" + getPort() + "\",\n"
+                + "  \"dependencies\": \"" + dependenciesToString() + ",\n"
+                + "}";
+    }
 }

@@ -66,4 +66,11 @@ public class JacksonBeansConverter extends BeansConverter {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        return "#JacksonBeansConverter {\n"
+                + "  \"dependencies\": " + dependenciesToString()
+                + "\n}";
+    }
 }

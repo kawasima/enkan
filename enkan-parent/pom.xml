@@ -25,6 +25,7 @@
         <module>../enkan-servlet</module>
         <module>../enkan-repl</module>
         <module>../enkan-repl-pseudo</module>
+        <module>../enkan-repl-jshell</module>
         <module>../enkan-devel</module>
         <module>../enkan-devel-gradle</module>
         <module>../enkan-component-HikariCP</module>
@@ -48,7 +49,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.7.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>

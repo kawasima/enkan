@@ -1,7 +1,8 @@
 package kotowari.example;
 
+import enkan.system.command.JsonRequestCommand;
 import enkan.system.command.MetricsCommandRegister;
-import enkan.system.devel.DevelCommandRegister;
+import enkan.system.command.SqlCommand;
 import enkan.system.repl.JShellRepl;
 import enkan.system.repl.ReplBoot;
 import enkan.system.repl.client.ReplClient;
@@ -17,7 +18,12 @@ public class DevMain {
         JShellRepl repl = new JShellRepl(ExampleSystemFactory.class.getName());
 
         ReplBoot.start(repl,
-                new KotowariCommandRegister());
+                new KotowariCommandRegister(),
+                new MetricsCommandRegister(),
+                r -> {
+                    r.registerCommand("sql", new SqlCommand());
+                    r.registerCommand("jsonRequest", new JsonRequestCommand());
+                });
 
         new ReplClient().start(repl.getPort());
     }

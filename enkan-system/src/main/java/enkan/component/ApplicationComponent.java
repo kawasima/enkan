@@ -69,4 +69,14 @@ public class ApplicationComponent extends SystemComponent {
     public String getFactoryClassName() {
         return factoryClassName;
     }
+
+    @Override
+    public String toString() {
+        return "#ApplicationComponent {\n"
+                + "  \"application\": \"" + application + "\",\n"
+                + "  \"factoryClassName\": \"" + factoryClassName + "\",\n"
+                + "  \"dependencies\": " + dependenciesToString()
+                + "\n}";
+
+    }
 }

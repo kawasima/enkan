@@ -1,6 +1,8 @@
 package enkan.system.repl;
 
+import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.system.EnkanSystem;
 import enkan.system.Repl;
 import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
@@ -11,6 +13,7 @@ import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import lombok.Data;
 import lombok.Value;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
@@ -104,7 +107,9 @@ public class JShellRepl implements Repl {
             registerCommand("reset", new ResetCommand());
             registerCommand("help",  new HelpCommand(commandNames));
             registerCommand("middleware", new MiddlewareCommand());
-
+            EnkanSystem system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).getConstructor().newInstance().create();
+            system.getAllComponents().stream()
+                    .forEach(c -> executeStatement("import " + c.getClass().getName()));
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }

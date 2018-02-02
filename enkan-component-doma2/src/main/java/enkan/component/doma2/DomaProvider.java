@@ -155,4 +155,11 @@ public class DomaProvider extends SystemComponent {
     public void setUseLocalTransaction(boolean useLocalTransaction) {
         this.useLocalTransaction = useLocalTransaction;
     }
+
+    @Override
+    public String toString() {
+        return "#DomaProvider {\n"
+                + "  \"dependencies\": " + dependenciesToString()
+                + "\n}";
+    }
 }

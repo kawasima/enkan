@@ -14,10 +14,6 @@
     <packaging>jar</packaging>
 
     <name>enkan-repl-jshell</name>
-    <properties>
-        <maven.compiler.source>1.9</maven.compiler.source>
-        <maven.compiler.target>1.9</maven.compiler.target>
-    </properties>
 
     <build>
         <plugins>
@@ -41,6 +37,11 @@
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-repl</artifactId>
             <version>${enkan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

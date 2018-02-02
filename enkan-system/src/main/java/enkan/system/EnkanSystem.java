@@ -112,7 +112,9 @@ public class EnkanSystem {
     public String toString() {
         String out = componentsOrder.stream()
                 .map(name -> "  \"" + name + "\": " +
-                        components.get(name).toString())
+                        Arrays.stream(components.get(name).toString().split("\n"))
+                                .map(line -> "  " + line)
+                                .collect(Collectors.joining("\n")))
                 .collect(Collectors.joining(",\n"));
 
         if (out.isEmpty()) {

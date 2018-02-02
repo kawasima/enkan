@@ -1,37 +1,23 @@
 package enkan.system.devel;
 
-import java.beans.Transient;
-import java.io.*;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import enkan.system.SystemCommand;
-import enkan.system.devel.compiler.MavenCompiler;
-
-import enkan.component.ApplicationComponent;
-import enkan.config.ConfigurationLoader;
-import enkan.exception.FalteringEnvironmentException;
-import enkan.system.EnkanSystem;
 import enkan.system.Repl;
-import enkan.system.ReplResponse;
+import enkan.system.SystemCommand;
+import enkan.system.devel.command.AutoResetCommand;
+import enkan.system.devel.command.CompileCommand;
+import enkan.system.devel.compiler.MavenCompiler;
 import enkan.system.repl.SystemCommandRegister;
+
+import java.io.Serializable;
 
 /**
  * @author kawasima
  */
 public class DevelCommandRegister implements SystemCommandRegister, Serializable {
+    private Compiler compiler;
 
-    /** compiling build tool. */
-    private transient Compiler compiler;
-
-    /**
-     * init with MavenCompiler.
-     */
     public DevelCommandRegister() {
         this(new MavenCompiler());
     }
-
     /**
      * init with specified compiler.
      * @param compiler
@@ -40,60 +26,10 @@ public class DevelCommandRegister implements SystemCommandRegister, Serializable
         this.compiler = compiler;
     }
 
-    protected ConfigurationLoader findConfigurationLoader(final EnkanSystem system) {
-        final Optional<ConfigurationLoader> loader = system.getAllComponents().stream()
-                .filter(c -> c instanceof ApplicationComponent)
-                .map(c -> ((ApplicationComponent) c).getLoader())
-                .filter(Objects::nonNull)
-                .findFirst();
-        return loader.orElseGet(null);
-    }
-
     @Override
     public void register(final Repl repl) {
-        repl.registerCommand("autoreset", (SystemCommand & Serializable) (system, transport, args) -> {
-            if (repl.getBackgorundTask("classWatcher") != null) {
-                transport.sendOut("Autoreset is already running.");
-                return true;
-            }
-
-            final ConfigurationLoader loader = findConfigurationLoader(system);
-            if (loader == null) {
-                transport.sendOut("Start an application first.");
-                return true;
-            }
-            try {
-                final ClassWatcher classWatcher = new ClassWatcher(
-                        loader.reloadableFiles().stream()
-                                .map(File::toPath)
-                        .collect(Collectors.toSet()),
-                        () -> {
-                            system.stop();
-                            system.start();
-                            transport.send(ReplResponse.withOut("Reset automatically"));
-                    });
-                repl.addBackgroundTask("classWatcher", classWatcher);
-                transport.sendOut("Start to watch modification an application.");
-                return true;
-            } catch (final IOException ex) {
-                throw new FalteringEnvironmentException(ex);
-            }
-        });
-
-        repl.registerCommand("compile", (SystemCommand & Serializable) (system, transport, args) -> {
-            final CompileResult result = compiler.execute(transport);
-            Throwable exception = result.getExecutionException();
-            if (exception == null) {
-                transport.sendOut("Finished compiling.");
-            } else {
-                final StringWriter sw = new StringWriter();
-                //noinspection ThrowableResultOfMethodCallIgnored
-                exception.printStackTrace(new PrintWriter(sw));
-                sw.append("Failed to compile.");
-                transport.sendErr(sw.toString());
-            }
-            return true;
-        });
+        repl.registerCommand("autoreset", new AutoResetCommand(repl));
+        repl.registerCommand("compile", new CompileCommand(compiler));
     }
 
     public void setCompiler(Compiler compiler) {
