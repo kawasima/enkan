@@ -1,9 +1,11 @@
 package enkan.system.repl;
 
-import enkan.exception.FalteringEnvironmentException;
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
-import org.msgpack.MessagePack;
+import enkan.system.repl.serdes.Fressian;
+import enkan.system.repl.serdes.ReplResponseReader;
+import enkan.system.repl.serdes.ReplResponseWriter;
+import enkan.system.repl.serdes.ResponseStatusReader;
 import org.zeromq.ZFrame;
 import org.zeromq.ZMsg;
 
@@ -17,11 +19,13 @@ import static org.zeromq.ZMQ.*;
  * @author kawasima
  */
 public class ZmqServerTransport implements Transport {
-    private static MessagePack msgpack;
+    private static Fressian fressian;
     static {
-        msgpack = new MessagePack();
-        msgpack.register(ReplResponse.ResponseStatus.class);
-        msgpack.register(ReplResponse.class);
+        fressian = new Fressian();
+        fressian.putReadHandler(ReplResponse.class, new ReplResponseReader());
+        fressian.putReadHandler(ReplResponse.ResponseStatus.class, new ResponseStatusReader());
+        fressian.putWriteHandler(ReplResponse.class, new ReplResponseWriter());
+        fressian.putWriteHandler(ReplResponse.ResponseStatus.class, new ReplResponseWriter());
     }
 
     private boolean isClosed = false;
@@ -35,14 +39,10 @@ public class ZmqServerTransport implements Transport {
 
     @Override
     public void send(ReplResponse response) {
-        try {
-            ZMsg msg = new ZMsg();
-            msg.add(clientAddress.duplicate());
-            msg.add(msgpack.write(response));
-            msg.send(socket, true);
-        } catch (IOException ex) {
-            throw new FalteringEnvironmentException(ex);
-        }
+        ZMsg msg = new ZMsg();
+        msg.add(clientAddress.duplicate());
+        msg.add(fressian.write(response));
+        msg.send(socket, true);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ZmqServerTransport implements Transport {
         return msg.popString();
     }
 
-    public void close() throws IOException {
+    public void close() {
         isClosed = true;
     }
 
@@ -60,4 +60,7 @@ public class ZmqServerTransport implements Transport {
         return isClosed;
     }
 
+    public ZFrame getClientAddress() {
+        return clientAddress;
+    }
 }

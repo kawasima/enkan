@@ -7,6 +7,7 @@ import enkan.system.Repl;
 import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
 import enkan.system.command.*;
+import enkan.system.repl.pseudo.CompletionServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
@@ -16,10 +17,7 @@ import org.zeromq.ZMsg;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
@@ -82,8 +80,8 @@ public class PseudoRepl implements Repl {
     public void run() {
         Thread.currentThread().setName("pseudo-repl-server");
         ZContext ctx = new ZContext();
-        try {
-            ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
+        try (ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
+             ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER)){
             int port = server.bindToRandomPort("tcp://localhost");
 
             registerCommand("shutdown", (system, transport, args) -> {
@@ -91,6 +89,13 @@ public class PseudoRepl implements Repl {
                 transport.sendOut("Shutdown server", SHUTDOWN);
                 server.close();
                 return false;
+            });
+
+            registerCommand("completer", (system, transport, args) -> {
+                int completerPort = completerSock.bindToRandomPort("tcp://localhost");
+                threadPool.submit(new CompletionServer(completerSock, commandNames));
+                transport.sendOut(Integer.toString(completerPort));
+                return true;
             });
 
             LOG.info("Listen " + port);
@@ -126,6 +131,7 @@ public class PseudoRepl implements Repl {
         } catch (Exception e) {
             LOG.error("Repl server error", e);
         } finally {
+
             ctx.close();
             try {
                 threadPool.shutdown();

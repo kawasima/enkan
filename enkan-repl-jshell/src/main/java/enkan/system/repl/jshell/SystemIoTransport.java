@@ -20,17 +20,22 @@ public class SystemIoTransport implements Transport {
 
     @Override
     public void send(ReplResponse response) {
-        String out = response.getOut();
-        if (out != null) {
-            System.out.println(out);
-        }
-        String err = response.getErr();
-        if (err != null) {
-            System.err.println(err);
-        }
+        synchronized (this) {
+            String out = response.getOut();
+            if (out != null) {
+                System.out.println(out);
+                System.out.flush();
+            }
+            String err = response.getErr();
+            if (err != null) {
+                System.err.println(err);
+                System.err.flush();
+            }
 
-        if (response.getStatus().contains(DONE)) {
-            System.out.println(CHUNK_DELIMITER);
+            if (response.getStatus().contains(DONE)) {
+                System.out.println(CHUNK_DELIMITER);
+                System.out.flush();
+            }
         }
     }
 

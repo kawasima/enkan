@@ -2,8 +2,12 @@ package enkan.system.repl.jshell;
 
 import enkan.system.ReplResponse;
 import enkan.system.repl.ZmqServerTransport;
+import org.zeromq.ZFrame;
+import org.zeromq.ZMQ;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,9 +19,11 @@ public class JShellIoProxy {
     private PrintStream err;
     private BufferedReader outReader;
     private BufferedReader errReader;
+    private Map<ZFrame, ZmqServerTransport> transports;
     private ExecutorService ioThreadPool = Executors.newFixedThreadPool(2);
 
     public JShellIoProxy() {
+        transports = new HashMap<>();
         PipedOutputStream outPipe = new PipedOutputStream();
         PipedOutputStream errPipe = new PipedOutputStream();
         try {
@@ -38,34 +44,50 @@ public class JShellIoProxy {
         return err;
     }
 
-    public void listen(ZmqServerTransport transport) {
+    public ZmqServerTransport listen(ZMQ.Socket socket, ZFrame clientAddress) {
+        return transports.computeIfAbsent(clientAddress,
+                addr -> new ZmqServerTransport(socket, addr));
+    }
+
+    public void unlisten(ZFrame clientAddress) {
+        ZmqServerTransport transport = transports.remove(clientAddress);
+        transport.close();
+    }
+
+    public void start() {
         ioThreadPool.submit(() -> {
             while(!Thread.currentThread().isInterrupted()) {
-                if (transport.isClosed()) return;
                 try {
                     String line = outReader.readLine();
                     if (Objects.equals(SystemIoTransport.CHUNK_DELIMITER, line)) {
-                        transport.sendOut("");
+                        transports.values().stream()
+                                .forEach(t -> t.sendOut(""));
                     } else {
-                        transport.send(ReplResponse.withOut(line));
+                        transports.values().stream()
+                                .forEach(t -> t.send(ReplResponse.withOut(line)));
                     }
                 } catch (IOException e) {
-                    transport.sendErr(e.getMessage(), DONE);
+                    transports.values().stream()
+                            .forEach(t-> t.sendErr(e.getMessage()));
                 }
             }
         });
 
         ioThreadPool.submit(() -> {
             while(!Thread.currentThread().isInterrupted()) {
-                if (transport.isClosed()) return;
                 try {
-                    transport.send(ReplResponse.withErr(errReader.readLine()));
+                    final ReplResponse response = ReplResponse.withErr(errReader.readLine());
+                    if (!errReader.ready()) {
+                        response.done();
+                    }
+                    transports.values().stream()
+                            .forEach(t -> t.send(response));
                 } catch (IOException e) {
-                    transport.sendErr(e.getMessage(), DONE);
+                    transports.values().stream()
+                            .forEach(t-> t.sendErr(e.getMessage()));
                 }
             }
         });
-
     }
 
     public void stop() {

@@ -1,6 +1,5 @@
 package enkan.system.command;
 
-import enkan.component.SystemComponent;
 import enkan.component.WebServerComponent;
 import enkan.system.EnkanSystem;
 import enkan.system.SystemCommand;

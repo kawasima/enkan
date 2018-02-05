@@ -7,13 +7,12 @@ import enkan.system.Repl;
 import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
 import enkan.system.command.*;
+import enkan.system.repl.jshell.CompletionServer;
 import enkan.system.repl.jshell.JShellIoProxy;
 import enkan.system.repl.jshell.JShellObjectTransferer;
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import lombok.Data;
-import lombok.Value;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
@@ -28,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
+import static enkan.system.ReplResponse.ResponseStatus.*;
 
 public class JShellRepl implements Repl {
     private static final Logger LOG = LoggerFactory.getLogger(JShellRepl.class);
@@ -98,6 +97,8 @@ public class JShellRepl implements Repl {
             executeStatement("import enkan.system.repl.jshell.SystemIoTransport");
             executeStatement("SystemIoTransport transport = new SystemIoTransport()");
             executeStatement("EnkanSystem system = ((Class<? extends EnkanSystemFactory>)Class.forName(\"" + enkanSystemFactoryClassName + "\")).newInstance().create()");
+            executeStatement("Map<String, SystemCommand> __commands = new HashMap<>()");
+
             threadPool = Executors.newCachedThreadPool(runnable -> {
                 Thread t = new Thread(runnable);
                 t.setName("enkan-repl-pseudo");
@@ -120,10 +121,11 @@ public class JShellRepl implements Repl {
     public void registerCommand(String name, SystemCommand command) {
         try {
             String serializedCommand = JShellObjectTransferer.writeToBase64(command);
-            executeStatement("SystemCommand " + name
-                    + " = JShellObjectTransferer.readFromBase64(\""
+            executeStatement("__commands.put(\"" + name
+                    + "\", JShellObjectTransferer.readFromBase64(\""
                     + serializedCommand
-                    + "\", SystemCommand.class)");
+                    + "\", SystemCommand.class))");
+            commands.put(name, command);
             commandNames.add(name);
         } catch (Exception e) {
             throw new IllegalArgumentException("command cannot be serialized:" + command, e);
@@ -163,37 +165,45 @@ public class JShellRepl implements Repl {
         try {
             ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
             int port = server.bindToRandomPort("tcp://localhost");
-
+            ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER);
+            ioProxy.start();
             LOG.info("Listen " + port);
             replPort.complete(port);
 
             while(!Thread.currentThread().isInterrupted()) {
                 ZMsg msg = ZMsg.recvMsg(server);
                 ZFrame clientAddress = msg.pop();
-                ZmqServerTransport transport = new ZmqServerTransport(server, clientAddress);
-                ioProxy.listen(transport);
-                String[] cmd = msg.popString().trim().split("\\s+");
-                if (cmd[0].startsWith("/")) {
-                    String commandName = cmd[0].substring(1);
-                    if (cmd[0].isEmpty()) {
+                ZmqServerTransport transport = ioProxy.listen(server, clientAddress);
+
+                String[] cmds = msg.popString().trim().split("\\s+");
+                if (cmds[0].startsWith("/")) {
+                    String commandName = cmds[0].substring(1);
+                    if (commandName.isEmpty()) {
                         printHelp();
-                    } else if (Objects.equals("/shutdown", cmd[0])) {
+                    } else if (Objects.equals("completer", commandName)) {
+                        int completerPort = completerSock.bindToRandomPort("tcp://localhost");
+                        threadPool.submit(new CompletionServer(completerSock, jshell.sourceCodeAnalysis(), commandNames));
+                        transport.sendOut(Integer.toString(completerPort));
+                    } else if (Objects.equals("shutdown", commandName)) {
                         executeStatement("shutdown.exec(system, transport)");
                         transport.sendOut("shutdown", SHUTDOWN);
                         break;
+                    } else if (Objects.equals("disconnect", commandName)) {
+                        ioProxy.unlisten(clientAddress);
                     } else {
-                        String[] args = new String[cmd.length - 1];
-                        System.arraycopy(cmd, 1, args, 0, cmd.length - 1);
+                        String[] args = new String[cmds.length - 1];
+                        System.arraycopy(cmds, 1, args, 0, cmds.length - 1);
                         try {
                             String argStr = Arrays.stream(args)
                                     .map(arg -> "\"" + arg.replaceAll("\"", "\\\"")+ "\"")
                                     .collect(Collectors.joining(","));
-                            StringBuilder execStatement = new StringBuilder(commandName)
-                                    .append(".execute(system, transport");
+                            StringBuilder execStatement = new StringBuilder("__commands.get(\"")
+                                    .append(commandName)
+                                    .append("\").execute(system, transport");
                             if (!argStr.isEmpty()) {
                                 execStatement.append(",").append(argStr);
                             }
-                            execStatement.append(" )");
+                            execStatement.append(")");
 
                             JShellMessage evalMessage = executeStatement(execStatement.toString());
                             if (!evalMessage.errs.isEmpty()) {
@@ -207,15 +217,16 @@ public class JShellRepl implements Repl {
                         }
                     }
                 } else {
-                    JShellMessage evalMessage = executeStatement(String.join(" ", cmd));
+                    JShellMessage evalMessage = executeStatement(String.join(" ", cmds));
                     evalMessage.errs.forEach(line -> transport.send(ReplResponse.withErr(line)));
                     evalMessage.outs.forEach(line -> transport.send(ReplResponse.withOut(line)));
                     transport.send(ReplResponse.withOut("").done());
                 }
             }
         } catch (Exception e) {
-            LOG.error("Repl server error", e);
+            LOG.error("REPL server error", e);
         } finally {
+            LOG.info("Shutdown REPL server");
             ctx.close();
             try {
                 threadPool.shutdown();

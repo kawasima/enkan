@@ -29,7 +29,8 @@ public class SqlCommand implements SystemCommand {
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         String sql = String.join(" ", args).trim();
         if (sql.isEmpty()) {
-            transport.sendErr("/sql [SQL statement]", DONE);
+            transport.sendErr("/sql [SQL statement]");
+            return true;
         }
 
         boolean isDML = Arrays.stream(args).anyMatch(s -> DML_KEYWORDS.contains(s));

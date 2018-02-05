@@ -1,12 +1,17 @@
 package enkan.system.repl.client;
 
 import enkan.system.ReplResponse;
+import enkan.system.repl.serdes.Fressian;
+import enkan.system.repl.serdes.ReplResponseReader;
+import enkan.system.repl.serdes.ReplResponseWriter;
+import enkan.system.repl.serdes.ResponseStatusReader;
 import jline.console.ConsoleReader;
 import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.StringsCompleter;
 import jline.console.history.FileHistory;
 import jline.console.history.History;
-import org.msgpack.MessagePack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.*;
 import zmq.ZError;
 
@@ -21,15 +26,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import static enkan.system.ReplResponse.ResponseStatus.DONE;
-import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
+import static enkan.system.ReplResponse.ResponseStatus.*;
 
 /**
  * @author kawasima
  */
 public class ReplClient implements AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(ReplClient.class);
 
-    ExecutorService clientThread = Executors.newCachedThreadPool();
+    ExecutorService clientThread = Executors.newSingleThreadExecutor();
     ConsoleReader console;
     ConsoleHandler consoleHandler;
 
@@ -37,39 +42,37 @@ public class ReplClient implements AutoCloseable {
         private ZContext ctx;
         private ZMQ.Socket socket;
         private ZMQ.Socket rendererSock;
+        private ZMQ.Socket completerSock;
         private ConsoleReader console;
-        private MessagePack msgpack = new MessagePack();
+        private Fressian fressian;
         private AtomicBoolean isAvailable = new AtomicBoolean(true);
 
         public ConsoleHandler(ConsoleReader console) {
             this.console = console;
             this.ctx = new ZContext();
-            msgpack.register(ReplResponse.ResponseStatus.class);
-            msgpack.register(ReplResponse.class);
+            this.fressian = new Fressian();
+            fressian.putReadHandler(ReplResponse.class, new ReplResponseReader());
+            fressian.putReadHandler(ReplResponse.ResponseStatus.class, new ResponseStatusReader());
+            fressian.putWriteHandler(ReplResponse.class, new ReplResponseWriter());
+            fressian.putWriteHandler(ReplResponse.ResponseStatus.class, new ReplResponseWriter());
         }
 
         public void connect(int port) throws IOException {
-            socket = ctx.createSocket(ZMQ.DEALER);
-            socket.connect("tcp://localhost:" + port);
-            if (!socket.send("/help")) {
-                throw new IOException("Can't connect to repl server");
-            }
-            List<String> availableCommands = new ArrayList<>();
-            while (true) {
-                ZMsg msg = ZMsg.recvMsg(socket);
-                ReplResponse res = msgpack.read(msg.pop().getData(), ReplResponse.class);
-                if (res.getOut() != null) {
-                    Stream.of(res.getOut())
-                            .map(String::trim)
-                            .filter(s -> s.startsWith("/"))
-                            .forEach(availableCommands::add);
-                }
+            connect("localhost", port);
+        }
 
-                if (res.getStatus().contains(DONE)) {
-                    break;
-                }
+        public void connect(String host, int port) throws IOException {
+            socket = ctx.createSocket(ZMQ.DEALER);
+            socket.connect("tcp://" + host + ":" + port);
+            socket.send("/completer");
+            ZMsg completerMsg = ZMsg.recvMsg(socket);
+            ReplResponse completerRes = fressian.read(completerMsg.pop().getData(), ReplResponse.class);
+            String completerPort = completerRes.getOut();
+            if (completerPort != null && completerPort.matches("\\d+")) {
+                completerSock = ctx.createSocket(ZMQ.DEALER);
+                completerSock.connect("tcp://" + host + ":" + Integer.parseInt(completerPort));
+                console.addCompleter(new RemoteCompleter(completerSock));
             }
-            console.addCompleter(new StringsCompleter(availableCommands));
             console.println("Connected to server (port = " + port +")");
             console.flush();
 
@@ -77,7 +80,7 @@ public class ReplClient implements AutoCloseable {
                 while (true) {
                     try {
                         ZMsg msg = ZMsg.recvMsg(this.socket);
-                        ReplResponse res = msgpack.read(msg.pop().getData(), ReplResponse.class);
+                        ReplResponse res = fressian.read(msg.pop().getData(), ReplResponse.class);
                         if (res.getOut() != null) {
                             console.println(res.getOut());
                         } else if (res.getErr() != null) {
@@ -109,13 +112,17 @@ public class ReplClient implements AutoCloseable {
                     String line = console.readLine();
                     if (line == null) continue;
                     line = line.trim();
-                    if (line.startsWith("/connect")) {
+                    if (line.startsWith("/connect ")) {
                         String[] arguments = line.split("\\s+");
-                        if (arguments.length > 1) {
+                        if (arguments.length == 2 && arguments[1].matches("\\d+")) {
                             int port = Integer.parseInt(arguments[1]);
                             connect(port);
+                        } else if (arguments.length > 2 && arguments[2].matches("\\d+")){
+                            String host = arguments[1];
+                            int port = Integer.parseInt(arguments[2]);
+                            connect(host, port);
                         } else {
-                            console.println("/connect [port]");
+                            console.println("/connect [host] port");
                         }
                     } else if (line.equals("/exit")) {
                         rendererSock.close();
@@ -144,6 +151,7 @@ public class ReplClient implements AutoCloseable {
 
         public void close() {
             if (socket != null) {
+                socket.send("/disconnect");
                 socket.close();
             }
 
@@ -190,7 +198,10 @@ public class ReplClient implements AutoCloseable {
     }
 
     public static void main(String[] args) throws Exception {
-        ReplClient client = new ReplClient();
+        final ReplClient client = new ReplClient();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            client.close();
+        }));
         client.start();
     }
 }
