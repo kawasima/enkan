@@ -1,4 +1,4 @@
-version2:
+version: 2
 jobs:
   build:
     working-directory: ~/circleci-enkan
@@ -6,26 +6,20 @@ jobs:
       - image: circleci/9-jdk-node-browsers
     steps:
       - checkout
-
       - restore_cache:
           key: circleci-enkan-{{ checksum "pom.xml" }}
-
       - run:
           command: mvn dependency:go-offline
           working-directory: ~/circleci-enkan/enkan-parent
-
       - save_cache:
           paths:
             - ~/.m2
           key: circleci-enkan-{{ checksum "pom.xml" }}
-
       - run:
           command: mvn test
           working-directory: ~/circleci-enkan/enkan-parent
-
       - store_test_results:
           path: target/surefire-reports
-
 workflows:
   version: 2
   build_and_test:
