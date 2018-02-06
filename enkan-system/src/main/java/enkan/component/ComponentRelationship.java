@@ -1,6 +1,7 @@
 package enkan.component;
 
 import enkan.exception.MisconfigurationException;
+import enkan.system.inject.ComponentInjector;
 
 import java.util.*;
 
@@ -48,6 +49,7 @@ public class ComponentRelationship {
             dependencies.put(key, components.get(key));
         }
         targetComponent.setDependencies(dependencies);
+        new ComponentInjector(dependencies).inject(targetComponent);
     }
 
     /**

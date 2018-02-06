@@ -15,10 +15,11 @@ public abstract class SystemComponent {
         this.dependencies = dependencies;
     }
 
+    @SuppressWarnings("unchecked")
     protected <T extends SystemComponent> T getDependency(Class<T> componentClass) {
         return (T) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
-                .findFirst()
+                .findAny()
                 .orElseThrow(() -> new MisconfigurationException("core.CLASS_NOT_FOUND", componentClass));
     }
 

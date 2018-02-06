@@ -3,7 +3,7 @@ jobs:
   build:
     working-directory: ~/circleci-enkan
     docker:
-      - image: circleci/9-jdk-node-browsers
+      - image: circleci/openjdk:9-jdk-node-browsers
     steps:
       - checkout
       - restore_cache:

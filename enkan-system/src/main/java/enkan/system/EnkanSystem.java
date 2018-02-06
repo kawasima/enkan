@@ -55,6 +55,7 @@ public class EnkanSystem {
      * @param name component name
      * @return component
      */
+    @SuppressWarnings("unchecked")
     public <T extends SystemComponent> T getComponent(String name) {
         return (T) components.get(name);
     }
