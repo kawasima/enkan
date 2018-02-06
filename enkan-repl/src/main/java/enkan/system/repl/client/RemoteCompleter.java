@@ -26,9 +26,9 @@ public class RemoteCompleter implements Completer {
         }
         if (candidates.isEmpty()) return cursor;
 
-        int dotPos = buffer.lastIndexOf('.');
-        if (dotPos > 0) {
-            return dotPos + 1;
+        int delimiterPos = Math.max(buffer.lastIndexOf(' '), buffer.lastIndexOf('.'));
+        if (delimiterPos > 0) {
+            return delimiterPos + 1;
         } else {
             return 0;
         }

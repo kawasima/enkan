@@ -28,8 +28,6 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  * @author kawasima
  */
 public class ReplClient implements AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(ReplClient.class);
-
     private final ExecutorService clientThread = Executors.newSingleThreadExecutor();
     private ConsoleReader console;
     private ConsoleHandler consoleHandler;
@@ -68,6 +66,9 @@ public class ReplClient implements AutoCloseable {
                 completerSock = ctx.createSocket(ZMQ.DEALER);
                 completerSock.connect("tcp://" + host + ":" + Integer.parseInt(completerPort));
                 console.addCompleter(new RemoteCompleter(completerSock));
+            }
+            if (console.getCompletionHandler() instanceof CandidateListCompletionHandler) {
+                ((CandidateListCompletionHandler) console.getCompletionHandler()).setPrintSpaceAfterFullCompletion(false);
             }
             console.println("Connected to server (port = " + port +")");
             console.flush();
@@ -149,6 +150,7 @@ public class ReplClient implements AutoCloseable {
             if (socket != null) {
                 socket.send("/disconnect");
                 socket.close();
+                socket = null;
             }
 
             if (ctx != null) {
