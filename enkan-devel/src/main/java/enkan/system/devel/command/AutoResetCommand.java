@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AutoResetCommand implements SystemCommand {
-    private Repl repl;
+    private final Repl repl;
 
     public AutoResetCommand(Repl repl) {
         this.repl = repl;

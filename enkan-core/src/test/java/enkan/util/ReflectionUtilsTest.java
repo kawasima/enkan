@@ -55,12 +55,13 @@ public class ReflectionUtilsTest {
         }
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     @Test
     public void occursInstantiationException() {
         try {
-            ReflectionUtils.tryReflection(InstantiationableClass.class::newInstance);
+            ReflectionUtils.tryReflection(() -> InstantiationableClass.class.getConstructor().newInstance());
         } catch (MisconfigurationException ex) {
-            assertThat(ex.getCode()).isEqualTo("core.INSTANTIATION");
+            assertThat(ex.getCode()).isEqualTo("core.NO_SUCH_METHOD");
         }
 
     }

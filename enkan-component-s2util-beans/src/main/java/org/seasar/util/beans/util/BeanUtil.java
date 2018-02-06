@@ -336,7 +336,7 @@ public abstract class BeanUtil {
         if(destClass == null) throw new IllegalArgumentException("destClass");
         if(options   == null) throw new IllegalArgumentException("options");
 
-        final T dest = tryReflection(destClass::newInstance);
+        final T dest = tryReflection(() -> destClass.getConstructor().newInstance());
         copyBeanToBean(src, dest, options);
         return dest;
     }
@@ -378,7 +378,7 @@ public abstract class BeanUtil {
         if(destClass == null) throw new IllegalArgumentException("destClass");
         if(options   == null) throw new IllegalArgumentException("options");
 
-        final T dest = tryReflection(destClass::newInstance);
+        final T dest = tryReflection(() -> destClass.getConstructor().newInstance());
         copyMapToBean(src, dest, options);
         return dest;
     }
@@ -451,7 +451,7 @@ public abstract class BeanUtil {
         if(destClass == null) throw new IllegalArgumentException("destClass");
         if(options   == null) throw new IllegalArgumentException("options");
 
-        final T dest = tryReflection(destClass::newInstance);
+        final T dest = tryReflection(() -> destClass.getConstructor().newInstance());
         copyBeanToMap(src, dest, options);
         return dest;
     }
@@ -526,7 +526,7 @@ public abstract class BeanUtil {
         if(destClass == null) throw new IllegalArgumentException("destClass");
         if(options   == null) throw new IllegalArgumentException("options");
 
-        final T dest = tryReflection(destClass::newInstance);
+        final T dest = tryReflection(() -> destClass.getConstructor().newInstance());
         copyMapToMap(src, dest, options);
         return dest;
     }

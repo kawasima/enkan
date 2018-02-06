@@ -52,8 +52,7 @@ public class JShellRepl implements Repl {
                     if (event.exception() != null) {
                         StringWriter sw = new StringWriter();
                         event.exception().printStackTrace(new PrintWriter(sw));
-                        Arrays.stream(sw.toString().split(System.lineSeparator()))
-                                .forEach(line -> msg.errs.add(line));
+                        msg.errs.addAll(Arrays.asList(sw.toString().split(System.lineSeparator())));
                     } else {
                         msg.outs.add(event.value());
                     }
@@ -110,7 +109,7 @@ public class JShellRepl implements Repl {
             registerCommand("help",  new HelpCommand(commandNames));
             registerCommand("middleware", new MiddlewareCommand());
             EnkanSystem system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).getConstructor().newInstance().create();
-            system.getAllComponents().stream()
+            system.getAllComponents()
                     .forEach(c -> executeStatement("import " + c.getClass().getName()));
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
@@ -161,16 +160,16 @@ public class JShellRepl implements Repl {
 
     @Override
     public void run() {
-        ZContext ctx = new ZContext();
-        try {
-            ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
+        try (ZContext ctx = new ZContext();
+             ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
+             ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER)) {
+
             int port = server.bindToRandomPort("tcp://localhost");
-            ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER);
             ioProxy.start();
             LOG.info("Listen " + port);
             replPort.complete(port);
 
-            while(!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {
                 ZMsg msg = ZMsg.recvMsg(server);
                 ZFrame clientAddress = msg.pop();
                 ZmqServerTransport transport = ioProxy.listen(server, clientAddress);
@@ -195,7 +194,7 @@ public class JShellRepl implements Repl {
                         System.arraycopy(cmds, 1, args, 0, cmds.length - 1);
                         try {
                             String argStr = Arrays.stream(args)
-                                    .map(arg -> "\"" + arg.replaceAll("\"", "\\\"")+ "\"")
+                                    .map(arg -> "\"" + arg.replaceAll("\"", "\\\"") + "\"")
                                     .collect(Collectors.joining(","));
                             StringBuilder execStatement = new StringBuilder("__commands.get(\"")
                                     .append(commandName)
@@ -227,7 +226,7 @@ public class JShellRepl implements Repl {
             LOG.error("REPL server error", e);
         } finally {
             LOG.info("Shutdown REPL server");
-            ctx.close();
+
             try {
                 threadPool.shutdown();
                 if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {

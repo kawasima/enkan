@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 public class Env {
-    static Map<String, String> envMap = new HashMap<>();
+    static final Map<String, String> envMap = new HashMap<>();
 
     static {
         readEnvFile();

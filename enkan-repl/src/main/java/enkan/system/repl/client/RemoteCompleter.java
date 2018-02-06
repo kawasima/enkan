@@ -1,17 +1,13 @@
 package enkan.system.repl.client;
 
 import jline.console.completer.Completer;
-import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
-import org.zeromq.ZPoller;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 public class RemoteCompleter implements Completer {
-    private ZMQ.Socket socket;
+    private final ZMQ.Socket socket;
 
     public RemoteCompleter(ZMQ.Socket socket) {
         this.socket = socket;

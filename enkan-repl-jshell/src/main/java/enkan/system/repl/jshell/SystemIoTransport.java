@@ -12,7 +12,7 @@ import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
 public class SystemIoTransport implements Transport {
     public static final String CHUNK_DELIMITER = "-----------------END------------------";
-    private BufferedReader reader;
+    private final BufferedReader reader;
 
     public SystemIoTransport() {
         reader = new BufferedReader(new InputStreamReader(System.in));

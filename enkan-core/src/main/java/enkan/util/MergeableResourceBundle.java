@@ -6,7 +6,7 @@ import java.util.*;
  * @author kawasima
  */
 public class MergeableResourceBundle extends ResourceBundle {
-    private Map<String, Object> lookup;
+    private final Map<String, Object> lookup;
 
     protected MergeableResourceBundle(Properties properties) {
         lookup = new HashMap(properties);
@@ -25,7 +25,7 @@ public class MergeableResourceBundle extends ResourceBundle {
         ResourceBundle parent = this.parent;
         Enumeration<String> enumeration = (parent != null) ? parent.getKeys() : null;
         return new Enumeration<String>() {
-            private Iterator<String> iterator = lookup.keySet().iterator();
+            private final Iterator<String> iterator = lookup.keySet().iterator();
             private String next = null;
 
             @Override

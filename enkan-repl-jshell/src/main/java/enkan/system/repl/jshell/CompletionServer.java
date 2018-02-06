@@ -5,14 +5,13 @@ import org.zeromq.ZFrame;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.function.Predicate;
 
 public class CompletionServer implements Runnable {
-    private ZMQ.Socket socket;
-    private SourceCodeAnalysis analysis;
-    private Set<String> commandNames;
+    private final ZMQ.Socket socket;
+    private final SourceCodeAnalysis analysis;
+    private final Set<String> commandNames;
 
     public CompletionServer(ZMQ.Socket socket, SourceCodeAnalysis analysis, Set<String> commandNames) {
         this.socket = socket;
@@ -45,8 +44,8 @@ public class CompletionServer implements Runnable {
             } else {
                 try {
                     analysis.completionSuggestions(input, cursor, anchor).stream()
-                            .map(s -> s.continuation())
-                            .forEach(s -> reply.add(s));
+                            .map(SourceCodeAnalysis.Suggestion::continuation)
+                            .forEach(reply::add);
                     anchor[0] += cursor + 1;
                 } catch (Exception e) {
                     e.printStackTrace();

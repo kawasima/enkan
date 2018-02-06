@@ -7,7 +7,6 @@ import enkan.system.repl.serdes.ReplResponseWriter;
 import enkan.system.repl.serdes.ResponseStatusReader;
 import jline.console.ConsoleReader;
 import jline.console.completer.CandidateListCompletionHandler;
-import jline.console.completer.StringsCompleter;
 import jline.console.history.FileHistory;
 import jline.console.history.History;
 import org.slf4j.Logger;
@@ -17,14 +16,11 @@ import zmq.ZError;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
 
@@ -34,9 +30,9 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
 public class ReplClient implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ReplClient.class);
 
-    ExecutorService clientThread = Executors.newSingleThreadExecutor();
-    ConsoleReader console;
-    ConsoleHandler consoleHandler;
+    private final ExecutorService clientThread = Executors.newSingleThreadExecutor();
+    private ConsoleReader console;
+    private ConsoleHandler consoleHandler;
 
     private static class ConsoleHandler implements Runnable {
         private ZContext ctx;
@@ -44,8 +40,8 @@ public class ReplClient implements AutoCloseable {
         private ZMQ.Socket rendererSock;
         private ZMQ.Socket completerSock;
         private ConsoleReader console;
-        private Fressian fressian;
-        private AtomicBoolean isAvailable = new AtomicBoolean(true);
+        private final Fressian fressian;
+        private final AtomicBoolean isAvailable = new AtomicBoolean(true);
 
         public ConsoleHandler(ConsoleReader console) {
             this.console = console;
@@ -199,9 +195,7 @@ public class ReplClient implements AutoCloseable {
 
     public static void main(String[] args) throws Exception {
         final ReplClient client = new ReplClient();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            client.close();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(client::close));
         client.start();
     }
 }

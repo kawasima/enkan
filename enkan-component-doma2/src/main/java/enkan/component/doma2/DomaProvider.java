@@ -24,7 +24,7 @@ import static enkan.util.ReflectionUtils.*;
  */
 public class DomaProvider extends SystemComponent {
     private DataSource dataSource;
-    private ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
     private Config defaultConfig;
     private Dialect dialect;
     private Naming naming = Naming.DEFAULT;

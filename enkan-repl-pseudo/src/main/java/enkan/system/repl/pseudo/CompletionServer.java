@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class CompletionServer implements Runnable {
-    private ZMQ.Socket socket;
-    private Set<String> commandNames;
+    private final ZMQ.Socket socket;
+    private final Set<String> commandNames;
 
     public CompletionServer(ZMQ.Socket socket, Set<String> commandNames) {
         this.socket = socket;

@@ -151,7 +151,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
                 tres.getContext().put(exports.getExportName(CONVERSATION_STATE), conversationState);
             }
 
-            userFunctions.entrySet().stream()
+            userFunctions.entrySet()
                     .forEach(e -> tres.getContext().put(e.getKey(), templateEngine.createFunction(e.getValue())));
             render(tres);
         }

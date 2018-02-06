@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * @kawasima
+ * @author kawasima
  */
 public class AuthenticationMiddlewareTest {
     @Test

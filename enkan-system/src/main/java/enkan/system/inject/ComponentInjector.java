@@ -52,8 +52,7 @@ public class ComponentInjector {
                 Optional<String> correctName = components.entrySet().stream()
                         .filter(c -> f.getType().isAssignableFrom(c.getValue().getClass()))
                         .map(Map.Entry::getKey)
-                        .sorted(Comparator.comparing(n -> levenshteinDistance(n, name)))
-                        .findFirst();
+                        .min(Comparator.comparing(n -> levenshteinDistance(n, name)));
                 if (correctName.isPresent()) {
                     throw new MisconfigurationException("core.INJECT_WRONG_NAMED_COMPONENT", name, correctName.get());
                 } else {

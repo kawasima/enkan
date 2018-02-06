@@ -5,6 +5,8 @@ import enkan.system.repl.serdes.ReplResponseWriter;
 import enkan.system.repl.serdes.ResponseStatusReader;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class FressianTest {
     @Test
     public void test() {
@@ -16,10 +18,8 @@ public class FressianTest {
 
         ReplResponse response = ReplResponse.withOut("hoge").done();
         byte[] bytes = fressian.write(response);
-        System.out.println(bytes.length);
-        System.out.println(fressian.read(bytes, ReplResponse.class));
         ReplResponse deserialized = fressian.read(bytes, ReplResponse.class);
-        System.out.println(deserialized.getStatus());
+        assertThat(deserialized.getOut()).isEqualTo(response.getOut());
 
     }
 }

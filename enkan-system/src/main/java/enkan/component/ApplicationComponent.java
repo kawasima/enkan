@@ -36,7 +36,7 @@ public class ApplicationComponent extends SystemComponent {
                         Class<? extends ApplicationFactory> factoryClass =
                                 (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
                         ComponentInjector injector = new ComponentInjector(getAllDependencies());
-                        ApplicationFactory factory = factoryClass.newInstance();
+                        ApplicationFactory factory = factoryClass.getConstructor().newInstance();
                         Application<?, ?> app = factory.create(injector);
                         app.getMiddlewareStack().stream()
                                 .map(MiddlewareChain::getMiddleware)

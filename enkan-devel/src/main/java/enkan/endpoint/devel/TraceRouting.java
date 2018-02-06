@@ -19,8 +19,8 @@ import static enkan.util.BeanBuilder.builder;
  * @author kawasima
  */
 public class TraceRouting {
-    private String baseUri;
-    private List<Route> routes = new ArrayList<>();
+    private final String baseUri;
+    private final List<Route> routes = new ArrayList<>();
 
     public TraceRouting(String baseUri) {
         this.baseUri = baseUri;
@@ -51,8 +51,8 @@ public class TraceRouting {
     }
 
     private static class Route {
-        PathPredicate<HttpRequest> predicate;
-        BiConsumer<HttpRequest, OutputStream> action;
+        final PathPredicate<HttpRequest> predicate;
+        final BiConsumer<HttpRequest, OutputStream> action;
 
         public Route(PathPredicate<HttpRequest> predicate, BiConsumer<HttpRequest, OutputStream> action) {
             this.predicate = predicate;

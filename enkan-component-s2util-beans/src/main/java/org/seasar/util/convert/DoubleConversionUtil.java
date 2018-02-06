@@ -55,7 +55,7 @@ public abstract class DoubleConversionUtil {
             return toDouble((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
-                return new Double(new SimpleDateFormat(pattern).format(o));
+                return Double.parseDouble(new SimpleDateFormat(pattern).format(o));
             }
             return (double) ((java.util.Date) o).getTime();
         } else {
@@ -67,7 +67,7 @@ public abstract class DoubleConversionUtil {
         if (s == null || s.isEmpty()) {
             return null;
         }
-        return new Double(s);
+        return Double.parseDouble(s);
     }
 
     /**

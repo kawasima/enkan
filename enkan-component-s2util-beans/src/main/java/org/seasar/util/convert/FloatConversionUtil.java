@@ -55,7 +55,7 @@ public abstract class FloatConversionUtil {
             return toFloat((String) o);
         } else if (o instanceof java.util.Date) {
             if (pattern != null) {
-                return new Float(new SimpleDateFormat(pattern).format(o));
+                return Float.parseFloat(new SimpleDateFormat(pattern).format(o));
             }
             return (float) ((java.util.Date) o).getTime();
         } else {
@@ -67,7 +67,7 @@ public abstract class FloatConversionUtil {
         if (s == null || s.isEmpty()) {
             return null;
         }
-        return new Float(s);
+        return Float.parseFloat(s);
     }
 
     /**

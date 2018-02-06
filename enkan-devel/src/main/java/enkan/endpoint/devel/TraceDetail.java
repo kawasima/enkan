@@ -12,7 +12,7 @@ import static net.unit8.moshas.RenderUtils.text;
  * @author kawasima
  */
 public class TraceDetail extends MoshasPage {
-    private Template traceDetailPage;
+    private final Template traceDetailPage;
 
     private String elapseString(Object elapse, String prefix) {
         if (elapse == null || !(elapse instanceof Long)) {

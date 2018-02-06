@@ -6,8 +6,6 @@ import kotowari.routing.RegexpUtils;
 import kotowari.routing.RouteBuilder;
 import kotowari.routing.Segment;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

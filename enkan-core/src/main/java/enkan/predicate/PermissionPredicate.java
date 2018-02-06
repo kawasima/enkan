@@ -23,9 +23,7 @@ public class PermissionPredicate<REQ extends PrincipalAvailable> implements Prin
                 .map(PrincipalAvailable::getPrincipal)
                 .filter(UserPrincipal.class::isInstance)
                 .map(UserPrincipal.class::cast)
-                .filter(up -> up.hasPermission(permission))
-                .findFirst()
-                .isPresent();
+                .anyMatch(up -> up.hasPermission(permission));
     }
 
     @Override

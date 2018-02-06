@@ -1,7 +1,6 @@
 package enkan.system.devel;
 
 import enkan.system.Repl;
-import enkan.system.SystemCommand;
 import enkan.system.devel.command.AutoResetCommand;
 import enkan.system.devel.command.CompileCommand;
 import enkan.system.devel.compiler.MavenCompiler;
@@ -20,7 +19,8 @@ public class DevelCommandRegister implements SystemCommandRegister, Serializable
     }
     /**
      * init with specified compiler.
-     * @param compiler
+     *
+     * @param compiler Compiler
      */
     public DevelCommandRegister(final Compiler compiler) {
         this.compiler = compiler;

@@ -56,8 +56,7 @@ public class BasePackageDetector {
     protected static String detectInMavenProject(File sourceDirectory) {
         return scan(sourceDirectory).stream()
                 .filter(pkg -> !pkg.equals("db.migration"))
-                .sorted(Comparator.comparing(BasePackageDetector::packageDepth).reversed())
-                .findFirst()
+                .max(Comparator.comparing(BasePackageDetector::packageDepth))
                 .orElse("");
     }
 

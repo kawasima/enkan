@@ -1,8 +1,6 @@
 package kotowari.routing.factory;
 
 import enkan.collection.OptionMap;
-import enkan.data.HttpRequest;
-import enkan.util.HttpRequestUtils;
 import kotowari.routing.Route;
 
 import javax.ws.rs.core.MediaType;

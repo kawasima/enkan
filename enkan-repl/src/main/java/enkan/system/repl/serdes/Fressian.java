@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Fressian {
-    private Map<Object, ReadHandler> readHandlers;
-    private Map<String, WriteHandler> writeHandlers;
+    private final Map<Object, ReadHandler> readHandlers;
+    private final Map<String, WriteHandler> writeHandlers;
 
     public Fressian() {
         readHandlers = new HashMap<>();

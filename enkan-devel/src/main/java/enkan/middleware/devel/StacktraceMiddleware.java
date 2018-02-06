@@ -27,7 +27,7 @@ import static net.unit8.moshas.RenderUtils.text;
  */
 @Middleware(name = "stacktrace")
 public class StacktraceMiddleware extends AbstractWebMiddleware {
-    private MoshasEngine moshas = new MoshasEngine();
+    private final MoshasEngine moshas = new MoshasEngine();
 
     private String primer;
     {
@@ -38,7 +38,7 @@ public class StacktraceMiddleware extends AbstractWebMiddleware {
         }
     }
 
-    private Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
+    private final Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
         s.select("td.source", (el, ctx) ->
                 el.text(ctx.getString("stackTraceElement", "fileName") +
                         ":" +

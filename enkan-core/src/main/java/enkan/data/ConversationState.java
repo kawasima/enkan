@@ -10,7 +10,7 @@ import java.util.Set;
  * @author kawasima
  */
 public class ConversationState implements Map<String, Object>, Serializable {
-    private Map<String, Object> attrs = new HashMap<>();
+    private final Map<String, Object> attrs = new HashMap<>();
 
     @Override
     public int size() {

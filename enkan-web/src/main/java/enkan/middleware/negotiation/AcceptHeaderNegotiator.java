@@ -90,8 +90,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(accept -> parseAcceptFragment(accept, MediaType.class))
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
-                .sorted(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
-                .findFirst()
+                .min(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
                 .map(af -> af.fragment)
                 .orElse(null);
     }

@@ -24,7 +24,7 @@ public class LazyLoadMiddleware<REQ, RES> implements Middleware<REQ, RES> {
                 initializingLock.lock();
                 instance = tryReflection(() -> {
                     Class<Middleware<REQ, RES>> middlewareClass = (Class<Middleware<REQ, RES>>) Class.forName(middlewareClassName);
-                    return middlewareClass.newInstance();
+                    return middlewareClass.getConstructor().newInstance();
                 });
             } finally {
                 initializingLock.unlock();

@@ -15,9 +15,7 @@ public class AuthenticatedPredicate<REQ> implements PrintablePredicate<REQ> {
         return Stream.of(req)
                 .filter(PrincipalAvailable.class::isInstance)
                 .map(PrincipalAvailable.class::cast)
-                .filter(p -> p.getPrincipal() != null)
-                .findFirst()
-                .isPresent();
+                .anyMatch(p -> p.getPrincipal() != null);
     }
 
     @Override

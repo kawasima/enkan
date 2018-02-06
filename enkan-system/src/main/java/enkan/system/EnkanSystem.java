@@ -25,7 +25,7 @@ public class EnkanSystem {
      * Create an enkan system.
      *
      * @param args definitions of components.
-     * @return
+     * @return enkan system
      */
     public static EnkanSystem of(Object... args) {
         EnkanSystem system = new EnkanSystem();
@@ -68,8 +68,8 @@ public class EnkanSystem {
     public <T extends SystemComponent> List<T> getComponents(Class<T> componentType) {
         return components.values()
                 .stream()
-                .filter(component -> componentType.isInstance(component))
-                .map(component -> componentType.cast(component))
+                .filter(componentType::isInstance)
+                .map(componentType::cast)
                 .collect(Collectors.toList());
     }
 

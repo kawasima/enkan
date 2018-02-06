@@ -1,10 +1,8 @@
 package kotowari.example;
 
-import enkan.system.Repl;
 import enkan.system.command.JsonRequestCommand;
 import enkan.system.command.MetricsCommandRegister;
 import enkan.system.command.SqlCommand;
-import enkan.system.repl.JShellRepl;
 import enkan.system.repl.PseudoRepl;
 import enkan.system.repl.ReplBoot;
 import enkan.system.repl.client.ReplClient;

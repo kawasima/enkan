@@ -7,7 +7,6 @@ import enkan.util.HttpResponseUtils;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.io.LazyRenderInputStream;
-import org.thymeleaf.DialectConfiguration;
 import org.thymeleaf.cache.ICacheManager;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.dialect.IDialect;
@@ -19,7 +18,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;

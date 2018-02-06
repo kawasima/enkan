@@ -12,8 +12,8 @@ import static net.unit8.moshas.RenderUtils.text;
  * @author kawasima
  */
 public class TraceList extends MoshasPage implements Serializable {
-    private Snippet traceListSnippet;
-    private Template traceListPage;
+    private final Snippet traceListSnippet;
+    private final Template traceListPage;
 
     public TraceList(MoshasEngine moshas) {
         traceListSnippet = moshas.describe("templates/trace/list.html", "#traces > li#trace", t -> {

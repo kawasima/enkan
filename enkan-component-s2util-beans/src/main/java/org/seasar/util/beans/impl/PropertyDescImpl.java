@@ -292,8 +292,7 @@ public class PropertyDescImpl implements PropertyDesc {
                     final Class<?> valueClass =
                         convertedValue == null ? null : convertedValue
                             .getClass();
-                    final Class<?> targetClass =
-                        target == null ? null : target.getClass();
+                    final Class<?> targetClass = target.getClass();
                     throw new IllegalArgumentException(t);
                 }
             } else {

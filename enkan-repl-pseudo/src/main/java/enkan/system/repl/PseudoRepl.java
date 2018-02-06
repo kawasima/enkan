@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
+import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
  * @author kawasima
@@ -36,16 +37,14 @@ public class PseudoRepl implements Repl {
     private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
 
     public PseudoRepl(String enkanSystemFactoryClassName) {
-        try {
-            system = ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName)).newInstance().create();
-            threadPool = Executors.newCachedThreadPool(runnable -> {
+        system = tryReflection(() -> ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName))
+                    .getConstructor().newInstance().create());
+
+        threadPool = Executors.newCachedThreadPool(runnable -> {
                 Thread t = new Thread(runnable);
                 t.setName("enkan-repl-pseudo");
                 return t;
-            });
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
+        });
 
         registerCommand("start", new StartCommand());
         registerCommand("stop",  new StopCommand());

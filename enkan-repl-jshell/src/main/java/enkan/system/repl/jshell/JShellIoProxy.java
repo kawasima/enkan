@@ -12,15 +12,13 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static enkan.system.ReplResponse.ResponseStatus.*;
-
 public class JShellIoProxy {
     private PrintStream out;
     private PrintStream err;
     private BufferedReader outReader;
     private BufferedReader errReader;
-    private Map<ZFrame, ZmqServerTransport> transports;
-    private ExecutorService ioThreadPool = Executors.newFixedThreadPool(2);
+    private final Map<ZFrame, ZmqServerTransport> transports;
+    private final ExecutorService ioThreadPool = Executors.newFixedThreadPool(2);
 
     public JShellIoProxy() {
         transports = new HashMap<>();
@@ -60,14 +58,14 @@ public class JShellIoProxy {
                 try {
                     String line = outReader.readLine();
                     if (Objects.equals(SystemIoTransport.CHUNK_DELIMITER, line)) {
-                        transports.values().stream()
+                        transports.values()
                                 .forEach(t -> t.sendOut(""));
                     } else {
-                        transports.values().stream()
+                        transports.values()
                                 .forEach(t -> t.send(ReplResponse.withOut(line)));
                     }
                 } catch (IOException e) {
-                    transports.values().stream()
+                    transports.values()
                             .forEach(t-> t.sendErr(e.getMessage()));
                 }
             }
@@ -80,10 +78,10 @@ public class JShellIoProxy {
                     if (!errReader.ready()) {
                         response.done();
                     }
-                    transports.values().stream()
+                    transports.values()
                             .forEach(t -> t.send(response));
                 } catch (IOException e) {
-                    transports.values().stream()
+                    transports.values()
                             .forEach(t-> t.sendErr(e.getMessage()));
                 }
             }

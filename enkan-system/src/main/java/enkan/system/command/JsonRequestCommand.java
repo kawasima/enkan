@@ -38,7 +38,6 @@ public class JsonRequestCommand implements SystemCommand {
             return true;
         }
         WebServerComponent webServer = webServers.get(0);
-        webServer.getPort();
         URL url;
         try {
             url = new URL(webServer.isSsl() ? "https" : "http",
@@ -73,21 +72,21 @@ public class JsonRequestCommand implements SystemCommand {
             }
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                reader.lines().forEach(line -> {
-                    transport.send(ReplResponse.withOut(line));
-                });
+                reader.lines().forEach(line -> transport.send(ReplResponse.withOut(line)));
             }
             transport.sendOut("");
         } catch (FileNotFoundException e) {
+            if (connection == null) {
+                transport.sendErr("IO Error: " + e.getLocalizedMessage());
+                return true;
+            }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
                 transport.send(ReplResponse.withOut(connection.getResponseCode() + " " + connection.getResponseMessage()));
                 transport.send(ReplResponse.withOut(""));
-                reader.lines().forEach(line -> {
-                    transport.send(ReplResponse.withOut(line));
-                });
+                reader.lines().forEach(line -> transport.send(ReplResponse.withOut(line)));
                 transport.sendOut("");
             } catch (IOException ioe) {
-                transport.sendErr("IO Error: " + e.getLocalizedMessage(), DONE);
+                transport.sendErr("IO Error: " + e.getLocalizedMessage());
                 return true;
             }
         } catch (IOException e) {

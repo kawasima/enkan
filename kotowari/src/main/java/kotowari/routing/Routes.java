@@ -64,8 +64,7 @@ public class Routes {
                         routeList.stream()
                                 .filter(r -> r.matchesController(controller))
                                 .map(Route::getActionRequirement)
-                                .sorted(Comparator.comparingInt(a -> levenshteinDistance(a, action)))
-                                .findFirst()
+                                .min(Comparator.comparingInt(a -> levenshteinDistance(a, action)))
                                 .orElse("")
                 ));
 

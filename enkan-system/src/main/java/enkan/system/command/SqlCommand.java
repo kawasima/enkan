@@ -7,13 +7,11 @@ import enkan.system.SystemCommand;
 import enkan.system.Transport;
 import lombok.Value;
 
-import javax.annotation.sql.DataSourceDefinition;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
@@ -33,7 +31,7 @@ public class SqlCommand implements SystemCommand {
             return true;
         }
 
-        boolean isDML = Arrays.stream(args).anyMatch(s -> DML_KEYWORDS.contains(s));
+        boolean isDML = Arrays.stream(args).anyMatch(DML_KEYWORDS::contains);
         List<DataSourceComponent> components = system.getComponents(DataSourceComponent.class);
         if (components.isEmpty()) {
             transport.sendErr("Not found DataSource", DONE);

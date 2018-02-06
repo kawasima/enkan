@@ -42,7 +42,7 @@ public class HttpRequestUtils {
         String length = request.getHeaders().get("content-length");
         if (length != null) {
             try {
-                return new Long(length);
+                return Long.parseLong(length, 10);
             } catch (NumberFormatException e) {
                 // ignore
             }

@@ -5,10 +5,6 @@ import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
 import enkan.system.Transport;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Set;
 
 public class HelpCommand implements SystemCommand {

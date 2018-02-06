@@ -24,9 +24,9 @@ import static net.unit8.moshas.RenderUtils.text;
 public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     private boolean moreCats;
 
-    private MoshasEngine moshas = new MoshasEngine();
+    private final MoshasEngine moshas = new MoshasEngine();
 
-    private Template template = moshas.describe("templates/httpStatusCat.html", t -> {
+    private final Template template = moshas.describe("templates/httpStatusCat.html", t -> {
         t.select("head > title", text("status"));
         t.select("img#cat", (el, ctx) -> el.attr("src", "//http.cat/" + ctx.getString("status")));
     });

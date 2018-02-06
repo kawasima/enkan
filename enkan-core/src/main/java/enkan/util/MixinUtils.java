@@ -16,7 +16,7 @@ import static enkan.util.ReflectionUtils.tryReflection;
  * @author kawasima
  */
 public class MixinUtils {
-    private static ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
 
     private static MethodHandle lookupSpecial(Method method) {
         final Class<?> declaringClass = method.getDeclaringClass();
@@ -41,8 +41,8 @@ public class MixinUtils {
     }
 
     static class MixinProxyHandler<T> implements InvocationHandler {
-        private T original;
-        private Class[] proxyInterfaces;
+        private final T original;
+        private final Class[] proxyInterfaces;
         MixinProxyHandler(T original, Class[] proxyInterfaces) {
             this.original = original;
             this.proxyInterfaces = proxyInterfaces;

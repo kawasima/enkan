@@ -9,8 +9,6 @@ import enkan.system.repl.serdes.ResponseStatusReader;
 import org.zeromq.ZFrame;
 import org.zeromq.ZMsg;
 
-import java.io.IOException;
-
 import static org.zeromq.ZMQ.*;
 
 /**
@@ -19,7 +17,7 @@ import static org.zeromq.ZMQ.*;
  * @author kawasima
  */
 public class ZmqServerTransport implements Transport {
-    private static Fressian fressian;
+    private static final Fressian fressian;
     static {
         fressian = new Fressian();
         fressian.putReadHandler(ReplResponse.class, new ReplResponseReader());

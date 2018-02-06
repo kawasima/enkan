@@ -11,8 +11,8 @@ import org.seasar.util.beans.util.CopyOptionsUtil;
 import java.util.Map;
 
 public class S2BeansConverter extends BeansConverter {
-    private static CopyOptions DEFAULT_OPTIONS = new CopyOptions();
-    private static CopyOptions EXCLUDE_NULL_OPTIONS = CopyOptionsUtil.excludeNull();
+    private static final CopyOptions DEFAULT_OPTIONS = new CopyOptions();
+    private static final CopyOptions EXCLUDE_NULL_OPTIONS = CopyOptionsUtil.excludeNull();
 
     private CopyOptions createCopyOptions(CopyOption option) {
         switch(option) {

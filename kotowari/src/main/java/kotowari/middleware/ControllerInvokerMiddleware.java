@@ -92,7 +92,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
 
             Object controller = controllerCache.computeIfAbsent(controllerClass, c ->
-                    tryReflection(() -> inject(c.newInstance())));
+                    tryReflection(() -> inject(c.getConstructor().newInstance())));
 
             return tryReflection(() -> {
                 Object[] arguments = createArguments(request);

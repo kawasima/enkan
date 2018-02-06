@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class Session implements Map<String, Serializable>, Serializable {
     /** Holds the attributes of session **/
-    private Map<String, Serializable> attrs;
+    private final Map<String, Serializable> attrs;
     private boolean isNew = true;
 
     public Session() {

@@ -8,7 +8,7 @@ import java.util.List;
  * @author kawasima
  */
 public class TraceLog implements Serializable {
-    List<Entry> entries;
+    private final List<Entry> entries;
 
     public TraceLog() {
         entries = new ArrayList<>();

@@ -12,7 +12,7 @@ import java.io.StringWriter;
 
 public class CompileCommand implements SystemCommand {
     /** compiling build tool. */
-    private transient Compiler compiler;
+    private final transient Compiler compiler;
 
     /**
      * init with MavenCompiler.

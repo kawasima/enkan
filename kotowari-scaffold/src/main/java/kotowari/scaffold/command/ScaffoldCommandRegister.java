@@ -180,8 +180,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                         ));
                     }
                 })
-                .writing("sql", g -> Arrays.asList("selectAll.sql", "selectById.sql")
-                        .stream().forEach(sql ->
+                .writing("sql", g -> Stream.of("selectAll.sql", "selectById.sql").forEach(sql ->
                                 g.task(new ContentsReplaceTask(
                                         "src/main/resources/META-INF/scaffold/crud/dao/UserDao/" + sql,
                                         "src/main/resources/META-INF/" + convertToPathString(pkgName)

@@ -8,7 +8,7 @@ import enkan.system.Transport;
 public class ScanPackagesCommand implements SystemCommand {
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
-        system.getAllComponents().stream().forEach(
+        system.getAllComponents().forEach(
                 c -> transport.send(ReplResponse.withOut(c.getClass().getName()))
         );
         return true;

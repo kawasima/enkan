@@ -38,7 +38,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
         if (isCORSRequest(request)) {
-            if (!isOriginAllowed(request) || !methods.stream().anyMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
+            if (!isOriginAllowed(request) || methods.stream().noneMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);
             }
             if (isPreflightRequest(request)) {
