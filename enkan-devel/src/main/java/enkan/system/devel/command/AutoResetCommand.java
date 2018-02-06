@@ -55,7 +55,7 @@ public class AutoResetCommand implements SystemCommand {
                 .map(c -> ((ApplicationComponent) c).getLoader())
                 .filter(Objects::nonNull)
                 .findFirst();
-        return loader.orElseGet(null);
+        return loader.orElse(null);
     }
 
 

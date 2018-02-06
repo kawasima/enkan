@@ -460,7 +460,7 @@ public abstract class TimeConversionUtil {
                 .map(format -> toDate(str, format))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElseGet(null);
+                .orElse(null);
     }
 
     /**

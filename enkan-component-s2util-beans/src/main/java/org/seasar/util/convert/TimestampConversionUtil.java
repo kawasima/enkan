@@ -464,7 +464,7 @@ public abstract class TimestampConversionUtil {
                 .map(format -> toDate(str, format))
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElseGet(null);
+                .orElse(null);
     }
 
     /**

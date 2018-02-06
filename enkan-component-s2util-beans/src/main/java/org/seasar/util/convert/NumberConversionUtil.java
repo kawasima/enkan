@@ -125,9 +125,7 @@ public abstract class NumberConversionUtil {
      */
     public static String removeDelimeter(String value, final Locale locale) {
         final String groupingSeparator = findGroupingSeparator(locale);
-        if (groupingSeparator != null) {
-            value = value.replaceAll(groupingSeparator, "");
-        }
+        value = value.replaceAll(groupingSeparator, "");
         return value;
     }
 
