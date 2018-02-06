@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
  * @author kawasima
  */
 public class HmacEncoder extends SystemComponent {
+    private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
     private String algorithm = "HmacSHA256";
     private String secret = "This is secret";
 
@@ -28,7 +29,12 @@ public class HmacEncoder extends SystemComponent {
             Mac mac = Mac.getInstance(algorithm);
             mac.init(secretKeySpec);
             byte[] macBytes = mac.doFinal(text.getBytes());
-            return DatatypeConverter.printHexBinary(macBytes);
+            char[] macChars = new char[macBytes.length * 2];
+            for (int i = 0; i < macBytes.length; i++) {
+                macChars[i * 2    ] = HEX_CHARACTERS[(macBytes[i] >> 4) & 0xF];
+                macChars[i * 2 + 1] = HEX_CHARACTERS[macBytes[i] & 0xF];
+            }
+            return new String(macChars);
         } catch (NoSuchAlgorithmException ex) {
             throw new MisconfigurationException("core.NO_SUCH_ALGORITHM", algorithm, "`HmacMD5`, `HmacSHA1`, and `HmacSHA256`",ex);
         } catch (InvalidKeyException ex) {
