@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.5.1-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -21,6 +21,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <release>9</release>
                     <source>9</source>
                     <target>9</target>
                 </configuration>
