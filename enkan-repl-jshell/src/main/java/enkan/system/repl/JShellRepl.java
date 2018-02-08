@@ -22,6 +22,7 @@ import org.zeromq.ZMsg;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.*;
@@ -35,7 +36,7 @@ public class JShellRepl implements Repl {
     private JShell jshell;
     private JShellIoProxy ioProxy;
     private ExecutorService threadPool;
-    private final Map<String, SystemCommand> commands = new HashMap<>();
+    private final Map<String, SystemCommand> localCommands = new HashMap<>();
     private final Set<String> commandNames = new HashSet<>();
     private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
     private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
@@ -116,26 +117,39 @@ public class JShellRepl implements Repl {
         }
 
     }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void registerCommand(String name, SystemCommand command) {
-        try {
-            String serializedCommand = JShellObjectTransferer.writeToBase64(command);
-            executeStatement("__commands.put(\"" + name
-                    + "\", JShellObjectTransferer.readFromBase64(\""
-                    + serializedCommand
-                    + "\", SystemCommand.class))");
-            commands.put(name, command);
-            commandNames.add(name);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("command cannot be serialized:" + command, e);
+        if(command instanceof Serializable) {
+            try {
+                String serializedCommand = JShellObjectTransferer.writeToBase64(command);
+                executeStatement("__commands.put(\"" + name
+                        + "\", JShellObjectTransferer.readFromBase64(\""
+                        + serializedCommand
+                        + "\", SystemCommand.class))");
+            } catch (Exception e) {
+                throw new IllegalArgumentException("command cannot be serialized:" + command, e);
+            }
+        } else {
+            localCommands.put(name, command);
         }
+        commandNames.add(name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addBackgroundTask(String name, Runnable task) {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Integer getPort() {
         try {
@@ -145,6 +159,9 @@ public class JShellRepl implements Repl {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Future<?> getBackgorundTask(String name) {
         return null;
@@ -189,6 +206,8 @@ public class JShellRepl implements Repl {
                         break;
                     } else if (Objects.equals("disconnect", commandName)) {
                         ioProxy.unlisten(clientAddress);
+                    } else if (localCommands.containsKey(commandName)) {
+                        SystemCommand command = localCommands.get(commandName);
                     } else {
                         String[] args = new String[cmds.length - 1];
                         System.arraycopy(cmds, 1, args, 0, cmds.length - 1);

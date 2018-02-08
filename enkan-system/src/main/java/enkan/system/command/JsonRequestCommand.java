@@ -15,10 +15,15 @@ import java.util.Locale;
 
 import static enkan.system.ReplResponse.ResponseStatus.*;
 
+/**
+ * The command for requesting json to the server.
+ *
+ * @author kawasima
+ */
 public class JsonRequestCommand implements SystemCommand {
-    public JsonRequestCommand() {
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         if (args.length < 2) {

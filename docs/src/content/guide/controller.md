@@ -30,6 +30,7 @@ Arguments of a controller method are available as follows:
 - Flash
 - Conversation
 - ConversationState
+- Locale
 - Request body object
 
 If they are in the controller method parameters, `ControllerInvokerMiddleware` injects to the arguments.  

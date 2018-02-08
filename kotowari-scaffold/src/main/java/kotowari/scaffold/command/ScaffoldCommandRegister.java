@@ -127,10 +127,6 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                             cu -> cu.accept(new ClassReplaceVisitor(
                                     "scaffold.crud.", pkgName,
                                     "user", tableName), null)));
-                    String domaConfig = "src/main/java/" + pkgPath + "/DomaConfig.java";
-                    if (!Files.exists(Paths.get(domaConfig))) {
-                        g.task(new DomaConfigTask(pkgName));
-                    }
                     String formBase = "src/main/java/" + pkgPath + "/form/FormBase.java";
                     if (!Files.exists(Paths.get(formBase))) {
                         g.task(new JavaByTemplateTask(
@@ -223,7 +219,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
         Erebus erebus = new Erebus.Builder().build();
         final ClassLoader scaffoldLoader;
         try {
-            URL[] urls = erebus.resolveAsFiles("net.unit8.enkan:kotowari-crud-scaffold:0.1.0-beta1")
+            URL[] urls = erebus.resolveAsFiles("net.unit8.enkan:kotowari-crud-scaffold:0.6.0-SNAPSHOT")
                     .stream()
                     .map(File::toURI)
                     .map(uri -> {

@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.6.0-beta1</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -35,6 +35,7 @@
         <module>../enkan-component-undertow</module>
         <module>../enkan-component-flyway</module>
         <module>../enkan-component-doma2</module>
+        <module>../enkan-component-eclipselink</module>
         <module>../enkan-component-jackson</module>
         <module>../enkan-component-s2util-beans</module>
         <module>../enkan-component-metrics</module>

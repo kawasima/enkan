@@ -13,6 +13,7 @@ import enkan.component.metrics.MetricsComponent;
 import enkan.component.undertow.UndertowComponent;
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
+import org.seasar.doma.jdbc.Naming;
 import org.seasar.doma.jdbc.dialect.H2Dialect;
 
 import static enkan.component.ComponentRelationship.component;
@@ -28,6 +29,7 @@ public class ExampleSystemFactory implements EnkanSystemFactory {
                 "hmac", new HmacEncoder(),
                 "doma", builder(new DomaProvider())
                         .set(DomaProvider::setDialect, new H2Dialect())
+                        .set(DomaProvider::setNaming, Naming.SNAKE_LOWER_CASE)
                         .build(),
                 "jackson", new JacksonBeansConverter(),
                 "flyway", new FlywayMigration(),
