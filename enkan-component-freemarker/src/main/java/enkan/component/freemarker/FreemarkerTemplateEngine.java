@@ -6,6 +6,8 @@ import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
 import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.core.OutputFormat;
 import freemarker.ext.beans.BeanModel;
@@ -35,9 +37,13 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
     private String suffix = ".ftl";
     private ClassLoader classLoader;
     private String encoding = "UTF-8";
+    private TemplateLoader templateLoader;
 
     private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HttpResponse render(String name, Object... keyOrVals) {
         TemplatedHttpResponse response = TemplatedHttpResponse.create(name, keyOrVals);
@@ -59,6 +65,9 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected ComponentLifecycle lifecycle() {
         return new ComponentLifecycle() {
@@ -68,8 +77,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
                     classLoader = Thread.currentThread().getContextClassLoader();
                 }
                 config = new Configuration(new Version(2,3,27));
-                ClassTemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
-                config.setTemplateLoader(classTemplateLoader);
+                config.setTemplateLoader(createTemplateLoader());
                 config.setOutputFormat(outputFormat);
                 config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,27)) {
                     @Override
@@ -90,6 +98,10 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public Object createFunction(Function<List, Object> func) {
         return (TemplateMethodModelEx) arguments ->
@@ -102,6 +114,26 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
                 }).collect(Collectors.toList()));
     }
 
+    private TemplateLoader createTemplateLoader() {
+        TemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
+        if (templateLoader != null) {
+            if (templateLoader instanceof MultiTemplateLoader) {
+                MultiTemplateLoader mtl = (MultiTemplateLoader) templateLoader;
+                TemplateLoader[] loaders = new TemplateLoader[mtl.getTemplateLoaderCount() + 1];
+                for(int i=0; i < mtl.getTemplateLoaderCount(); i++) {
+                    loaders[i] = mtl.getTemplateLoader(i);
+                }
+                loaders[mtl.getTemplateLoaderCount() + 1] = classTemplateLoader;
+                return new MultiTemplateLoader(loaders);
+
+            } else {
+                return new MultiTemplateLoader(new TemplateLoader[]{templateLoader, classTemplateLoader});
+            }
+        } else {
+            return classTemplateLoader;
+        }
+    }
+
     /**
      * Set an output format used by this freemarker.
      *
@@ -109,5 +141,14 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
      */
     public void setOutputFormat(OutputFormat outputFormat) {
         this.outputFormat = outputFormat;
+    }
+
+    /**
+     * Set an template loader used by this freemarker.
+     *
+     * @param templateLoader template loader
+     */
+    public void setTemplateLoader(TemplateLoader templateLoader) {
+        this.templateLoader = templateLoader;
     }
 }

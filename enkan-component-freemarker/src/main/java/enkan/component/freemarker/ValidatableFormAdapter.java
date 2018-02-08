@@ -8,6 +8,8 @@ import freemarker.template.TemplateModelException;
 import kotowari.data.Validatable;
 
 /**
+ * Form object model.
+ *
  * @author kawasima
  */
 public class ValidatableFormAdapter extends BeanModel {
