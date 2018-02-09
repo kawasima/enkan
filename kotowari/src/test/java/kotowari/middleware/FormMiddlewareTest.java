@@ -14,6 +14,7 @@ import enkan.util.Predicates;
 import kotowari.data.BodyDeserializable;
 import kotowari.test.controller.TestController;
 import kotowari.test.form.NestedForm;
+import kotowari.util.ParameterUtils;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,9 +25,10 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static enkan.util.ReflectionUtils.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static enkan.util.ReflectionUtils.tryReflection;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author kawasima
@@ -85,6 +87,7 @@ public class FormMiddlewareTest extends FormMiddleware {
         new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
         FormMiddleware formMiddleware = new FormMiddleware();
+        formMiddleware.setParameterInjectors(ParameterUtils.getDefaultParameterInjectors());
         formMiddleware.beans = beans;
         request = MixinUtils.mixin(request, Routable.class);
         Method method = tryReflection(() -> TestController.class.getMethod("index", NestedForm.class));

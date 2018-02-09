@@ -47,7 +47,7 @@ public class ThrottlingMiddlewareTest {
             }
         }, 0, 250, TimeUnit.MILLISECONDS);
 
-        service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
+        service.schedule(service::shutdown, 4, TimeUnit.SECONDS);
         service.awaitTermination(5, TimeUnit.SECONDS);
 
         assertThat(count200.get()).isGreaterThan(3);

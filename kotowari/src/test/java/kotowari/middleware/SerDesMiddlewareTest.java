@@ -13,6 +13,7 @@ import enkan.predicate.AnyPredicate;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.test.dto.TestDto;
+import kotowari.util.ParameterUtils;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -75,6 +76,7 @@ public class SerDesMiddlewareTest {
         SerDesMiddleware middleware = builder(new SerDesMiddleware())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
+                .set(SerDesMiddleware::setParameterInjectors, ParameterUtils.getDefaultParameterInjectors())
                 .build();
 
         String body = "[{\"a\":1, \"b\":\"ccb\"}, {\"a\":2, \"b\":\"ooo\"}]";

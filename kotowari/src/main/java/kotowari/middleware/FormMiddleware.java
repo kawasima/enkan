@@ -9,12 +9,16 @@ import enkan.exception.UnreachableException;
 import enkan.middleware.AbstractWebMiddleware;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
+import kotowari.inject.ParameterInjector;
 import kotowari.util.ParameterUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Sets the form object to the request.
@@ -26,13 +30,24 @@ public class FormMiddleware extends AbstractWebMiddleware {
     @Inject
     protected BeansConverter beans;
 
+    private List<ParameterInjector<?>> parameterInjectors;
+
+    @PostConstruct
+    protected void setupParameterInjectors() {
+        if (parameterInjectors == null) {
+            parameterInjectors = ParameterUtils.getDefaultParameterInjectors();
+        }
+    }
+
     @Override
     public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();
-            if (ParameterUtils.isReservedType(type)) continue;
+            final HttpRequest req = request;
+            if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
+                continue;
 
             BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
             Object body = bodyDeserializable.getDeserializedBody();
@@ -53,5 +68,9 @@ public class FormMiddleware extends AbstractWebMiddleware {
         }
 
         return castToHttpResponse(next.next(request));
+    }
+
+    public void setParameterInjectors(List<ParameterInjector<?>> parameterInjectors) {
+        this.parameterInjectors = parameterInjectors;
     }
 }

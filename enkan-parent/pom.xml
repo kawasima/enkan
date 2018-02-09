@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.6.0-beta1</enkan.version>
+        <enkan.version>0.6.0-SNAPSHOT</enkan.version>
     </properties>
 
     <modules>
@@ -35,24 +35,34 @@
         <module>../enkan-component-undertow</module>
         <module>../enkan-component-flyway</module>
         <module>../enkan-component-doma2</module>
+        <module>../enkan-component-jpa</module>
         <module>../enkan-component-eclipselink</module>
         <module>../enkan-component-jackson</module>
         <module>../enkan-component-s2util-beans</module>
         <module>../enkan-component-metrics</module>
         <module>../kotowari</module>
+        <module>../kotowari-jpa</module>
         <module>../enkan-throttling</module>
         <module>../kotowari-scaffold</module>
         <module>../kotowari-example</module>
 
     </modules>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.7.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
                 <configuration>
-                    <release>8</release>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
@@ -217,6 +227,23 @@
     </dependencyManagement>
 
     <profiles>
+        <profile>
+            <id>java9</id>
+            <activation>
+                <jdk>[9,</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <release>8</release>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <build>
