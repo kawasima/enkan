@@ -105,6 +105,7 @@ public class JettyAdapter {
         return pool;
     }
 
+    @SuppressWarnings("unchecked")
     private Server createServer(OptionMap options) {
         Server server = new Server(createThreadPool());
 

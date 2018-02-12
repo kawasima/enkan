@@ -18,6 +18,7 @@ public class ThreadingUtils {
                 add(UnsupportedCharsetException.class);
             }};
 
+    @SuppressWarnings("unchecked")
     private static <X, Y> Optional<Y> doSome(X start, ThreadingFunction... functions) {
         if (functions == null || start == null) {
             return Optional.ofNullable((Y) start);

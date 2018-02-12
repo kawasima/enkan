@@ -3,7 +3,6 @@ package enkan.component.eclipselink;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;

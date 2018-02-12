@@ -38,7 +38,7 @@ public class EntityManagerProviderTest {
         try {
             EntityManagerProvider provider = system.getComponent("eclipselink");
             EntityManager em = provider.createEntityManager();
-            Person person = em.find(Person.class, 1l);
+            Person person = em.find(Person.class, 1L);
             assertThat(person).isNull();
             person = new Person();
             person.setName("hoho");
@@ -46,7 +46,7 @@ public class EntityManagerProviderTest {
             em.merge(person);
             em.getTransaction().commit();
 
-            Person person2 = em.find(Person.class, 1l);
+            Person person2 = em.find(Person.class, 1L);
             assertThat(person2).extracting("id", "name")
                     .containsExactly(1L, "hoho");
         } finally {

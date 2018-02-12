@@ -40,7 +40,7 @@ public class S2BeanConverterTest {
 
     @Test
     public void test() {
-        HashMap m = new HashMap<>();
+        HashMap<String, Object> m = new HashMap<>();
         m.put("a", "1");
         m.put("b", "23456");
         m.put("c", "1");

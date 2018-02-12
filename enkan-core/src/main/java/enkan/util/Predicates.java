@@ -16,12 +16,12 @@ public class Predicates {
     private Predicates() {
     }
 
-    @SuppressWarnings("uncheked")
+    @SuppressWarnings("unchecked")
     public static <T> Predicate<? super T> any() {
         return ANY;
     }
 
-    @SuppressWarnings("uncheked")
+    @SuppressWarnings("unchecked")
     public static <T> Predicate<? super T> none() {
         return NONE;
     }

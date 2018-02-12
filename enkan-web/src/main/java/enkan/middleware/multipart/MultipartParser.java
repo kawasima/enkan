@@ -47,7 +47,7 @@ public class MultipartParser {
     private static final Pattern EXTENDED_INITIAL_NAME = Pattern.compile(ATTRIBUTE + "(?:\\*0)?\\*");
     private static final Pattern EXTENDED_INITIAL_VALUE = Pattern.compile("[a-zA-Z0-9\\-]*'[a-zA-Z0-9\\-]*'(?:" + EXTENDED_OTHER_VALUE.pattern() + ")*");
     private static final Pattern EXTENDED_INITIAL_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", EXTENDED_INITIAL_NAME.pattern(), EXTENDED_INITIAL_VALUE.pattern()));
-    private static final Pattern EXTENDED_PARAMETER = Pattern.compile(EXTENDED_INITIAL_PARAMETER.pattern() + "|" + EXTENDED_OTHER_PARAMETER);
+    private static final Pattern EXTENDED_PARAMETER = Pattern.compile(EXTENDED_INITIAL_PARAMETER.pattern() + "|" + EXTENDED_OTHER_PARAMETER.pattern());
     protected static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER.pattern()));
     protected static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 

@@ -15,7 +15,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     private Predicate<? super REQ> predicate;
     private Middleware<REQ, RES, NREQ, NRES> middleware;
     private String middlewareName;
-    private MiddlewareChain<NREQ, NRES, ?, ?> next;
+    private MiddlewareChain<NREQ, NRES, ?, ?> chain;
 
 
     /**
@@ -41,14 +41,14 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     }
 
     /**
-     * Sets the next chain of middleware.
+     * Sets the chain chain of middleware.
      *
      * @param next {@inheritDoc}
      * @return     {@inheritDoc}
      */
     @Override
     public MiddlewareChain<REQ, RES, NREQ, NRES> setNext(MiddlewareChain<NREQ, NRES, ?, ?> next) {
-        this.next = next;
+        this.chain = next;
         return this;
     }
 
@@ -69,7 +69,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     }
 
     /**
-     * Dispatches a request to the next chain of middleware.
+     * Dispatches a request to the chain chain of middleware.
      *
      * @param req  {@inheritDoc}
      * @return     {@inheritDoc}
@@ -79,11 +79,11 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
         writeTraceLog(req, middlewareName);
 
         if (predicate.test(req)) {
-            RES res = middleware.handle(req, next);
+            RES res = middleware.handle(req, chain);
             writeTraceLog(res, middlewareName);
             return res;
-        } else if (next != null){
-            RES res = (RES) next.next((NREQ) req);
+        } else if (chain != null){
+            RES res = (RES) chain.next((NREQ) req);
             writeTraceLog(res, middlewareName);
             return res;
         } else {

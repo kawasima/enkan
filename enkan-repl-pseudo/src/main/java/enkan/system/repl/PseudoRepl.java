@@ -35,7 +35,8 @@ public class PseudoRepl implements Repl {
     private final Map<String, SystemCommand> commands = new HashMap<>();
     private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
     private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
-
+    
+    @SuppressWarnings("unchecked")
     public PseudoRepl(String enkanSystemFactoryClassName) {
         system = tryReflection(() -> ((Class<? extends EnkanSystemFactory>) Class.forName(enkanSystemFactoryClassName))
                     .getConstructor().newInstance().create());

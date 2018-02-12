@@ -7,7 +7,7 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
 
 import javax.persistence.Persistence;
-import javax.sql.DataSource;
+import javax.persistence.spi.PersistenceUnitTransactionType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +34,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider {
                 pu.setPersistenceUnitName(getName());
                 pu.setClassLoader(Thread.currentThread().getContextClassLoader());
                 pu.setPersistenceUnitRootUrl(getClass().getResource("/"));
+                pu.setTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
                 pu.setNonJtaDataSource(getDataSource());
                 pu.setManagedClassNames(managedClassNames);
                 pu.setExcludeUnlistedClasses(false);
