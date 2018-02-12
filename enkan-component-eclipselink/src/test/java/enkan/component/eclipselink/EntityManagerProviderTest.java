@@ -1,4 +1,4 @@
-package enkan.component.jpa;
+package enkan.component.eclipselink;
 
 import enkan.collection.OptionMap;
 import enkan.component.DataSourceComponent;
@@ -19,15 +19,15 @@ public class EntityManagerProviderTest {
     @Test
     public void test() throws Exception {
         EnkanSystem system = EnkanSystem.of(
-                "jpa", builder(new EntityManagerProvider())
-                        .set(EntityManagerProvider::setName, "test")
-                        .set(EntityManagerProvider::registerClass, Person.class)
+                "eclipselink", builder(new EclipseLinkEntityManagerProvider())
+                        .set(EclipseLinkEntityManagerProvider::setName, "test")
+                        .set(EclipseLinkEntityManagerProvider::registerClass, Person.class)
                         .build(),
                 "datasource", new HikariCPComponent(OptionMap.of(
                         "uri", "jdbc:h2:mem:test;AUTOCOMMIT=FALSE;DB_CLOSE_DELAY=-1"
                 ))
         ).relationships(
-                component("jpa").using("datasource")
+                component("eclipselink").using("datasource")
         );
         system.start();
         DataSourceComponent dsComponent = system.getComponent("datasource");
@@ -36,9 +36,9 @@ public class EntityManagerProviderTest {
             stmt.executeUpdate("CREATE TABLE person(id IDENTITY, name VARCHAR(100))");
         }
         try {
-            EntityManagerProvider provider = system.getComponent("jpa");
-            EntityManager em = provider.getEntityManager();
-            Person person = em.find(Person.class, 1L);
+            EntityManagerProvider provider = system.getComponent("eclipselink");
+            EntityManager em = provider.createEntityManager();
+            Person person = em.find(Person.class, 1l);
             assertThat(person).isNull();
             person = new Person();
             person.setName("hoho");
@@ -46,8 +46,9 @@ public class EntityManagerProviderTest {
             em.merge(person);
             em.getTransaction().commit();
 
-            Person person2 = em.find(Person.class, 1L);
-            System.out.println(person2);
+            Person person2 = em.find(Person.class, 1l);
+            assertThat(person2).extracting("id", "name")
+                    .containsExactly(1L, "hoho");
         } finally {
             system.stop();
         }

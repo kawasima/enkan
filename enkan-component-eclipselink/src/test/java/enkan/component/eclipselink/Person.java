@@ -1,4 +1,4 @@
-package enkan.component.jpa;
+package enkan.component.eclipselink;
 
 import lombok.Data;
 

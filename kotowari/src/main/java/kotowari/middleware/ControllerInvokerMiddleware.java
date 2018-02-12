@@ -8,13 +8,12 @@ import enkan.exception.MisconfigurationException;
 import enkan.system.inject.ComponentInjector;
 import kotowari.inject.ParameterInjector;
 import kotowari.inject.parameter.*;
+import kotowari.util.ParameterUtils;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -36,22 +35,19 @@ import static enkan.util.ReflectionUtils.*;
 @enkan.annotation.Middleware(name = "controllerInvoker", dependencies = "params")
 public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES, Void, Void> {
     private final Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
-    private List<ParameterInjector<?>> parameterInjectors = new ArrayList<>();
     private final ComponentInjector componentInjector;
+    private static final ParameterInjector<?> BODY_SERIALIZABLE_INJECTOR = new BodySerializableInjector<>();
+    private List<ParameterInjector<?>> parameterInjectors;
 
     public ControllerInvokerMiddleware(ComponentInjector componentInjector) {
         this.componentInjector = componentInjector;
-        this.parameterInjectors.addAll(Arrays.asList(
-                new HttpRequestInjector(),
-                new ParametersInjector(),
-                new SessionInjector(),
-                new FlashInjector<>(),
-                new PrincipalInjector(),
-                new ConversationInjector(),
-                new ConversationStateInjector(),
-                new LocaleInjector(),
-                new BodySerializableInjector<>()
-        ));
+    }
+
+    @PostConstruct
+    protected void setupParameterInjectors() {
+        if (parameterInjectors == null) {
+            parameterInjectors = ParameterUtils.getDefaultParameterInjectors();
+        }
     }
 
     protected Object[] createArguments(HttpRequest request) {
@@ -64,13 +60,8 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             final int parameterIndex = i;
             ParameterInjector<?> parameterInjector = parameterInjectors.stream()
                     .filter(injector -> injector.isApplicable(type, request))
-                    .findFirst()
-                    .orElseThrow(() -> new MisconfigurationException("kotowari.PARAMETER_TYPE_MISMATCH",
-                            method.getDeclaringClass().getSimpleName(),
-                            method.getName(), parameterIndex + 1, type,
-                            parameterInjectors.stream()
-                                    .map(ParameterInjector::getName)
-                                    .collect(Collectors.joining(","))));
+                    .findAny()
+                    .orElse(BODY_SERIALIZABLE_INJECTOR);
 
             arguments[parameterIndex] = parameterInjector.getInjectObject(request);
             i++;

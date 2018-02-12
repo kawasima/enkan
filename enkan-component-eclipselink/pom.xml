@@ -16,9 +16,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-component-jpa</artifactId>
+            <version>${enkan.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
@@ -35,13 +35,13 @@
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-component-HikariCP</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
+            <version>${enkan.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-component-flyway</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
+            <version>${enkan.version}</version>
             <scope>test</scope>
         </dependency>
 

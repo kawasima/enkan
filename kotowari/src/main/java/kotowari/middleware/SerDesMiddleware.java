@@ -14,6 +14,7 @@ import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
+import kotowari.inject.ParameterInjector;
 import kotowari.util.ParameterUtils;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +30,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static enkan.util.BeanBuilder.*;
+import static enkan.util.BeanBuilder.builder;
 
 /**
  * Serialize a java object to response body and deserialize  a response body
@@ -44,6 +45,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     private final List<MessageBodyReader<?>> bodyReaders = new ArrayList<>();
     private final List<MessageBodyWriter<?>> bodyWriters = new ArrayList<>();
+    private List<ParameterInjector<?>> parameterInjectors;
 
     @PostConstruct
     private void loadReaderAndWriter() {
@@ -59,6 +61,10 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         for (MessageBodyWriter writer : ServiceLoader.load(MessageBodyWriter.class, cl)) {
             injector.inject(writer);
             bodyWriters.add(writer);
+        }
+
+        if (parameterInjectors == null) {
+            parameterInjectors = ParameterUtils.getDefaultParameterInjectors();
         }
     }
 
@@ -115,7 +121,8 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 Class<?> type = parameter.getType();
                 Type genericType = parameter.getParameterizedType();
 
-                if (ParameterUtils.isReservedType(type)) continue;
+                if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, request)))
+                    continue;
 
                 BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
                 Object body = deserialize(request, type, genericType, mediaType);
@@ -132,7 +139,9 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
             if (bodyDeserializable.getDeserializedBody() == null) {
                 for (Parameter parameter : method.getParameters()) {
                     Class<?> type = parameter.getType();
-                    if (ParameterUtils.isReservedType(type)) continue;
+                    final HttpRequest req = request;
+                    if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
+                        continue;
                     bodyDeserializable.setDeserializedBody(beans.createFrom(
                             request.getParams(), type
                     ));
@@ -169,4 +178,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         bodyWriters.addAll(Arrays.asList(writers));
     }
 
+    public void setParameterInjectors(List<ParameterInjector<?>> parameterInjectors) {
+        this.parameterInjectors = parameterInjectors;
+    }
 }

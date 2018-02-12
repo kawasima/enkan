@@ -1,5 +1,6 @@
 package enkan.system.devel;
 
+import enkan.Env;
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
 import enkan.system.devel.compiler.MavenCompiler;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * @author kawasima
@@ -50,6 +52,11 @@ public class MavenCompilerTest {
             }
         };
 
+        assumeTrue(() -> {
+            final File mavenHome = new File(Env.getString("MAVEN_HOME",
+                    Env.getString("M2_HOME", "/opt/maven")));
+            return mavenHome.exists();
+        });
         CompileResult result = compiler.execute(t);
         assertThat(result.getExecutionException()).isNull();
     }

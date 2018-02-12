@@ -5,18 +5,30 @@ import enkan.data.Flash;
 import enkan.data.HttpRequest;
 import enkan.data.Session;
 import enkan.security.UserPrincipal;
+import kotowari.inject.ParameterInjector;
+import kotowari.inject.parameter.*;
 
 import javax.enterprise.context.Conversation;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class ParameterUtils {
-    public static boolean isReservedType(Class<?> type) {
-        return HttpRequest.class.isAssignableFrom(type)
-                || Session.class.isAssignableFrom(type)
-                || Flash.class.isAssignableFrom(type)
-                || Conversation.class.isAssignableFrom(type)
-                || ConversationState.class.isAssignableFrom(type)
-                || UserPrincipal.class.isAssignableFrom(type)
-                || Map.class.isAssignableFrom(type);
+    private static final LinkedList<ParameterInjector<?>> defaultParameterInjectors = new LinkedList<>();
+    static {
+        defaultParameterInjectors.addAll(Arrays.asList(
+                new HttpRequestInjector(),
+                new ParametersInjector(),
+                new SessionInjector(),
+                new FlashInjector<>(),
+                new PrincipalInjector(),
+                new ConversationInjector(),
+                new ConversationStateInjector(),
+                new LocaleInjector()));
+    }
+
+    public static LinkedList<ParameterInjector<?>> getDefaultParameterInjectors() {
+        return defaultParameterInjectors;
     }
 }
