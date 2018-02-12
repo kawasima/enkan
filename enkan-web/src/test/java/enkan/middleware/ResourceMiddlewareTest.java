@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import static enkan.util.BeanBuilder.builder;
-import static org.assertj.core.api.Assertions.assertThat;
+import static enkan.util.BeanBuilder.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author kawasima
@@ -22,13 +22,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceMiddlewareTest {
     @Test
     public void resourceIsFound() throws URISyntaxException {
-        ResourceMiddleware middleware = new ResourceMiddleware();
+        ResourceMiddleware<HttpResponse> middleware = new ResourceMiddleware<>();
 
         HttpRequest request = new DefaultHttpRequest();
         request.setRequestMethod("GET");
         request.setUri("/assets/test.txt");
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain chain = new DefaultMiddlewareChain(Predicates.ANY, "endpoint", (req, c) ->
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
                 builder(HttpResponse.of("dummy"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());
@@ -39,15 +39,15 @@ public class ResourceMiddlewareTest {
 
     @Test
     public void resourceAssetPath() throws URISyntaxException {
-        ResourceMiddleware middleware = builder(new ResourceMiddleware())
-                .set(ResourceMiddleware::setUriPrefix, null)
+        ResourceMiddleware<HttpResponse> middleware = builder(new ResourceMiddleware<HttpResponse>())
+                .set(ResourceMiddleware::setUriPrefix, (String) null)
                 .build();
 
         HttpRequest request = new DefaultHttpRequest();
         request.setRequestMethod("GET");
         request.setUri("/test.txt");
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain chain = new DefaultMiddlewareChain(Predicates.ANY, "endpoint", (req, c) ->
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
                 builder(HttpResponse.of("dummy"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());

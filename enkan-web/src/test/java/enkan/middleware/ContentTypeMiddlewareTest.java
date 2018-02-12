@@ -19,11 +19,11 @@ import static org.junit.Assert.*;
  * @author kawasima
  */
 public class ContentTypeMiddlewareTest {
-    private ContentTypeMiddleware middleware;
+    private ContentTypeMiddleware<HttpResponse> middleware;
     private HttpRequest request;
     @Before
     public void setup() {
-        middleware = new ContentTypeMiddleware();
+        middleware = new ContentTypeMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")
@@ -34,7 +34,7 @@ public class ContentTypeMiddlewareTest {
 
     @Test
     public void testSetContentType() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
@@ -46,7 +46,7 @@ public class ContentTypeMiddlewareTest {
 
     @Test
     public void defaultValueIsOctetStream() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .build());
@@ -57,7 +57,7 @@ public class ContentTypeMiddlewareTest {
 
     @Test
     public void testRedirect() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setStatus, 303)

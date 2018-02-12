@@ -32,8 +32,8 @@ public class AbsoluteRedirectsMiddlewareTest {
     }
 
     @Test
-    public void docrootPath() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+    public void documentRootPath() {
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setStatus, 303)
@@ -46,7 +46,7 @@ public class AbsoluteRedirectsMiddlewareTest {
 
     @Test
     public void relativePath() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setStatus, 303)

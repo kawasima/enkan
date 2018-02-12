@@ -9,7 +9,7 @@ import java.util.stream.Stream;
  *
  * @author kawasima
  */
-public class AuthenticatedPredicate<REQ> implements PrintablePredicate<REQ> {
+public class AuthenticatedPredicate<REQ extends PrincipalAvailable> implements PrintablePredicate<REQ> {
     @Override
     public boolean test(REQ req) {
         return Stream.of(req)

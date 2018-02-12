@@ -32,7 +32,7 @@ import java.util.function.Function;
  * @author kawasima
  */
 @Middleware(name = "routing")
-public class RoutingMiddleware extends AbstractWebMiddleware {
+public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     @NotNull
     private Routes routes;
 
@@ -48,7 +48,7 @@ public class RoutingMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
         request = MixinUtils.mixin(request, Routable.class);
         Class<?> controllerClass;
 

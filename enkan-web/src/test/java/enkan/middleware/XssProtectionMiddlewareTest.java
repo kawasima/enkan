@@ -22,7 +22,7 @@ public class XssProtectionMiddlewareTest {
         XssProtectionMiddleware middleware = new XssProtectionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> builder(HttpResponse.of("hello")).build());
         HttpResponse response = middleware.handle(request, chain);
         assertEquals("1; mode=block", HttpResponseUtils.getHeader(response, "X-XSS-Protection"));

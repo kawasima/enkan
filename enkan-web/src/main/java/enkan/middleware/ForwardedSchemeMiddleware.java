@@ -13,7 +13,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "forwardedScheme")
-public class ForwardedSchemeMiddleware extends AbstractWebMiddleware {
+public class ForwardedSchemeMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private String header = "x-forwarded-proto";
 
     private HttpRequest forwardedSchemeRequest(HttpRequest request) {
@@ -27,7 +27,7 @@ public class ForwardedSchemeMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
         return castToHttpResponse(chain.next(forwardedSchemeRequest(request)));
     }
 

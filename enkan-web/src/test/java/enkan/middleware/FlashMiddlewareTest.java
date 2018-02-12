@@ -22,7 +22,7 @@ public class FlashMiddlewareTest {
     @Before
     public void setup() {
         Session session = new Session();
-        session.put("_flash", new Flash("message"));
+        session.put("_flash", new Flash<>("message"));
         middleware = new FlashMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setSession, session)
@@ -31,7 +31,7 @@ public class FlashMiddlewareTest {
 
     @Test
     public void getFlash_and_NoResponseFlash() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(Predicates.ANY, null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.ANY, null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
@@ -47,11 +47,11 @@ public class FlashMiddlewareTest {
 
     @Test
     public void setFlash() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(Predicates.ANY, null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.ANY, null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
-                                .set(HttpResponse::setFlash, new Flash("new flash"))
+                                .set(HttpResponse::setFlash, new Flash<>("new flash"))
                                 .build());
         HttpResponse response = middleware.handle(request, chain);
         assertEquals("message", request.getFlash().getValue());

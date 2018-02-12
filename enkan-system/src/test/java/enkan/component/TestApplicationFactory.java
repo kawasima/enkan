@@ -18,10 +18,10 @@ public class TestApplicationFactory implements ApplicationFactory {
     @Override
     public Application create(ComponentInjector injector) {
         Application<String, String> app = new Application<String, String>() {
-            private List<MiddlewareChain<?, ?>> middlewares = new ArrayList<>();
+            private final List<MiddlewareChain<?, ?, ?, ?>> middlewares = new ArrayList<>();
 
             @Override
-            public <IN, OUT> void use(Predicate<IN> predicate, String middlewareName, Middleware<IN, OUT> middleware) {
+            public <REQ, RES, NREQ, NRES> void use(Predicate<? super REQ> predicate, String middlewareName, Middleware<REQ, RES, NREQ, NRES> middleware) {
                 middlewares.add(new DefaultMiddlewareChain<>(predicate, middlewareName, middleware));
             }
 
@@ -31,11 +31,11 @@ public class TestApplicationFactory implements ApplicationFactory {
             }
 
             @Override
-            public List<MiddlewareChain<?, ?>> getMiddlewareStack() {
+            public List<MiddlewareChain<?, ?, ?, ?>> getMiddlewareStack() {
                 return middlewares;
             }
         };
-        app.use(new Test1Middleware());
+        app.use(new Test1Middleware<>());
         return app;
     }
 }

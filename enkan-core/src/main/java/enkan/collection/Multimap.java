@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 /**
  * @author kawasima
  */
+@SuppressWarnings("NullableProblems")
 public class Multimap<K, V> implements Map<K, V> {
     private HashMap<K, List<V>> hashMap;
 
@@ -14,7 +15,7 @@ public class Multimap<K, V> implements Map<K, V> {
         hashMap = new HashMap<>();
     }
 
-    public static Multimap empty() {
+    public static <K, V> Multimap<K, V> empty() {
         return new Multimap<>();
     }
 

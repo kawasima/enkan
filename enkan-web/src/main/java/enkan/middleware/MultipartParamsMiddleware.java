@@ -21,7 +21,7 @@ import static enkan.util.HttpRequestUtils.contentLength;
  * @author kawasima
  */
 @Middleware(name = "multipartParams", dependencies = {"params"})
-public class MultipartParamsMiddleware extends AbstractWebMiddleware {
+public class MultipartParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     protected void deleteTempfile(Parameters multipartParams) {
         multipartParams.keySet().stream()
                 .filter(k -> {
@@ -51,7 +51,7 @@ public class MultipartParamsMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         Parameters multipartParams = extractMultipart(request);
         request.getParams().putAll(multipartParams);
         try {

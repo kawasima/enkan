@@ -24,7 +24,7 @@ import static enkan.util.BeanBuilder.builder;
  * @author kawasima
  */
 @Middleware(name = "antiForgery", dependencies = {"session"})
-public class AntiForgeryMiddleware extends AbstractWebMiddleware {
+public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private static final String TOKEN_KEY = AntiForgeryMiddleware.class.getName()
             + "/antiForgeryToken";
 
@@ -76,7 +76,7 @@ public class AntiForgeryMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
         String token = sessionToken(request).orElseGet(this::newToken);
         if (!isGetRequest(request) && !isValidRequest(request)) {
             return builder(HttpResponse.of("<h1>Invalid anti-forgery token</h1>"))

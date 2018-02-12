@@ -9,23 +9,23 @@ import java.io.InputStream;
 /**
  * @author kawasima
  */
-public interface HttpResponse<T> extends SessionAvailable, FlashAvailable, Traceable, ConversationAvailable {
+public interface HttpResponse extends SessionAvailable, FlashAvailable, Traceable, ConversationAvailable {
 
-    static HttpResponse<String> of(String body) {
+    static HttpResponse of(String body) {
         HttpResponse response = new DefaultHttpResponse(200,
                 Headers.empty());
         response.setBody(body);
         return response;
     }
 
-    static HttpResponse<InputStream> of(InputStream body) {
+    static HttpResponse of(InputStream body) {
         HttpResponse response = new DefaultHttpResponse(200,
                 Headers.empty());
         response.setBody(body);
         return response;
     }
 
-    static HttpResponse<File> of(File body) {
+    static HttpResponse of(File body) {
         HttpResponse response = new DefaultHttpResponse(200,
                 Headers.empty());
         response.setBody(body);
@@ -44,7 +44,12 @@ public interface HttpResponse<T> extends SessionAvailable, FlashAvailable, Trace
     default void setContentType(String type) {
         getHeaders().put("Content-Type", type);
     }
-    T getBody();
-    void setBody(T body);
+    String getBodyAsString();
+    InputStream getBodyAsStream();
+    Object getBody();
+
+    void setBody(String body);
+    void setBody(InputStream body);
+    void setBody(File body);
 
 }

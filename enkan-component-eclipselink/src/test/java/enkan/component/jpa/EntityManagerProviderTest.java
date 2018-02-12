@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import javax.persistence.EntityManager;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import static enkan.component.ComponentRelationship.component;
@@ -39,7 +38,7 @@ public class EntityManagerProviderTest {
         try {
             EntityManagerProvider provider = system.getComponent("jpa");
             EntityManager em = provider.getEntityManager();
-            Person person = em.find(Person.class, 1l);
+            Person person = em.find(Person.class, 1L);
             assertThat(person).isNull();
             person = new Person();
             person.setName("hoho");
@@ -47,7 +46,7 @@ public class EntityManagerProviderTest {
             em.merge(person);
             em.getTransaction().commit();
 
-            Person person2 = em.find(Person.class, 1l);
+            Person person2 = em.find(Person.class, 1L);
             System.out.println(person2);
         } finally {
             system.stop();

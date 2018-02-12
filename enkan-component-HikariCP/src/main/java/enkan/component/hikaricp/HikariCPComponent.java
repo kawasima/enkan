@@ -39,7 +39,7 @@ public class HikariCPComponent extends DataSourceComponent {
     }
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<HikariCPComponent> lifecycle() {
         return new ComponentLifecycle<HikariCPComponent>() {
             @Override
             public void start(HikariCPComponent component) {

@@ -24,7 +24,7 @@ public class UrlRewriter {
         return urlFor(options);
     }
 
-    public static HttpResponse<String> redirect(Class<?> controller, String options, HttpResponseUtils.RedirectStatusCode code) {
+    public static HttpResponse redirect(Class<?> controller, String options, HttpResponseUtils.RedirectStatusCode code) {
         return builder(HttpResponse.of(""))
                 .set(HttpResponse::setStatus, code.getStatusCode())
                 .set(HttpResponse::setHeaders, Headers.of("Location", urlFor(controller, options)))

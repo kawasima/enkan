@@ -12,9 +12,9 @@ import org.junit.Test;
 public class AbstractWebMiddlewareTest {
     @Test(expected = MisconfigurationException.class)
     public void test() {
-         AbstractWebMiddleware middleware = new AbstractWebMiddleware() {
+         AbstractWebMiddleware<HttpRequest, String> middleware = new AbstractWebMiddleware<HttpRequest, String>() {
              @Override
-             public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+             public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, String, ?, ?> chain) {
                  return HttpResponse.of("hello");
              }
          };

@@ -20,7 +20,7 @@ public interface Repl extends Runnable {
      * Add a background task to REPL.
      *
      * @param name The name of the given background task
-     * @param task
+     * @param task A background task
      */
     void addBackgroundTask(String name, Runnable task);
 

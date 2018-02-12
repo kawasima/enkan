@@ -3,23 +3,28 @@ package enkan.data;
 import enkan.collection.Headers;
 import enkan.collection.Multimap;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A default implementation for HTTP response
  *
  * @author kawasima
  */
-public class DefaultHttpResponse<T> implements HttpResponse<T> {
+public class DefaultHttpResponse implements HttpResponse {
     private int status;
     private Headers headers;
     private Multimap<String, Cookie> cookies;
     private Session session;
-    private Object body;
+    private String bodyString;
+    private InputStream bodyStream;
+    private File bodyFile;
 
-    private Map<String, Object> extensions;
+    private final Map<String, Object> extensions;
 
     protected DefaultHttpResponse(int status, Headers headers) {
         this.status = status;
@@ -60,22 +65,86 @@ public class DefaultHttpResponse<T> implements HttpResponse<T> {
     }
 
     @Override
-    public T getBody() {
-        return (T) body;
+    public Object getBody() {
+        if (bodyString != null) {
+            return bodyString;
+        } else if (bodyStream != null) {
+            return bodyStream;
+        } else if (bodyFile != null) {
+            return bodyFile;
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public void setBody(T body) {
-        this.body = body;
+    public InputStream getBodyAsStream() {
+        if (bodyStream != null) {
+            return bodyStream;
+        } else if (bodyString != null) {
+            return new ByteArrayInputStream(bodyString.getBytes(StandardCharsets.UTF_8));
+        } else if (bodyFile != null) {
+            try (InputStream in = new FileInputStream(bodyFile)) {
+                return in;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+    }
+
+    @Override
+    public String getBodyAsString() {
+        if (bodyStream != null) {
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(bodyStream))) {
+                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else if (bodyString != null) {
+            return bodyString;
+        } else if (bodyFile != null) {
+            try(BufferedReader reader = new BufferedReader(new FileReader(bodyFile))) {
+                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public void setBody(String body) {
+        this.bodyString = body;
+    }
+
+    @Override
+    public void setBody(InputStream body) {
+        this.bodyStream = body;
+    }
+
+    @Override
+    public void setBody(File body) {
+        this.bodyFile = body;
     }
 
     @Override
     public String toString() {
+        String b;
+        if (bodyStream != null) {
+            b = bodyStream.toString();
+        } else if (bodyFile != null) {
+            b = bodyFile.toString();
+        } else {
+            b = bodyString;
+        }
         return "{status=" +
                 status +
                 ", headers=" + Objects.toString(headers.toString(), "{}") +
-                ", body=" + body +
-                '}';
+                ", body=" + b +
+                "}";
     }
 
     @Override

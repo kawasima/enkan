@@ -13,13 +13,14 @@ public class MergeableResourceBundle extends ResourceBundle {
     }
 
     @Override
-    protected Object handleGetObject(String key) {
+    protected Object handleGetObject(@SuppressWarnings("NullableProblems") String key) {
         if (key == null) {
             throw new NullPointerException();
         }
         return lookup.get(key);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Enumeration<String> getKeys() {
         ResourceBundle parent = this.parent;

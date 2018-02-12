@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 @Middleware(name = "renderTemplate")
-public class RenderTemplateMiddleware extends AbstractWebMiddleware {
+public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     @Inject
     private HmacEncoder hmacEncoder;
 
@@ -47,7 +47,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
     private Map<String, Function<List, Object>> userFunctions = Collections.emptyMap();
 
     private ExportSetting exports = ExportSetting.DEFAULT_EXPORTS;
-    private static Function<List, Object> HAS_PERMISSION = arguments -> {
+    private static final Function<List, Object> HAS_PERMISSION = arguments -> {
         if (arguments.size() == 2) {
             Object principal = arguments.get(0);
             String permission = Objects.toString(arguments.get(1));
@@ -60,7 +60,9 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
             throw new MisconfigurationException("kotowari.HAS_PERMISSION_WRONG_ARGS");
         }
     };
-    private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
+
+    @SuppressWarnings("unchecked")
+    private static final Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
@@ -74,7 +76,9 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
             throw new MisconfigurationException("kotowari.HAS_ANY_PERMISSION_WRONG_ARGS");
         }
     };
-    private static Function<List, Object> HAS_ALL_PERMISSIONS = arguments -> {
+
+    @SuppressWarnings("unchecked")
+    private static final Function<List, Object> HAS_ALL_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
@@ -90,7 +94,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
     };
 
     protected void render(TemplatedHttpResponse response) {
-        InputStream is = (InputStream) response.getBody();
+        InputStream is = response.getBodyAsStream();
         ReadableByteChannel channel = Channels.newChannel(is);
         ByteBuffer buf = ByteBuffer.allocate(4096);
         buf.mark();
@@ -108,7 +112,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (TemplatedHttpResponse.class.isInstance(response)) {
             TemplatedHttpResponse tres = TemplatedHttpResponse.class.cast(response);
@@ -151,8 +155,7 @@ public class RenderTemplateMiddleware extends AbstractWebMiddleware {
                 tres.getContext().put(exports.getExportName(CONVERSATION_STATE), conversationState);
             }
 
-            userFunctions.entrySet()
-                    .forEach(e -> tres.getContext().put(e.getKey(), templateEngine.createFunction(e.getValue())));
+            userFunctions.forEach((key, value) -> tres.getContext().put(key, templateEngine.createFunction(value)));
             render(tres);
         }
         return response;

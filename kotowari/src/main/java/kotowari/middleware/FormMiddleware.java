@@ -22,12 +22,12 @@ import java.lang.reflect.Parameter;
  * @author kawasima
  */
 @Middleware(name = "form", dependencies = {"params", "routing"})
-public class FormMiddleware extends AbstractWebMiddleware {
+public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     @Inject
     protected BeansConverter beans;
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
@@ -52,6 +52,6 @@ public class FormMiddleware extends AbstractWebMiddleware {
             }
         }
 
-        return castToHttpResponse(next.next(request));
+        return castToHttpResponse(chain.next(request));
     }
 }

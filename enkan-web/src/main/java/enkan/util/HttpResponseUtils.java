@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import static enkan.util.BeanBuilder.builder;
+import static enkan.util.BeanBuilder.*;
 
 /**
  * Utilities for HTTP response.
@@ -100,7 +100,7 @@ public class HttpResponseUtils {
      * @param response a response object
      * @param charset the name of the character set
      */
-    public static void charset(HttpResponse response, String charset) {
+    public static <T> void charset(HttpResponse response, String charset) {
         String type = getHeader(response, "Content-Type");
         if (type == null) {
             type = "text/plain";

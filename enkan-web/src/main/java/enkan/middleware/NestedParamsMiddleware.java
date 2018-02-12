@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * @author kawasima
  */
 @Middleware(name = "nestedParams", dependencies = {"params"})
-public class NestedParamsMiddleware extends AbstractWebMiddleware {
+public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?\\])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)\\]");
     protected Function<String, String[]> parseNestedKeys = (paramName) -> {
@@ -159,7 +159,7 @@ public class NestedParamsMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         return castToHttpResponse(chain.next(nestedParamsRequest(request, parseNestedKeys)));
     }
 }

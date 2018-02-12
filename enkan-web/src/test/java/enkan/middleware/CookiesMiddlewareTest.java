@@ -37,7 +37,7 @@ public class CookiesMiddlewareTest {
 
     @Test
     public void parse() {
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     assertEquals("あいう", some(req.getCookies().get("A"), Cookie::getValue).orElseThrow(AssertionError::new));
                     assertEquals("1",     some(req.getCookies().get("B"), Cookie::getValue).orElseThrow(AssertionError::new));

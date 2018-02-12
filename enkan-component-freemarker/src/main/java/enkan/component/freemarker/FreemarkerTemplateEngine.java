@@ -151,4 +151,12 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
     public void setTemplateLoader(TemplateLoader templateLoader) {
         this.templateLoader = templateLoader;
     }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
 }

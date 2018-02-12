@@ -98,7 +98,7 @@ public class JacksonBeansTest {
         });
         Map<String, Object> m = new HashMap<>();
         m.put("name", "Jackson");
-        m.put("telNumbers", new ArrayList(){{add("A"); add("B"); add("C");}});
+        m.put("telNumbers", new ArrayList<String>(){{add("A"); add("B"); add("C");}});
         m.put("age", new int[]{ 10, 20 });
         Person person = mapper.convertValue(m, Person.class);
         assertThat(person.getName()).isEqualTo("Jackson");

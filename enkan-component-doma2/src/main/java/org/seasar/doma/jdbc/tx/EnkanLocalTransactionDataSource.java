@@ -40,7 +40,7 @@ public final class EnkanLocalTransactionDataSource implements DataSource  {
         return context.getConnection();
     }
 
-    @SuppressWarnings("unckecked")
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface == null) {

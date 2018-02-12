@@ -35,7 +35,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import java.util.Collections;
 import java.util.Objects;
 
-import static enkan.util.BeanBuilder.builder;
+import static enkan.util.BeanBuilder.*;
 import static enkan.util.Predicates.*;
 
 /**
@@ -78,41 +78,41 @@ public class ExampleApplicationFactory implements ApplicationFactory {
         }).compile();
 
         // Enkan
-        app.use(new DefaultCharsetMiddleware());
+        app.use(new DefaultCharsetMiddleware<>());
         app.use(new MetricsMiddleware<>());
-        app.use(NONE, new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
+        app.use(none(), new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.StacktraceMiddleware"));
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.TraceWebMiddleware"));
         app.use(new TraceMiddleware<>());
-        app.use(new ContentTypeMiddleware());
+        app.use(new ContentTypeMiddleware<>());
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.HttpStatusCatMiddleware"));
-        app.use(new ParamsMiddleware());
-        app.use(new MultipartParamsMiddleware());
-        app.use(new MethodOverrideMiddleware());
-        app.use(new NormalizationMiddleware());
-        app.use(new NestedParamsMiddleware());
-        app.use(new CookiesMiddleware());
+        app.use(new ParamsMiddleware<>());
+        app.use(new MultipartParamsMiddleware<>());
+        app.use(new MethodOverrideMiddleware<>());
+        app.use(new NormalizationMiddleware<>());
+        app.use(new NestedParamsMiddleware<>());
+        app.use(new CookiesMiddleware<>());
 
         KeyValueStore store = Objects.equals(Env.get("ENKAN_ENV"), "jcache") ? new JCacheStore() : new MemoryStore();
-        app.use(builder(new SessionMiddleware())
+        app.use(builder(new SessionMiddleware<>())
                 .set(SessionMiddleware::setStore, store)
                 .build());
-        app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware());
+        app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware<>());
 
         app.use(new AuthenticationMiddleware<>(Collections.singletonList(new SessionBackend())));
-        app.use(and(path("^/guestbook/"), authenticated().negate()),
-                (Endpoint<HttpRequest, HttpResponse>) req ->
+        //app.use(and(path("^/guestbook/"), authenticated().negate()),
+        app.use(authenticated().negate(),
+                (Endpoint<HttpRequest , HttpResponse>)req ->
                         HttpResponseUtils.redirect("/guestbook/login?url=" + req.getUri(),
                                 HttpResponseUtils.RedirectStatusCode.TEMPORARY_REDIRECT));
-
         app.use(new ContentNegotiationMiddleware());
         // Kotowari
-        app.use(new ResourceMiddleware());
-        app.use(new RenderTemplateMiddleware());
-        app.use(new RoutingMiddleware(routes));
+        app.use(new ResourceMiddleware<>());
+        app.use(new RenderTemplateMiddleware<>());
+        app.use(new RoutingMiddleware<>(routes));
         app.use(new DomaTransactionMiddleware<>());
-        app.use(new FormMiddleware());
-        app.use(builder(new SerDesMiddleware())
+        app.use(new FormMiddleware<>());
+        app.use(builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyWriters,
                         new MessageBodyWriter[]{
                                 new ToStringBodyWriter(),
@@ -120,8 +120,8 @@ public class ExampleApplicationFactory implements ApplicationFactory {
                 .set(SerDesMiddleware::setBodyReaders,
                         new JsonBodyReader(mapper))
                 .build());
-        app.use(new ValidateBodyMiddleware());
-        app.use(new ControllerInvokerMiddleware(injector));
+        app.use(new ValidateBodyMiddleware<>());
+        app.use(new ControllerInvokerMiddleware<>(injector));
 
         return app;
     }

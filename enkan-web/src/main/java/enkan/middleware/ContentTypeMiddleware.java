@@ -13,7 +13,7 @@ import enkan.util.MimeTypeUtils;
  * @author kawasima
  */
 @Middleware(name = "contentType")
-public class ContentTypeMiddleware extends AbstractWebMiddleware {
+public class ContentTypeMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     protected void contentTypeResponse(HttpResponse response, HttpRequest request) {
         if (HttpResponseUtils.getHeader(response, "Content-Type") == null) {
             String uri = request.getUri();
@@ -27,8 +27,8 @@ public class ContentTypeMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
-        HttpResponse response = castToHttpResponse(next.next(request));
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+        HttpResponse response = castToHttpResponse(chain.next(request));
         if (response != null) {
             contentTypeResponse(response, request);
         }

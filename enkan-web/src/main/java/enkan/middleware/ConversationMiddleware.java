@@ -25,7 +25,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "conversation")
-public class ConversationMiddleware extends AbstractWebMiddleware {
+public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private KeyValueStore store;
     private Function<HttpRequest, String> readTokenFunc;
 
@@ -61,7 +61,7 @@ public class ConversationMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         ConversationToken token = parseToken(readTokenFunc.apply(request));
 
         if (!isGetRequest(request) && !token.isValid()) {

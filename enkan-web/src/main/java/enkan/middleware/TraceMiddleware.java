@@ -12,13 +12,13 @@ import enkan.util.MixinUtils;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "trace")
-public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES> {
+public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
     @Override
-    public RES handle(REQ req, MiddlewareChain next) {
+    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
         if (req instanceof HttpRequest) {
             req = (REQ) MixinUtils.mixin((HttpRequest) req, Traceable.class);
         }
-        RES res = (RES) next.next(req);
+        RES res = chain.next(req);
         if (req instanceof Traceable){
             TraceLog log = ((Traceable) req).getTraceLog();
             log.getEntries().stream()

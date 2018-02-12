@@ -34,10 +34,10 @@ import static enkan.util.ReflectionUtils.*;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "controllerInvoker", dependencies = "params")
-public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES> {
-    private Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
+public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES, Void, Void> {
+    private final Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
     private List<ParameterInjector<?>> parameterInjectors = new ArrayList<>();
-    private ComponentInjector componentInjector;
+    private final ComponentInjector componentInjector;
 
     public ControllerInvokerMiddleware(ComponentInjector componentInjector) {
         this.componentInjector = componentInjector;
@@ -85,8 +85,9 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         return controller;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public RES handle(HttpRequest request, MiddlewareChain next) {
+    public RES handle(HttpRequest request, MiddlewareChain<Void, Void, ?, ?> next) {
         if (request instanceof Routable) {
             Method controllerMethod = ((Routable) request).getControllerMethod();
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
@@ -94,9 +95,9 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             Object controller = controllerCache.computeIfAbsent(controllerClass, c ->
                     tryReflection(() -> inject(c.getConstructor().newInstance())));
 
-            return tryReflection(() -> {
+            return (RES) tryReflection(() -> {
                 Object[] arguments = createArguments(request);
-                return (RES) controllerMethod.invoke(controller, arguments);
+                return controllerMethod.invoke(controller, arguments);
             });
         } else {
             throw new MisconfigurationException("kotowari.MISSING_IMPLEMENTATION", Routable.class);

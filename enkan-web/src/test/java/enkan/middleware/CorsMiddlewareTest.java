@@ -10,7 +10,7 @@ import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
 import org.junit.Test;
 
-import static enkan.util.BeanBuilder.builder;
+import static enkan.util.BeanBuilder.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ public class CorsMiddlewareTest {
         request.setHeaders(Headers.of("Origin", "http://sample.com",
                 "Access-Control-Request-Method", "POST"));
 
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
@@ -54,7 +54,7 @@ public class CorsMiddlewareTest {
                 .set(HttpRequest::setRequestMethod, "POST")
                 .build();
 
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
                 builder(HttpResponse.of("hello"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
@@ -67,7 +67,7 @@ public class CorsMiddlewareTest {
         Headers headers = result.getHeaders();
         assertThat(result.getStatus(), is(200));
         assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(result.getBody(), is("hello"));
+        assertThat(result.getBodyAsString(), is("hello"));
         assertThat(headers.get("Content-Type"), is("text/html"));
     }
 
@@ -77,7 +77,7 @@ public class CorsMiddlewareTest {
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setHeaders(Headers.of("User-Agent", "Chrome"));
 
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
                 builder(HttpResponse.of("hello"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
@@ -92,7 +92,7 @@ public class CorsMiddlewareTest {
         assertThat(headers.get("Access-Control-Allow-Methods"), nullValue());
         assertThat(headers.get("Access-Control-Allow-Headers"), nullValue());
         assertThat(headers.get("Access-Control-Allow-Credentials"), nullValue());
-        assertThat(result.getBody(), is("hello"));
+        assertThat(result.getBodyAsString(), is("hello"));
         assertThat(headers.get("Content-Type"), is("text/html"));
     }
 
@@ -104,7 +104,7 @@ public class CorsMiddlewareTest {
         request.setHeaders(Headers.of("Origin", "http://sample.com",
                 "Access-Control-Request-Method", "POST"));
 
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
@@ -129,7 +129,7 @@ public class CorsMiddlewareTest {
                 .set(HttpRequest::setRequestMethod, "post")
                 .build();
 
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
                 new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
                 builder(HttpResponse.of("hello"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
@@ -142,7 +142,7 @@ public class CorsMiddlewareTest {
         Headers headers = result.getHeaders();
         assertThat(result.getStatus(), is(200));
         assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(result.getBody(), is("hello"));
+        assertThat(result.getBodyAsString(), is("hello"));
         assertThat(headers.get("Content-Type"), is("text/html"));
     }
 

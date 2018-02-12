@@ -6,14 +6,14 @@ package enkan;
  *
  * @author kawasima
  */
-public interface Endpoint<REQ, RES> extends Middleware<REQ, RES> {
+public interface Endpoint<REQ, RES> extends Middleware<REQ, RES, REQ, RES> {
     /**
      *
      * @param req   {@inheritDoc}
      * @param next  {@inheritDoc}
      * @return      {@inheritDoc}
      */
-    default RES handle(REQ req, MiddlewareChain next) {
+    default RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> next) {
         return handle(req);
     }
 

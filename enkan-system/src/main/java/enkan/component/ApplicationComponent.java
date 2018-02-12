@@ -6,7 +6,7 @@ import enkan.config.ApplicationFactory;
 import enkan.config.ConfigurationLoader;
 import enkan.system.inject.ComponentInjector;
 
-import static enkan.util.ReflectionUtils.tryReflection;
+import static enkan.util.ReflectionUtils.*;
 
 /**
  * Provides an application.
@@ -24,7 +24,7 @@ public class ApplicationComponent extends SystemComponent {
     }
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<ApplicationComponent> lifecycle() {
         return new ComponentLifecycle<ApplicationComponent>() {
             @Override
             public void start(ApplicationComponent component) {

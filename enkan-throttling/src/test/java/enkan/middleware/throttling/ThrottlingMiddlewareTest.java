@@ -36,7 +36,7 @@ public class ThrottlingMiddlewareTest {
 
         DefaultHttpRequest req = new DefaultHttpRequest();
         req.setRemoteAddr("127.0.0.1");
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
         final AtomicInteger count200 = new AtomicInteger(0);
         ScheduledExecutorService service = Executors.newScheduledThreadPool(3);
@@ -64,7 +64,7 @@ public class ThrottlingMiddlewareTest {
                 .build();
 
         DefaultHttpRequest req = new DefaultHttpRequest();
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate(), null,
                 (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
 
         final AtomicInteger count429 = new AtomicInteger(0);

@@ -21,10 +21,10 @@ import static org.junit.Assert.*;
 public class NormalizationMiddlewareTest {
     @Test
     public void noNormalization() {
-        NormalizationMiddleware middleware = new NormalizationMiddleware();
+        NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<>();
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", "B", "C", 1));
-        MiddlewareChain chain = new DefaultMiddlewareChain(Predicates.ANY, "endpoint", (req, c) ->
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
                 builder(HttpResponse.of("dummy"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());
@@ -34,12 +34,12 @@ public class NormalizationMiddlewareTest {
 
     @Test
     public void trimNormalization() {
-        NormalizationMiddleware middleware = new NormalizationMiddleware(
+        NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<HttpResponse>(
                 normalization(Predicates.ANY, new TrimNormalizer())
         );
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain chain = new DefaultMiddlewareChain(Predicates.ANY, "endpoint", (req, c) ->
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
                 builder(HttpResponse.of("dummy"))
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());

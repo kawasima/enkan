@@ -11,11 +11,11 @@ import java.util.function.Predicate;
  *
  * @author kawasima
  */
-public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RES> {
-    private Predicate<REQ> predicate;
-    private Middleware<REQ, RES> middleware;
+public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareChain<REQ, RES, NREQ, NRES> {
+    private Predicate<? super REQ> predicate;
+    private Middleware<REQ, RES, NREQ, NRES> middleware;
     private String middlewareName;
-    private MiddlewareChain<Object, Object> next;
+    private MiddlewareChain<NREQ, NRES, ?, ?> next;
 
 
     /**
@@ -27,7 +27,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
      * @param middlewareName  a name of middleware
      * @param middleware      a middleware
      */
-    public DefaultMiddlewareChain(Predicate<REQ> predicate, String middlewareName, Middleware<REQ, RES> middleware) {
+    public DefaultMiddlewareChain(Predicate<? super REQ> predicate, String middlewareName, Middleware<REQ, RES, NREQ, NRES> middleware) {
         this.predicate = predicate;
         this.middleware = middleware;
         enkan.annotation.Middleware anno = middleware.getClass().getAnnotation(enkan.annotation.Middleware.class);
@@ -47,7 +47,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
      * @return     {@inheritDoc}
      */
     @Override
-    public MiddlewareChain<REQ, RES> setNext(MiddlewareChain next) {
+    public MiddlewareChain<REQ, RES, NREQ, NRES> setNext(MiddlewareChain<NREQ, NRES, ?, ?> next) {
         this.next = next;
         return this;
     }
@@ -58,7 +58,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
      * @return {@inheritDoc}
      */
     @Override
-    public Middleware<REQ, RES> getMiddleware() {
+    public Middleware<REQ, RES, NREQ, NRES> getMiddleware() {
         return middleware;
     }
 
@@ -83,7 +83,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
             writeTraceLog(res, middlewareName);
             return res;
         } else if (next != null){
-            RES res = (RES) next.next(req);
+            RES res = (RES) next.next((NREQ) req);
             writeTraceLog(res, middlewareName);
             return res;
         } else {
@@ -107,7 +107,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
      * @return {@inheritDoc}
      */
     @Override
-    public Predicate<REQ> getPredicate() {
+    public Predicate<? super REQ> getPredicate() {
         return predicate;
     }
 
@@ -119,7 +119,7 @@ public class DefaultMiddlewareChain<REQ, RES> implements MiddlewareChain<REQ, RE
      * @param predicate predicate for applying the middleware.
      */
     @Override
-    public void setPredicate(Predicate<REQ> predicate) {
+    public void setPredicate(Predicate<? super REQ> predicate) {
         this.predicate = predicate;
     }
 

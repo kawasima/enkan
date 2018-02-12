@@ -16,7 +16,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "session", dependencies = {"cookies"})
-public class SessionMiddleware extends AbstractWebMiddleware {
+public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     @NotNull
     private String cookieName;
 
@@ -93,10 +93,10 @@ public class SessionMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         request = MixinUtils.mixin(request, WebSessionAvailable.class);
         sessionRequest(request);
-        HttpResponse response = castToHttpResponse(next.next(request));
+        HttpResponse response = castToHttpResponse(chain.next(request));
         response = MixinUtils.mixin(response, WebSessionAvailable.class);
         sessionResponse(response, request);
         return response;

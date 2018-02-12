@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.*;
 public class DomaTransactionMiddlewareTest {
     @Test
     public void configuration() {
-        DomaTransactionMiddleware middleware = new DomaTransactionMiddleware<>();
+        DomaTransactionMiddleware<HttpRequest, HttpResponse> middleware = new DomaTransactionMiddleware<>();
         HttpRequest request = MixinUtils.mixin(new DefaultHttpRequest(), Routable.class);
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))

@@ -19,7 +19,8 @@ import net.unit8.moshas.MoshasEngine;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * Shows the trace logs of the requests.
@@ -27,8 +28,7 @@ import java.util.*;
  * @author kawasima
  */
 @Middleware(name = "traceWeb")
-public class TraceWebMiddleware extends AbstractWebMiddleware {
-    private MoshasEngine moshas = new MoshasEngine();
+public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private LinkedList<LogKey> idList;
     private KeyValueStore store;
     private String mountPath = "/x-enkan/requests";
@@ -69,6 +69,7 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
         store = new MemoryStore();
         idList = new LinkedList<>();
 
+        MoshasEngine moshas = new MoshasEngine();
         TraceList traceList = new TraceList(moshas);
         TraceDetail traceDetail = new TraceDetail(moshas);
 
@@ -103,12 +104,12 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         if (request.getUri().startsWith(mountPath + "/")) {
             return traceRouting.handle(request);
         } else {
             request = MixinUtils.mixin(request, Traceable.class);
-            HttpResponse response = castToHttpResponse(next.next(request));
+            HttpResponse response = castToHttpResponse(chain.next(request));
             Traceable requestTrace  = Traceable.class.cast(request);
             Traceable responseTrace = Traceable.class.cast(response);
             synchronized (this) {
@@ -169,6 +170,7 @@ public class TraceWebMiddleware extends AbstractWebMiddleware {
             return another != null && LogKey.class.isInstance(another) && Objects.equals(this.id, ((LogKey) another).getId());
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public int compareTo(LogKey another) {
             return this.dateTime.compareTo(another.getDateTime());

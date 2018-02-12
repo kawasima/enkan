@@ -18,8 +18,8 @@ public class FreemarkerTemplateEngineTest {
         freemarker.setTemplateLoader(loader);
         system.start();
 
-        HttpResponse<InputStream> response = freemarker.render("file/hello");
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(response.getBody()))) {
+        HttpResponse response = freemarker.render("file/hello");
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(response.getBodyAsStream()))) {
             String line = reader.readLine();
             assertThat(line).isEqualTo("Hello, Freemarker");
         }

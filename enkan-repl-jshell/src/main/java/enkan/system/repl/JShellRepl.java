@@ -78,6 +78,7 @@ public class JShellRepl implements Repl {
         return msg;
     }
 
+    @SuppressWarnings("unchecked")
     public JShellRepl(String enkanSystemFactoryClassName) {
         try {
             ioProxy = new JShellIoProxy();
@@ -123,18 +124,14 @@ public class JShellRepl implements Repl {
      */
     @Override
     public void registerCommand(String name, SystemCommand command) {
-        if(command instanceof Serializable) {
-            try {
-                String serializedCommand = JShellObjectTransferer.writeToBase64(command);
-                executeStatement("__commands.put(\"" + name
-                        + "\", JShellObjectTransferer.readFromBase64(\""
-                        + serializedCommand
-                        + "\", SystemCommand.class))");
-            } catch (Exception e) {
-                throw new IllegalArgumentException("command cannot be serialized:" + command, e);
-            }
-        } else {
-            localCommands.put(name, command);
+        try {
+            String serializedCommand = JShellObjectTransferer.writeToBase64(command);
+            executeStatement("__commands.put(\"" + name
+                    + "\", JShellObjectTransferer.readFromBase64(\""
+                    + serializedCommand
+                    + "\", SystemCommand.class))");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("command cannot be serialized:" + command, e);
         }
         commandNames.add(name);
     }

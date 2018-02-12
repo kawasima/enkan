@@ -11,17 +11,17 @@ import javax.inject.Inject;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "metrics")
-public class MetricsMiddleware<REQ, RES> implements Middleware<REQ, RES> {
+public class MetricsMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
     @Inject
     private MetricsComponent metrics;
 
     @Override
-    public RES handle(REQ req, MiddlewareChain chain) {
+    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
         Timer.Context context = metrics.getRequestTimer().time();
         metrics.getActiveRequests().inc();
 
         try {
-            return (RES) chain.next(req);
+            return chain.next(req);
         } catch (Exception ex) {
             metrics.getErrors().mark();
             throw ex;

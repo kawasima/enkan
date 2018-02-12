@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "domaTransaction")
-public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
+public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
     @Inject
     private DomaProvider domaProvider;
 
@@ -45,7 +45,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES>
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain next) {
+    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
         if (req instanceof Routable) {
             Routable routable = (Routable) req;
             Method m = routable.getControllerMethod();
@@ -55,14 +55,14 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES>
                 switch(type) {
                     case REQUIRED:
                         return tm.required(() ->
-                            (RES) next.next(req));
+                            chain.next(req));
                     case REQUIRES_NEW:
-                        return tm.requiresNew(() -> (RES) next.next(req));
+                        return tm.requiresNew(() -> chain.next(req));
                     default:
                         throw new MisconfigurationException("doma2.UNSUPPORTED_TX_TYPE", type);
                 }
             }
         }
-        return (RES) next.next(req);
+        return chain.next(req);
     }
 }

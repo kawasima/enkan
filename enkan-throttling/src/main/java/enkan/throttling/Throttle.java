@@ -11,10 +11,10 @@ import java.util.function.Function;
  * @author kawasima
  */
 public class Throttle {
-    final private Function<HttpRequest, Object> discriminateFn;
-    final private String name;
-    final private LimitRate limitRate;
-    final private Map<Object, TokenBucket> buckets;
+    private final Function<HttpRequest, Object> discriminateFn;
+    private final String name;
+    private final LimitRate limitRate;
+    private final Map<Object, TokenBucket> buckets;
 
 
     public Throttle(String name, LimitRate limitRate, Function<HttpRequest, Object> discriminateFn) {
@@ -48,5 +48,9 @@ public class Throttle {
         } else {
             return true;
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }

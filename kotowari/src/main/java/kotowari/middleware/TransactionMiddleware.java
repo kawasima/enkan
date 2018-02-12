@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 /**
  * @author kawasima
  */
-public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
+public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
     @Inject
     private TransactionComponent transactionComponent;
 
@@ -24,7 +24,7 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain next) {
+    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
         RES res;
         if (req instanceof Routable) {
             Routable routable = (Routable) req;
@@ -36,7 +36,7 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
                     case REQUIRED:
                         try {
                             tm.begin();
-                            res = (RES) next.next(req);
+                            res = chain.next(req);
                             tm.commit();
                         } catch (NotSupportedException e) {
                             throw new UnreachableException(e);
@@ -54,10 +54,10 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES> {
                         throw new MisconfigurationException("kotowari.UNSUPPORTED_TX_TYPE", type);
                 }
             } else {
-                res = (RES) next.next(req);
+                res = chain.next(req);
             }
         } else {
-            res = (RES) next.next(req);
+            res = chain.next(req);
         }
         return res;
     }

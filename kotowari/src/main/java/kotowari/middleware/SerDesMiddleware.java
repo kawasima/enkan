@@ -38,12 +38,12 @@ import static enkan.util.BeanBuilder.*;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation", "routing"})
-public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
+public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpResponse, HttpRequest, NRES> {
     @Inject
     protected BeansConverter beans;
 
-    private final List<MessageBodyReader> bodyReaders = new ArrayList<>();
-    private final List<MessageBodyWriter> bodyWriters = new ArrayList<>();
+    private final List<MessageBodyReader<?>> bodyReaders = new ArrayList<>();
+    private final List<MessageBodyWriter<?>> bodyWriters = new ArrayList<>();
 
     @PostConstruct
     private void loadReaderAndWriter() {
@@ -62,13 +62,15 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T deserialize(HttpRequest request, Class<T> type, Type genericType, MediaType mediaType) {
-        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
         return bodyReaders.stream()
                 .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
                 .map(reader -> {
                     try {
-                        return (T) reader.readFrom(type, genericType, null, mediaType, headers, request.getBody());
+                        return (T) MessageBodyReader.class.cast(reader)
+                                .readFrom(type, genericType, null, mediaType, headers, request.getBody());
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -77,9 +79,10 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                 .orElse(null);
     }
 
+    @SuppressWarnings("unchecked")
     protected InputStream serialize(Object obj, MediaType mediaType) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
         if (obj == null) {
             return new ByteArrayInputStream(new byte[0]);
@@ -88,7 +91,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
                 .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
                 .map(writer -> {
                     try {
-                        writer.writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
+                        MessageBodyWriter.class.cast(writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
                         return baos.toByteArray();
                     } catch (IOException e) {
                         return null;
@@ -121,7 +124,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
         }
     }
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         if (HttpRequestUtils.isUrlEncodedForm(request)) {
@@ -139,7 +142,7 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
             deserializeBody(method, request);
         }
 
-        Object response = chain.next(request);
+        NRES response = chain.next(request);
         if (HttpResponse.class.isInstance(response)) {
             return (HttpResponse) response;
         } else {
@@ -158,11 +161,11 @@ public class SerDesMiddleware implements Middleware<HttpRequest, HttpResponse> {
         }
     }
 
-    public void setBodyReaders(MessageBodyReader... readers) {
+    public void setBodyReaders(MessageBodyReader<?>... readers) {
         bodyReaders.addAll(Arrays.asList(readers));
     }
 
-    public void setBodyWriters(MessageBodyWriter... writers) {
+    public void setBodyWriters(MessageBodyWriter<?>... writers) {
         bodyWriters.addAll(Arrays.asList(writers));
     }
 

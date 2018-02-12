@@ -21,7 +21,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "idleSessionTimeout", dependencies = {"session"})
-public class IdleSessionTimeoutMiddleware extends AbstractWebMiddleware {
+public class IdleSessionTimeoutMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private long timeout = 600;
     private Endpoint<HttpRequest, HttpResponse> timeoutEndpoint = req ->
             HttpResponseUtils.redirect("/", TEMPORARY_REDIRECT);
@@ -42,14 +42,14 @@ public class IdleSessionTimeoutMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
         Optional<Long> endTime = some(request.getSession(),
                 session -> session.get(SESSION_KEY),
                 obj -> Long.parseLong(Objects.toString(obj)));
 
         if (endTime.isPresent() && endTime.get() < currentTime()) {
             return builder(timeoutEndpoint.handle(request))
-                    .set(HttpResponse::setSession, (Session) null)
+                    .set(HttpResponse::setSession, null)
                     .build();
         } else {
             HttpResponse response = castToHttpResponse(chain.next(request));

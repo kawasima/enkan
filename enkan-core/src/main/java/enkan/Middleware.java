@@ -5,7 +5,7 @@ package enkan;
  *
  * @author kawasima
  */
-public interface Middleware<REQ, RES> {
+public interface Middleware<REQ, RES, NREQ, NRES> {
     /**
      * Handles the given request.
      *
@@ -13,5 +13,5 @@ public interface Middleware<REQ, RES> {
      * @param chain A chain of middlewares
      * @return      A response object
      */
-    RES handle(REQ req, MiddlewareChain chain);
+    RES handle(REQ req, MiddlewareChain<NREQ, NRES, ?, ?> chain);
 }

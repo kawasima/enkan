@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class SerDesMiddlewareTest {
 
     @Test
     public void test() {
-        SerDesMiddleware middleware = builder(new SerDesMiddleware())
+        SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
@@ -53,7 +52,7 @@ public class SerDesMiddlewareTest {
 
     @Test
     public void deserializeList() {
-        SerDesMiddleware middleware = builder(new SerDesMiddleware())
+        SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
@@ -72,7 +71,7 @@ public class SerDesMiddlewareTest {
 
     @Test
     public void controller() throws IOException {
-        SerDesMiddleware middleware = builder(new SerDesMiddleware())
+        SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                 .build();
@@ -84,28 +83,28 @@ public class SerDesMiddlewareTest {
                 .build(), Routable.class, ContentNegotiable.class);
         ContentNegotiable.class.cast(request).setMediaType(new MediaType("application", "json"));
         TestController controller = new TestController();
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
-                (Endpoint<HttpRequest, ?>) req ->
+        MiddlewareChain<HttpRequest, Object, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
+                (Endpoint<HttpRequest, Object>) req ->
                         tryReflection(() -> {
                             List<TestDto> obj = BodyDeserializable.class.cast(req).getDeserializedBody();
                             return Routable.class.cast(req).getControllerMethod().invoke(controller, obj);
                         }));
 
-        HttpResponse<InputStream> resp = tryReflection(() -> {
+        HttpResponse resp = tryReflection(() -> {
             Method fooMethod = TestController.class.getMethod("foo", List.class);
             Routable.class.cast(request).setControllerMethod(fooMethod);
             return middleware.handle(request, chain);
         });
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> res = mapper.readValue(resp.getBody(), new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> res = mapper.readValue(resp.getBodyAsStream(), new TypeReference<Map<String, Object>>(){});
         assertThat(res).containsEntry("a", 1);
         assertThat(res).containsEntry("b", "ccb");
     }
 
     @Test
     public void nullSerialize() {
-        SerDesMiddleware middleware = builder(new SerDesMiddleware())
+        SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .build();
         middleware.serialize(null, new MediaType("application", "json"));
@@ -114,7 +113,7 @@ public class SerDesMiddlewareTest {
     @Test
     public void raiseException() {
         assertThatThrownBy(() -> {
-            SerDesMiddleware middleware = builder(new SerDesMiddleware())
+            SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                     .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                     .set(SerDesMiddleware::setBodyWriters, jsonProvider)
                     .build();

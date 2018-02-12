@@ -36,7 +36,7 @@ public class ContentNegotiationMiddlewareTest {
                 .set(HttpRequest::setHeaders,
                         Headers.of("Accept-Language", "ja,en;q=0.8,en-US;q=0.6"))
                 .build();
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     Optional<Locale> locale = Stream.of(req)
                             .map(ContentNegotiable.class::cast)
@@ -59,7 +59,7 @@ public class ContentNegotiationMiddlewareTest {
                 .set(HttpRequest::setHeaders,
                         Headers.of("Accept-Language", "ja,en;q=0.8,en-US;q=0.6"))
                 .build();
-        MiddlewareChain<HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     Optional<Locale> locale = Stream.of(req)
                             .map(ContentNegotiable.class::cast)

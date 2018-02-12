@@ -20,8 +20,8 @@ import java.util.Set;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "validateBody")
-public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES> {
-    private Validator validator;
+public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES, HttpRequest, RES> {
+    private final Validator validator;
 
     public ValidateBodyMiddleware() {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -39,7 +39,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES>
     }
 
     @Override
-    public RES handle(HttpRequest request, MiddlewareChain next) {
+    public RES handle(HttpRequest request, MiddlewareChain<HttpRequest, RES, ?, ?> chain) {
 
         Optional<Validatable> validatable = ThreadingUtils.some(getValidatable(request), form -> {
             Multimap<String, Object> errors = Multimap.empty();
@@ -51,7 +51,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES>
             return form;
         });
 
-        RES response = (RES) next.next(request);
+        RES response = chain.next(request);
         if (HttpResponse.class.isInstance(response)
                 && validatable.isPresent()
                 && validatable.get().hasErrors()) {

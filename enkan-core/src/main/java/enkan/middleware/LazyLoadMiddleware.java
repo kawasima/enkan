@@ -8,8 +8,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static enkan.util.ReflectionUtils.tryReflection;
 
-public class LazyLoadMiddleware<REQ, RES> implements Middleware<REQ, RES> {
-    private Middleware<REQ, RES> instance;
+public class LazyLoadMiddleware<REQ, RES, NREQ, NRES> implements Middleware<REQ, RES, NREQ, NRES> {
+    private Middleware<REQ, RES, NREQ, NRES> instance;
     private Lock initializingLock = new ReentrantLock();
     private String middlewareClassName;
 
@@ -18,12 +18,12 @@ public class LazyLoadMiddleware<REQ, RES> implements Middleware<REQ, RES> {
     }
 
     @Override
-    public RES handle(REQ request, MiddlewareChain chain) {
+    public RES handle(REQ request, MiddlewareChain<NREQ, NRES, ?, ?> chain) {
         if (instance == null) {
             try {
                 initializingLock.lock();
                 instance = tryReflection(() -> {
-                    Class<Middleware<REQ, RES>> middlewareClass = (Class<Middleware<REQ, RES>>) Class.forName(middlewareClassName);
+                    Class<Middleware<REQ, RES, NREQ, NRES>> middlewareClass = (Class<Middleware<REQ, RES, NREQ, NRES>>) Class.forName(middlewareClassName);
                     return middlewareClass.getConstructor().newInstance();
                 });
             } finally {

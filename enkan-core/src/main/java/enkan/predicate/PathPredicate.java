@@ -16,21 +16,21 @@ public class PathPredicate<REQ extends UriAvailable> implements PrintablePredica
         pathPattern = Pattern.compile(patternString);
     }
 
-    public static PathPredicate GET(String path) {
-        return new PathPredicate("GET", path);
+    public static <REQ extends UriAvailable> PathPredicate<REQ> GET(String path) {
+        return new PathPredicate<>("GET", path);
     }
-    public static PathPredicate POST(String path) {
-        return new PathPredicate("POST", path);
+    public static <REQ extends UriAvailable> PathPredicate<REQ> POST(String path) {
+        return new PathPredicate<>("POST", path);
     }
-    public static PathPredicate PUT(String path) {
-        return new PathPredicate("PUT", path);
+    public static <REQ extends UriAvailable> PathPredicate<REQ> PUT(String path) {
+        return new PathPredicate<>("PUT", path);
     }
-    public static PathPredicate DELETE(String path) {
-        return new PathPredicate("DELETE", path);
+    public static <REQ extends UriAvailable> PathPredicate<REQ> DELETE(String path) {
+        return new PathPredicate<>("DELETE", path);
     }
 
-    public static PathPredicate ANY(String path) {
-        return new PathPredicate("ANY", path);
+    public static <REQ extends UriAvailable> PathPredicate<REQ> ANY(String path) {
+        return new PathPredicate<>("ANY", path);
     }
 
     @Override

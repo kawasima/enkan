@@ -8,6 +8,7 @@ import java.util.*;
  *
  * @author kawasima
  */
+@SuppressWarnings("NullableProblems")
 public class Parameters implements Map<String, Object>, Serializable {
     private TreeMap<String, Object> params = new TreeMap<>();
     private boolean caseSensitive = true;

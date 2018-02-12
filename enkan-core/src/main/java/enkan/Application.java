@@ -1,7 +1,7 @@
 package enkan;
 
 import enkan.exception.MisconfigurationException;
-import enkan.predicate.AnyPredicate;
+import enkan.util.Predicates;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,18 +17,18 @@ import java.util.stream.Collectors;
  *
  * @author kawasima
  */
-public interface Application<REQ, RES> {
-    AnyPredicate ANY = new AnyPredicate<>();
-
+public interface Application<AREQ, ARES> {
     /**
      * Declare to use a middleware.
      *
      * @param middleware middleware
-     * @param <IN>  A type of request
-     * @param <OUT> A type of response
+     * @param <REQ>  A type of a request
+     * @param <RES>  A type of a response
+     * @param <NREQ> A type of the next request
+     * @param <NRES> A type of the next response
      */
-    default <IN, OUT> void use(Middleware<IN, OUT> middleware) {
-        use(ANY, middleware);
+    default <REQ, RES, NREQ, NRES> void use(Middleware<REQ, RES, NREQ, NRES> middleware) {
+        use(Predicates.any(), middleware);
     }
 
     /**
@@ -36,10 +36,12 @@ public interface Application<REQ, RES> {
      *
      * @param predicate A predicate for using the middleware
      * @param middleware A middleware
-     * @param <IN> A type of variable into middleware
-     * @param <OUT> A type of variable from middleware
+     * @param <REQ>  A type of a request
+     * @param <RES>  A type of a response
+     * @param <NREQ> A type of the next request
+     * @param <NRES> A type of the next response
      */
-    default <IN, OUT> void use(Predicate<IN> predicate, Middleware<IN, OUT> middleware) {
+    default <REQ, RES, NREQ, NRES> void use(Predicate<? super REQ> predicate, Middleware<REQ, RES, NREQ, NRES> middleware) {
         use(predicate, null, middleware);
     }
 
@@ -49,10 +51,12 @@ public interface Application<REQ, RES> {
      * @param predicate A predicate for using the middleware
      * @param middlewareName the name of a middleware
      * @param middleware A middleware
-     * @param <IN> A type of variable into middleware
-     * @param <OUT> A type of variable from middleware
+     * @param <REQ>  A type of a request
+     * @param <RES>  A type of a response
+     * @param <NREQ> A type of the next request
+     * @param <NRES> A type of the next response
      */
-    <IN, OUT> void use(Predicate<IN> predicate, String middlewareName, Middleware<IN, OUT> middleware);
+    <REQ, RES, NREQ, NRES> void use(Predicate<? super REQ> predicate, String middlewareName, Middleware<REQ, RES, NREQ, NRES> middleware);
 
     /**
      * Handle a request using middleware stack in this application.
@@ -60,7 +64,7 @@ public interface Application<REQ, RES> {
      * @param req   A request object
      * @return      A response object
      */
-    RES handle(REQ req);
+    ARES handle(AREQ req);
 
     /**
      * Validate a middleware stack.
@@ -91,5 +95,5 @@ public interface Application<REQ, RES> {
      *
      * @return List of middlewares
      */
-    List<MiddlewareChain<?, ?>> getMiddlewareStack();
+    List<MiddlewareChain<?, ?, ?, ?>> getMiddlewareStack();
 }

@@ -16,8 +16,8 @@ public abstract class SystemComponent {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends SystemComponent> T getDependency(Class<T> componentClass) {
-        return (T) dependencies.values().stream()
+    protected <S extends SystemComponent> S getDependency(Class<S> componentClass) {
+        return (S) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
                 .findAny()
                 .orElseThrow(() -> new MisconfigurationException("core.CLASS_NOT_FOUND", componentClass));
@@ -27,9 +27,9 @@ public abstract class SystemComponent {
         return dependencies;
     }
 
-    protected abstract ComponentLifecycle lifecycle();
+    protected abstract <T extends SystemComponent> ComponentLifecycle<T> lifecycle();
 
-    public String dependenciesToString() {
+    protected String dependenciesToString() {
         String s = (dependencies == null) ? "" :
                 dependencies.keySet().stream()
                         .map(name -> "\"" + name + "\"")

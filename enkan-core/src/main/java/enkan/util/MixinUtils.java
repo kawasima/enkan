@@ -96,6 +96,7 @@ public class MixinUtils {
         return interfacesFound.toArray(new Class<?>[interfacesFound.size()]);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T mixin(T target, Class<?>... interfaces) {
         if (target == null) return null;
 
@@ -131,7 +132,7 @@ public class MixinUtils {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return (T) Proxy.newProxyInstance(cl,
                 classes,
-                new MixinProxyHandler(target, classes));
+                new MixinProxyHandler<>(target, classes));
 
     }
 }

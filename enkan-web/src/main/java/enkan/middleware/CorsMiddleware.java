@@ -8,9 +8,9 @@ import enkan.data.HttpResponse;
 
 import java.util.*;
 
-import static enkan.util.BeanBuilder.builder;
-import static enkan.util.HttpResponseUtils.header;
-import static enkan.util.ThreadingUtils.some;
+import static enkan.util.BeanBuilder.*;
+import static enkan.util.HttpResponseUtils.*;
+import static enkan.util.ThreadingUtils.*;
 
 /**
  * CORS setting.
@@ -18,7 +18,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author syobochim
  */
 @Middleware(name = "cors")
-public class CorsMiddleware extends AbstractWebMiddleware {
+public class CorsMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private Set<String> methods;
     private Set<String> origins;
     private Set<String> headers;
@@ -36,7 +36,7 @@ public class CorsMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
         if (isCORSRequest(request)) {
             if (!isOriginAllowed(request) || methods.stream().noneMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);

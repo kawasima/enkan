@@ -7,21 +7,21 @@ import java.util.function.Predicate;
  *
  * @author kawasima
  */
-public interface MiddlewareChain<REQ, RES> {
+public interface MiddlewareChain<REQ, RES, NREQ, NRES> {
     /**
      * Set a next middleware.
      *
      * @param next   a next middleware
      * @return this middleware's chain
      */
-    MiddlewareChain<REQ, RES> setNext(MiddlewareChain next);
+    MiddlewareChain<REQ, RES, NREQ, NRES> setNext(MiddlewareChain<NREQ, NRES, ?, ?> next);
 
     /**
      * Get a middleware in this chain.
      *
      * @return middleware
      */
-    Middleware<REQ, RES> getMiddleware();
+    Middleware<REQ, RES, NREQ, NRES> getMiddleware();
 
     /**
      * Get a middleware name in this chain.
@@ -35,14 +35,14 @@ public interface MiddlewareChain<REQ, RES> {
      *
      * @return an predicate
      */
-    Predicate<REQ> getPredicate();
+    Predicate<? super REQ> getPredicate();
 
     /**
      * Set a predicate.
      *
      * @param predicate predicate
      */
-    void setPredicate(Predicate<REQ> predicate);
+    void setPredicate(Predicate<? super REQ> predicate);
 
     /**
      * Process the next middleware.

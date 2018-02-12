@@ -23,10 +23,15 @@ public class Fressian {
         writeHandlers = new HashMap<>();
     }
 
+    @SuppressWarnings("unckecked")
     public <T> T read(byte[] blob, Class<T> clazz) {
         try(ByteArrayInputStream bais = new ByteArrayInputStream(blob);
-            FressianReader reader = new FressianReader(bais, key -> readHandlers.get(key))) {
-            return (T) reader.readObject();
+            FressianReader reader = new FressianReader(bais, readHandlers::get)) {
+            Object obj = reader.readObject();
+            if (obj != null && !clazz.isInstance(obj)) {
+                throw new IllegalArgumentException(blob + " is not instance of " + clazz);
+            }
+            return (T) obj;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

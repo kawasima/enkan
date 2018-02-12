@@ -11,17 +11,15 @@ import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
 import java.io.StringWriter;
-import java.util.Objects;
 
-import static enkan.util.HttpResponseUtils.getHeader;
-import static enkan.util.HttpResponseUtils.isEmptyBody;
-import static net.unit8.moshas.RenderUtils.text;
+import static enkan.util.HttpResponseUtils.*;
+import static net.unit8.moshas.RenderUtils.*;
 
 /**
  * @author kawasima
  */
 @Middleware(name = "httpStatusCat", dependencies = {"contentType"})
-public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
+public class HttpStatusCatMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private boolean moreCats;
 
     private final MoshasEngine moshas = new MoshasEngine();
@@ -36,8 +34,8 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
-        HttpResponse response = castToHttpResponse(next.next(request));
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ? , ?> chain) {
+        HttpResponse response = castToHttpResponse(chain.next(request));
         if (response != null && (isEmptyBody(response) || isMoreCats(response))) {
             String type = getHeader(response, "Content-Type");
             if (type == null || "text/html".equals(type)) {
@@ -55,7 +53,7 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware {
 
     private boolean isMoreCats(HttpResponse response) {
         return moreCats && response.getBody() instanceof String
-                && Objects.toString(response.getBody(), "").length() < 256;
+                && response.getBodyAsString().length() < 256;
     }
 
     public void setMoreCats(boolean moreCats) {

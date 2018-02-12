@@ -26,7 +26,7 @@ public class EntityManagerProvider extends SystemComponent {
         return entityManagerFactory.createEntityManager();
     }
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<EntityManagerProvider> lifecycle() {
         return new ComponentLifecycle<EntityManagerProvider>() {
             @Override
             public void start(EntityManagerProvider component) {

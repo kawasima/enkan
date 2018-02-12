@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @author kawasima
  */
 @Middleware(name = "methodOverride", dependencies = {"params"})
-public class MethodOverrideMiddleware extends AbstractWebMiddleware {
+public class MethodOverrideMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private Function<HttpRequest, String> getterFunction = createGetter("_method");
 
     public void setGetterFunction(String functionName) {
@@ -46,7 +46,7 @@ public class MethodOverrideMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         String val = getterFunction.apply(request);
         if (val != null) {
             request.setRequestMethod(val);

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A HTTP response with template.
+ *
  * @author kawasima
  */
 public class TemplatedHttpResponse extends DefaultHttpResponse {
@@ -33,5 +35,14 @@ public class TemplatedHttpResponse extends DefaultHttpResponse {
 
     public Map<String, Object> getContext() {
         return context;
+    }
+
+    /**
+     * Get the name of the template.
+     *
+     * @return a name of the template
+     */
+    public String getTemplateName() {
+        return templateName;
     }
 }

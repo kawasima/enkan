@@ -11,7 +11,7 @@ import enkan.util.MixinUtils;
  * @author kawasima
  */
 @Middleware(name = "flash", dependencies = {"session"})
-public class FlashMiddleware extends AbstractWebMiddleware {
+public class FlashMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private String flashKey = "_flash";
 
     /**
@@ -54,7 +54,7 @@ public class FlashMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> next) {
         request = MixinUtils.mixin(request, FlashAvailable.class);
         flashRequest(request);
 

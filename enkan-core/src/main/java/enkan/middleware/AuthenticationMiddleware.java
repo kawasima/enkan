@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author kawasima
  */
 @Middleware(name = "authentication")
-public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<REQ, RES> {
+public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<REQ, RES, REQ, RES> {
     private final List<AuthBackend<REQ, T>> backends;
 
     public AuthenticationMiddleware(List<AuthBackend<REQ, T>> backends) {
@@ -25,7 +25,7 @@ public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<R
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain next) {
+    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> next) {
         final REQ request = MixinUtils.mixin(req, PrincipalAvailable.class);
         for (AuthBackend<REQ, T> backend : backends) {
             Optional<Principal> principal = ThreadingUtils.some(
@@ -33,6 +33,6 @@ public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<R
                     data -> backend.authenticate(request, data));
             principal.ifPresent(((PrincipalAvailable) request)::setPrincipal);
         }
-        return (RES) next.next(request);
+        return next.next(request);
     }
 }

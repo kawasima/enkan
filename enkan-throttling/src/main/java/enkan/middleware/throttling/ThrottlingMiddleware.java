@@ -17,11 +17,11 @@ import static enkan.util.BeanBuilder.builder;
  * @author kawasima
  */
 @Middleware(name = "throttling")
-public class ThrottlingMiddleware extends AbstractWebMiddleware {
+public class ThrottlingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private List<Throttle> throttles = Collections.emptyList();
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         if (throttles.stream()
                 .anyMatch(throttle -> throttle.apply(request))) {
             return builder(HttpResponseUtils.response("Too Many Request"))

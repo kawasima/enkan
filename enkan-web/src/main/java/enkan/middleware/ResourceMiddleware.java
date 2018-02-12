@@ -19,7 +19,7 @@ import static enkan.util.HttpResponseUtils.resourceResponse;
  * @author kawasima
  */
 @Middleware(name = "resource")
-public class ResourceMiddleware extends AbstractWebMiddleware {
+public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private String rootPath = "public";
     private String uriPrefix = "assets/";
 
@@ -44,10 +44,10 @@ public class ResourceMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         HttpResponse response = resourceRequest(request, rootPath);
         if (response == null) {
-            response = (HttpResponse) chain.next(request);
+            response = castToHttpResponse(chain.next(request));
         }
         return response;
     }

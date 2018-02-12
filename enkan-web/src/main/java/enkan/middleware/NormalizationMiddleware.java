@@ -18,14 +18,14 @@ import java.util.function.Predicate;
  * @author kawasima
  */
 @Middleware(name = "normalization", dependencies = {"params"})
-public class NormalizationMiddleware extends AbstractWebMiddleware {
-    private List<NormalizationSpec> normalizationSpecs;
+public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+    private List<NormalizationSpec<Object>> normalizationSpecs;
 
     public NormalizationMiddleware() {
         this.normalizationSpecs = new ArrayList<>();
     }
 
-    public NormalizationMiddleware(NormalizationSpec<?> spec, NormalizationSpec<?>... specs) {
+    public NormalizationMiddleware(NormalizationSpec<Object> spec, NormalizationSpec<Object>... specs) {
         this();
         normalizationSpecs.add(spec);
         normalizationSpecs.addAll(Arrays.asList(specs));
@@ -36,7 +36,7 @@ public class NormalizationMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         Parameters params = request.getParams();
         if (params != null) {
             params.keySet().forEach(key -> {
@@ -50,7 +50,7 @@ public class NormalizationMiddleware extends AbstractWebMiddleware {
                 });
             });
         }
-        return (HttpResponse) chain.next(request);
+        return castToHttpResponse(chain.next(request));
     }
 
     public static class NormalizationSpec<T> {

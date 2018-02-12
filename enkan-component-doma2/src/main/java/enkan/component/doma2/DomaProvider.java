@@ -40,6 +40,7 @@ public class DomaProvider extends SystemComponent {
      * @param <T> a type of DAO
      * @return a DAO of the given class.
      */
+    @SuppressWarnings("unchecked")
     public <T> T getDao(Class<? extends T> daoInterface) {
         return (T) daoCache.computeIfAbsent(daoInterface.getName(), key ->
                 tryReflection(() -> {
@@ -61,7 +62,7 @@ public class DomaProvider extends SystemComponent {
     }
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<DomaProvider> lifecycle() {
         return new ComponentLifecycle<DomaProvider>() {
             @Override
             public void start(DomaProvider component) {

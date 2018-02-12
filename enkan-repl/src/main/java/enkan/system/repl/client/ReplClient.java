@@ -9,8 +9,6 @@ import jline.console.ConsoleReader;
 import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.history.FileHistory;
 import jline.console.history.History;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zeromq.*;
 import zmq.ZError;
 

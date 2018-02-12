@@ -13,9 +13,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static enkan.util.CodecUtils.formDecodeStr;
-import static enkan.util.CodecUtils.formEncode;
-import static enkan.util.ParsingUtils.RE_TOKEN;
+import static enkan.util.CodecUtils.*;
+import static enkan.util.ParsingUtils.*;
 
 /**
  * Middleware for parsing or formatting http cookies.
@@ -23,7 +22,7 @@ import static enkan.util.ParsingUtils.RE_TOKEN;
  * @author kawasima
  */
 @Middleware(name = "cookies")
-public class CookiesMiddleware extends AbstractWebMiddleware {
+public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private static final Pattern RE_COOKIE_OCTET = Pattern.compile("[!#$%&'()*+\\-./0-9:<=>?@A-Z\\[\\]\\^_`a-z\\{\\|\\}~]");
     private static final Pattern RE_COOKIE_VALUE = Pattern.compile("\"" + RE_COOKIE_OCTET.pattern() +  "*\"|" + RE_COOKIE_OCTET.pattern() + "*");
     private static final Pattern RE_COOKIE = Pattern.compile("\\s*(" + RE_TOKEN + ")=(" + RE_COOKIE_VALUE.pattern() + ")\\s*[;,]?");
@@ -92,7 +91,7 @@ public class CookiesMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
         cookiesRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
         if (response != null) {

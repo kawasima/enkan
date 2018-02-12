@@ -12,7 +12,7 @@ import static enkan.util.HttpResponseUtils.header;
  * @author kawasima
  */
 @Middleware(name = "xssProtection")
-public class XssProtectionMiddleware extends AbstractWebMiddleware {
+public class XssProtectionMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private String headerValue;
 
     public XssProtectionMiddleware() {
@@ -30,8 +30,8 @@ public class XssProtectionMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain next) {
-        HttpResponse response = (HttpResponse) next.next(httpRequest);
+    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
+        HttpResponse response = castToHttpResponse(chain.next(httpRequest));
         if (response != null) {
             header(response, "X-XSS-Protection", headerValue);
         }

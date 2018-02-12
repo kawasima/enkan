@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public class MiddlewareCommand implements SystemCommand {
     private void list(Application<?, ?> app, Transport transport) {
-        List<MiddlewareChain<?, ?>> chains = app.getMiddlewareStack();
+        List<MiddlewareChain<?, ?, ?, ?>> chains = app.getMiddlewareStack();
         chains.forEach(chain -> transport.send(ReplResponse.withOut(chain.toString())));
     }
 
@@ -52,7 +52,7 @@ public class MiddlewareCommand implements SystemCommand {
             case "predicate":
                 String middlewareName = args[2];
 
-                Optional<MiddlewareChain<?,?>> middlewareChain = app.getMiddlewareStack().stream()
+                Optional<MiddlewareChain<?,?, ?, ?>> middlewareChain = app.getMiddlewareStack().stream()
                         .filter(chain -> chain.getName().equals(middlewareName))
                         .findFirst();
 

@@ -12,7 +12,7 @@ import enkan.util.MixinUtils;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
-import static enkan.util.ThreadingUtils.some;
+import static enkan.util.ThreadingUtils.*;
 
 /**
  * Accept =&gt; Convert response format.
@@ -20,7 +20,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "contentNegotiation")
-public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
+public class ContentNegotiationMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
     private Set<String> allowedLanguages;
@@ -32,7 +32,7 @@ public class ContentNegotiationMiddleware extends AbstractWebMiddleware {
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
         String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
         String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");

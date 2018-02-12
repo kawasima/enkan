@@ -32,7 +32,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         }
     }
 
-    public <T> AcceptFragment<T> parseAcceptFragment(String accept, Class<T> acceptType) {
+    public <T> AcceptFragment<T> parseAcceptFragment(String accept, Class<? extends T> acceptType) {
         String[] tokens = ACCEPT_DELIMITER.split(accept);
         if (tokens.length > 0) {
             Optional<Double> q = Arrays.stream(tokens).skip(1)
@@ -66,7 +66,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                     .filter(Objects::nonNull)
                     .findFirst();
             return matched
-                    .map(mediaType -> new AcceptFragment(mediaType, 1.0))
+                    .map(mediaType -> new AcceptFragment<>(mediaType, 1.0))
                     .orElse(fragment);
 
         };
