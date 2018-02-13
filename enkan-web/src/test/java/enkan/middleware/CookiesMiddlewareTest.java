@@ -20,12 +20,12 @@ import static org.junit.Assert.*;
  * @author kawasima
  */
 public class CookiesMiddlewareTest {
-    private CookiesMiddleware middleware;
+    private CookiesMiddleware<HttpResponse> middleware;
     private HttpRequest request;
 
     @Before
     public void setup() {
-        middleware = new CookiesMiddleware();
+        middleware = new CookiesMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
                         Headers.of("Host", "example.com"))
@@ -47,6 +47,6 @@ public class CookiesMiddlewareTest {
                             .build();
                 });
         request.getHeaders().put("Cookie", "A=%E3%81%82%E3%81%84%E3%81%86; B=1");
-        HttpResponse response = middleware.handle(request, chain);
+        middleware.handle(request, chain);
     }
 }

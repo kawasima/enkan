@@ -22,7 +22,7 @@ import static enkan.util.ReflectionUtils.*;
 /**
  * @author kawasima
  */
-public class DomaProvider extends SystemComponent {
+public class DomaProvider extends SystemComponent<DomaProvider> {
     private DataSource dataSource;
     private final ConcurrentHashMap<String, Object> daoCache = new ConcurrentHashMap<>();
     private Config defaultConfig;
@@ -66,7 +66,7 @@ public class DomaProvider extends SystemComponent {
         return new ComponentLifecycle<DomaProvider>() {
             @Override
             public void start(DomaProvider component) {
-                DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
+                DataSourceComponent dataSourceComponent = component.getDependency(DataSourceComponent.class);
                 component.dataSource = dataSourceComponent.getDataSource();
 
                 if (useLocalTransaction && !(component.dataSource instanceof LocalTransactionDataSource)) {

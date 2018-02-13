@@ -14,7 +14,7 @@ import static com.codahale.metrics.MetricRegistry.name;
  *
  * @author kawasima
  */
-public class MetricsComponent extends SystemComponent {
+public class MetricsComponent extends SystemComponent<MetricsComponent> {
     private String metricName = "enkan";
 
     private Meter timeoutsMeter;
@@ -22,8 +22,8 @@ public class MetricsComponent extends SystemComponent {
     private Counter activeRequests;
     private Timer requestTimer;
 
-    final JmxReporter reporter;
-    final MetricRegistry metricRegistry;
+    private final JmxReporter reporter;
+    private final MetricRegistry metricRegistry;
 
     public MetricsComponent() {
         metricRegistry = new MetricRegistry();

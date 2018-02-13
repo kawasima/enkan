@@ -15,12 +15,12 @@ import java.util.function.BiFunction;
 /**
  * @author kawasima
  */
-public class JettyComponent extends WebServerComponent {
+public class JettyComponent extends WebServerComponent<JettyComponent> {
     private Server server;
     private BiFunction<Server, OptionMap, Connector> serverConnectorFactory;
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<JettyComponent> lifecycle() {
         return new ComponentLifecycle<JettyComponent>() {
             @Override
             public void start(JettyComponent component) {

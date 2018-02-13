@@ -27,7 +27,6 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  */
 public class ReplClient implements AutoCloseable {
     private final ExecutorService clientThread = Executors.newSingleThreadExecutor();
-    private ConsoleReader console;
     private ConsoleHandler consoleHandler;
 
     private static class ConsoleHandler implements Runnable {
@@ -160,7 +159,7 @@ public class ReplClient implements AutoCloseable {
     }
 
     public void start(int initialPort) throws Exception {
-        console = new ConsoleReader();
+        ConsoleReader console = new ConsoleReader();
         console.getTerminal().setEchoEnabled(false);
         console.setPrompt("\u001B[32menkan\u001B[0m> ");
         History history = new FileHistory(new File(System.getProperty("user.home"), ".enkan_history"));

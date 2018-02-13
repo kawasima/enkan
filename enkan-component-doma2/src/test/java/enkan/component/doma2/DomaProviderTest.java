@@ -27,7 +27,7 @@ public class DomaProviderTest {
         ds.setURL("jdbc:h2:mem:test;AUTOCOMMIT=FALSE;DB_CLOSE_DELAY=-1");
 
         EnkanSystem system = EnkanSystem.of("doma", new DomaProvider(),
-                "datasource", new DataSourceComponent() {
+                "datasource", new DataSourceComponent<DataSourceComponent>() {
                     @Override
                     public DataSource getDataSource() {
                         return ds;

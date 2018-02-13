@@ -5,6 +5,8 @@ import enkan.annotation.Middleware;
 import enkan.data.*;
 import enkan.util.MixinUtils;
 
+import java.io.Serializable;
+
 /**
  * Adds session-based flash store.
  *
@@ -22,7 +24,7 @@ public class FlashMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResp
     protected void flashRequest(HttpRequest request) {
         Session session = request.getSession();
         if (session != null && session.containsKey(flashKey)) {
-            request.setFlash((Flash) session.remove(flashKey));
+            request.setFlash((Flash<? extends Serializable>) session.remove(flashKey));
         }
     }
 

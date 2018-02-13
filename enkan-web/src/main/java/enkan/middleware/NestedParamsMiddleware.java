@@ -63,13 +63,16 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
      * @param value  a Object associated with the key
      * @return a Parameters contains the given key and value
      */
+    @SuppressWarnings("unchecked")
     protected Parameters assocConj(Parameters map, String key, Object value) {
         Object cur = map.getRawType(key);
         if (cur != null) {
             if (cur instanceof List) {
                 if (value instanceof List) {
+                    // cur is instance of List
                     ((List<Object>) cur).addAll((List<?>) value);
                 } else {
+                    // cur is instance of List
                     ((List<Object>) cur).add(value);
                 }
             } else {

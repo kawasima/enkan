@@ -82,6 +82,7 @@ public interface BeanDesc {
      *            プロパティ名。{@literal null}や空文字列であってはいけません
      * @return {@link PropertyDesc}を持っているかどうか
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean hasPropertyDesc(String propertyName);
 
     /**

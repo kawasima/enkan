@@ -20,7 +20,7 @@ import static enkan.util.ThreadingUtils.some;
 /**
  * @author kawasima
  */
-public abstract class WebServerComponent extends SystemComponent {
+public abstract class WebServerComponent<T extends SystemComponent> extends SystemComponent<T> {
     @DecimalMax("65535")
     @DecimalMin("1")
     private Integer port = 80;

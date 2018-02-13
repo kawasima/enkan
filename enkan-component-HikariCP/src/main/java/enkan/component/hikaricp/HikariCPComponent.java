@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 /**
  * @author kawasima
  */
-public class HikariCPComponent extends DataSourceComponent {
+public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
     private HikariConfig config;
     private HikariDataSource dataSource;
 

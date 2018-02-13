@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class FormTask implements GenTask {
     private final String destination;
+    @SuppressWarnings("FieldCanBeLocal")
     private final String pkgName;
     private final String tableName;
     private final List<EntityField> fields;

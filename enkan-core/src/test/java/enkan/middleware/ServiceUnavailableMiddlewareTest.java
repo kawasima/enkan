@@ -14,8 +14,8 @@ public class ServiceUnavailableMiddlewareTest {
     @Test
     public void test() {
         Endpoint<String, String> endpoint = req -> "request: " + req;
-        ServiceUnavailableMiddleware middleware = new ServiceUnavailableMiddleware(endpoint);
-        Object res = middleware.handle("1", new DefaultMiddlewareChain<>(Predicates.ANY, "",
+        ServiceUnavailableMiddleware<String, String> middleware = new ServiceUnavailableMiddleware<>(endpoint);
+        String res = middleware.handle("1", new DefaultMiddlewareChain<>(Predicates.any(), "",
                 (req, chain) -> {
                     fail("Unreachable");
                     return "ok";

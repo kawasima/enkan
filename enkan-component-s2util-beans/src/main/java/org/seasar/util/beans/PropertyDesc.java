@@ -76,6 +76,7 @@ public interface PropertyDesc {
      * 
      * @return プロパティの値が取得できるかどうか
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isReadable();
 
     /**
@@ -83,6 +84,7 @@ public interface PropertyDesc {
      * 
      * @return プロパティの値が設定できるかどうか
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isWritable();
 
     /**

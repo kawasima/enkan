@@ -1,7 +1,6 @@
 package enkan.component.freemarker;
 
 import enkan.component.ComponentLifecycle;
-import enkan.component.SystemComponent;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.util.HttpResponseUtils;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author kawasima
  */
-public class FreemarkerTemplateEngine extends TemplateEngine {
+public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateEngine> {
     private Configuration config;
     private String prefix = "templates";
     private String suffix = ".ftl";
@@ -69,10 +68,10 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
      * {@inheritDoc}
      */
     @Override
-    protected ComponentLifecycle lifecycle() {
-        return new ComponentLifecycle() {
+    protected ComponentLifecycle<FreemarkerTemplateEngine> lifecycle() {
+        return new ComponentLifecycle<FreemarkerTemplateEngine>() {
             @Override
-            public void start(SystemComponent component) {
+            public void start(FreemarkerTemplateEngine component) {
                 if (classLoader == null) {
                     classLoader = Thread.currentThread().getContextClassLoader();
                 }
@@ -91,7 +90,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
             }
 
             @Override
-            public void stop(SystemComponent component) {
+            public void stop(FreemarkerTemplateEngine component) {
                 config = null;
                 classLoader = null;
             }

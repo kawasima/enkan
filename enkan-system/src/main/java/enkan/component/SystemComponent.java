@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 /**
  * @author kawasima
  */
-public abstract class SystemComponent {
+public abstract class SystemComponent<T extends SystemComponent>  {
     private Map<String, SystemComponent> dependencies;
 
     protected void setDependencies(Map<String, SystemComponent> dependencies) {
@@ -27,7 +27,7 @@ public abstract class SystemComponent {
         return dependencies;
     }
 
-    protected abstract <T extends SystemComponent> ComponentLifecycle<T> lifecycle();
+    protected abstract ComponentLifecycle<T> lifecycle();
 
     protected String dependenciesToString() {
         String s = (dependencies == null) ? "" :

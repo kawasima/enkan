@@ -20,8 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static enkan.util.BeanBuilder.*;
-import static org.assertj.core.api.Assertions.*;
+import static enkan.util.BeanBuilder.builder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThrottlingMiddlewareTest {
     @Test
@@ -30,7 +30,7 @@ public class ThrottlingMiddlewareTest {
                 new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
-        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
+        ThrottlingMiddleware<HttpResponse> middleware = builder(new ThrottlingMiddleware<HttpResponse>())
                 .set(ThrottlingMiddleware::setThrottles, throttles)
                 .build();
 
@@ -59,12 +59,12 @@ public class ThrottlingMiddlewareTest {
                 new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
-        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
+        ThrottlingMiddleware<HttpResponse> middleware = builder(new ThrottlingMiddleware<HttpResponse>())
                 .set(ThrottlingMiddleware::setThrottles, throttles)
                 .build();
 
         DefaultHttpRequest req = new DefaultHttpRequest();
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate(), null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
 
         final AtomicInteger count429 = new AtomicInteger(0);

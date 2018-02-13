@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author kawasima
  */
-public class EclipseLinkEntityManagerProvider extends EntityManagerProvider {
+public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<EclipseLinkEntityManagerProvider> {
 
     /** Managed classes */
     private List<String> managedClassNames = new ArrayList<>();
@@ -25,7 +25,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider {
      * {@inheritDoc}
      */
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<EclipseLinkEntityManagerProvider> lifecycle() {
         return new ComponentLifecycle<EclipseLinkEntityManagerProvider>() {
             @Override
             public void start(EclipseLinkEntityManagerProvider component) {

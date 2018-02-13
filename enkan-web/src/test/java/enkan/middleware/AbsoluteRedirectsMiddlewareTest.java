@@ -18,11 +18,11 @@ import static org.junit.Assert.assertEquals;
  * @author kawasima
  */
 public class AbsoluteRedirectsMiddlewareTest {
-    private AbsoluteRedirectsMiddleware middleware;
+    private AbsoluteRedirectsMiddleware<HttpResponse> middleware;
     private HttpRequest request;
     @Before
     public void setup() {
-        middleware = new AbsoluteRedirectsMiddleware();
+        middleware = new AbsoluteRedirectsMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")

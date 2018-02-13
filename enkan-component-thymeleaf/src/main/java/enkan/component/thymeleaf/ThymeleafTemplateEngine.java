@@ -26,7 +26,7 @@ import java.util.function.Function;
 /**
  * @author kawasima
  */
-public class ThymeleafTemplateEngine extends TemplateEngine {
+public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEngine> {
     private String prefix = "templates/";
     private String suffix = ".html";
     private ClassLoader classLoader;

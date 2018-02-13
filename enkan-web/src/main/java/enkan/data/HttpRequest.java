@@ -4,6 +4,7 @@ import enkan.collection.Headers;
 import enkan.collection.Parameters;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Map;
 
 /**

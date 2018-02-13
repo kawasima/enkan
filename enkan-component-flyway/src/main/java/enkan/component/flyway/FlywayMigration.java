@@ -16,7 +16,7 @@ import java.util.Arrays;
  *
  * @author kawasima
  */
-public class FlywayMigration extends SystemComponent {
+public class FlywayMigration extends SystemComponent<FlywayMigration> {
     private String[] locations;
     private String table = "schema_version";
     private Flyway flyway;

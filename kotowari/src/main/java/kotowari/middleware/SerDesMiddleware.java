@@ -50,7 +50,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     @PostConstruct
     private void loadReaderAndWriter() {
         Map<String, SystemComponent> components = new HashMap<>();
-        components.put("beans", beans);
+        components.put("beans", (SystemComponent) beans);
         ComponentInjector injector = new ComponentInjector(components);
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(getClass().getClassLoader());

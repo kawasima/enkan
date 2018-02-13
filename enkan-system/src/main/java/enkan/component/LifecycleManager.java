@@ -11,7 +11,7 @@ public class LifecycleManager {
      *
      * @param component the given component
      */
-    public static void start(SystemComponent component) {
+    public static <T extends SystemComponent<T>> void start(T component) {
         component.lifecycle().start(component);
     }
 
@@ -20,7 +20,7 @@ public class LifecycleManager {
      *
      * @param component the given component
      */
-    public static void stop(SystemComponent component) {
+    public static <T extends SystemComponent<T>> void stop(T component) {
         component.lifecycle().stop(component);
     }
 }

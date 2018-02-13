@@ -11,7 +11,7 @@ import io.undertow.Undertow;
 /**
  * @author kawasima
  */
-public class UndertowComponent extends WebServerComponent {
+public class UndertowComponent extends WebServerComponent<UndertowComponent> {
     private Undertow server;
 
     @Override

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import enkan.component.BeansConverter;
+import enkan.component.AbstractBeansConverter;
 import enkan.component.ComponentLifecycle;
 import enkan.exception.MisconfigurationException;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author kawasima
  */
-public class JacksonBeansConverter extends BeansConverter {
+public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansConverter> {
     private ObjectMapper mapper;
 
     @Override
@@ -43,12 +43,12 @@ public class JacksonBeansConverter extends BeansConverter {
     }
 
     @Override
-    public <T> T createFrom(Object source, Class<T> destinationClass) {
+    public <S> S createFrom(Object source, Class<S> destinationClass) {
         return mapper.convertValue(source, destinationClass);
     }
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<JacksonBeansConverter> lifecycle() {
         return new ComponentLifecycle<JacksonBeansConverter>() {
             @Override
             public void start(JacksonBeansConverter component) {

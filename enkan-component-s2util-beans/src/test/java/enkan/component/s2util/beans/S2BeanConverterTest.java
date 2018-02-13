@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class S2BeanConverterTest {
     private EnkanSystem system;
@@ -45,7 +45,7 @@ public class S2BeanConverterTest {
         m.put("b", "23456");
         m.put("c", "1");
         m.put("d", Arrays.asList("a", "b"));
-        BeansConverter beans = system.getComponent("beans");
+        S2BeansConverter beans = system.getComponent("beans");
 
         Foo foo = beans.createFrom(m, Foo.class);
         assertThat(foo.getA()).isEqualTo(1);
@@ -55,7 +55,7 @@ public class S2BeanConverterTest {
     }
 
     @Test
-    public void testNull() throws Exception {
+    public void testNull() {
         BeansConverter beansConverter = system.getComponent("beans");
 
         Object bean1 = new TestBean(null, "10", "TOKYO");

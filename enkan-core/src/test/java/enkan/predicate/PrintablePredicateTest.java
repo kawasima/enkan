@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.*;
 public class PrintablePredicateTest {
     @Test
     public void testToString() {
-        assertThat(new AnyPredicate().and(new AnyPredicate<>().negate()).toString())
+        assertThat(new AnyPredicate<>().and(new AnyPredicate<>().negate()).toString())
                 .isEqualTo("ANY && !ANY");
     }
 

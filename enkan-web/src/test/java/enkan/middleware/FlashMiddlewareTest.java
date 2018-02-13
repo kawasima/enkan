@@ -31,7 +31,7 @@ public class FlashMiddlewareTest {
 
     @Test
     public void getFlash_and_NoResponseFlash() {
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.ANY, null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
@@ -47,7 +47,7 @@ public class FlashMiddlewareTest {
 
     @Test
     public void setFlash() {
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.ANY, null,
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))

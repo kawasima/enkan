@@ -42,7 +42,6 @@ public class RenderTemplateMiddlewareTest {
                     }
                 }
         , "PERM1"));
-        assertThat(ret instanceof Boolean).isTrue();
-        assertThat((Boolean) ret).isTrue();
+        assertThat(ret).isInstanceOf(Boolean.class).isEqualTo(true);
     }
 }

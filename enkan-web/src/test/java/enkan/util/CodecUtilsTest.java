@@ -49,5 +49,4 @@ public class CodecUtilsTest {
         m.put("a", new TreeSet<>(Arrays.asList("1", "2", "3")));
         assertThat(CodecUtils.formEncode(m)).isEqualTo("a=1&a=2&a=3");
     }
-
 }

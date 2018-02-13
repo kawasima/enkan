@@ -15,8 +15,8 @@ import enkan.util.MixinUtils;
 public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
     @Override
     public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
-        if (req instanceof HttpRequest) {
-            req = (REQ) MixinUtils.mixin((HttpRequest) req, Traceable.class);
+        if (req != null) {
+            req = MixinUtils.mixin(req, Traceable.class);
         }
         RES res = chain.next(req);
         if (req instanceof Traceable){

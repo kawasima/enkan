@@ -7,7 +7,7 @@ import javax.sql.DataSource;
  *
  * @author kawasima
  */
-public abstract class DataSourceComponent extends SystemComponent {
+public abstract class DataSourceComponent<T extends DataSourceComponent> extends SystemComponent<T> {
     /**
      * Gets the data source that it holds.
      *

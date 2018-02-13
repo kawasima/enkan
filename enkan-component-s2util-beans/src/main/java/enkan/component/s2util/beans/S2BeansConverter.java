@@ -1,6 +1,6 @@
 package enkan.component.s2util.beans;
 
-import enkan.component.BeansConverter;
+import enkan.component.AbstractBeansConverter;
 import enkan.component.ComponentLifecycle;
 import enkan.exception.UnreachableException;
 import org.seasar.util.beans.factory.BeanDescFactory;
@@ -10,7 +10,7 @@ import org.seasar.util.beans.util.CopyOptionsUtil;
 
 import java.util.Map;
 
-public class S2BeansConverter extends BeansConverter {
+public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
     private static final CopyOptions DEFAULT_OPTIONS = new CopyOptions();
     private static final CopyOptions EXCLUDE_NULL_OPTIONS = CopyOptionsUtil.excludeNull();
 
@@ -54,7 +54,7 @@ public class S2BeansConverter extends BeansConverter {
     }
 
     @Override
-    protected ComponentLifecycle lifecycle() {
+    protected ComponentLifecycle<S2BeansConverter> lifecycle() {
         return new ComponentLifecycle<S2BeansConverter>() {
 
             @Override

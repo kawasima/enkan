@@ -54,10 +54,7 @@ public final class EnkanLocalTransactionDataSource implements DataSource  {
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        if (iface == null) {
-            return false;
-        }
-        return iface.isAssignableFrom(getClass()) || dataSource.isWrapperFor(iface);
+        return iface != null && (iface.isAssignableFrom(getClass()) || dataSource.isWrapperFor(iface));
     }
 
     @Override

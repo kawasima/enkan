@@ -86,13 +86,13 @@ public class FormMiddlewareTest extends FormMiddleware {
         new ParamsMiddleware().paramsRequest(request);
         new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
-        FormMiddleware formMiddleware = new FormMiddleware();
+        FormMiddleware<Void> formMiddleware = new FormMiddleware<>();
         formMiddleware.setParameterInjectors(ParameterUtils.getDefaultParameterInjectors());
         formMiddleware.beans = beans;
         request = MixinUtils.mixin(request, Routable.class);
         Method method = tryReflection(() -> TestController.class.getMethod("index", NestedForm.class));
         Routable.class.cast(request).setControllerMethod(method);
-        formMiddleware.handle(request, new DefaultMiddlewareChain(Predicates.NONE, "dummy", (o, chain) -> null));
+        formMiddleware.handle(request, new DefaultMiddlewareChain<>(Predicates.none(), "dummy", (o, chain) -> null));
 
         NestedForm form = BodyDeserializable.class.cast(request).getDeserializedBody();
         assertThat(form.getIntVal()).isEqualTo(123);

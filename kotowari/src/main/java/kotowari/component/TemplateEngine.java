@@ -11,7 +11,7 @@ import java.util.function.Function;
  *
  * @author kawasima
  */
-public abstract class TemplateEngine extends SystemComponent {
+public abstract class TemplateEngine<T extends TemplateEngine> extends SystemComponent<T> {
     /**
      * Render the HTML template.
      *
