@@ -17,13 +17,13 @@ import static org.junit.Assert.*;
  * @author kawasima
  */
 public class FlashMiddlewareTest {
-    private FlashMiddleware middleware;
+    private FlashMiddleware<HttpResponse> middleware;
     private HttpRequest request;
     @Before
     public void setup() {
         Session session = new Session();
         session.put("_flash", new Flash<>("message"));
-        middleware = new FlashMiddleware();
+        middleware = new FlashMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setSession, session)
                 .build();

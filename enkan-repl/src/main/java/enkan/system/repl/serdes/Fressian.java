@@ -23,7 +23,7 @@ public class Fressian {
         writeHandlers = new HashMap<>();
     }
 
-    @SuppressWarnings("unckecked")
+    @SuppressWarnings("unchecked")
     public <T> T read(byte[] blob, Class<T> clazz) {
         try(ByteArrayInputStream bais = new ByteArrayInputStream(blob);
             FressianReader reader = new FressianReader(bais, readHandlers::get)) {

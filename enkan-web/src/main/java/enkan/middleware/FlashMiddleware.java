@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author kawasima
  */
 @Middleware(name = "flash", dependencies = {"session"})
-public class FlashMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class FlashMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private String flashKey = "_flash";
 
     /**
@@ -56,7 +56,7 @@ public class FlashMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResp
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> next) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
         request = MixinUtils.mixin(request, FlashAvailable.class);
         flashRequest(request);
 

@@ -13,7 +13,7 @@ import static enkan.util.HttpResponseUtils.*;
  * @author kawasima
  */
 @Middleware(name = "contentTypeOptions")
-public class ContentTypeOptionsMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class ContentTypeOptionsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private String contentTypeOptions = "nosniff";
 
     public ContentTypeOptionsMiddleware() {
@@ -25,7 +25,7 @@ public class ContentTypeOptionsMiddleware extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> next) {
+    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
         HttpResponse response = castToHttpResponse(next.next(httpRequest));
         if (response != null) {
             header(response, "X-Content-Type-Options", contentTypeOptions);

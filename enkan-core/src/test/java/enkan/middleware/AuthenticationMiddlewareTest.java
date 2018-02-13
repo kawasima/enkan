@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 public class AuthenticationMiddlewareTest {
     @Test
     public void test() {
-        AuthenticationMiddleware middleware = new AuthenticationMiddleware<>(Collections.singletonList(createAuthBackend()));
+        AuthenticationMiddleware<Request, String, String> middleware = new AuthenticationMiddleware<>(Collections.singletonList(createAuthBackend()));
         Request request = new Request("kawasima");
         middleware.handle(request, new DefaultMiddlewareChain<>(Predicates.any(), "",
                 (req, chain) -> "ok"));

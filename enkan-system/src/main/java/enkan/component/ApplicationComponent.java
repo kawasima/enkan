@@ -26,6 +26,7 @@ public class ApplicationComponent extends SystemComponent {
     @Override
     protected ComponentLifecycle<ApplicationComponent> lifecycle() {
         return new ComponentLifecycle<ApplicationComponent>() {
+            @SuppressWarnings("unchecked")
             @Override
             public void start(ApplicationComponent component) {
                 if (component.application == null) {

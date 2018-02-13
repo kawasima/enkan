@@ -18,11 +18,11 @@ import static org.junit.Assert.*;
  * @author kawasima
  */
 public class ContentTypeOptionsMiddlewareTest {
-    private ContentTypeOptionsMiddleware middleware;
+    private ContentTypeOptionsMiddleware<HttpResponse> middleware;
     private HttpRequest request;
     @Before
     public void setup() {
-        middleware = new ContentTypeOptionsMiddleware();
+        middleware = new ContentTypeOptionsMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")

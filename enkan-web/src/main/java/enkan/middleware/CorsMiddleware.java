@@ -18,7 +18,7 @@ import static enkan.util.ThreadingUtils.*;
  * @author syobochim
  */
 @Middleware(name = "cors")
-public class CorsMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private Set<String> methods;
     private Set<String> origins;
     private Set<String> headers;
@@ -36,7 +36,7 @@ public class CorsMiddleware extends AbstractWebMiddleware<HttpRequest, HttpRespo
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         if (isCORSRequest(request)) {
             if (!isOriginAllowed(request) || methods.stream().noneMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);

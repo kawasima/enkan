@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class CorsMiddlewareTest {
 
     @Test
-    public void testPreflightRequest() throws Exception {
+    public void testPreflightRequest() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setRequestMethod("OPTIONS");
@@ -34,7 +34,7 @@ public class CorsMiddlewareTest {
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
         // Exercise
-        CorsMiddleware sut = new CorsMiddleware();
+        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -47,7 +47,7 @@ public class CorsMiddlewareTest {
     }
 
     @Test
-    public void testAddHeaders() throws Exception {
+    public void testAddHeaders() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Origin", "http://sample.com"))
@@ -60,7 +60,7 @@ public class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware sut = new CorsMiddleware();
+        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -72,7 +72,7 @@ public class CorsMiddlewareTest {
     }
 
     @Test
-    public void testNonCORSRequest() throws Exception {
+    public void testNonCORSRequest() {
         // Setup
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setHeaders(Headers.of("User-Agent", "Chrome"));
@@ -83,7 +83,7 @@ public class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware sut = new CorsMiddleware();
+        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -97,7 +97,7 @@ public class CorsMiddlewareTest {
     }
 
     @Test
-    public void testPreflightRequestWithLowerCaseMethod() throws Exception {
+    public void testPreflightRequestWithLowerCaseMethod() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setRequestMethod("options");
@@ -109,7 +109,7 @@ public class CorsMiddlewareTest {
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
         // Exercise
-        CorsMiddleware sut = new CorsMiddleware();
+        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -122,7 +122,7 @@ public class CorsMiddlewareTest {
     }
 
     @Test
-    public void testCORSRequestWithLowerCaseMethod() throws Exception {
+    public void testCORSRequestWithLowerCaseMethod()  {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Origin", "http://sample.com"))
@@ -135,7 +135,7 @@ public class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware sut = new CorsMiddleware();
+        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify

@@ -16,7 +16,7 @@ import java.util.Locale;
  * @author kawasima
  */
 @Middleware(name = "frameOptions")
-public class FrameOptionsMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class FrameOptionsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private Object frameOptions;
 
 
@@ -33,7 +33,7 @@ public class FrameOptionsMiddleware extends AbstractWebMiddleware<HttpRequest, H
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         String headerValue = formatFrameOptions();
         HttpResponse response = castToHttpResponse(chain.next(request));
         HttpResponseUtils.header(response, "X-Frame-Options", headerValue);

@@ -20,7 +20,7 @@ import static enkan.util.ThreadingUtils.*;
  * @author kawasima
  */
 @Middleware(name = "contentNegotiation")
-public class ContentNegotiationMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
     private Set<String> allowedLanguages;
@@ -32,7 +32,7 @@ public class ContentNegotiationMiddleware extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain) {
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
         String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
         String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");

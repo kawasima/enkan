@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class XssProtectionMiddlewareTest {
     @Test
     public void addXssBlockHeader() {
-        XssProtectionMiddleware middleware = new XssProtectionMiddleware();
+        XssProtectionMiddleware<HttpResponse> middleware = new XssProtectionMiddleware<>();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
