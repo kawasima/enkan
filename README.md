@@ -55,9 +55,14 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 - HikariCP
 - Flyway
 - Freemarker
+- Thyemeleaf
 - Jetty
 - Undertow
 - Doma2
+- JPA(EclipseLink)
+- Jackson
+- S2Util-beans
+- Metrics
 
 Using enkan and kotowari, the following will be your code
 
@@ -202,7 +207,41 @@ enkan> /connect 35677
 Connected to server (port = 35677)
 ```
 
-* TODO: Migrate to JShell.
+If you use Java9 or higher, you can use JShellRepl. It's so great experience!!
+
+```
+enkan> /connect 64815
+Connected to server (port = 64815)
+enkan> system
+EnkanSystem {
+  "datasource":   #HikariCPComponent {
+    "jdbcUrl": "jdbc:h2:mem:test",
+    "username": "null",
+    "dependencies": []
+  },
+  "flyway":   enkan.component.flyway.FlywayMigration@345f69f3,
+  "doma":   #DomaProvider {
+    "dependencies": ["flyway", "datasource"]
+  },
+  "jwt":   net.unit8.bouncr.sign.JsonWebToken@3f57bcad,
+  "jackson":   #JacksonBeansConverter {
+    "dependencies": []
+  },
+  "template":   enkan.component.freemarker.FreemarkerTemplateEngine@1e8b7643,
+  "app":   #ApplicationComponent {
+    "application": "null",
+    "factoryClassName": "net.unit8.rascaloid.RascaloidApplicationFactory",
+    "dependencies": ["template", "doma", "jackson", "datasource", "jwt"]
+  },
+  "http":   enkan.component.jetty.JettyComponent@7d286fb6
+}
+
+enkan> system.getComponent("doma")
+#DomaProvider {
+  "dependencies": ["flyway", "datasource"]
+}
+```
+
 
 ### Kotowari
 
@@ -222,3 +261,30 @@ Routes routes = Routes.define(r -> {
 }).compile();
 ```
 
+## Get started
+
+kotowari-archetype is very useful at starting point.
+
+```sh
+% bash <(curl -L https://raw.githubusercontent.com/kawasima/kotowari-archetype/master/kotowari.sh) 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2051  100  2051    0     0   5962      0 --:--:-- --:--:-- --:--:--  5944
+
+╔═╗┌┐┌┬┌─┌─┐┌┐┌ ┬ ╦╔═┌─┐┌┬┐┌─┐┬ ┬┌─┐┬─┐┬
+║╣ │││├┴┐├─┤│││┌┼─╠╩╗│ │ │ │ ││││├─┤├┬┘│
+╚═╝┘└┘┴ ┴┴ ┴┘└┘└┘ ╩ ╩└─┘ ┴ └─┘└┴┘┴ ┴┴└─┴
+
+Which web server component do you use?:
+1) undertow
+2) jetty
+3) No thank you
+#?
+```
+
+
+## License
+
+Copyright © 2016-2018 kawasima
+
+Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
