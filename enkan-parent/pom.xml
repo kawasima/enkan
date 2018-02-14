@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.6.0-beta2</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <enkan.version>0.6.0-SNAPSHOT</enkan.version>
+        <enkan.version>0.6.0-beta2</enkan.version>
     </properties>
 
     <modules>

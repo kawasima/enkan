@@ -223,7 +223,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
         Erebus erebus = new Erebus.Builder().build();
         final ClassLoader scaffoldLoader;
         try {
-            URL[] urls = erebus.resolveAsFiles("net.unit8.enkan:kotowari-crud-scaffold:0.6.0-SNAPSHOT")
+            URL[] urls = erebus.resolveAsFiles("net.unit8.enkan:kotowari-crud-scaffold:0.6.0-beta2")
                     .stream()
                     .map(File::toURI)
                     .map(uri -> {
