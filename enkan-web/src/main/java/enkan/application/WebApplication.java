@@ -40,19 +40,32 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
     public <REQ, RES, NREQ, NRES> void use(Predicate<? super REQ> decision, String middlewareName, Middleware<REQ, RES, NREQ, NRES> middleware) {
         MiddlewareChain<REQ, RES, NREQ, NRES> chain = new DefaultMiddlewareChain<>(decision, middlewareName, middleware);
         if (!middlewareStack.isEmpty()) {
-            middlewareStack.getLast().setNext((MiddlewareChain) chain);
+            middlewareStack.getLast().setNext(cast(chain));
         }
         middlewareStack.addLast(chain);
     }
 
     @Override
     public HttpResponse handle(HttpRequest req) {
-        return (HttpResponse) new DefaultMiddlewareChain<>(Predicates.ANY, "bootstrap", (req1, chain) ->
-                chain.next(req1)).setNext(middlewareStack.getFirst()).next(req);
+        return new DefaultMiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> (Predicates.any(), "bootstrap", (req1, chain) ->
+                chain.next(req1)).setNext(cast(middlewareStack.getFirst())).next(req);
     }
 
     @Override
     public List<MiddlewareChain<?, ?, ?, ?>> getMiddlewareStack() {
         return middlewareStack;
+    }
+
+    /**
+     * A cast helper of middleware chain
+     *
+     * @param chain the middleware chain without type parameters
+     * @param <REQ> the type of request
+     * @param <RES> the type of response
+     * @return the middleware chain with type parameters
+     */
+    @SuppressWarnings("unchecked")
+    private <REQ, RES> MiddlewareChain<REQ, RES, ?, ?> cast(MiddlewareChain chain) {
+        return chain;
     }
 }

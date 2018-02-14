@@ -5,7 +5,9 @@ import enkan.collection.Parameters;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A default implementation for HTTP request
@@ -102,7 +104,9 @@ public class DefaultHttpRequest implements HttpRequest {
 
     @Override
     public void setRequestMethod(String requestMethod) {
-        this.requestMethod = requestMethod;
+        this.requestMethod = Optional.ofNullable(requestMethod)
+                .map(m -> m.toUpperCase(Locale.ENGLISH))
+                .orElse(null);
     }
 
     @Override

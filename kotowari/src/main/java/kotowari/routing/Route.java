@@ -109,7 +109,7 @@ public class Route {
             }
         }
 
-        return recognize(request.getUri(), request.getRequestMethod());
+        return recognize(request.getUri(), request.getRequestMethod().toUpperCase(Locale.ENGLISH));
     }
 
     public OptionMap recognize(String path, String method) {

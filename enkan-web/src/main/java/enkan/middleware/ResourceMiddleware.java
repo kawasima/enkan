@@ -30,7 +30,7 @@ public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
 
     protected HttpResponse resourceRequest(HttpRequest request, String rootPath) {
         if (ACCEPTABLE_METHODS.contains(
-                Objects.toString(request.getRequestMethod(), "").toUpperCase(Locale.US))) {
+                Objects.toString(request.getRequestMethod(), "").toUpperCase(Locale.ENGLISH))) {
             String path = urlDecode(pathInfo(request)).substring(1);
             if (!path.startsWith(uriPrefix)) {
                 return null;

@@ -111,7 +111,7 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
     }
 
     private boolean isPreflightRequest(HttpRequest httpRequest) {
-        return Objects.equals(httpRequest.getRequestMethod().toUpperCase(), "OPTIONS")
+        return Objects.equals(httpRequest.getRequestMethod().toUpperCase(Locale.ENGLISH), "OPTIONS")
                 && httpRequest.getHeaders().containsKey("Access-Control-Request-Method");
     }
 
