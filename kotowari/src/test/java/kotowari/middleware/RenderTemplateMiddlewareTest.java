@@ -12,6 +12,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.*;
 
 public class RenderTemplateMiddlewareTest {
+    @SuppressWarnings("unchecked")
     private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);

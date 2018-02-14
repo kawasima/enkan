@@ -105,7 +105,7 @@ public class ExampleApplicationFactory implements ApplicationFactory {
                 (Endpoint<HttpRequest , HttpResponse>)req ->
                         HttpResponseUtils.redirect("/guestbook/login?url=" + req.getUri(),
                                 HttpResponseUtils.RedirectStatusCode.TEMPORARY_REDIRECT));
-        app.use(new ContentNegotiationMiddleware());
+        app.use(new ContentNegotiationMiddleware<>());
         // Kotowari
         app.use(new ResourceMiddleware<>());
         app.use(new RenderTemplateMiddleware<>());

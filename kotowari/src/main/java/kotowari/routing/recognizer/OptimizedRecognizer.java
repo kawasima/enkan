@@ -1,6 +1,7 @@
 package kotowari.routing.recognizer;
 
 import enkan.collection.OptionMap;
+import enkan.data.HttpRequest;
 import kotowari.routing.*;
 
 import java.util.ArrayList;
@@ -61,59 +62,59 @@ public class OptimizedRecognizer implements Recognizer {
     }
 
     @Override
-    public OptionMap recognize(String path, String method) {
-        String[] segments = toPlainSegments(path);
+    public OptionMap recognize(HttpRequest request) {
+        String[] segments = toPlainSegments(request.getUri());
 
         int index = calcIndex(segments, tree, 0);
         while (index < routes.size()) {
-            OptionMap result = routes.get(index).recognize(path, method);
+            OptionMap result = routes.get(index).recognize(request);
             if (result != null) return result;
             index += 1;
         }
         return OptionMap.of();
     }
 
-    private class SegmentNode {
+    private static class SegmentNode {
         private int index;
         private String label;
         private List<SegmentNode> childNodes;
 
-        public SegmentNode(int index) {
+        SegmentNode(int index) {
             this(null, index);
         }
 
-        public SegmentNode(String label, int index) {
+        SegmentNode(String label, int index) {
             this.index = index;
             this.label = label;
             childNodes = new ArrayList<>();
         }
 
-        public void add(SegmentNode child) {
+        void add(SegmentNode child) {
             childNodes.add(child);
         }
 
-        public boolean isEmpty() {
+        boolean isEmpty() {
             return childNodes.isEmpty();
         }
 
-        public SegmentNode lastChild() {
+        SegmentNode lastChild() {
             if (isEmpty())
                 return null;
             return childNodes.get(childNodes.size() - 1);
         }
 
-        public String getLabel() {
+        String getLabel() {
             return label;
         }
 
-        public int getIndex() {
+        int getIndex() {
             return index;
         }
 
-        public List<SegmentNode> getChildNodes() {
+        List<SegmentNode> getChildNodes() {
             return childNodes;
         }
-        public int size() {
+        int size() {
             return childNodes.size();
         }
     }

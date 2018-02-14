@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static enkan.util.ParsingUtils.RE_VALUE;
+import static enkan.util.ThreadingUtils.some;
 
 /**
  * Functions for augmenting and pulling information from HttpRequest.
@@ -31,7 +32,7 @@ public class HttpRequestUtils {
     }
 
     public static String contentType(HttpRequest request) {
-        String type = request.getHeaders().get("content-type");
+        String type = some(request.getHeaders(), headers -> headers.get("content-type")).orElse(null);
         if (type == null) return null;
 
         Matcher m = CONTENT_TYPE_PATTERN.matcher(type);

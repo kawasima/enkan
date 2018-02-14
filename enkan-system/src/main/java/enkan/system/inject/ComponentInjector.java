@@ -30,6 +30,16 @@ public class ComponentInjector {
         return f.getAnnotation(Inject.class) != null;
     }
 
+    /**
+     * Set a value to a field of an object.
+     *
+     * Notes: Field#isAccessible method is deprecated from Java9.
+     *
+     * @param target an injection target object
+     * @param f      an injection target field
+     * @param value  an injecting value
+     */
+    @SuppressWarnings("deprecation")
     private void setValueToField(Object target, Field f, Object value) {
         if (!f.isAccessible()) {
             f.setAccessible(true);

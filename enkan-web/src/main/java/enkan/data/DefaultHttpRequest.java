@@ -216,7 +216,7 @@ public class DefaultHttpRequest implements HttpRequest {
     }
 
     @Override
-    public void setExtension(String name, Object extension) {
+    public <T> void setExtension(String name, T extension) {
         if (extensions == null) {
             extensions = new HashMap<>();
         }
@@ -224,10 +224,10 @@ public class DefaultHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Object getExtension(String name) {
+    public <T> T getExtension(String name) {
         if (extensions == null) {
             extensions = new HashMap<>();
         }
-        return extensions.get(name);
+        return (T) extensions.get(name);
     }
 }

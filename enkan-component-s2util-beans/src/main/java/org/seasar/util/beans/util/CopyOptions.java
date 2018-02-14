@@ -364,6 +364,7 @@ public class CopyOptions {
      *            プロパティ名
      * @return 対象のプロパティかどうか
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean isTargetProperty(final String name) {
         if (prefix != null && !name.startsWith(prefix)) {
             return false;
@@ -399,6 +400,7 @@ public class CopyOptions {
      *            コピー元の値
      * @return 値がコピーの対象なら{@literal true}
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean isTargetValue(final Object value) {
         if (value == null) {
             return !excludesNull;

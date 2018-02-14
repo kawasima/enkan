@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -44,7 +43,7 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     protected OptionMap recognizePath(HttpRequest request) {
-        return routes.recognizePath(request.getUri(), request.getRequestMethod().toUpperCase(Locale.US));
+        return routes.recognizePath(request);
     }
 
     @Override

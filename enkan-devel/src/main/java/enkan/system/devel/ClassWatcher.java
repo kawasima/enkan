@@ -67,7 +67,7 @@ public class ClassWatcher implements Runnable {
 
                 if (kind == StandardWatchEventKinds.OVERFLOW) continue;
 
-                WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
+                @SuppressWarnings("unchecked") WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
                 Path path = watchings.get(key).resolve(pathEvent.context());
 
                 if (kind == ENTRY_MODIFY) {

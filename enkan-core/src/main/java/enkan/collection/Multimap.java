@@ -5,6 +5,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ *
+ *
  * @author kawasima
  */
 @SuppressWarnings("NullableProblems")
@@ -43,26 +45,41 @@ public class Multimap<K, V> implements Map<K, V> {
         return m;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int size() {
         return hashMap.size();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isEmpty() {
         return hashMap.isEmpty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsKey(Object key) {
         return hashMap.containsKey(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsValue(Object value) {
         return hashMap.containsValue(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public V get(Object key) {
         List<V> values = hashMap.get(key);
@@ -72,10 +89,16 @@ public class Multimap<K, V> implements Map<K, V> {
         return values.get(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<V> getAll(K key) {
         return hashMap.get(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void add(K key, V value) {
         if (hashMap.containsKey(key)) {
             List<V> values = hashMap.get(key);
@@ -87,6 +110,9 @@ public class Multimap<K, V> implements Map<K, V> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public V put(K key, V value) {
         List<V> values = new ArrayList<>();
@@ -95,6 +121,9 @@ public class Multimap<K, V> implements Map<K, V> {
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public V remove(Object key) {
         List<V> old = hashMap.remove(key);
@@ -105,21 +134,33 @@ public class Multimap<K, V> implements Map<K, V> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
         m.forEach(this::put);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void clear() {
         hashMap.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<K> keySet() {
         return hashMap.keySet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<V> values() {
         return hashMap.values()
@@ -128,6 +169,9 @@ public class Multimap<K, V> implements Map<K, V> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return hashMap.entrySet()

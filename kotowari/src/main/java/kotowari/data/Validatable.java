@@ -11,14 +11,15 @@ import java.util.List;
  */
 public interface Validatable extends Extendable {
     default boolean hasErrors() {
-        Multimap<String, Object> errors = (Multimap<String, Object>) getExtension("errors");
+        Multimap<String, Object> errors = getExtension("errors");
         return errors != null && !errors.isEmpty();
     }
 
     default boolean hasErrors(String key) {
-        return ThreadingUtils.some((Multimap<String, Object>) getExtension("errors"),
-                errors -> errors.getAll(key),
-                errors -> !errors.isEmpty()).orElse(false);
+        Multimap<String, Object> errors =  getExtension("errors");
+        return ThreadingUtils.some(errors,
+                e -> e.getAll(key),
+                e -> !e.isEmpty()).orElse(false);
     }
 
     default List<Object> getErrors(String key) {
@@ -26,7 +27,7 @@ public interface Validatable extends Extendable {
     }
 
     default Multimap<String, Object> getErrors() {
-        return (Multimap<String, Object>) getExtension("errors");
+        return getExtension("errors");
     }
 
     default void setErrors(Multimap<String, Object> errors) {

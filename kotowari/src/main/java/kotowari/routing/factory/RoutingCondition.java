@@ -80,6 +80,13 @@ public class RoutingCondition {
      */
     public Route to(Class<?> controllerClass, String controllerMethod) {
         OptionMap conditions = OptionMap.of("method", method);
+        if (!consumes.isEmpty()) {
+            conditions.put("consumes", consumes);
+        }
+        if (!produces.isEmpty()) {
+            conditions.put("produces", produces);
+        }
+
         OptionMap options = OptionMap.of(
                 "controller", controllerClass,
                 "action", controllerMethod,
@@ -87,12 +94,6 @@ public class RoutingCondition {
 
         if (!requirements.isEmpty()) {
             options.put("requirements", requirements);
-        }
-        if (!consumes.isEmpty()) {
-            options.put("consumes", consumes);
-        }
-        if (!produces.isEmpty()) {
-            options.put("produces", produces);
         }
 
         Route route = context.build(path, options);

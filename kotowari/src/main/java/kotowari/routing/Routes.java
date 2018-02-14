@@ -1,6 +1,7 @@
 package kotowari.routing;
 
 import enkan.collection.OptionMap;
+import enkan.data.HttpRequest;
 import enkan.exception.MisconfigurationException;
 import kotowari.routing.factory.RoutePatterns;
 import kotowari.routing.factory.RoutePatternsDescriptor;
@@ -38,8 +39,8 @@ public class Routes {
         return patterns;
     }
 
-    public OptionMap recognizePath(String path, String method) {
-        return recognizer.recognize(path, method);
+    public OptionMap recognizePath(HttpRequest request) {
+        return recognizer.recognize(request);
     }
 
     public String generate(OptionMap options) {

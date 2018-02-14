@@ -12,12 +12,12 @@ import java.util.Map;
 public class FormBase implements Validatable, Serializable {
     private Map<String, Object> extensions = new HashMap<>();
     @Override
-    public Object getExtension(String name) {
-        return extensions.get(name);
+    public <T> T getExtension(String name) {
+        return (T) extensions.get(name);
     }
 
     @Override
-    public void setExtension(String name, Object extension) {
+    public <T> void setExtension(String name, T extension) {
         extensions.put(name, extension);
     }
 }

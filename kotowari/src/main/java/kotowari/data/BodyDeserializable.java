@@ -9,7 +9,7 @@ import enkan.data.Extendable;
  */
 public interface BodyDeserializable extends Extendable {
     default <T> T getDeserializedBody() {
-        return (T) getExtension("deserializedBody");
+        return getExtension("deserializedBody");
     }
 
     default <T> void setDeserializedBody(T obj) {

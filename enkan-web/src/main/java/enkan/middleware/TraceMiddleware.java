@@ -2,7 +2,6 @@ package enkan.middleware;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
-import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.TraceLog;
 import enkan.data.Traceable;

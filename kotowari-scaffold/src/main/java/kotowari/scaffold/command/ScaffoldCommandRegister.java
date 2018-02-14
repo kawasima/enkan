@@ -48,6 +48,7 @@ import java.util.stream.Stream;
  *
  * @author kawasima
  */
+@SuppressWarnings("ALL")
 public class ScaffoldCommandRegister implements SystemCommandRegister {
     private static final Logger LOG = LoggerFactory.getLogger(ScaffoldCommandRegister.class);
     PathResolver pathResolver = new PathResolverImpl(null, "META-INF/amagicman/templates", null);
@@ -112,6 +113,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                         File entitySource = getEntitySource(pkgPath, tableName);
                         fields.addAll(new EntitySourceAnalyzer().analyze(entitySource));
                     });
+                    //noinspection unchecked
                     g.task(new JavaByTemplateTask(
                             "src/main/java/scaffold/crud/controller/UserController.java",
                             "src/main/java/" + pkgPath
@@ -120,6 +122,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                                     "scaffold.crud.", pkgName,
                                     "user", tableName), null)));
                     g.task(new FormTask(pkgName, tableName, fields));
+                    //noinspection unchecked
                     g.task(new JavaByTemplateTask(
                             "src/main/java/scaffold/crud/dao/UserDao.java",
                             "src/main/java/" + pkgPath
@@ -129,6 +132,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
                                     "user", tableName), null)));
                     String formBase = "src/main/java/" + pkgPath + "/form/FormBase.java";
                     if (!Files.exists(Paths.get(formBase))) {
+                        //noinspection unchecked
                         g.task(new JavaByTemplateTask(
                                 "src/main/java/scaffold/crud/form/FormBase.java",
                                 formBase,

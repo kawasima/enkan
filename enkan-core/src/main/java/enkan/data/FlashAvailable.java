@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public interface FlashAvailable<T extends Serializable> extends Extendable {
     default Flash<T> getFlash() {
-        return (Flash<T>) getExtension("flash");
+        return getExtension("flash");
     }
 
     default void setFlash(Flash<T> flash) {

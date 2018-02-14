@@ -43,6 +43,7 @@ public class ThymeleafTemplateEngineTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void customFunction() {
         HttpResponse response = engine.render("test2", "func", (Function<List, Object>) list -> list.stream()

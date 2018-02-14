@@ -26,6 +26,7 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
                 throw new UnreachableException();
         }
     }
+    @SuppressWarnings("unchecked")
     @Override
     public void copy(Object source, Object destination, CopyOption option) {
         CopyOptions copyOptions = createCopyOptions(option);
@@ -44,6 +45,7 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T createFrom(Object source, Class<T> destinationClass) {
         if (source instanceof Map) {

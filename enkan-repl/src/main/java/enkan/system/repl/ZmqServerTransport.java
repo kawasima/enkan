@@ -37,6 +37,7 @@ public class ZmqServerTransport implements Transport {
 
     @Override
     public void send(ReplResponse response) {
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         ZMsg msg = new ZMsg();
         msg.add(clientAddress.duplicate());
         msg.add(fressian.write(response));

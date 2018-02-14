@@ -32,7 +32,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         }
     }
 
-    public <T> AcceptFragment<T> parseAcceptFragment(String accept, Class<? extends T> acceptType) {
+    public <S> AcceptFragment<S> parseAcceptFragment(String accept, Class<? extends S> acceptType) {
         String[] tokens = ACCEPT_DELIMITER.split(accept);
         if (tokens.length > 0) {
             Optional<Double> q = Arrays.stream(tokens).skip(1)
@@ -42,10 +42,10 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                     .map(m -> parseQ(m.group(2)))
                     .findFirst();
             if (acceptType.equals(MediaType.class)) {
-                return new AcceptFragment(CodecUtils.parseMediaType(tokens[0]),
+                return new <MediaType>AcceptFragment(CodecUtils.parseMediaType(tokens[0]),
                         q.orElse(1.0));
             } else if (acceptType.equals(String.class)) {
-                return new AcceptFragment(tokens[0], q.orElse(1.0));
+                return new <String>AcceptFragment(tokens[0], q.orElse(1.0));
             }
         }
         return null;
@@ -163,16 +163,16 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         private final double q;
         private final T fragment;
 
-        public AcceptFragment(T fragment, double q) {
+        AcceptFragment(T fragment, double q) {
             this.fragment = fragment;
             this.q = q;
         }
 
-        public T getFragment() {
+        T getFragment() {
             return fragment;
         }
 
-        public double getQ() {
+        double getQ() {
             return q;
         }
     }

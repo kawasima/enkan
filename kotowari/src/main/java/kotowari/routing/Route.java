@@ -13,11 +13,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static enkan.util.ThreadingUtils.some;
+
 /**
+ * Represents a routing information.
+ *
  * @author kawasima
  */
 public class Route {
+    /** Path segments */
     private List<Segment> segments;
+
     private OptionMap constraints;
     private OptionMap conditions;
     private List<String> significantKeys;
@@ -27,6 +33,13 @@ public class Route {
     private String actionRequirement;
     private Pattern recognizePattern;
 
+    /**
+     * Constructs an instance of a routing given its path segments, constraints and conditions.
+     *
+     * @param segments    path segments
+     * @param constraints constraints
+     * @param conditions  conditions
+     */
     public Route(List<Segment> segments, OptionMap constraints, OptionMap conditions) {
         this.segments = segments;
         this.constraints = constraints;
@@ -38,6 +51,11 @@ public class Route {
         }
     }
 
+    /**
+     * Returns path segments.
+     *
+     * @return path segments
+     */
     public List<Segment> getSegments() {
         return segments;
     }
@@ -65,41 +83,28 @@ public class Route {
         return significantKeys;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder segs = new StringBuilder();
-        for (Segment s : segments) {
-            segs.append(s.toString());
-        }
-        List<Object> methods = conditions.getList("method");
-        if (methods.isEmpty()) {
-            methods.add("any");
-        }
-        StringBuilder out = new StringBuilder(256);
-        for (Object method : methods) {
-            out.append(String.format(Locale.US, "%-6s %-40s %s\n", method.toString().toUpperCase(), segs.toString(), constraints));
-        }
-        return out.toString();
-    }
-
-    /*----recognize----*/
+    /**
+     * Recognize routing from HttpRequest.
+     *
+     * @param request a http request
+     * @return recognized routing information
+     */
+    @SuppressWarnings("unchecked")
     public OptionMap recognize(HttpRequest request) {
         Set<MediaType> produces = (Set<MediaType>) conditions.get("produces");
-        if (produces != null) {
+        if (produces != null && request instanceof ContentNegotiable) {
             MediaType produceType = ((ContentNegotiable) request).getMediaType();
-            if (!produces.contains(produceType)) {
+            if (produces.stream().noneMatch(produceType::isCompatible)) {
                 return null;
             }
         }
 
         Set<MediaType> consumes = (Set<MediaType>) conditions.get("consumes");
         if (consumes != null) {
-            try {
-                MediaType consumeType = MediaType.valueOf(HttpRequestUtils.contentType(request));
-                if (!consumes.contains(consumeType)) {
-                    return null;
-                }
-            } catch (Exception e) {
+            MediaType consumeType = some(HttpRequestUtils.contentType(request),
+                    type -> type.split("/", 2),
+                    types -> new MediaType(types[0], types[1])).orElse(null);
+            if (consumeType == null || consumes.stream().noneMatch(consumeType::isCompatible)) {
                 return null;
             }
         }
@@ -259,4 +264,22 @@ public class Route {
     public String getActionRequirement() {
         return actionRequirement;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder segs = new StringBuilder();
+        for (Segment s : segments) {
+            segs.append(s.toString());
+        }
+        List<Object> methods = conditions.getList("method");
+        if (methods.isEmpty()) {
+            methods.add("any");
+        }
+        StringBuilder out = new StringBuilder(256);
+        for (Object method : methods) {
+            out.append(String.format(Locale.US, "%-6s %-40s %s\n", method.toString().toUpperCase(), segs.toString(), constraints));
+        }
+        return out.toString();
+    }
+
 }

@@ -158,12 +158,12 @@ public class DefaultHttpResponse implements HttpResponse {
     }
 
     @Override
-    public Object getExtension(String name) {
-        return extensions.get(name);
+    public <T> T getExtension(String name) {
+        return (T) extensions.get(name);
     }
 
     @Override
-    public void setExtension(String name, Object extension) {
+    public <T> void setExtension(String name, T extension) {
         extensions.put(name, extension);
     }
 }

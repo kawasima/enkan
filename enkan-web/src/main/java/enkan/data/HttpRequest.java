@@ -4,10 +4,11 @@ import enkan.collection.Headers;
 import enkan.collection.Parameters;
 
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Map;
 
 /**
+ * Represents an HTTP response.
+ *
  * @author kawasima
  */
 public interface HttpRequest
@@ -80,7 +81,7 @@ public interface HttpRequest
 
     void setCookies(Map<String, Cookie> cookies);
 
-    void setExtension(String name, Object extension);
+    <T> void setExtension(String name, T extension);
 
-    Object getExtension(String name);
+    <T> T getExtension(String name);
 }

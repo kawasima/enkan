@@ -7,6 +7,7 @@ public class JShellObjectTransferer {
     private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
+    @SuppressWarnings("unchecked")
     public static <T> T readFromBase64(String base64, Class<T> clazz) throws IOException, ClassNotFoundException {
         byte[] blob = BASE64_DECODER.decode(base64);
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(blob))) {

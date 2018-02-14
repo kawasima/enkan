@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 public interface Traceable extends Extendable {
     default String getId() {
-        String id = (String) getExtension("id");
+        String id = getExtension("id");
         if (id == null) {
             id = UUID.randomUUID().toString();
             setId(id);

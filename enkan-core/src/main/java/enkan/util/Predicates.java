@@ -26,21 +26,23 @@ public class Predicates {
         return NONE;
     }
 
-    public static <T> Predicate<? super T> and(Predicate<T> pred, Predicate<T>... preds) {
-        for (Predicate<T> p : preds) {
+    @SafeVarargs
+    public static <T> Predicate<? super T> and(Predicate<T> pred, Predicate<? super T>... preds) {
+        for (Predicate<? super T> p : preds) {
             pred = pred.and(p);
         }
         return pred;
     }
 
-    public static <T> Predicate<T> or(Predicate<T> pred, Predicate<T>... preds) {
-        for (Predicate<T> p : preds) {
+    @SafeVarargs
+    public static <T> Predicate<? super T> or(Predicate<T> pred, Predicate<? super T>... preds) {
+        for (Predicate<? super T> p : preds) {
             pred = pred.or(p);
         }
         return pred;
     }
 
-    public static <REQ extends UriAvailable> PathPredicate path(String path) {
+    public static <REQ extends UriAvailable> PathPredicate<REQ> path(String path) {
         return PathPredicate.ANY(path);
     }
 

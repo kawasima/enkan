@@ -31,6 +31,7 @@ public class UrlRewriter {
                 .build();
     }
 
+    @SuppressWarnings("unchecked")
     public static OptionMap parseOptionString(Class<?> controller, String optionString) {
         String[] urlTokens = optionString.split("\\?", 2);
 

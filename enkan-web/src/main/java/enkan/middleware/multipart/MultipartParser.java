@@ -28,8 +28,8 @@ public class MultipartParser {
     private static final String EOL = "\r\n";
     private static final Pattern MULTIPART = Pattern.compile("multipart/.*boundary=\"?([^\";,]+)\"?");
     private static final Pattern TOKEN = Pattern.compile("[^\\s()<>,;:\\\\\"/\\[\\]?=]+");
-    protected static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s*", Pattern.CASE_INSENSITIVE);
-    protected static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
+    private static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
     private static final Pattern BROKEN_QUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=\"(.*?)\"(?:\\s*$|\\s*;\\s*%s=)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Pattern BROKEN_UNQUOTED = Pattern.compile(String.format("^%s.*;\\sfilename=(%s)", CONDISP, TOKEN), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     private static final Pattern MULTIPART_CONTENT_TYPE = Pattern.compile("Content-Type: (.*)" + EOL, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
@@ -37,10 +37,10 @@ public class MultipartParser {
     private static final Pattern MULTIPART_CONTENT_ID = Pattern.compile("Content-ID:\\s*([^" + EOL + "]*)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     private static final Pattern ATTRIBUTE_CHAR = Pattern.compile("[^ \\t\\v\\n\\r)(><@,;:\\\\\"/\\[\\]?='*%]");
-    protected static final Pattern ATTRIBUTE = Pattern.compile(ATTRIBUTE_CHAR.pattern() + "+");
+    private static final Pattern ATTRIBUTE = Pattern.compile(ATTRIBUTE_CHAR.pattern() + "+");
     private static final Pattern SECTION = Pattern.compile("\\*[0-9]+/");
-    protected static final Pattern REGULAR_PARAMETER_NAME = Pattern.compile(ATTRIBUTE.pattern() + "(?:" + SECTION.pattern() + ")?");
-    protected static final Pattern REGULAR_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", REGULAR_PARAMETER_NAME.pattern(), VALUE.pattern()));
+    private static final Pattern REGULAR_PARAMETER_NAME = Pattern.compile(ATTRIBUTE.pattern() + "(?:" + SECTION.pattern() + ")?");
+    private static final Pattern REGULAR_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", REGULAR_PARAMETER_NAME.pattern(), VALUE.pattern()));
     private static final Pattern EXTENDED_OTHER_NAME = Pattern.compile(ATTRIBUTE.pattern() + "\\*[1-9][0-9]*\\*");
     private static final Pattern EXTENDED_OTHER_VALUE = Pattern.compile("%[0-9a-fA-F]{2}|" + ATTRIBUTE_CHAR.pattern());
     private static final Pattern EXTENDED_OTHER_PARAMETER = Pattern.compile(String.format("(%s)=((?:%s)*)", EXTENDED_OTHER_NAME.pattern(), EXTENDED_OTHER_VALUE.pattern()));
@@ -48,8 +48,8 @@ public class MultipartParser {
     private static final Pattern EXTENDED_INITIAL_VALUE = Pattern.compile("[a-zA-Z0-9\\-]*'[a-zA-Z0-9\\-]*'(?:" + EXTENDED_OTHER_VALUE.pattern() + ")*");
     private static final Pattern EXTENDED_INITIAL_PARAMETER = Pattern.compile(String.format("(%s)=(%s)", EXTENDED_INITIAL_NAME.pattern(), EXTENDED_INITIAL_VALUE.pattern()));
     private static final Pattern EXTENDED_PARAMETER = Pattern.compile(EXTENDED_INITIAL_PARAMETER.pattern() + "|" + EXTENDED_OTHER_PARAMETER.pattern());
-    protected static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER.pattern()));
-    protected static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER.pattern()));
+    private static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 
     private static final MultipartInfo EMPTY = new MultipartInfo(null, new ArrayList<>());

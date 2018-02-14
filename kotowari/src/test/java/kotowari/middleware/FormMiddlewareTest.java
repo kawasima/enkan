@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author kawasima
  */
 public class FormMiddlewareTest extends FormMiddleware {
-    private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?\\])*)$");
-    private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)\\]");
+    private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?])*)$");
+    private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)]");
     protected Function<String, String[]> parseNestedKeys = (paramName) -> {
         if (paramName == null) return new String[]{};
 

@@ -15,6 +15,7 @@ public class RemoteCompleter implements Completer {
     }
     @Override
     public int complete(String buffer, int cursor, List<CharSequence> candidates) {
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         ZMsg msg = new ZMsg();
         msg.add(buffer);
         msg.add(Integer.toString(cursor));

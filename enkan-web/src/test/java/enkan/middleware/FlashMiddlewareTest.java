@@ -47,6 +47,7 @@ public class FlashMiddlewareTest {
 
     @Test
     public void setFlash() {
+        //noinspection unchecked
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))

@@ -66,8 +66,11 @@ public class SerDesMiddlewareTest {
 
         Object testDto = middleware.deserialize(request, List.class, new TypeReference<List<TestDto>>(){}.getType(), new MediaType("application", "json"));
         assertThat(testDto).isInstanceOf(List.class);
-        assertThat(((List) testDto).size()).isEqualTo(2);
-        assertThat(((List<TestDto>) testDto).get(0).getA()).isEqualTo(1);
+        assertThat(testDto).asList().size().isEqualTo(2);
+        assertThat(testDto).asList().contains(builder(new TestDto())
+                .set(TestDto::setA, 1)
+                .set(TestDto::setB, "ccb")
+                .build());
     }
 
     @Test

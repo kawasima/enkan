@@ -22,12 +22,12 @@ import static org.junit.Assert.*;
  * @author kawasima
  */
 public class ContentNegotiationMiddlewareTest {
-    private ContentNegotiationMiddleware middleware;
+    private ContentNegotiationMiddleware<HttpResponse> middleware;
     private HttpRequest request;
 
     @Before
     public void setup() {
-        middleware = new ContentNegotiationMiddleware();
+        middleware = new ContentNegotiationMiddleware<>();
     }
 
     @Test

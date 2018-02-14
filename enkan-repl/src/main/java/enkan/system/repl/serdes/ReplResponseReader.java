@@ -7,7 +7,16 @@ import org.fressian.handlers.ReadHandler;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * A fressian reader for ReplRepsponse.
+ *
+ * @author kawasima
+ */
 public class ReplResponseReader implements ReadHandler {
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public Object read(Reader r, Object tag, int componentCount) throws IOException {
         ReplResponse response = new ReplResponse();

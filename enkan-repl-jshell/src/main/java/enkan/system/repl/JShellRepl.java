@@ -42,7 +42,7 @@ public class JShellRepl implements Repl {
 
     private JShellMessage executeStatement(String statement) {
         statement = statement.trim();
-        if (statement.endsWith(";")) statement = statement.replaceAll("\\;+$", "");
+        if (statement.endsWith(";")) statement = statement.replaceAll(";+$", "");
 
         List<SnippetEvent> events = jshell.eval(statement + ";");
         JShellMessage msg = new JShellMessage();

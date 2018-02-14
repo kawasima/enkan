@@ -1,6 +1,7 @@
 package enkan.util;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author kawasima
@@ -9,7 +10,9 @@ public class MergeableResourceBundle extends ResourceBundle {
     private final Map<String, Object> lookup;
 
     protected MergeableResourceBundle(Properties properties) {
-        lookup = new HashMap(properties);
+        lookup = properties.entrySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k.getKey().toString(), Map.Entry::getValue));
     }
 
     @Override
