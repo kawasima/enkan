@@ -30,7 +30,7 @@ public interface Repl extends Runnable {
      * @param name The name of a background task
      * @return The future of background task
      */
-    Future<?> getBackgorundTask(String name);
+    Future<?> getBackground(String name);
 
     /**
      * Get the port number of this REPL.

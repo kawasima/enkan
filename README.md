@@ -1,6 +1,6 @@
 # enkan
 
-Enkan(円環) is a microframework implementing a middleware pattern like ring or connect.  
+Enkan(円環) is a microframework implementing a middleware pattern like ring or connect.
 
 [![CircleCI](https://circleci.com/gh/kawasima/enkan.svg?style=svg&circle-token=e3d88ba4abde99dabc9fe527d0681d236ff49548)](https://circleci.com/gh/kawasima/enkan)
 
@@ -17,7 +17,7 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 - Avoid blackbox
 - Less annotations
 - Less library dependencies
-- Single instance (Middlewares and compoments, controller) 
+- Single instance (Middlewares and compoments, controller)
 
 ### Ease of development
 
@@ -34,10 +34,12 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 
 ## Requirements
 
-- Java8
+- Java8 or higher
 - Java EE 7 Specification
 
 ## Middleware
+
+`Middleware` is an implementation of filters and chains.
 
 - Service Unavailable
 - Session
@@ -45,12 +47,14 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 - Cookie
 - Parsing parameters
 - Trace log
-- Populating form (kotowari) 
+- Populating form (kotowari)
 - JSR-303 Validation (kotowari)
 - Routing like Rails (kotowari)
 - Injecting components to a controller (kotowari)
 
 ## Components
+
+In Enkan, `component` is an object manages lifecycle of stateful objects.
 
 - HikariCP
 - Flyway
@@ -266,7 +270,7 @@ Routes routes = Routes.define(r -> {
 kotowari-archetype is very useful at starting point.
 
 ```sh
-% bash <(curl -L https://raw.githubusercontent.com/kawasima/kotowari-archetype/master/kotowari.sh) 
+% bash <(curl -L https://raw.githubusercontent.com/kawasima/kotowari-archetype/master/kotowari.sh)
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100  2051  100  2051    0     0   5962      0 --:--:-- --:--:-- --:--:--  5944

@@ -159,7 +159,7 @@ public class JShellRepl implements Repl {
      * {@inheritDoc}
      */
     @Override
-    public Future<?> getBackgorundTask(String name) {
+    public Future<?> getBackground(String name) {
         return null;
     }
 

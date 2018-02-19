@@ -21,7 +21,7 @@ public class AutoResetCommand implements SystemCommand {
 
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
-        if (repl.getBackgorundTask("classWatcher") != null) {
+        if (repl.getBackground("classWatcher") != null) {
             transport.sendOut("Autoreset is already running.");
             return true;
         }

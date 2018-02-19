@@ -150,7 +150,7 @@ public class PseudoRepl implements Repl {
     }
 
     @Override
-    public Future<?> getBackgorundTask(String name) {
+    public Future<?> getBackground(String name) {
         Future<?> f = backgroundTasks.get(name);
         if (f == null) return null;
 
