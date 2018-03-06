@@ -1,5 +1,6 @@
 package enkan.system.repl;
 
+import enkan.Env;
 import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.system.EnkanSystem;
@@ -177,7 +178,13 @@ public class JShellRepl implements Repl {
              ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
              ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER)) {
 
-            int port = server.bindToRandomPort("tcp://localhost");
+            int port = Env.getInt("repl.port", 0);
+            String host = Env.getString("repl.host", "localhost");
+            if (port == 0) {
+                port = server.bindToRandomPort("tcp://" + host);
+            } else {
+                server.bind("tcp://" + host + ":" + port);
+            }
             ioProxy.start();
             LOG.info("Listen " + port);
             replPort.complete(port);
