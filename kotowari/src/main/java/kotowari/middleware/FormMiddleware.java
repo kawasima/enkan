@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -52,7 +53,9 @@ public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
             Object body = bodyDeserializable.getDeserializedBody();
             try {
                 if (body == null) {
-                    bodyDeserializable.setDeserializedBody(beans.createFrom(request.getParams(), type));
+                    if (!Collection.class.isAssignableFrom(type) && !type.isArray()) {
+                        bodyDeserializable.setDeserializedBody(beans.createFrom(request.getParams(), type));
+                    }
                 } else {
                     beans.copy(request.getParams(), body, BeansConverter.CopyOption.REPLACE_NON_NULL);
                     bodyDeserializable.setDeserializedBody(body);

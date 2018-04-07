@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -37,6 +37,8 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
 
     @Inject
     private TemplateEngine templateEngine;
+
+    private ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
 
     public RoutingMiddleware(Routes routes) {
         this.routes = routes;
@@ -55,13 +57,15 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
         if (routing.containsKey("controller")) {
             controllerClass = (Class<?>) routing.get("controller");
             String action = routing.getString("action");
-            Optional<Method> actionMethod = Arrays.stream(controllerClass.getDeclaredMethods())
+
+            Method actionMethod = methodCache.computeIfAbsent(controllerClass.getName() + "#" + action, key -> Arrays.stream(controllerClass.getDeclaredMethods())
                     .filter(m -> m.getName().equals(action))
                     .filter(m -> Modifier.isPublic(m.getModifiers()))
-                    .findAny();
+                    .findAny()
+                    .orElse(null));
 
-            if (actionMethod.isPresent()) {
-                ((Routable) request).setControllerMethod(actionMethod.get());
+            if (actionMethod != null) {
+                ((Routable) request).setControllerMethod(actionMethod);
             } else {
                 HttpResponse response =  HttpResponse.of("NotFound");
                 response.setStatus(404);

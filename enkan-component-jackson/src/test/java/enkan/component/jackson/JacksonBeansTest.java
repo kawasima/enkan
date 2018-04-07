@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import enkan.component.BeansConverter;
 import enkan.system.EnkanSystem;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -132,20 +131,105 @@ public class JacksonBeansTest {
         assertThat(dest.getName()).isNull();
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class TestBean {
-        String name;
-        @NonNull
-        String age;
-        @NonNull
-        String address;
+    @Test
+    public void createFromIllegalArgument() {
+        BeansConverter beansConverter = system.getComponent("beans");
+        Person person = new Person();
+        person.name = "GGG";
+        person.age = 10;
+
+        assertThatThrownBy(() -> beansConverter.createFrom(person, null))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(person, String.class))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(person, ArrayList.class))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(person, BigDecimal.class))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(person, Object[].class))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Data
-    public static class Person {
+    public static class TestBean implements Serializable {
+        String name;
+        String age;
+        String address;
+
+        @java.beans.ConstructorProperties({"name", "age", "address"})
+        public TestBean(String name, String age, String address) {
+            this.name = name;
+            this.age = age;
+            this.address = address;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getAge() {
+            return this.age;
+        }
+
+        public String getAddress() {
+            return this.address;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setAge(String age) {
+            this.age = age;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+
+        public String toString() {
+            return "JacksonBeansTest.TestBean(name=" + this.getName() + ", age=" + this.getAge() + ", address=" + this.getAddress() + ")";
+        }
+    }
+
+    public static class Person implements Serializable {
         String name;
         int age;
         List<String> telNumbers;
+
+        public Person() {
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public int getAge() {
+            return this.age;
+        }
+
+        public List<String> getTelNumbers() {
+            return this.telNumbers;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+
+        public void setTelNumbers(List<String> telNumbers) {
+            this.telNumbers = telNumbers;
+        }
+
+        public String toString() {
+            return "JacksonBeansTest.Person(name=" + this.getName() + ", age=" + this.getAge() + ", telNumbers=" + this.getTelNumbers() + ")";
+        }
     }
 }

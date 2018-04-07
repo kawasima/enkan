@@ -10,6 +10,7 @@ import enkan.component.ComponentLifecycle;
 import enkan.exception.MisconfigurationException;
 
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * @author kawasima
@@ -44,6 +45,14 @@ public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansCo
 
     @Override
     public <S> S createFrom(Object source, Class<S> destinationClass) {
+        if (destinationClass == null)
+            throw new IllegalArgumentException("destinationClass is null");
+
+        if (Collection.class.isAssignableFrom(destinationClass)
+                || Number.class.isAssignableFrom(destinationClass)
+                || destinationClass.equals(String.class)) {
+            throw new IllegalArgumentException("destinationClass cannot be mapped to JSON object class");
+        }
         return mapper.convertValue(source, destinationClass);
     }
 

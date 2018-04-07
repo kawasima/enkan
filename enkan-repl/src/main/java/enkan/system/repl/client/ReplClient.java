@@ -56,6 +56,8 @@ public class ReplClient implements AutoCloseable {
             socket = ctx.createSocket(ZMQ.DEALER);
             socket.connect("tcp://" + host + ":" + port);
             socket.send("/completer");
+            socket.monitor("inproc://socket.monitor", ZMQ.EVENT_DISCONNECTED);
+
             ZMsg completerMsg = ZMsg.recvMsg(socket);
             ReplResponse completerRes = fressian.read(completerMsg.pop().getData(), ReplResponse.class);
             String completerPort = completerRes.getOut();
@@ -96,6 +98,12 @@ public class ReplClient implements AutoCloseable {
                         e.printStackTrace();
                     }
                 }
+            });
+
+            ZMQ.Socket monitorSocket = ctx.createSocket(ZMQ.PAIR);
+            ZThread.fork(ctx, (args, c, pipe) -> {
+                ZMQ.Event event = ZMQ.Event.recv(monitorSocket);
+                close();
             });
         }
 

@@ -3,9 +3,6 @@ package enkan.predicate;
 import enkan.data.Extendable;
 import enkan.data.PrincipalAvailable;
 import enkan.security.UserPrincipal;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -16,7 +13,6 @@ import static org.assertj.core.api.Assertions.*;
  * @author kawasima
  */
 public class PermissionPredicateTest {
-    @Data
     static class PrincipalRequest implements PrincipalAvailable, Extendable {
         private Map<String, Object> extensions = new HashMap<>();
 
@@ -32,17 +28,39 @@ public class PermissionPredicateTest {
         }
     }
 
-    @Data
-    @RequiredArgsConstructor
     static class TestUser implements UserPrincipal {
-        @NonNull
         private String name;
-        @NonNull
         private Set<String> permissions;
+
+        @java.beans.ConstructorProperties({"name", "permissions"})
+        public TestUser(String name, Set<String> permissions) {
+            this.name = name;
+            this.permissions = permissions;
+        }
 
         @Override
         public boolean hasPermission(String permission) {
             return permissions.contains(permission);
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public Set<String> getPermissions() {
+            return this.permissions;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setPermissions(Set<String> permissions) {
+            this.permissions = permissions;
+        }
+
+        public String toString() {
+            return "PermissionPredicateTest.TestUser(name=" + this.getName() + ", permissions=" + this.getPermissions() + ")";
         }
     }
 

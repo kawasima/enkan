@@ -58,6 +58,7 @@ public class JShellIoProxy {
                 try {
                     String line = outReader.readLine();
                     if (Objects.equals(SystemIoTransport.CHUNK_DELIMITER, line)) {
+                        Thread.sleep(200);
                         transports.values()
                                 .forEach(t -> t.sendOut(""));
                     } else {
@@ -67,6 +68,8 @@ public class JShellIoProxy {
                 } catch (IOException e) {
                     transports.values()
                             .forEach(t-> t.sendErr(e.getMessage()));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -75,9 +78,6 @@ public class JShellIoProxy {
             while(!Thread.currentThread().isInterrupted()) {
                 try {
                     final ReplResponse response = ReplResponse.withErr(errReader.readLine());
-                    if (!errReader.ready()) {
-                        response.done();
-                    }
                     transports.values()
                             .forEach(t -> t.send(response));
                 } catch (IOException e) {

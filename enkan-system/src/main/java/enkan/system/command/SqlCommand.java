@@ -5,15 +5,12 @@ import enkan.system.EnkanSystem;
 import enkan.system.ReplResponse;
 import enkan.system.SystemCommand;
 import enkan.system.Transport;
-import lombok.Value;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
 public class SqlCommand implements SystemCommand {
     private static final Set<String> DML_KEYWORDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -34,13 +31,13 @@ public class SqlCommand implements SystemCommand {
         boolean isDML = Arrays.stream(args).anyMatch(DML_KEYWORDS::contains);
         List<DataSourceComponent> components = system.getComponents(DataSourceComponent.class);
         if (components.isEmpty()) {
-            transport.sendErr("Not found DataSource", DONE);
+            transport.sendErr("Not found DataSource");
             return true;
         }
         DataSourceComponent dataSourceComponent = components.get(0);
         DataSource ds = dataSourceComponent.getDataSource();
         if (ds == null) {
-            transport.sendErr("DataSourceComponent is not started", DONE);
+            transport.sendErr("DataSourceComponent is not started");
             return true;
         }
 
@@ -85,14 +82,51 @@ public class SqlCommand implements SystemCommand {
                 }
             }
         } catch (SQLException e) {
-            transport.sendErr(e.getLocalizedMessage(), DONE);
+            transport.sendErr(e.getLocalizedMessage());
         }
         return true;
     }
 
-    @Value
     private static class ColumnMeta implements Serializable {
         private String name;
         private int dispSize;
+
+        @java.beans.ConstructorProperties({"name", "dispSize"})
+        public ColumnMeta(String name, int dispSize) {
+            this.name = name;
+            this.dispSize = dispSize;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public int getDispSize() {
+            return this.dispSize;
+        }
+
+        public boolean equals(Object o) {
+            if (o == this) return true;
+            if (!(o instanceof ColumnMeta)) return false;
+            final ColumnMeta other = (ColumnMeta) o;
+            final Object this$name = this.getName();
+            final Object other$name = other.getName();
+            if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+            if (this.getDispSize() != other.getDispSize()) return false;
+            return true;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $name = this.getName();
+            result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+            result = result * PRIME + this.getDispSize();
+            return result;
+        }
+
+        public String toString() {
+            return "SqlCommand.ColumnMeta(name=" + this.getName() + ", dispSize=" + this.getDispSize() + ")";
+        }
     }
 }

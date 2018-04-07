@@ -13,7 +13,6 @@ import enkan.system.repl.jshell.JShellIoProxy;
 import enkan.system.repl.jshell.JShellObjectTransferer;
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
@@ -23,6 +22,7 @@ import org.zeromq.ZMsg;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.*;
@@ -229,7 +229,7 @@ public class JShellRepl implements Repl {
                             JShellMessage evalMessage = executeStatement(execStatement.toString());
                             if (!evalMessage.errs.isEmpty()) {
                                 evalMessage.errs.forEach(line -> transport.send(ReplResponse.withErr(line)));
-                                transport.sendOut("");
+                                transport.sendErr("", DONE);
                             }
                         } catch (Throwable ex) {
                             StringWriter traceWriter = new StringWriter();
@@ -263,9 +263,16 @@ public class JShellRepl implements Repl {
 
     }
 
-    @Data
-    private static class JShellMessage {
-        private List<String> outs = new ArrayList<>();
-        private List<String> errs = new ArrayList<>();
+    private static class JShellMessage implements Serializable {
+        private final List<String> outs = new ArrayList<>();
+        private final List<String> errs = new ArrayList<>();
+
+        public List<String> getOuts() {
+            return outs;
+        }
+
+        public List<String> getErrs() {
+            return errs;
+        }
     }
 }

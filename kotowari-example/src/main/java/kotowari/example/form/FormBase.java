@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public class FormBase implements Validatable, Serializable {
     private Map<String, Object> extensions = new HashMap<>();
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getExtension(String name) {
         return (T) extensions.get(name);
