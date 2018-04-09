@@ -87,10 +87,8 @@ public class JShellRepl implements Repl {
                     .err(ioProxy.forJShellErrorStream())
                     .build();
             String cp = System.getProperty("java.class.path");
-            String[] elements = cp.split(File.pathSeparator);
-            for (String path : elements) {
-                jshell.addToClasspath(path);
-            }
+            jshell.addToClasspath(cp);
+            
             executeStatement("import java.util.*");
             executeStatement("import enkan.system.*");
             executeStatement("import enkan.config.EnkanSystemFactory");

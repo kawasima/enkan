@@ -60,6 +60,16 @@ public class EnkanSystem {
         return (T) components.get(name);
     }
 
+    public <T extends SystemComponent> T getComponent(String name, Class<? extends T> componentType) {
+        return components.entrySet()
+                .stream()
+                .filter(e -> e.getKey().equals(name))
+                .map(Map.Entry::getValue)
+                .filter(componentType::isInstance)
+                .map(componentType::cast)
+                .findAny()
+                .orElse(null);
+    }
     /**
      * Get a components by the type.
      *
