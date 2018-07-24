@@ -5,10 +5,7 @@ import enkan.MiddlewareChain;
 import enkan.collection.Headers;
 import enkan.component.BeansConverter;
 import enkan.component.SystemComponent;
-import enkan.data.ContentNegotiable;
-import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
-import enkan.data.Routable;
+import enkan.data.*;
 import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
@@ -156,11 +153,11 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
             return (HttpResponse) response;
         } else {
             MediaType responseType = ContentNegotiable.class.cast(request).getMediaType();
-            InputStream in = serialize(response, responseType);
+            InputStream in = serialize(extractBody(response), responseType);
             if (in != null) {
                 return builder(HttpResponse.of(in))
-                        .set(HttpResponse::setHeaders,
-                                Headers.of("Content-Type", CodecUtils.printMediaType(responseType)))
+                        .set(HttpResponse::setHeaders, extractHeaders(response, responseType))
+                        .set(HttpResponse::setStatus, extractStatus(response))
                         .build();
             } else {
                 return builder(HttpResponse.of("Not acceptable"))
@@ -180,5 +177,32 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     public void setParameterInjectors(List<ParameterInjector<?>> parameterInjectors) {
         this.parameterInjectors = parameterInjectors;
+    }
+
+    private Object extractBody(NRES response) {
+        if (response instanceof HasBody) {
+            return HasBody.class.cast(response).getBody();
+        } else {
+            return response;
+        }
+    }
+
+    private Headers extractHeaders(NRES response, MediaType responseType) {
+        Headers headers;
+        if (response instanceof HasHeaders) {
+            headers = HasHeaders.class.cast(response).getHeaders();
+        } else {
+            headers = Headers.empty();
+        }
+        headers.put("Content-Type", CodecUtils.printMediaType(responseType));
+        return headers;
+    }
+
+    private int extractStatus(NRES response) {
+        if (response instanceof HasStatus) {
+            return HasStatus.class.cast(response).getStatus();
+        } else {
+            return 200;
+        }
     }
 }

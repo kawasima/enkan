@@ -34,6 +34,10 @@ public class RoutePatterns {
         return cond;
     }
 
+    public RoutingCondition all(String path) {
+        return httpMethodCondition(null, path);
+    }
+
     public RoutingCondition get(String path) {
         return httpMethodCondition("GET", path);
     }

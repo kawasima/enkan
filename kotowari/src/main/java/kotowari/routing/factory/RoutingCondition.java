@@ -79,7 +79,10 @@ public class RoutingCondition {
      * @return a routing definition
      */
     public Route to(Class<?> controllerClass, String controllerMethod) {
-        OptionMap conditions = OptionMap.of("method", method);
+        OptionMap conditions = OptionMap.empty();
+        if (method != null) {
+            conditions.put("method", method);
+        }
         if (!consumes.isEmpty()) {
             conditions.put("consumes", consumes);
         }

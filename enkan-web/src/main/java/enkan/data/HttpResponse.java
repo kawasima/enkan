@@ -11,7 +11,8 @@ import java.io.InputStream;
  *
  * @author kawasima
  */
-public interface HttpResponse extends SessionAvailable, FlashAvailable, Traceable, ConversationAvailable {
+public interface HttpResponse extends HasBody, HasStatus, HasHeaders,
+        SessionAvailable, FlashAvailable, Traceable, ConversationAvailable {
     /**
      * Creates HttpResponse with the given String body.
      *
@@ -51,22 +52,6 @@ public interface HttpResponse extends SessionAvailable, FlashAvailable, Traceabl
         return response;
     }
 
-    /**
-     * Returns a HTTP status code.
-     *
-     * @return the current status code of this response
-     */
-    int getStatus();
-
-    /**
-     * Sets a HTTP status code.
-     *
-     * @param status a status code.
-     */
-    void setStatus(int status);
-
-    Headers getHeaders();
-    void setHeaders(Headers headers);
 
     Multimap<String, Cookie> getCookies();
     void setCookies(Multimap<String, Cookie> cookies);
@@ -89,15 +74,7 @@ public interface HttpResponse extends SessionAvailable, FlashAvailable, Traceabl
      */
     InputStream getBodyAsStream();
 
-    /**
-     * Returns raw body.
-     *
-     * @return the raw body of this response
-     */
-    Object getBody();
-
     void setBody(String body);
     void setBody(InputStream body);
     void setBody(File body);
-
 }
