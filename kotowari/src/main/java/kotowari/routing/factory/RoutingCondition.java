@@ -73,6 +73,13 @@ public class RoutingCondition {
 
     /**
      * Generate a routing definition from the given condition and destination
+     */
+    public Route to(Class<?> controllerClass) {
+        return to(controllerClass, null);
+    }
+
+    /**
+     * Generate a routing definition from the given condition and destination
      *
      * @param controllerClass  The controller of destination
      * @param controllerMethod The method of destination

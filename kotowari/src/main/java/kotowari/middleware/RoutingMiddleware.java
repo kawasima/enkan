@@ -56,18 +56,21 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
         OptionMap routing = recognizePath(request);
         if (routing.containsKey("controller")) {
             controllerClass = (Class<?>) routing.get("controller");
+            if (controllerClass != null) {
+                ((Routable) request).setControllerClass(controllerClass);
+            }
+
             String action = routing.getString("action");
-
-            Method actionMethod = methodCache.computeIfAbsent(controllerClass.getName() + "#" + action, key -> Arrays.stream(controllerClass.getDeclaredMethods())
-                    .filter(m -> m.getName().equals(action))
-                    .filter(m -> Modifier.isPublic(m.getModifiers()))
-                    .findAny()
-                    .orElse(null));
-
-            if (actionMethod != null) {
+            if (action != null) {
+                Method actionMethod = methodCache.computeIfAbsent(controllerClass.getName() + "#" + action, key -> Arrays.stream(controllerClass.getMethods())
+                        .filter(m -> m.getName().equals(action))
+                        .findAny()
+                        .orElse(null));
                 ((Routable) request).setControllerMethod(actionMethod);
-            } else {
-                HttpResponse response =  HttpResponse.of("NotFound");
+            }
+
+            if (controllerClass == null || (action != null && Routable.class.cast(request).getControllerMethod() == null)) {
+                HttpResponse response = HttpResponse.of("NotFound");
                 response.setStatus(404);
                 return response;
             }
