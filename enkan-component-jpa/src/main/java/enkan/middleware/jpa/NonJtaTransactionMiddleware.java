@@ -41,7 +41,11 @@ public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<R
                 em.getTransaction().begin();
                 try {
                     RES ret = chain.next(req);
-                    em.getTransaction().commit();
+                    if (em.getTransaction().getRollbackOnly()) {
+                        em.getTransaction().rollback();
+                    } else {
+                        em.getTransaction().commit();
+                    }
                     return ret;
                 } catch (Throwable t) {
                     if (em.getTransaction().isActive()) {
