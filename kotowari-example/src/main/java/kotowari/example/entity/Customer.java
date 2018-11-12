@@ -86,7 +86,7 @@ public class Customer implements Serializable {
         if (o == this) return true;
         if (!(o instanceof Customer)) return false;
         final Customer other = (Customer) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$id = this.getId();
         final Object other$id = other.getId();
         if (this$id == null ? other$id != null : !this$id.equals(other$id)) return false;

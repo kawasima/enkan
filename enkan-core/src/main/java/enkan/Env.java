@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -42,7 +43,7 @@ public class Env {
         Properties properties = new Properties();
         URL url = Thread.currentThread().getContextClassLoader().getResource("env.properties");
         if (url != null) {
-            try (Reader reader=new InputStreamReader(url.openStream(), "UTF-8")) {
+            try (Reader reader=new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
                 properties.load(reader);
                 properties.stringPropertyNames()
                         .stream()

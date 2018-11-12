@@ -21,7 +21,6 @@ import kotowari.routing.UrlRewriter;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

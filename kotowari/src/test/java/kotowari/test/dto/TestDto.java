@@ -29,7 +29,7 @@ public class TestDto implements Serializable {
         if (o == this) return true;
         if (!(o instanceof TestDto)) return false;
         final TestDto other = (TestDto) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         if (this.getA() != other.getA()) return false;
         final Object this$b = this.getB();
         final Object other$b = other.getB();

@@ -72,7 +72,7 @@ public class S2BeanConverterTest {
             if (o == this) return true;
             if (!(o instanceof Foo)) return false;
             final Foo other = (Foo) o;
-            if (!other.canEqual((Object) this)) return false;
+            if (!other.canEqual(this)) return false;
             if (this.getA() != other.getA()) return false;
             if (this.getB() != other.getB()) return false;
             if (this.getC() != other.getC()) return false;

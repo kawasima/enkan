@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
@@ -58,7 +59,7 @@ public class ToStringBodyWriter implements MessageBodyWriter<Object> {
     @Override
     public void writeTo(Object o, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         StringBodyConverter converter = StringBodyConverter.valueOfOrDefault(mediaType.getSubtype());
-        entityStream.write(converter.convert(o).getBytes("UTF-8"));
+        entityStream.write(converter.convert(o).getBytes(StandardCharsets.UTF_8));
     }
 
     // FIXME It's not efficient. But I don't wanna use commons-lang just for this.

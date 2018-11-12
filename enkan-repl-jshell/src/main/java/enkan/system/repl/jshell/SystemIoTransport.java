@@ -4,10 +4,6 @@ import enkan.system.ReplResponse;
 import enkan.system.Transport;
 import jline.internal.InputStreamReader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 
 public class SystemIoTransport implements Transport {

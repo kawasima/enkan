@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
@@ -23,7 +24,7 @@ public class MergeableResourceBundleControl extends ResourceBundle.Control {
             if (connection != null) {
                 connection.setUseCaches(!reload);
                 try (InputStream stream = connection.getInputStream();
-                     InputStreamReader reader = new InputStreamReader(stream, "UTF-8")) {
+                     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     properties.load(reader);
                 }
             }

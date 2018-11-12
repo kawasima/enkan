@@ -97,10 +97,7 @@ public class TokenBucket {
      */
     public void consume(long numTokens)
     {
-        while (true) {
-            if (tryConsume(numTokens)) {
-                break;
-            }
+        while (!tryConsume(numTokens)) {
 
             sleepStrategy.sleep();
         }

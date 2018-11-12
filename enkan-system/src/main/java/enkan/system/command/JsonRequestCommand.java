@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,7 +73,7 @@ public class JsonRequestCommand implements SystemCommand {
             connection.connect();
             if (!jsonBody.isEmpty()) {
                 try (OutputStream out = connection.getOutputStream()) {
-                    out.write(jsonBody.getBytes("UTF-8"));
+                    out.write(jsonBody.getBytes(StandardCharsets.UTF_8));
                 }
             }
 

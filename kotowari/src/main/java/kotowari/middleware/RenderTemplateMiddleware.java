@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
                 baos.write(buf.array(), 0, read);
                 buf.reset();
             }
-            String body = baos.toString("UTF-8");
+            String body = new String(baos.toByteArray(), StandardCharsets.UTF_8);
             response.setBody(body);
         } catch (IOException ex) {
             throw new FalteringEnvironmentException(ex);

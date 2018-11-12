@@ -78,6 +78,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                         throw new UncheckedIOException(e);
                     }
                 })
+                .filter(Objects::nonNull)
                 .findAny()
                 .orElse(null);
     }
@@ -113,17 +114,20 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         String[] mediaTypeTokens = contentType.split("/", 2);
         if (mediaTypeTokens.length == 2) {
             MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
-            for (Parameter parameter : method.getParameters()) {
-
+            Parameter[] parameters = method != null ? method.getParameters() : new Parameter[0];
+            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            for (Parameter parameter : parameters) {
                 Class<?> type = parameter.getType();
                 Type genericType = parameter.getParameterizedType();
 
                 if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, request)))
                     continue;
 
-                BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
                 Object body = deserialize(request, type, genericType, mediaType);
                 bodyDeserializable.setDeserializedBody(body);
+            }
+            if (bodyDeserializable.getDeserializedBody() == null) {
+                bodyDeserializable.setDeserializedBody(deserialize(request, Map.class, Map.class, mediaType));
             }
         }
     }

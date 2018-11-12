@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static enkan.util.ThreadingUtils.*;
@@ -42,7 +43,7 @@ public class ThreadingUtilsTest {
 
         str = null;
         //noinspection ConstantConditions
-        encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, "UTF-8"));
+        encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, StandardCharsets.UTF_8.name()));
         assertThat(encoded.isPresent()).isFalse();
     }
 }

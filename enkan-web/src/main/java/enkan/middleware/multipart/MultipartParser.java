@@ -119,8 +119,7 @@ public class MultipartParser {
         int readed = in.read(buffer);
         parser.onRead(buffer, readed);
 
-        while (true) {
-            if (parser.state == ParseState.DONE) break;
+        while (parser.state != ParseState.DONE) {
             readed = in.read(buffer, 0, parser.buf.remaining());
             parser.onRead(buffer, readed);
         }
