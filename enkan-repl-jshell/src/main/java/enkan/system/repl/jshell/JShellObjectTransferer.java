@@ -1,5 +1,8 @@
 package enkan.system.repl.jshell;
 
+import java.io.*;
+import java.util.Base64;
+
 public class JShellObjectTransferer {
     private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();

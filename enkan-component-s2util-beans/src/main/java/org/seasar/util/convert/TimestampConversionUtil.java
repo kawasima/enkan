@@ -39,7 +39,8 @@ import static java.text.DateFormat.*;
  * <p>
  * パターンを指定されなかった場合、変換に使用するパターンはロケールに依存して次のようになります。
  * </p>
- * <table border="1" summary="Conversion pattern">
+ * <table>
+ * <caption>変換パターン</caption>
  * <tr>
  * <th>カテゴリ</th>
  * <th>パターン</th>

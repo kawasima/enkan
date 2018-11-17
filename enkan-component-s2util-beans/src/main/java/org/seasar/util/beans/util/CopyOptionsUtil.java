@@ -112,7 +112,8 @@ public abstract class CopyOptionsUtil {
      * 例えばJavaBeans側のデリミタにアンダースコア、{@link Map}側のデリミタにピリオドを指定した場合、
      * コピー元とコピー先のプリパティ名は次のようになります。
      * </p>
-     * <table border="1" summary="The property name of JavaBeans">
+     * <table>
+     * <caption>変換パターン</caption>
      * <tr>
      * <th>JavaBeansのプロパティ名</th>
      * <th>{@literal Map}のプロパティ名</th>
@@ -147,7 +148,8 @@ public abstract class CopyOptionsUtil {
      * 例えばJavaBeans側のデリミタにアンダースコア、{@link Map}側のデリミタにピリオドを指定した場合、
      * コピー元とコピー先のプリパティ名は次のようになります。
      * </p>
-     * <table border="1" summary="The property name of JavaBeans">
+     * <table>
+     * <caption>変換パターン</caption>
      * <tr>
      * <th>JavaBeansのプロパティ名</th>
      * <th>{@literal Map}のプロパティ名</th>
