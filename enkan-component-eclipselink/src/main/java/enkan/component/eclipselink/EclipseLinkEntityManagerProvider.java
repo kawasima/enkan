@@ -10,6 +10,7 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +51,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
                 pu.setManagedClassNames(managedClassNames);
                 pu.setExcludeUnlistedClasses(false);
                 getJpaProperties().put(PersistenceUnitProperties.ECLIPSELINK_SE_PUINFO, pu);
+                getJpaProperties().put(PersistenceUnitProperties.SESSION_NAME, UUID.randomUUID().toString());
                 component.setEntityManagerFactory(Persistence
                         .createEntityManagerFactory(getName(), getJpaProperties()));
             }
