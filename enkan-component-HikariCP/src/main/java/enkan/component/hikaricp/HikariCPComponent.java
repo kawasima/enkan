@@ -50,6 +50,7 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
 
             @Override
             public void stop(HikariCPComponent component) {
+                component.dataSource.close();
                 component.dataSource = null;
             }
         };
