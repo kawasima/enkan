@@ -2,7 +2,7 @@ package enkan.middleware.jpa;
 
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
-import enkan.component.eclipselink.EntityManagerProvider;
+import enkan.component.jpa.EntityManagerProvider;
 import enkan.data.jpa.EntityManageable;
 import enkan.util.MixinUtils;
 

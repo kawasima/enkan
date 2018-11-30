@@ -1,4 +1,4 @@
-package enkan.component.eclipselink;
+package enkan.component.jpa;
 
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;

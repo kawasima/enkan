@@ -2,6 +2,7 @@ package enkan.component.eclipselink;
 
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
+import enkan.component.jpa.EntityManagerProvider;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
 

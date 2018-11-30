@@ -3,6 +3,7 @@ package enkan.component.eclipselink;
 import enkan.collection.OptionMap;
 import enkan.component.DataSourceComponent;
 import enkan.component.hikaricp.HikariCPComponent;
+import enkan.component.jpa.EntityManagerProvider;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.Test;
 
