@@ -24,6 +24,8 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
     /** Managed classes */
     private List<Class<?>> managedClasses = new ArrayList<>();
 
+    private String sqlLogLevel = "FINE";
+
     /**
      * {@inheritDoc}
      */
@@ -53,6 +55,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
                 pu.setExcludeUnlistedClasses(false);
                 getJpaProperties().put(PersistenceUnitProperties.ECLIPSELINK_SE_PUINFO, pu);
                 getJpaProperties().put(PersistenceUnitProperties.SESSION_NAME, UUID.randomUUID().toString());
+                getJpaProperties().put(PersistenceUnitProperties.LOGGING_LEVEL + ".sql", sqlLogLevel);
                 component.setEntityManagerFactory(Persistence
                         .createEntityManagerFactory(getName(), getJpaProperties()));
             }
@@ -66,5 +69,9 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
 
     public void registerClass(Class<?> managedClass) {
         managedClasses.add(managedClass);
+    }
+
+    public void setSqlLogLevel(String sqllogLevel) {
+        this.sqlLogLevel = sqlLogLevel;
     }
 }

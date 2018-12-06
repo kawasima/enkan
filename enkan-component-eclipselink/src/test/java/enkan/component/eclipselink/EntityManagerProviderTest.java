@@ -7,7 +7,11 @@ import enkan.component.jpa.EntityManagerProvider;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.Test;
 
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -47,7 +51,12 @@ public class EntityManagerProviderTest {
             em.merge(person);
             em.getTransaction().commit();
 
-            Person person2 = em.find(Person.class, 1L);
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Person> query = cb.createQuery(Person.class);
+            Root<Person> personRoot = query.from(Person.class);
+            query.where(cb.equal(personRoot.get("id"), 1L));
+            Person person2 = em.createQuery(query)
+                    .getSingleResult();
             assertThat(person2).extracting("id", "name")
                     .containsExactly(1L, "hoho");
         } finally {
