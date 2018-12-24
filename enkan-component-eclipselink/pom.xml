@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.6.0</version>
+        <version>0.7.0-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -66,14 +66,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.3.1</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-surefire-provider -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.3.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -96,7 +88,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.7.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -108,7 +99,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.196</version>
+            <version>1.4.197</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

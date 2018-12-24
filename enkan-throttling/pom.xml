@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.6.0</version>
+        <version>0.7.0-SNAPSHOT</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.1</version>
+            <version>1.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -59,7 +59,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.7.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>

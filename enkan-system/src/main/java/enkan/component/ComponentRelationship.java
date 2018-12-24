@@ -39,7 +39,8 @@ public class ComponentRelationship {
     }
 
     public void inject(Map<String, SystemComponent> components) {
-        SystemComponent targetComponent = components.get(target);
+        SystemComponent targetComponent = Optional.ofNullable(components.get(target))
+                .orElseThrow(() -> new MisconfigurationException("core.COMPONENT_NOT_FOUND", target, target));
 
         Map<String, SystemComponent> dependencies = new HashMap<>();
         for (String key : dependents) {

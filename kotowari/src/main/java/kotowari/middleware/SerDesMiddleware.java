@@ -127,7 +127,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 bodyDeserializable.setDeserializedBody(body);
             }
             if (bodyDeserializable.getDeserializedBody() == null) {
-                bodyDeserializable.setDeserializedBody(deserialize(request, Map.class, Map.class, mediaType));
+                bodyDeserializable.setDeserializedBody(deserialize(request, Object.class, Object.class, mediaType));
             }
         }
     }

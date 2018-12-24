@@ -74,6 +74,24 @@ public class SerDesMiddlewareTest {
     }
 
     @Test
+    public void deserializeUnknownListOrMap() {
+        SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
+                .set(SerDesMiddleware::setBodyReaders, jsonProvider)
+                .set(SerDesMiddleware::setBodyWriters, jsonProvider)
+                .build();
+
+        String body = "[{\"a\":1, \"b\":\"ccb\"}, {\"a\":2, \"b\":\"ooo\"}]";
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Content-Type", "application/json"))
+                .set(HttpRequest::setBody, new ByteArrayInputStream(body.getBytes()))
+                .build();
+
+        Object testDto = middleware.deserialize(request, Object.class, Object.class, new MediaType("application", "json"));
+        assertThat(testDto).isInstanceOf(List.class);
+        assertThat(testDto).asList().size().isEqualTo(2);
+    }
+
+    @Test
     public void controller() throws IOException {
         SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)

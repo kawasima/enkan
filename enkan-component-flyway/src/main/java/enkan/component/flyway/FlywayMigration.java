@@ -26,14 +26,12 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
     }
 
     private boolean isMigrationAvailable() {
-        return Arrays.stream(flyway.getLocations())
+        return Arrays.stream(flyway.getConfiguration().getLocations())
                 .anyMatch(l-> {
-                    if (l.startsWith("classpath:")) {
-                        String path = l.substring("classpath:".length());
-                        return Thread.currentThread().getContextClassLoader().getResource(path) != null;
-                    } else if (l.startsWith("filesystem:")){
-                        String path = l.substring("filesystem:".length());
-                        return Files.exists(Paths.get(path));
+                    if (l.isClassPath()) {
+                        return Thread.currentThread().getContextClassLoader().getResource(l.getPath()) != null;
+                    } else if (l.isFileSystem()){
+                        return Files.exists(Paths.get(l.getPath()));
                     } else throw new UnreachableException();
                 });
     }

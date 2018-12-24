@@ -84,6 +84,8 @@ public class FlywayMigrationTest {
         system.relationships(component("flyway").using("datasource"));
 
         system.start();
+        dataSourceComponent = system.getComponent("datasource");
+        ds = dataSourceComponent.getDataSource();
         try(Connection conn = ds.getConnection();
             ResultSet rs = conn.getMetaData().getTables(null, null, "BELONGS", null)) {
             assertThat(rs.next()).isTrue();
