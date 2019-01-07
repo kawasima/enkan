@@ -12,6 +12,8 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,8 @@ import java.util.function.BiFunction;
  * @author kawasima
  */
 public class JettyAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(JettyAdapter.class);
+
     private static class ProxyHandler extends AbstractHandler {
         private WebApplication application;
         ProxyHandler(WebApplication application) {
@@ -32,9 +36,18 @@ public class JettyAdapter {
 
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            if (baseRequest.isHandled())
+                return;
             HttpRequest httpRequest = ServletUtils.buildRequest(request);
-            HttpResponse httpResponse = application.handle(httpRequest);
-            ServletUtils.updateServletResponse(response, httpResponse);
+            try {
+                HttpResponse httpResponse = application.handle(httpRequest);
+                ServletUtils.updateServletResponse(response, httpResponse);
+            } catch (Exception e) {
+                LOG.error("Unhandled exception", e);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            } finally {
+                baseRequest.setHandled(true);
+            }
         }
     }
 
