@@ -3,6 +3,7 @@ package kotowari.middleware;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.collection.Headers;
+import enkan.collection.Parameters;
 import enkan.component.BeansConverter;
 import enkan.component.SystemComponent;
 import enkan.data.*;
@@ -28,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static enkan.util.BeanBuilder.builder;
+import static enkan.util.ThreadingUtils.some;
 
 /**
  * Serialize a java object to response body and deserialize  a response body
@@ -66,21 +68,25 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> T deserialize(HttpRequest request, Class<T> type, Type genericType, MediaType mediaType) {
-        MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-        return bodyReaders.stream()
-                .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
-                .map(reader -> {
-                    try {
-                        return (T) MessageBodyReader.class.cast(reader)
-                                .readFrom(type, genericType, null, mediaType, headers, request.getBody());
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                })
-                .filter(Objects::nonNull)
-                .findAny()
-                .orElse(null);
+    protected <T> T deserialize(HttpRequest request, Class<T> type, Type genericType, MediaType mediaType) throws IOException {
+        try {
+            MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+            return bodyReaders.stream()
+                    .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
+                    .map(reader -> {
+                        try {
+                            return (T) MessageBodyReader.class.cast(reader)
+                                    .readFrom(type, genericType, null, mediaType, headers, request.getBody());
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .findAny()
+                    .orElse(null);
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -107,7 +113,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 .orElse(null);
     }
 
-    private void deserializeBody(Method method, HttpRequest request) {
+    private void deserializeBody(Method method, HttpRequest request) throws IOException {
         String contentType = HttpRequestUtils.contentType(request);
         if (contentType == null) return;
 
@@ -131,14 +137,14 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
             }
         }
     }
-    @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+
+    public void handleRequest(HttpRequest request) throws IOException {
         Method method = ((Routable) request).getControllerMethod();
-        request = MixinUtils.mixin(request, BodyDeserializable.class);
         if (HttpRequestUtils.isUrlEncodedForm(request)) {
             BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
             if (bodyDeserializable.getDeserializedBody() == null) {
-                for (Parameter parameter : method.getParameters()) {
+                Parameter[] parameters = some(method, Method::getParameters).orElse(new Parameter[0]);
+                for (Parameter parameter : parameters) {
                     Class<?> type = parameter.getType();
                     final HttpRequest req = request;
                     if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
@@ -151,12 +157,26 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         } else {
             deserializeBody(method, request);
         }
+    }
+
+    @Override
+    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+        request = MixinUtils.mixin(request, BodyDeserializable.class);
+        MediaType responseType = ((ContentNegotiable) request).getMediaType();
+        try {
+            handleRequest(request);
+        } catch (IOException e) {
+            return builder(HttpResponse.of(serialize(Parameters.of("title",
+                    "bad request format"), responseType)))
+                    .set(HttpResponse::setStatus, 400)
+                    .build();
+        }
 
         NRES response = chain.next(request);
-        if (HttpResponse.class.isInstance(response)) {
+
+        if (response instanceof HttpResponse) {
             return (HttpResponse) response;
         } else {
-            MediaType responseType = ContentNegotiable.class.cast(request).getMediaType();
             InputStream in = serialize(extractBody(response), responseType);
             if (in != null) {
                 return builder(HttpResponse.of(in))

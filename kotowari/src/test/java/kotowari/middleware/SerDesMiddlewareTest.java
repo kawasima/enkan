@@ -34,7 +34,7 @@ public class SerDesMiddlewareTest {
     final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
@@ -52,7 +52,7 @@ public class SerDesMiddlewareTest {
     }
 
     @Test
-    public void deserializeList() {
+    public void deserializeList() throws IOException {
         SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
@@ -74,7 +74,7 @@ public class SerDesMiddlewareTest {
     }
 
     @Test
-    public void deserializeUnknownListOrMap() {
+    public void deserializeUnknownListOrMap() throws IOException {
         SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .set(SerDesMiddleware::setBodyWriters, jsonProvider)
@@ -103,7 +103,10 @@ public class SerDesMiddlewareTest {
         HttpRequest request = MixinUtils.mixin(builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Content-Type", "application/json"))
                 .set(HttpRequest::setBody, new ByteArrayInputStream(body.getBytes()))
-                .build(), Routable.class, ContentNegotiable.class);
+                .build(),
+                Routable.class,
+                ContentNegotiable.class,
+                BodyDeserializable.class);
         ContentNegotiable.class.cast(request).setMediaType(new MediaType("application", "json"));
         TestController controller = new TestController();
         MiddlewareChain<HttpRequest, Object, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
@@ -148,7 +151,7 @@ public class SerDesMiddlewareTest {
                     .build();
 
             middleware.deserialize(request, TestDto.class, TestDto.class, new MediaType("application", "json"));
-        }).hasCauseInstanceOf(UnrecognizedPropertyException.class);
+        }).isInstanceOf(UnrecognizedPropertyException.class);
     }
 
     static class TestController {
