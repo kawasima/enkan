@@ -48,8 +48,7 @@ public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansCo
         if (destinationClass == null)
             throw new IllegalArgumentException("destinationClass is null");
 
-        if (Collection.class.isAssignableFrom(destinationClass)
-                || Number.class.isAssignableFrom(destinationClass)
+        if (Number.class.isAssignableFrom(destinationClass)
                 || destinationClass.equals(String.class)) {
             throw new IllegalArgumentException("destinationClass cannot be mapped to JSON object class");
         }
