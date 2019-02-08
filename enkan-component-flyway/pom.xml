@@ -12,6 +12,7 @@
 
     <artifactId>enkan-component-flyway</artifactId>
     <packaging>jar</packaging>
+    <version>0.7.1</version>
 
     <name>enkan-component-flyway</name>
 

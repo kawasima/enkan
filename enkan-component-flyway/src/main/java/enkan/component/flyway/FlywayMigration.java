@@ -5,6 +5,7 @@ import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 import enkan.exception.UnreachableException;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 
 import javax.sql.DataSource;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.util.Arrays;
  */
 public class FlywayMigration extends SystemComponent<FlywayMigration> {
     private String[] locations;
+    private boolean cleanBeforeMigration = false;
     private String table = "schema_version";
     private Flyway flyway;
 
@@ -43,17 +45,25 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
             public void start(FlywayMigration component) {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
                 DataSource dataSource = dataSourceComponent.getDataSource();
-                component.flyway = new Flyway(Thread.currentThread().getContextClassLoader());
-                component.flyway.setTable(table);
-                component.flyway.setBaselineOnMigrate(true);
-                component.flyway.setBaselineVersionAsString("0");
-                component.flyway.setDataSource(dataSource);
+                FluentConfiguration configuration = Flyway.configure(Thread.currentThread().getContextClassLoader())
+                        .table(table)
+                        .baselineOnMigrate(true)
+                        .baselineVersion("0")
+                        .dataSource(dataSource);
 
                 if (component.locations != null) {
-                    component.flyway.setLocations(component.locations);
+                    configuration.locations(component.locations);
                 }
 
+                if (component.cleanBeforeMigration) {
+                    configuration.cleanDisabled(false);
+                }
+                component.flyway = configuration.load();
+
                 if (isMigrationAvailable()) {
+                    if (component.cleanBeforeMigration) {
+                        component.flyway.clean();
+                    }
                     component.flyway.migrate();
                 }
             }
@@ -71,5 +81,9 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
 
     public void setTable(String table) {
         this.table = table;
+    }
+
+    public void setCleanBeforeMigration(boolean cleanBeforeMigration) {
+        this.cleanBeforeMigration = cleanBeforeMigration;
     }
 }
