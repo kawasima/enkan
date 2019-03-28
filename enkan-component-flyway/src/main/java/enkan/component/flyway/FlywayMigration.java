@@ -10,7 +10,10 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import javax.sql.DataSource;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * A migration component using by Flyway.
@@ -50,6 +53,14 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
                         .baselineOnMigrate(true)
                         .baselineVersion("0")
                         .dataSource(dataSource);
+
+                // Workaround: https://github.com/flyway/flyway/issues/2182
+                try (Connection conn = dataSource.getConnection()) {
+                    Optional.ofNullable(conn.getSchema())
+                            .ifPresent(configuration::schemas);
+                } catch(SQLException ignore) {
+
+                }
 
                 if (component.locations != null) {
                     configuration.locations(component.locations);
