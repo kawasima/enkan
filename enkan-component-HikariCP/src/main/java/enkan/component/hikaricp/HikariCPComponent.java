@@ -31,6 +31,7 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
         if (options.containsKey("maxPoolSize")) config.setMaximumPoolSize(options.getInt("maxPoolSize"));
         if (options.containsKey("minIdle")) config.setMinimumIdle(options.getInt("minIdle"));
         if (options.containsKey("poolName")) config.setPoolName(options.getString("poolName"));
+        if (options.containsKey("schema")) config.setSchema(options.getString("schema"));
     }
 
     @Override
