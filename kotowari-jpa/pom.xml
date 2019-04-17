@@ -16,10 +16,15 @@
 
     <name>kotowari-jpa</name>
 
+    <properties>
+        <enkan.version>0.8.0</enkan.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-component-jpa</artifactId>
+            <version>${enkan.version}</version>
         </dependency>
          <dependency>
             <groupId>net.unit8.enkan</groupId>
