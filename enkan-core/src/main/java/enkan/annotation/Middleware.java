@@ -11,9 +11,17 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Middleware {
-    /** A name of middleware */
+    /**
+     * A name of middleware.
+     *
+     * @return A name of middleware
+     */
     String name();
 
-    /** Dependencies */
+    /**
+     * Dependencies.
+     *
+     * @return dependencies
+     */
     String[] dependencies() default "";
 }
