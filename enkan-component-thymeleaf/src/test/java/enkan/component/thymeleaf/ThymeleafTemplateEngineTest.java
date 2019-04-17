@@ -10,10 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,6 +38,13 @@ public class ThymeleafTemplateEngineTest {
         } catch (IOException e) {
             fail("IOException occurred");
         }
+    }
+
+    @Test
+    public void test2() {
+        Locale.setDefault(Locale.ENGLISH);
+        HttpResponse response = engine.render("test1", "name", "kawasima", "message", "hello");
+        System.out.println(response.getBodyAsString());
     }
 
     @SuppressWarnings("unchecked")

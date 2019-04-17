@@ -97,7 +97,7 @@ public class DefaultHttpResponse implements HttpResponse {
     @Override
     public String getBodyAsString() {
         if (bodyStream != null) {
-            try(BufferedReader reader = new BufferedReader(new InputStreamReader(bodyStream))) {
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(bodyStream, StandardCharsets.UTF_8))) {
                 return reader.lines().collect(Collectors.joining(System.lineSeparator()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

@@ -12,13 +12,15 @@ import enkan.util.MixinUtils;
  */
 @enkan.annotation.Middleware(name = "trace")
 public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+    private boolean enabled = true;
+
     @Override
     public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
         if (req != null) {
             req = MixinUtils.mixin(req, Traceable.class);
         }
         RES res = chain.next(req);
-        if (req instanceof Traceable){
+        if (enabled && req instanceof Traceable){
             TraceLog log = ((Traceable) req).getTraceLog();
             log.getEntries().stream()
                     .filter(entry -> res instanceof HttpResponse)
@@ -27,5 +29,9 @@ public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES>
         }
 
         return res;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
