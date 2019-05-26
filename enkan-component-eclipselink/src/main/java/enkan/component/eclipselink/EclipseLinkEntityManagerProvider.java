@@ -3,12 +3,17 @@ package enkan.component.eclipselink;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.jpa.EntityManagerProvider;
+import enkan.exception.UnreachableException;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
 import org.eclipse.persistence.logging.slf4j.SLF4JLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Persistence;
 import javax.persistence.spi.PersistenceUnitTransactionType;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +27,7 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<EclipseLinkEntityManagerProvider> {
+    private static final Logger LOG = LoggerFactory.getLogger(EclipseLinkEntityManagerProvider.class);
 
     /** Managed classes */
     private List<Class<?>> managedClasses = new ArrayList<>();
@@ -40,7 +46,14 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
                 SEPersistenceUnitInfo pu = new SEPersistenceUnitInfo();
                 pu.setPersistenceUnitName(getName());
                 pu.setClassLoader(Thread.currentThread().getContextClassLoader());
-                pu.setPersistenceUnitRootUrl(getClass().getResource("/"));
+                URL dummyPersistenceXmlUrl = getClass().getResource("/META-INF/persistence.xml");
+                String s = dummyPersistenceXmlUrl.toExternalForm();
+                URI rootUri = URI.create(s.substring(0, s.length() - "persistence.xml".length()));
+                try {
+                    pu.setPersistenceUnitRootUrl(rootUri.toURL());
+                } catch (MalformedURLException e) {
+                    throw new UnreachableException(e);
+                }
                 pu.setTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
                 pu.setNonJtaDataSource(getDataSource());
                 List<URL> jarFiles = managedClasses.stream()
