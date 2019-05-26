@@ -15,12 +15,14 @@ import zmq.ZError;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static enkan.system.ReplResponse.ResponseStatus.*;
+import static enkan.system.ReplResponse.ResponseStatus.DONE;
+import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
 /**
  * @author kawasima
@@ -30,6 +32,7 @@ public class ReplClient implements AutoCloseable {
     private ConsoleHandler consoleHandler;
 
     private static class ConsoleHandler implements Runnable {
+        private static final String MONITOR_ADDRESS = "inproc://monitor-";
         private ZContext ctx;
         private ZMQ.Socket socket;
         private ZMQ.Socket rendererSock;
@@ -53,16 +56,66 @@ public class ReplClient implements AutoCloseable {
         }
 
         public void connect(String host, int port) throws IOException {
-            socket = ctx.createSocket(ZMQ.DEALER);
-            socket.connect("tcp://" + host + ":" + port);
-            socket.send("/completer");
-            socket.monitor("inproc://socket.monitor", ZMQ.EVENT_DISCONNECTED);
+            String monitorAddress = MONITOR_ADDRESS + UUID.randomUUID();
+            socket = ctx.createSocket(SocketType.DEALER);
+            final AtomicBoolean isSocketClosed = new AtomicBoolean(false);
+            if (!socket.monitor(monitorAddress, ZMQ.EVENT_ALL)) {
+                System.err.println("Monitoring failed");
+            }
 
-            ZMsg completerMsg = ZMsg.recvMsg(socket);
+            final ZMQ.Socket monitorSocket = ctx.createSocket(SocketType.PAIR);
+            monitorSocket.connect(monitorAddress);
+            ZThread.fork(ctx, (args, c, pipe) -> {
+                int retryCnt = 0;
+                boolean active = true;
+                while(active) {
+                    ZMQ.Event event = ZMQ.Event.recv(monitorSocket);
+                    if (event == null || monitorSocket.errno() == ZError.ETERM) {
+                        break;
+                    }
+                    switch (event.getEvent()) {
+                        case ZMQ.EVENT_DISCONNECTED:
+                            close();
+                            active = false;
+                            isSocketClosed.compareAndSet(false, true);
+                            break;
+                        case ZMQ.EVENT_CONNECT_RETRIED:
+                            if (retryCnt++ > 3) {
+                                System.err.println("Connection failed");
+                                active = false;
+                                isSocketClosed.compareAndSet(false, true);
+                            }
+                            break;
+                    }
+                }
+            });
+
+            socket.connect("tcp://" + host + ":" + port);
+            final ZMQ.Poller poller = ctx.createPoller(1);
+            poller.register(socket, ZMQ.Poller.POLLIN);
+            socket.send("/completer");
+
+            ZMsg completerMsg = null;
+            while (!Thread.currentThread().isInterrupted()) {
+                if (isSocketClosed.get()) {
+                    ctx.destroySocket(socket);
+                    socket = null;
+                    ctx.destroySocket(monitorSocket);
+                    poller.close();
+                    return;
+                }
+
+                poller.poll(1000);
+                if (poller.pollin(0)) {
+                     completerMsg = ZMsg.recvMsg(socket, false);
+                     break;
+                }
+            }
+            assert completerMsg != null;
             ReplResponse completerRes = fressian.read(completerMsg.pop().getData(), ReplResponse.class);
             String completerPort = completerRes.getOut();
             if (completerPort != null && completerPort.matches("\\d+")) {
-                completerSock = ctx.createSocket(ZMQ.DEALER);
+                completerSock = ctx.createSocket(SocketType.DEALER);
                 completerSock.connect("tcp://" + host + ":" + Integer.parseInt(completerPort));
                 console.addCompleter(new RemoteCompleter(completerSock));
             }
@@ -73,7 +126,7 @@ public class ReplClient implements AutoCloseable {
             console.flush();
 
             rendererSock = ZThread.fork(ctx, (args, c, pipe) -> {
-                while (true) {
+                while (socket != null) {
                     try {
                         ZMsg msg = ZMsg.recvMsg(this.socket);
                         ReplResponse res = fressian.read(msg.pop().getData(), ReplResponse.class);
@@ -100,11 +153,6 @@ public class ReplClient implements AutoCloseable {
                 }
             });
 
-            ZMQ.Socket monitorSocket = ctx.createSocket(ZMQ.PAIR);
-            ZThread.fork(ctx, (args, c, pipe) -> {
-                ZMQ.Event event = ZMQ.Event.recv(monitorSocket);
-                close();
-            });
         }
 
         @Override
@@ -119,7 +167,7 @@ public class ReplClient implements AutoCloseable {
                         if (arguments.length == 2 && arguments[1].matches("\\d+")) {
                             int port = Integer.parseInt(arguments[1]);
                             connect(port);
-                        } else if (arguments.length > 2 && arguments[2].matches("\\d+")){
+                        } else if (arguments.length > 2 && arguments[2].matches("\\d+")) {
                             String host = arguments[1];
                             int port = Integer.parseInt(arguments[2]);
                             connect(host, port);
@@ -127,7 +175,9 @@ public class ReplClient implements AutoCloseable {
                             console.println("/connect [host] port");
                         }
                     } else if (line.equals("/exit")) {
-                        rendererSock.close();
+                        if (rendererSock != null) {
+                            rendererSock.close();
+                        }
                         close();
                         return;
                     } else {
@@ -143,18 +193,20 @@ public class ReplClient implements AutoCloseable {
                             }
                         }
                     }
+                } catch (ZMQException e) {
+                    if (e.getErrorCode() == ZError.ETERM) {
+                        break;
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-
-
         }
 
         public void close() {
             if (socket != null) {
-                socket.send("/disconnect");
-                socket.close();
+                socket.send("/disconnect", ZMQ.DONTWAIT);
+                ctx.destroySocket(socket);
                 socket = null;
             }
 

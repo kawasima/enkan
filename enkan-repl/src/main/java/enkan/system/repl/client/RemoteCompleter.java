@@ -15,14 +15,15 @@ public class RemoteCompleter implements Completer {
     }
     @Override
     public int complete(String buffer, int cursor, List<CharSequence> candidates) {
-        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         ZMsg msg = new ZMsg();
+        msg.add(""); // delimiter
         msg.add(buffer);
         msg.add(Integer.toString(cursor));
         msg.send(socket);
 
         ZMsg response = ZMsg.recvMsg(socket);
-        while (response != null && !response.isEmpty()) {
+        response.pop(); // delimiter
+        while (!response.isEmpty()) {
             candidates.add(response.popString());
         }
         if (candidates.isEmpty()) return cursor;
