@@ -23,12 +23,14 @@ public class CompletionServer implements Runnable {
         while(!Thread.currentThread().isInterrupted()) {
             ZMsg msg = ZMsg.recvMsg(socket);
             ZFrame clientAddress = msg.pop();
+            msg.pop(); // delimiter
             String input = msg.popString();
             int cursor = Integer.parseInt(msg.popString());
             int[] anchor = {-1};
 
             ZMsg reply = new ZMsg();
             reply.add(clientAddress.duplicate());
+            reply.add("");
 
             String trimmedCommand = input.trim();
             if (trimmedCommand.startsWith("/")) {

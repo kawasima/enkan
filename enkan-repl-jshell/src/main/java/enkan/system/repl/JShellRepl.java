@@ -3,10 +3,7 @@ package enkan.system.repl;
 import enkan.Env;
 import enkan.config.EnkanSystemFactory;
 import enkan.exception.FalteringEnvironmentException;
-import enkan.system.EnkanSystem;
-import enkan.system.Repl;
-import enkan.system.ReplResponse;
-import enkan.system.SystemCommand;
+import enkan.system.*;
 import enkan.system.command.*;
 import enkan.system.repl.jshell.CompletionServer;
 import enkan.system.repl.jshell.JShellIoProxy;
@@ -15,10 +12,7 @@ import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zeromq.ZContext;
-import org.zeromq.ZFrame;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMsg;
+import org.zeromq.*;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -27,7 +21,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static enkan.system.ReplResponse.ResponseStatus.*;
+import static enkan.system.ReplResponse.ResponseStatus.DONE;
+import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
 public class JShellRepl implements Repl {
     private static final Logger LOG = LoggerFactory.getLogger(JShellRepl.class);
@@ -99,7 +94,7 @@ public class JShellRepl implements Repl {
 
             threadPool = Executors.newCachedThreadPool(runnable -> {
                 Thread t = new Thread(runnable);
-                t.setName("enkan-repl-pseudo");
+                t.setName("enkan-repl-jshell");
                 return t;
             });
             registerCommand("start", new StartCommand());
@@ -161,20 +156,38 @@ public class JShellRepl implements Repl {
         return null;
     }
 
-    protected void printHelp() {
-        System.out.println("start - Start system\n" +
-                "stop - Stop system.\n" +
-                "reset - Reset system.\n" +
-                "exit - exit repl.\n"
-        );
+    private void executeCommand(String commandName, String[] args, Transport transport) {
+        try {
+            String argStr = Arrays.stream(args)
+                    .map(arg -> "\"" + arg.replaceAll("\"", "\\\"") + "\"")
+                    .collect(Collectors.joining(","));
+            StringBuilder execStatement = new StringBuilder("__commands.get(\"")
+                    .append(commandName)
+                    .append("\").execute(system, transport");
+            if (!argStr.isEmpty()) {
+                execStatement.append(",").append(argStr);
+            }
+            execStatement.append(")");
+
+            JShellMessage evalMessage = executeStatement(execStatement.toString());
+            if (!evalMessage.errs.isEmpty()) {
+                evalMessage.errs.forEach(line -> transport.send(ReplResponse.withErr(line)));
+                transport.sendErr("", DONE);
+            }
+        } catch (Throwable ex) {
+            StringWriter traceWriter = new StringWriter();
+            ex.printStackTrace(new PrintWriter(traceWriter));
+            transport.sendErr(traceWriter.toString());
+        }
     }
 
     @Override
     public void run() {
-        try (ZContext ctx = new ZContext();
-             ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
-             ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER)) {
+        ZContext ctx = new ZContext();
+        ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
+        ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER);
 
+        try {
             int port = Env.getInt("repl.port", 0);
             String host = Env.getString("repl.host", "localhost");
             if (port == 0) {
@@ -186,6 +199,16 @@ public class JShellRepl implements Repl {
             LOG.info("Listen " + port);
             replPort.complete(port);
 
+            // Completer
+            int completerPort = Env.getInt("completer.port", 0);
+            if (completerPort == 0) {
+                completerPort = completerSock.bindToRandomPort("tcp://" + host);
+            } else {
+                completerSock.bind("tcp://" + host + ":" + completerPort);
+            }
+            threadPool.submit(new CompletionServer(completerSock, jshell.sourceCodeAnalysis(), commandNames));
+            LOG.info("Completer start=tcp://{}:{}", host, completerPort);
+
             while (!Thread.currentThread().isInterrupted()) {
                 ZMsg msg = ZMsg.recvMsg(server);
                 ZFrame clientAddress = msg.pop();
@@ -195,44 +218,23 @@ public class JShellRepl implements Repl {
                 if (cmds[0].startsWith("/")) {
                     String commandName = cmds[0].substring(1);
                     if (commandName.isEmpty()) {
-                        printHelp();
+                        executeCommand("help", new String[0], transport);
                     } else if (Objects.equals("completer", commandName)) {
-                        int completerPort = completerSock.bindToRandomPort("tcp://localhost");
-                        threadPool.submit(new CompletionServer(completerSock, jshell.sourceCodeAnalysis(), commandNames));
                         transport.sendOut(Integer.toString(completerPort));
                     } else if (Objects.equals("shutdown", commandName)) {
                         executeStatement("shutdown.exec(system, transport)");
                         transport.sendOut("shutdown", SHUTDOWN);
+                        ioProxy.stop();
                         break;
                     } else if (Objects.equals("disconnect", commandName)) {
+                        transport.sendOut("disconnected", DONE);
                         ioProxy.unlisten(clientAddress);
                     } else if (localCommands.containsKey(commandName)) {
                         SystemCommand command = localCommands.get(commandName);
                     } else {
                         String[] args = new String[cmds.length - 1];
                         System.arraycopy(cmds, 1, args, 0, cmds.length - 1);
-                        try {
-                            String argStr = Arrays.stream(args)
-                                    .map(arg -> "\"" + arg.replaceAll("\"", "\\\"") + "\"")
-                                    .collect(Collectors.joining(","));
-                            StringBuilder execStatement = new StringBuilder("__commands.get(\"")
-                                    .append(commandName)
-                                    .append("\").execute(system, transport");
-                            if (!argStr.isEmpty()) {
-                                execStatement.append(",").append(argStr);
-                            }
-                            execStatement.append(")");
-
-                            JShellMessage evalMessage = executeStatement(execStatement.toString());
-                            if (!evalMessage.errs.isEmpty()) {
-                                evalMessage.errs.forEach(line -> transport.send(ReplResponse.withErr(line)));
-                                transport.sendErr("", DONE);
-                            }
-                        } catch (Throwable ex) {
-                            StringWriter traceWriter = new StringWriter();
-                            ex.printStackTrace(new PrintWriter(traceWriter));
-                            transport.sendErr(traceWriter.toString());
-                        }
+                        executeCommand(commandName, args, transport);
                     }
                 } else {
                     JShellMessage evalMessage = executeStatement(String.join(" ", cmds));
@@ -245,7 +247,6 @@ public class JShellRepl implements Repl {
             LOG.error("REPL server error", e);
         } finally {
             LOG.info("Shutdown REPL server");
-
             try {
                 threadPool.shutdown();
                 if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {
@@ -254,8 +255,10 @@ public class JShellRepl implements Repl {
             } catch (InterruptedException ex) {
                 threadPool.shutdownNow();
             }
-            ioProxy.stop();
             jshell.close();
+            ctx.destroySocket(completerSock);
+            ctx.destroySocket(server);
+            ctx.destroy();
         }
 
     }
