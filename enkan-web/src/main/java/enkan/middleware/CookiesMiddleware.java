@@ -52,29 +52,6 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
         return cookies;
     }
 
-    protected String writeCookie(Cookie cookie) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(formEncode(cookie.getName())).append("=").append(formEncode(cookie.getValue()));
-        if (cookie.getDomain() != null) {
-            sb.append(";domain=").append(cookie.getDomain());
-        }
-        if (cookie.getPath() != null) {
-            sb.append(";path=").append(cookie.getPath());
-        }
-        if (cookie.getExpires() != null) {
-            sb.append(";expires=").append(HttpDateFormat.RFC822.format(cookie.getExpires()));
-        }
-        if (cookie.getMaxAge() != null) {
-            sb.append(";max-age=").append(cookie.getMaxAge());
-        }
-        if (cookie.isHttpOnly()) {
-            sb.append(";httponly");
-        }
-        if (cookie.isSecure()) {
-            sb.append(";secure");
-        }
-        return sb.toString();
-    }
 
     protected void cookiesRequest(HttpRequest request) {
         if (request.getCookies() == null) {
@@ -85,8 +62,8 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     protected void cookiesResponse(HttpResponse response) {
         Multimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {
-            cookieMap.keySet().forEach(key ->
-                    response.getHeaders().put("Set-Cookie", writeCookie(cookieMap.get(key))));
+            cookieMap.values().forEach(cookie ->
+                    response.getHeaders().put("Set-Cookie", cookie.toHttpString()));
         }
     }
 

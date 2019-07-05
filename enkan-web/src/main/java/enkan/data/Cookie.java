@@ -1,7 +1,11 @@
 package enkan.data;
 
+import enkan.util.HttpDateFormat;
+
 import java.io.Serializable;
 import java.util.Date;
+
+import static enkan.util.CodecUtils.formEncode;
 
 /**
  * @author kawasima
@@ -85,5 +89,29 @@ public class Cookie implements Serializable {
 
     public void setHttpOnly(boolean httpOnly) {
         this.httpOnly = httpOnly;
+    }
+
+    public String toHttpString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(formEncode(getName())).append("=").append(formEncode(getValue()));
+        if (getDomain() != null) {
+            sb.append(";domain=").append(getDomain());
+        }
+        if (getPath() != null) {
+            sb.append(";path=").append(getPath());
+        }
+        if (getExpires() != null) {
+            sb.append(";expires=").append(HttpDateFormat.RFC822.format(getExpires()));
+        }
+        if (getMaxAge() != null) {
+            sb.append(";max-age=").append(getMaxAge());
+        }
+        if (isHttpOnly()) {
+            sb.append(";httponly");
+        }
+        if (isSecure()) {
+            sb.append(";secure");
+        }
+        return sb.toString();
     }
 }
