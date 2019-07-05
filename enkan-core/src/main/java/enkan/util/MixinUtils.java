@@ -2,7 +2,10 @@ package enkan.util;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -18,21 +21,15 @@ import static enkan.util.ReflectionUtils.tryReflection;
 public class MixinUtils {
     private static final ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
 
-    private static MethodHandle lookupSpecial(Method method) {
-        final Class<?> declaringClass = method.getDeclaringClass();
-        MethodHandles.Lookup lookup = MethodHandles.publicLookup()
-                .in(declaringClass);
+    private static MethodHandle lookupSpecial(Method m) {
+        final Class<?> declaringClass = m.getDeclaringClass();
         return tryReflection(() -> {
-            final Field f = MethodHandles.Lookup.class.getDeclaredField("allowedModes");
-            final int modifiers = f.getModifiers();
-            if (Modifier.isFinal(modifiers)) {
-                final Field modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(f, modifiers & ~Modifier.FINAL);
-                f.setAccessible(true);
-                f.set(lookup, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE);
-            }
-            return lookup.unreflectSpecial(method, declaringClass);
+            Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
+                    .getDeclaredConstructor(Class.class);
+            constructor.setAccessible(true);
+            return constructor.newInstance(declaringClass)
+                    .in(declaringClass)
+                    .unreflectSpecial(m, declaringClass);
         });
     }
 
