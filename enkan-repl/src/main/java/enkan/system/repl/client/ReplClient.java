@@ -197,6 +197,9 @@ public class ReplClient implements AutoCloseable {
                     if (e.getErrorCode() == ZError.ETERM) {
                         break;
                     }
+                } catch (ZError.CtxTerminatedException e) {
+                    System.err.println("disconnected");
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
