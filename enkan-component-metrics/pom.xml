@@ -16,7 +16,7 @@
     <name>enkan-component-metrics</name>
 
     <properties>
-        <metrics.version>4.0.3</metrics.version>
+        <metrics.version>4.1.0</metrics.version>
     </properties>
 
     <dependencies>
