@@ -6,18 +6,18 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <version>0.9.0</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
     <artifactId>kotowari-jpa</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.0</version>
     <packaging>jar</packaging>
 
     <name>kotowari-jpa</name>
 
     <properties>
-        <enkan.version>0.9.0-SNAPSHOT</enkan.version>
+        <enkan.version>0.9.0</enkan.version>
     </properties>
 
     <dependencies>
