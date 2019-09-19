@@ -9,18 +9,19 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.middleware.normalizer.TrimNormalizer;
 import enkan.util.Predicates;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static enkan.middleware.NormalizationMiddleware.normalization;
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * @author kawasima
  */
-public class NormalizationMiddlewareTest {
+class NormalizationMiddlewareTest {
     @Test
-    public void noNormalization() {
+    void noNormalization() {
         NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<>();
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", "B", "C", 1));
@@ -29,11 +30,13 @@ public class NormalizationMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());
         middleware.handle(request, chain);
-        assertEquals("B", request.getParams().get("A"));
+        assertThat(request.getParams())
+                .containsExactly(entry("A", "B"),
+                        entry("C", 1));
     }
 
     @Test
-    public void trimNormalization() {
+    void trimNormalization() {
         NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<HttpResponse>(
                 normalization(Predicates.ANY, new TrimNormalizer())
         );
@@ -44,7 +47,9 @@ public class NormalizationMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
                         .build());
         middleware.handle(request, chain);
-        assertEquals("B", request.getParams().get("A"));
+        assertThat(request.getParams())
+                .containsExactly(entry("A", "B"),
+                        entry("C", 1));
     }
 
 }

@@ -38,7 +38,7 @@ public class OptimizedRecognizer implements Recognizer {
         for (Route route : routes) {
             i += 1;
             SegmentNode node = tree;
-            String[] segments = toPlainSegments(String.join("", route.getSegments().stream().map(Segment::toString).collect(Collectors.toList())));
+            String[] segments = toPlainSegments(route.getSegments().stream().map(Segment::toString).collect(Collectors.joining("")));
             for (String seg : segments) {
                 if (!seg.isEmpty() && seg.charAt(0) == ':') {
                     seg = ":dynamic";

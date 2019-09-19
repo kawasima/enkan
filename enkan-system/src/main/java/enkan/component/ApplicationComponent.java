@@ -6,6 +6,8 @@ import enkan.config.ApplicationFactory;
 import enkan.config.ConfigurationLoader;
 import enkan.system.inject.ComponentInjector;
 
+import java.util.function.Function;
+
 import static enkan.util.ReflectionUtils.*;
 
 /**
@@ -13,11 +15,20 @@ import static enkan.util.ReflectionUtils.*;
  *
  * @author kawasima
  */
-public class ApplicationComponent extends SystemComponent {
-    private Application application;
+public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
+    /** An application instance*/
+    private Application<AREQ, ARES> application;
+
+    /** An application loader */
     private ConfigurationLoader loader;
+
+    /** A name of the application factory class */
     private final String factoryClassName;
+
     private ClassLoader originalLoader;
+
+    /** A customizer for an application */
+    private Function<Application<AREQ,ARES>, Application<AREQ,ARES>> applicationCustomizer;
 
     public ApplicationComponent(String className) {
         this.factoryClassName = className;
@@ -38,10 +49,14 @@ public class ApplicationComponent extends SystemComponent {
                                 (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
                         ComponentInjector injector = new ComponentInjector(getAllDependencies());
                         ApplicationFactory factory = factoryClass.getConstructor().newInstance();
-                        Application<?, ?> app = factory.create(injector);
+                        Application<AREQ, ARES> app = factory.create(injector);
                         app.getMiddlewareStack().stream()
                                 .map(MiddlewareChain::getMiddleware)
                                 .forEach(injector::inject);
+
+                        if (applicationCustomizer != null) {
+                            app = applicationCustomizer.apply(app);
+                        }
                         app.validate();
                         return app;
                     });
@@ -69,6 +84,10 @@ public class ApplicationComponent extends SystemComponent {
 
     public String getFactoryClassName() {
         return factoryClassName;
+    }
+
+    public void setApplicationCustomizer(Function<Application<AREQ,ARES>, Application<AREQ,ARES>> applicationCustomizer) {
+        this.applicationCustomizer = applicationCustomizer;
     }
 
     @Override

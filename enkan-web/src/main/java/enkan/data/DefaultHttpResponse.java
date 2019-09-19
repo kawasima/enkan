@@ -118,16 +118,22 @@ public class DefaultHttpResponse implements HttpResponse {
     @Override
     public void setBody(String body) {
         this.bodyString = body;
+        bodyStream = null;
+        bodyFile = null;
     }
 
     @Override
     public void setBody(InputStream body) {
         this.bodyStream = body;
+        bodyString = null;
+        bodyFile =null;
     }
 
     @Override
     public void setBody(File body) {
         this.bodyFile = body;
+        bodyString = null;
+        bodyStream = null;
     }
 
     @Override
@@ -159,6 +165,7 @@ public class DefaultHttpResponse implements HttpResponse {
 
     @Override
     public <T> T getExtension(String name) {
+        //noinspection unchecked
         return (T) extensions.get(name);
     }
 

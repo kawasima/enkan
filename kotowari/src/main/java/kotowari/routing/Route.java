@@ -189,7 +189,7 @@ public class Route {
     /* --- generate --- */
     public boolean matchesController(Class<?> controller) {
         prepareMatching();
-        return controllerRequirement != null && controller.equals(controllerRequirement);
+        return controller.equals(controllerRequirement);
     }
 
     public boolean matchesControllerAndAction(Class<?> controller, String action) {

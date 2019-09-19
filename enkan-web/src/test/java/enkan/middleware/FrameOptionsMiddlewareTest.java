@@ -8,21 +8,21 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class FrameOptionsMiddlewareTest {
+class FrameOptionsMiddlewareTest {
     private FrameOptionsMiddleware middleware;
     private HttpRequest request;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         middleware = new FrameOptionsMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
@@ -34,18 +34,18 @@ public class FrameOptionsMiddlewareTest {
     }
 
     @Test
-    public void defaultValueIsSameOrigin() {
+    void defaultValueIsSameOrigin() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                                 .build());
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("SAMEORIGIN", response.getHeaders().get("X-Frame-Options"));
+        assertThat(response.getHeaders().get("X-Frame-Options")).isEqualTo("SAMEORIGIN");
     }
 
     @Test
-    public void deny() {
+    void deny() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -53,6 +53,6 @@ public class FrameOptionsMiddlewareTest {
                                 .build());
         middleware.setFrameOptions("DENY");
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("DENY", response.getHeaders().get("X-Frame-Options"));
+        assertThat(response.getHeaders().get("X-Frame-Options")).isEqualTo("DENY");
     }
 }

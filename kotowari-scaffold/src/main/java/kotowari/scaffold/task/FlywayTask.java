@@ -44,8 +44,8 @@ public class FlywayTask implements GenTask {
         CompilationUnit cu = new CompilationUnit();
         cu.setPackage(new PackageDeclaration(ASTHelper.createNameExpr("db.migration")));
         List<ImportDeclaration> imports = new ArrayList<>();
-        imports.add(new ImportDeclaration(ASTHelper.createNameExpr("org.flywaydb.core.api.migration.jdbc.JdbcMigration"), false, false));
-        imports.add(new ImportDeclaration(ASTHelper.createNameExpr("java.sql.Connection"), false, false));
+        imports.add(new ImportDeclaration(ASTHelper.createNameExpr("org.flywaydb.core.api.migration.BaseJavaMigration"), false, false));
+        imports.add(new ImportDeclaration(ASTHelper.createNameExpr("org.flywaydb.core.api.migration.Context"), false, false));
         imports.add(new ImportDeclaration(ASTHelper.createNameExpr("java.sql.Statement"), false, false));
         cu.setImports(imports);
 
@@ -55,13 +55,14 @@ public class FlywayTask implements GenTask {
                 + CaseConverter.pascalCase(tableName));
         ASTHelper.addTypeDeclaration(cu, migrationClass);
 
-        List<ClassOrInterfaceType> implementList = new ArrayList<>();
-        implementList.add(new ClassOrInterfaceType("JdbcMigration"));
-        migrationClass.setImplements(implementList);
+        List<ClassOrInterfaceType> extendsList = new ArrayList<>();
+        extendsList.add(new ClassOrInterfaceType("BaseJavaMigration"));
+        migrationClass.setExtends(extendsList);
+
         MethodDeclaration migrateMethod = new MethodDeclaration(ModifierSet.PUBLIC, ASTHelper.VOID_TYPE, "migrate");
         ASTHelper.addMember(migrationClass, migrateMethod);
         ASTHelper.addParameter(migrateMethod, ASTHelper.createParameter(
-                ASTHelper.createReferenceType("Connection", 0), "connection"
+                ASTHelper.createReferenceType("Context", 0), "context"
         ));
         migrateMethod.setThrows(Collections.singletonList(ASTHelper.createNameExpr("Exception")));
 
@@ -87,7 +88,9 @@ public class FlywayTask implements GenTask {
         VariableDeclarationExpr expr = ASTHelper.createVariableDeclarationExpr(ASTHelper.createReferenceType("Statement", 0), "stmt");
         expr.setVars(Collections.singletonList(new VariableDeclarator(
                 new VariableDeclaratorId("stmt"),
-                new MethodCallExpr(ASTHelper.createNameExpr("connection"), "createStatement")
+                new MethodCallExpr(
+                        new MethodCallExpr(ASTHelper.createNameExpr("context"), "getConnection"),
+                        "createStatement")
         )));
         return expr;
     }

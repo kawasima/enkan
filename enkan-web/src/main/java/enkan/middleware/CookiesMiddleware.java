@@ -6,7 +6,6 @@ import enkan.collection.Multimap;
 import enkan.data.Cookie;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.util.HttpDateFormat;
 
 import java.util.HashMap;
 import java.util.Map;

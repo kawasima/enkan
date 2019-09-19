@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -78,8 +79,7 @@ public class S2BeanConverterTest {
             if (this.getC() != other.getC()) return false;
             final Object this$d = this.getD();
             final Object other$d = other.getD();
-            if (this$d == null ? other$d != null : !this$d.equals(other$d)) return false;
-            return true;
+            return Objects.equals(this$d, other$d);
         }
 
         public int hashCode() {

@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.9.0</version>
+        <version>0.10.0</version>
         <relativePath>../enkan-parent</relativePath>
     </parent>
 
@@ -16,7 +16,8 @@
     <name>enkan-component-jackson</name>
 
     <properties>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.9.9.3</jackson.version>
+        <jackson.datatype.version>2.9.9</jackson.datatype.version>
     </properties>
 
     <dependencies>
@@ -29,7 +30,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson.datatype.version}</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>

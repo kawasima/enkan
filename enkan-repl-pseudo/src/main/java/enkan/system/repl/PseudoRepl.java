@@ -11,17 +11,17 @@ import enkan.system.command.*;
 import enkan.system.repl.pseudo.CompletionServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zeromq.ZContext;
-import org.zeromq.ZFrame;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMsg;
+import org.zeromq.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
-import static enkan.system.ReplResponse.ResponseStatus.*;
+import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
@@ -81,8 +81,8 @@ public class PseudoRepl implements Repl {
     public void run() {
         Thread.currentThread().setName("pseudo-repl-server");
         ZContext ctx = new ZContext();
-        try (ZMQ.Socket server = ctx.createSocket(ZMQ.ROUTER);
-             ZMQ.Socket completerSock = ctx.createSocket(ZMQ.ROUTER)){
+        try (ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
+             ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER)){
             int port = Env.getInt("repl.port", 0);
             String host = Env.getString("repl.host", "localhost");
             if (port == 0) {

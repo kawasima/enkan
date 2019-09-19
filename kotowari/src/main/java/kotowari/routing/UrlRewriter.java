@@ -12,6 +12,8 @@ import java.util.List;
 import static enkan.util.BeanBuilder.builder;
 
 /**
+ * The utilities for rewriting an URL.
+ *
  * @author kawasima
  */
 public class UrlRewriter {
@@ -41,6 +43,7 @@ public class UrlRewriter {
             String[] paramToken = urlTokens[1].split("&");
             Arrays.stream(paramToken)
                     .map(kv -> kv.split("=", 2))
+                    .filter(pair -> !pair[0].equals("controller") && !pair[0].equals("action"))
                     .forEach(pair -> {
                         if (pair.length == 1) {
                             options.put(pair[0], null);

@@ -39,7 +39,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
             }
         }
 
-        return keys.toArray(new String[keys.size()]);
+        return keys.toArray(new String[0]);
     };
 
     protected Parameters assocVector(Parameters map, String key, Object value) {

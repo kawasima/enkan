@@ -34,6 +34,10 @@ public class MergeableResourceBundle extends ResourceBundle {
 
             @Override
             public boolean hasMoreElements() {
+                if (enumeration == null) {
+                    return false;
+                }
+
                 if (next == null) {
                     if (iterator.hasNext()) {
                         next = iterator.next();

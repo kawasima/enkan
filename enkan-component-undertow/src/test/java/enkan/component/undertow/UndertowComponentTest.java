@@ -1,18 +1,20 @@
 package enkan.component.undertow;
 
 import enkan.exception.MisconfigurationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author kawasima
  */
-public class UndertowComponentTest {
-    @Test(expected = MisconfigurationException.class)
-    public void parameterValidation() {
-        builder(new UndertowComponent())
+class UndertowComponentTest {
+    @Test
+    void parameterValidation() {
+        assertThatThrownBy(() -> builder(new UndertowComponent())
                 .set(UndertowComponent::setPort, 77777)
-                .build();
+                .build())
+                .isInstanceOf(MisconfigurationException.class);
     }
 }

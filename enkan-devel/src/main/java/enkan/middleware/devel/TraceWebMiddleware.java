@@ -167,7 +167,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
 
         @Override
         public boolean equals(Object another) {
-            return another != null && LogKey.class.isInstance(another) && Objects.equals(this.id, ((LogKey) another).getId());
+            return LogKey.class.isInstance(another) && Objects.equals(this.id, ((LogKey) another).getId());
         }
 
         @SuppressWarnings("NullableProblems")

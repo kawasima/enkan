@@ -8,20 +8,21 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class AbsoluteRedirectsMiddlewareTest {
+class AbsoluteRedirectsMiddlewareTest {
     private AbsoluteRedirectsMiddleware<HttpResponse> middleware;
     private HttpRequest request;
-    @Before
-    public void setup() {
+
+    @BeforeEach
+    void setup() {
         middleware = new AbsoluteRedirectsMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
@@ -32,7 +33,7 @@ public class AbsoluteRedirectsMiddlewareTest {
     }
 
     @Test
-    public void documentRootPath() {
+    void documentRootPath() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -41,11 +42,12 @@ public class AbsoluteRedirectsMiddlewareTest {
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("http://example.com/foo/bar", response.getHeaders().get("Location"));
+        assertThat(response.getHeaders().get("Location"))
+                .isEqualTo("http://example.com/foo/bar");
     }
 
     @Test
-    public void relativePath() {
+    void relativePath() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -54,6 +56,7 @@ public class AbsoluteRedirectsMiddlewareTest {
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("http://example.com/prefix/foo/bar", response.getHeaders().get("Location"));
+        assertThat(response.getHeaders().get("Location"))
+                .isEqualTo("http://example.com/prefix/foo/bar");
     }
 }

@@ -1,15 +1,14 @@
 package db.migration3;
 
-import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
 
-import java.sql.Connection;
 import java.sql.Statement;
 
-public class V2__CreateBelongs implements JdbcMigration {
-
+public class V2__CreateBelongs extends BaseJavaMigration {
     @Override
-    public void migrate(Connection connection) throws Exception {
-        try(Statement stmt = connection.createStatement()) {
+    public void migrate(Context context) throws Exception {
+        try(Statement stmt = context.getConnection().createStatement()) {
             stmt.execute("CREATE TABLE belongs("
                     + "emp_no bigint,"
                     + "dept_no bigint"

@@ -77,8 +77,6 @@ public class DomaEntityTask implements GenTask {
         genTask.setPassword("");
         genTask.setTableNamePattern(tableName);
         genTask.createEntityConfig();
-        //genTask.createDaoConfig();
-        //genTask.createSqlConfig();
         genTask.execute();
     }
 

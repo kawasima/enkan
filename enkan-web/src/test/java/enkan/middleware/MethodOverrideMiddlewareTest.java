@@ -9,31 +9,32 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static enkan.util.BeanBuilder.*;
-import static org.junit.Assert.*;
+import static enkan.util.BeanBuilder.builder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author kawasima
  */
-public class MethodOverrideMiddlewareTest {
+class MethodOverrideMiddlewareTest {
     @Test
-    public void defaultIsParameter_method() {
+    void defaultIsParameter_method() {
         MethodOverrideMiddleware<HttpResponse> middleware = new MethodOverrideMiddleware<>();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setParams, Parameters.of("_method", "PUT"))
                 .build();
         MiddlewareChain<HttpRequest, HttpResponse, ? ,?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
-                    assertEquals("PUT", req.getRequestMethod());
+                    assertThat(req.getRequestMethod()).isEqualTo("PUT");
                     return builder(HttpResponse.of("hello")).build();
                 });
         middleware.handle(request, chain);
     }
 
     @Test
-    public void overrideUsingByHeader() {
+    void overrideUsingByHeader() {
         MethodOverrideMiddleware<HttpResponse> middleware = builder(new MethodOverrideMiddleware<HttpResponse>())
                 .set(MethodOverrideMiddleware::setGetterFunction, "X-Override-Method")
                 .build();

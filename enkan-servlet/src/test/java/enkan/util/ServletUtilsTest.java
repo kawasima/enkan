@@ -2,7 +2,7 @@ package enkan.util;
 
 import enkan.collection.Headers;
 import enkan.data.HttpResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -15,9 +15,9 @@ import static org.mockito.Mockito.when;
 /**
  * @author kawasima
  */
-public class ServletUtilsTest {
+class ServletUtilsTest {
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter writer = mock(PrintWriter.class);
         when(servletResponse.getWriter()).thenReturn(writer);

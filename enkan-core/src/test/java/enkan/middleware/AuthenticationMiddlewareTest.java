@@ -27,7 +27,7 @@ public class AuthenticationMiddlewareTest {
         assertThat(request.getPrincipal()).isNotNull();
     }
 
-    private class Request implements PrincipalAvailable {
+    private static class Request implements PrincipalAvailable {
         private final Map<String ,Object> extensions = new HashMap<>();
         private final String name;
 

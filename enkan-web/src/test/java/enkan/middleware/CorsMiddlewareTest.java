@@ -8,21 +8,21 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static enkan.util.BeanBuilder.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static enkan.util.BeanBuilder.builder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * {@link CorsMiddleware} Test.
  *
  * @author syobochim
  */
-public class CorsMiddlewareTest {
+class CorsMiddlewareTest {
 
     @Test
-    public void testPreflightRequest() {
+    void testPreflightRequest() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setRequestMethod("OPTIONS");
@@ -38,16 +38,21 @@ public class CorsMiddlewareTest {
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
-        assertThat(result.getStatus(), is(200));
+        assertThat(result.getStatus()).isEqualTo(200);
         Headers headers = result.getHeaders();
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(headers.get("Access-Control-Allow-Methods"), containsString("OPTIONS"));
-        assertThat(headers.get("Access-Control-Allow-Headers"), containsString("Content-Type"));
-        assertThat(headers.get("Access-Control-Allow-Credentials"), is("true"));
+        assertThat(headers)
+                .contains(entry("Access-Control-Allow-Origin", "*"))
+                .contains(entry("Access-Control-Allow-Credentials", "true"));
+        assertThat(headers).extracting("Access-Control-Allow-Methods")
+                .asString()
+                .contains("OPTIONS");
+        assertThat(headers).extracting("Access-Control-Allow-Headers")
+                .asString()
+                .contains("Content-Type");
     }
 
     @Test
-    public void testAddHeaders() {
+    void testAddHeaders() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Origin", "http://sample.com"))
@@ -65,14 +70,15 @@ public class CorsMiddlewareTest {
 
         // Verify
         Headers headers = result.getHeaders();
-        assertThat(result.getStatus(), is(200));
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(result.getBodyAsString(), is("hello"));
-        assertThat(headers.get("Content-Type"), is("text/html"));
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(headers)
+                .contains(entry("Access-Control-Allow-Origin", "*"),
+                        entry("Content-Type", "text/html"));
+        assertThat(result.getBodyAsString()).isEqualTo("hello");
     }
 
     @Test
-    public void testNonCORSRequest() {
+    void testNonCORSRequest() {
         // Setup
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setHeaders(Headers.of("User-Agent", "Chrome"));
@@ -88,16 +94,18 @@ public class CorsMiddlewareTest {
 
         // Verify
         Headers headers = result.getHeaders();
-        assertThat(headers.get("Access-Control-Allow-Origin"), nullValue());
-        assertThat(headers.get("Access-Control-Allow-Methods"), nullValue());
-        assertThat(headers.get("Access-Control-Allow-Headers"), nullValue());
-        assertThat(headers.get("Access-Control-Allow-Credentials"), nullValue());
-        assertThat(result.getBodyAsString(), is("hello"));
-        assertThat(headers.get("Content-Type"), is("text/html"));
+        assertThat(headers)
+                .contains(entry("Content-Type", "text/html"))
+                .doesNotContainKeys("Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Methods",
+                        "Access-Control-Allow-Headers",
+                        "Access-Control-Allow-Credentials");
+        assertThat(result.getBodyAsString())
+                .isEqualTo("hello");
     }
 
     @Test
-    public void testPreflightRequestWithLowerCaseMethod() {
+    void testPreflightRequestWithLowerCaseMethod() {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setRequestMethod("options");
@@ -113,16 +121,22 @@ public class CorsMiddlewareTest {
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
-        assertThat(result.getStatus(), is(200));
+        assertThat(result.getStatus()).isEqualTo(200);
         Headers headers = result.getHeaders();
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(headers.get("Access-Control-Allow-Methods"), containsString("OPTIONS"));
-        assertThat(headers.get("Access-Control-Allow-Headers"), containsString("Content-Type"));
-        assertThat(headers.get("Access-Control-Allow-Credentials"), is("true"));
+
+        assertThat(headers)
+                .contains(entry("Access-Control-Allow-Origin", "*"))
+                .contains(entry("Access-Control-Allow-Credentials", "true"));
+        assertThat(headers).extracting("Access-Control-Allow-Methods")
+                .asString()
+                .contains("OPTIONS");
+        assertThat(headers).extracting("Access-Control-Allow-Headers")
+                .asString()
+                .contains("Content-Type");
     }
 
     @Test
-    public void testCORSRequestWithLowerCaseMethod()  {
+    void testCORSRequestWithLowerCaseMethod()  {
         // SetUp
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Origin", "http://sample.com"))
@@ -140,10 +154,10 @@ public class CorsMiddlewareTest {
 
         // Verify
         Headers headers = result.getHeaders();
-        assertThat(result.getStatus(), is(200));
-        assertThat(headers.get("Access-Control-Allow-Origin"), is("*"));
-        assertThat(result.getBodyAsString(), is("hello"));
-        assertThat(headers.get("Content-Type"), is("text/html"));
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(headers)
+                .contains(entry("Access-Control-Allow-Origin", "*"),
+                        entry("Content-Type", "text/html"));
+        assertThat(result.getBodyAsString()).isEqualTo("hello");
     }
-
 }

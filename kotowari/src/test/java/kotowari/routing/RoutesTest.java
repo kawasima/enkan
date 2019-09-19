@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * @author kawasima
  */
-public class RoutesTest {
+class RoutesTest {
     @Test
-    public void simple() {
+    void simple() {
         Routes routes = Routes.define(r -> r.get("/").to(ExampleController.class, "method1")).compile();
 
         OptionMap m = routes.recognizePath(builder(new DefaultHttpRequest())
@@ -32,7 +32,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void scope() {
+    void scope() {
         Routes routes = Routes.define(r -> {
             r.get("/home6").to(ExampleController.class, "method6");
             r.scope("/admin", admin -> admin.get("/list").to(ExampleController.class, "method1"));
@@ -70,7 +70,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void recognizeUtf8Dynamic() {
+    void recognizeUtf8Dynamic() {
         Routes routes = Routes.define(r -> {
             r.get("/:val1").to(ExampleController.class, "method1");
             r.get("/*glob").to(ExampleController.class, "method2");
@@ -86,7 +86,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void recognizeUtf8Path() {
+    void recognizeUtf8Path() {
         Routes routes = Routes.define(r -> {
             r.get("/:val1").to(ExampleController.class, "method1");
             r.get("/*glob").to(ExampleController.class, "method2");
@@ -116,7 +116,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void consume() {
+    void consume() {
         Routes routes = Routes.define(r ->
                 r.get("/api").consumes(MediaType.APPLICATION_JSON_TYPE)
                         .to(ExampleController.class, "method1")
@@ -137,7 +137,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void produceNoAccept() {
+    void produceNoAccept() {
         Routes routes = Routes.define(r ->
                 r.get("/api").produces(MediaType.APPLICATION_JSON_TYPE)
                         .to(ExampleController.class, "method1")
@@ -153,7 +153,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void cannotProduce() {
+    void cannotProduce() {
         Routes routes = Routes.define(r ->
                 r.get("/api").produces(MediaType.APPLICATION_JSON_TYPE)
                         .to(ExampleController.class, "method1")
@@ -170,7 +170,7 @@ public class RoutesTest {
     }
 
     @Test
-    public void produceWildcard() {
+    void produceWildcard() {
         Routes routes = Routes.define(r ->
                 r.get("/api").produces(MediaType.WILDCARD_TYPE)
                         .to(ExampleController.class, "method1")
@@ -186,4 +186,26 @@ public class RoutesTest {
         assertThat(found).isNotEmpty();
         assertThat(found.get("action")).isEqualTo("method1");
     }
+
+    @Test
+    void concat() {
+        final Routes routes = Routes.define(r -> {
+            r.get("/a1").to(ExampleController.class);
+            r.get("/a2").to(ExampleController.class);
+        }).compile();
+
+        final Routes another = Routes.define(r -> {
+            r.get("/an1").to(ExampleController.class, "an1");
+            r.get("/an2").to(ExampleController.class, "an2");
+        }).compile();
+
+        routes.concat(another);
+
+        final OptionMap an2 = routes.recognizePath(builder(new DefaultHttpRequest())
+                .set(HttpRequest::setUri, "/an2")
+                .set(HttpRequest::setRequestMethod, "GET")
+                .build());
+        assertThat(an2.get("action")).isEqualTo("an2");
+    }
+
 }

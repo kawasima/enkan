@@ -10,8 +10,8 @@ import enkan.system.EnkanSystem;
 import enkan.system.inject.ComponentInjector;
 import net.unit8.amagicman.PathResolver;
 import net.unit8.amagicman.PathResolverImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,15 +36,15 @@ public class ScaffoldCommandTest {
         }
     }
 
-    @Before
-    public void createApplicationFactory() throws IOException, URISyntaxException {
+    @BeforeEach
+    void createApplicationFactory() throws IOException, URISyntaxException {
         try (OutputStream out = pathResolver.destinationAsStream("src/main/java/kotowari/scaffold/MyApplicationFactory.java")) {
             Files.copy(Paths.get("src/test/java/kotowari/scaffold/MyApplicationFactory.java"), out);
         }
     }
 
     @Test
-    public void test() {
+    void test() {
         ReplMock repl = new ReplMock();
         TransportMock transport = new TransportMock();
         EnkanSystem system = EnkanSystem.of(

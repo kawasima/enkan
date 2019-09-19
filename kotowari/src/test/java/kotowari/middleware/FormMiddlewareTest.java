@@ -55,7 +55,7 @@ public class FormMiddlewareTest extends FormMiddleware {
             }
         }
 
-        return keys.toArray(new String[keys.size()]);
+        return keys.toArray(new String[0]);
     };
 
     private Parameters parseFromQuery(String qs) {
@@ -138,7 +138,7 @@ public class FormMiddlewareTest extends FormMiddleware {
         p = parseFromQuery("foo[]=bar&foo[]");
         assertEquals(2, p.getList("foo").size());
         assertEquals("bar", p.getIn("foo", 0));
-        assertEquals(null, p.getIn("foo", 1));
+        assertNull(p.getIn("foo", 1));
 
         p = parseFromQuery("x[y][z]=1");
         assertEquals("1", p.getIn("x", "y", "z"));

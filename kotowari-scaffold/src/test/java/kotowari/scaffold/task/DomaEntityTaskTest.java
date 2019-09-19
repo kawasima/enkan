@@ -1,7 +1,7 @@
 package kotowari.scaffold.task;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,8 +11,8 @@ import java.sql.Statement;
 /**
  * @author kawasima
  */
-public class DomaEntityTaskTest {
-    protected void createTable(DataSource ds) throws SQLException {
+class DomaEntityTaskTest {
+    void createTable(DataSource ds) throws SQLException {
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE TABLE product (" +
@@ -24,7 +24,7 @@ public class DomaEntityTaskTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         createTable(ds);

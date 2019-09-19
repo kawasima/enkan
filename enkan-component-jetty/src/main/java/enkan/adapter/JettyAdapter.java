@@ -62,7 +62,7 @@ public class JettyAdapter {
     }
 
     private SslContextFactory createSslContextFactory(OptionMap options) {
-        SslContextFactory context = new SslContextFactory();
+        final SslContextFactory.Server context = new SslContextFactory.Server();
         Object keystore = options.get("keystore");
         if (keystore instanceof KeyStore) {
             context.setKeyStore((KeyStore) keystore);

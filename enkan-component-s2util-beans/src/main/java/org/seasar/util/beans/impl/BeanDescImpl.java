@@ -295,7 +295,7 @@ public class BeanDescImpl implements BeanDesc {
     @Override
     public String[] getMethodNames() {
         return methodDescsCache.keySet().toArray(
-            new String[methodDescsCache.size()]);
+                new String[0]);
     }
 
     /**
@@ -617,7 +617,7 @@ public class BeanDescImpl implements BeanDesc {
         }
         for (Map.Entry<String, List<MethodDesc>> e : methodDescListMap.entrySet()) {
             methodDescsCache.put(e.getKey(),
-                e.getValue().toArray(new MethodDesc[e.getValue().size()]));
+                e.getValue().toArray(new MethodDesc[0]));
         }
     }
 

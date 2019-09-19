@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * @author kawasima
  */
-public class ResourceMiddlewareTest {
+class ResourceMiddlewareTest {
     @Test
-    public void resourceIsFound() throws URISyntaxException {
+    void resourceIsFound() throws URISyntaxException {
         ResourceMiddleware<HttpResponse> middleware = new ResourceMiddleware<>();
 
         HttpRequest request = new DefaultHttpRequest();
@@ -38,7 +38,7 @@ public class ResourceMiddlewareTest {
     }
 
     @Test
-    public void resourceAssetPath() throws URISyntaxException {
+    void resourceAssetPath() throws URISyntaxException {
         ResourceMiddleware<HttpResponse> middleware = builder(new ResourceMiddleware<HttpResponse>())
                 .set(ResourceMiddleware::setUriPrefix, (String) null)
                 .build();

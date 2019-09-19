@@ -10,7 +10,6 @@ import enkan.component.ComponentLifecycle;
 import enkan.exception.MisconfigurationException;
 
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * @author kawasima

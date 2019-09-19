@@ -7,7 +7,6 @@ import enkan.component.jpa.EntityManagerProvider;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.Test;
 
-import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;

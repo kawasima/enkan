@@ -110,6 +110,7 @@ public class ConstructorDescImpl implements ConstructorDesc {
         return parameterizedClassDescs;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public Class<?> getElementClassOfCollection(final int index) {
         if (parameterTypes.length >= index) throw new IllegalArgumentException("index");
@@ -126,6 +127,7 @@ public class ConstructorDescImpl implements ConstructorDesc {
         return pcd.getRawClass();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public Class<?> getKeyClassOfMap(final int index) {
         if (parameterTypes.length >= index) throw new IllegalArgumentException("index");
@@ -142,6 +144,7 @@ public class ConstructorDescImpl implements ConstructorDesc {
         return pcd.getRawClass();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public Class<?> getValueClassOfMap(final int index) {
         if (parameterTypes.length >= index) throw new IllegalArgumentException("index");

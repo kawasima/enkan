@@ -127,7 +127,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
 
             if (exports.contains(USER_PRINCIPAL)) {
                 Stream.of(request)
-                        .filter(PrincipalAvailable.class::isInstance)
+                        .filter(Objects::nonNull)
                         .map(PrincipalAvailable.class::cast)
                         .findAny()
                         .ifPresent(principal -> tres.getContext()

@@ -9,22 +9,22 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ThreadingUtils.some;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class CookiesMiddlewareTest {
+class CookiesMiddlewareTest {
     private CookiesMiddleware<HttpResponse> middleware;
     private HttpRequest request;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         middleware = new CookiesMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
@@ -36,11 +36,13 @@ public class CookiesMiddlewareTest {
     }
 
     @Test
-    public void parse() {
+    void parse() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
-                    assertEquals("あいう", some(req.getCookies().get("A"), Cookie::getValue).orElseThrow(AssertionError::new));
-                    assertEquals("1",     some(req.getCookies().get("B"), Cookie::getValue).orElseThrow(AssertionError::new));
+                    assertThat(some(req.getCookies().get("A"), Cookie::getValue).orElseThrow(AssertionError::new))
+                            .isEqualTo("あいう");
+                    assertThat(some(req.getCookies().get("B"), Cookie::getValue).orElseThrow(AssertionError::new))
+                            .isEqualTo("1");
 
                     return builder(HttpResponse.of("hello"))
                             .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))

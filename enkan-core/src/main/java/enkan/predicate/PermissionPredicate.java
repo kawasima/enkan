@@ -3,6 +3,7 @@ package enkan.predicate;
 import enkan.data.PrincipalAvailable;
 import enkan.security.UserPrincipal;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -18,7 +19,7 @@ public class PermissionPredicate<REQ extends PrincipalAvailable> implements Prin
     @Override
     public boolean test(REQ req) {
         return Stream.of(req)
-                .filter(PrincipalAvailable.class::isInstance)
+                .filter(Objects::nonNull)
                 .map(PrincipalAvailable.class::cast)
                 .map(PrincipalAvailable::getPrincipal)
                 .filter(UserPrincipal.class::isInstance)

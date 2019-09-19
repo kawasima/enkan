@@ -8,20 +8,21 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class ContentTypeOptionsMiddlewareTest {
+class ContentTypeOptionsMiddlewareTest {
     private ContentTypeOptionsMiddleware<HttpResponse> middleware;
     private HttpRequest request;
-    @Before
-    public void setup() {
+
+    @BeforeEach
+    void setup() {
         middleware = new ContentTypeOptionsMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
@@ -32,13 +33,14 @@ public class ContentTypeOptionsMiddlewareTest {
     }
 
     @Test
-    public void testNoSniff() {
+    void testNoSniff() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                                 .build());
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("nosniff", response.getHeaders().get("X-Content-Type-Options"));
+        assertThat(response.getHeaders().get("X-Content-Type-Options"))
+                .isEqualTo("nosniff");
     }
 }

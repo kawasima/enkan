@@ -15,7 +15,7 @@ public class TraceDetail extends MoshasPage {
     private final Template traceDetailPage;
 
     private String elapseString(Object elapse, String prefix) {
-        if (elapse == null || !(elapse instanceof Long)) {
+        if (!(elapse instanceof Long)) {
             return "-";
         } else {
             return prefix + " " + elapse + "ms";

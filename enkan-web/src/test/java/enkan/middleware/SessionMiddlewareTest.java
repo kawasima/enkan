@@ -3,7 +3,7 @@ package enkan.middleware;
 import enkan.data.*;
 import enkan.middleware.session.MemoryStore;
 import enkan.util.MixinUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -12,14 +12,14 @@ import java.util.UUID;
 
 import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ReflectionUtils.tryReflection;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class SessionMiddlewareTest {
+class SessionMiddlewareTest {
     @Test
-    public void restoreSession() {
+    void restoreSession() {
         SessionMiddleware middleware = new SessionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
@@ -40,11 +40,12 @@ public class SessionMiddlewareTest {
         params.put("enkan-session", Cookie.create("enkan-session", sessionKey.toString()));
         request.setCookies(params);
         middleware.sessionRequest(request);
-        assertEquals("kawasima", request.getSession().get("name"));
+        assertThat(request.getSession().get("name"))
+                .isEqualTo("kawasima");
     }
 
     @Test
-    public void sessionIdNotSent() {
+    void sessionIdNotSent() {
         SessionMiddleware middleware = new SessionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
@@ -62,7 +63,6 @@ public class SessionMiddlewareTest {
             return store;
         });
         middleware.sessionRequest(request);
-        assertNull(request.getSession());
+        assertThat(request.getSession()).isNull();
     }
-
 }

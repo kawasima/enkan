@@ -31,7 +31,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
     protected Validatable getValidatable(HttpRequest request) {
         if (request instanceof BodyDeserializable) {
             Object body = ((BodyDeserializable) request).getDeserializedBody();
-            if (body != null && body instanceof Validatable) {
+            if (body instanceof Validatable) {
                 return (Validatable) body;
             }
         }

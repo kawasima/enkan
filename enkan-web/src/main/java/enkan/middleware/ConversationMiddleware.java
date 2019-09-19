@@ -107,7 +107,7 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
             this.id = id;
             this.hash = hash;
             try {
-                this.expires = Long.valueOf(expires);
+                this.expires = Long.parseLong(expires);
             } catch (Exception e) {
                 this.expires = 0;
             }

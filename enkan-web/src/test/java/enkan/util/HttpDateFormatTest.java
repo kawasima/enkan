@@ -1,21 +1,25 @@
 package enkan.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class HttpDateFormatTest {
+class HttpDateFormatTest {
     @Test
-    public void test() {
+    void test() {
         Date d = new Date(1234556789012L);
-        assertEquals("Fri, 13 Feb 2009 20:26:29 +0000", HttpDateFormat.RFC822.format(d));
-        assertEquals("Fri Feb 13 20:26:29 2009", HttpDateFormat.ASCTIME.format(d));
-        assertEquals("Friday, 13-Feb-09 20:26:29 GMT", HttpDateFormat.RFC1036.format(d));
-        assertEquals("Fri, 13 Feb 2009 20:26:29 GMT", HttpDateFormat.RFC1123.format(d));
+        assertThat(HttpDateFormat.RFC822.format(d))
+                .isEqualTo("Fri, 13 Feb 2009 20:26:29 +0000");
+        assertThat(HttpDateFormat.ASCTIME.format(d))
+                .isEqualTo("Fri Feb 13 20:26:29 2009");
+        assertThat(HttpDateFormat.RFC1036.format(d))
+                .isEqualTo("Friday, 13-Feb-09 20:26:29 GMT");
+        assertThat(HttpDateFormat.RFC1123.format(d))
+                .isEqualTo("Fri, 13 Feb 2009 20:26:29 GMT");
     }
 }

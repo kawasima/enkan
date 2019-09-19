@@ -232,6 +232,7 @@ public class DefaultHttpRequest implements HttpRequest {
         if (extensions == null) {
             extensions = new HashMap<>();
         }
+        //noinspection unchecked
         return (T) extensions.get(name);
     }
 }

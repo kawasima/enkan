@@ -1,13 +1,13 @@
 package kotowari.scaffold.task;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author kawasima
  */
-public class FlywayTaskTest {
+class FlywayTaskTest {
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         FlywayTask task = new FlywayTask("", "User", "sql");
         PathResolverMock resolver = new PathResolverMock();
         task.execute(resolver);

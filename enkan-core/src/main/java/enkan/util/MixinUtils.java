@@ -90,7 +90,7 @@ public class MixinUtils {
         final HashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
         getAllInterfaces(clazz, interfacesFound);
 
-        return interfacesFound.toArray(new Class<?>[interfacesFound.size()]);
+        return interfacesFound.toArray(new Class<?>[0]);
     }
 
     @SuppressWarnings("unchecked")

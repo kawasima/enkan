@@ -111,9 +111,8 @@ public class SqlCommand implements SystemCommand {
             final ColumnMeta other = (ColumnMeta) o;
             final Object this$name = this.getName();
             final Object other$name = other.getName();
-            if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
-            if (this.getDispSize() != other.getDispSize()) return false;
-            return true;
+            if (!Objects.equals(this$name, other$name)) return false;
+            return this.getDispSize() == other.getDispSize();
         }
 
         public int hashCode() {

@@ -11,18 +11,14 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * @author kawasima
  */
-public class BeanBuilderTest {
+class BeanBuilderTest {
     @Test
-    public void builder() {
-        try {
-            Person p1 = BeanBuilder.builder(new Person())
-                    .set(Person::setName, "kawasima")
-                    .set(Person::setAge, 3)
-                    .build();
-            fail("MisconfigurationException occur");
-        } catch (MisconfigurationException ex) {
-            // Successful case
-        }
+    void builder() {
+        assertThatThrownBy(() -> BeanBuilder.builder(new Person())
+                .set(Person::setName, "kawasima")
+                .set(Person::setAge, 3)
+                .build())
+                .isInstanceOf(MisconfigurationException.class);
     }
 
     static class Person {

@@ -39,10 +39,23 @@ public class Routes {
         return patterns;
     }
 
+    public void concat(Routes another) {
+        routeList.addAll(another.routeList);
+        recognizer = new OptimizedRecognizer();
+        recognizer.setRoutes(routeList);
+        recognizer.optimize();
+    }
+
     public OptionMap recognizePath(HttpRequest request) {
         return recognizer.recognize(request);
     }
 
+    /**
+     * Generate a path string from route parameters.
+     *
+     * @param options route parameters
+     * @return the path string
+     */
     public String generate(OptionMap options) {
         OptionMap merged = OptionMap.of(options);
         Class<?> controller = (Class<?>) options.get("controller");

@@ -71,6 +71,6 @@ public class DefaultConversation implements Conversation {
 
     @Override
     public boolean equals(Object another) {
-        return another != null && Conversation.class.isInstance(another) && Objects.equals(getId(), Conversation.class.cast(another).getId());
+        return another instanceof Conversation && Objects.equals(getId(), ((Conversation) another).getId());
     }
 }

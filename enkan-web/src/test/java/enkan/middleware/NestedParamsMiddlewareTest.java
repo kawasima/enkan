@@ -3,58 +3,63 @@ package enkan.middleware;
 import enkan.collection.Parameters;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
+class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
     @Test
-    public void testParseNestedKeys() {
+    void testParseNestedKeys() {
         Function<String, String[]> keyParser = parseNestedKeys;
-        assertArrayEquals(new String[]{"foo", ""}, keyParser.apply("foo[]"));
-        assertArrayEquals(new String[]{"foo", "bar", "", "baz"}, keyParser.apply("foo[bar][][baz]"));
-        assertArrayEquals(new String[]{}, keyParser.apply(null));
-        assertArrayEquals(new String[]{""}, keyParser.apply(""));
+        assertThat(keyParser.apply("foo[]")).containsExactly("foo", "");
+        assertThat(keyParser.apply("foo[bar][][baz]"))
+                .containsExactly("foo", "bar", "", "baz");
+        assertThat(keyParser.apply(null))
+                .isEmpty();
+        assertThat(keyParser.apply(""))
+                .containsExactly("");
     }
 
     @Test
-    public void testNestedParams() {
+    void testNestedParams() {
         Parameters params = Parameters.empty();
         assocNested(params,
                 new String[]{"val", ""},
                 new ArrayList<String>(){{ add("hoge"); }});
-        assertEquals("hoge", params.getIn("val", 0));
-
+        assertThat(params.getIn("val", 0))
+                .isEqualTo("hoge");
 
         params = Parameters.empty();
         assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); }});
-        assertEquals("baz", params.getIn("foo", "bar"));
+        assertThat(params.getIn("foo", "bar"))
+                .isEqualTo("baz");
 
         params = Parameters.empty();
         assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); add("bay"); }});
-        assertEquals("bay", params.getIn("foo", "bar", 1));
+        assertThat(params.getIn("foo", "bar", 1))
+                .isEqualTo("bay");
     }
 
     @Test
-    public void testNestedParamsRequest() {
+    void testNestedParamsRequest() {
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of(
                 "foo[aaa]", "a3",
                 "foo[bbb]", "b3",
                 "bar[][telNo]", "090"));
         nestedParamsRequest(request, parseNestedKeys);
-        assertEquals("090", request.getParams().getIn("bar", "0", "telNo"));
+        assertThat(request.getParams().getIn("bar", "0", "telNo"))
+                .isEqualTo("090");
     }
 }
 

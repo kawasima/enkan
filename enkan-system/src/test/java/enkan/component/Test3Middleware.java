@@ -3,11 +3,8 @@ package enkan.component;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 
-/**
- * @author kawasima
- */
-@Middleware(name = "test1", dependencies = {"test2"})
-public class Test1Middleware<NREQ, NRES> implements enkan.Middleware<String, String, NREQ, NRES> {
+@Middleware(name = "test3")
+public class Test3Middleware<NREQ, NRES> implements enkan.Middleware<String, String, NREQ, NRES> {
     private String additionalMessage = "";
 
     @Override

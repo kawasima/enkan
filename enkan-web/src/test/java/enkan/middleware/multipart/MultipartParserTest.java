@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author kawasima
  */
-public class MultipartParserTest {
+class MultipartParserTest {
     private Optional<String> getFileContents(Parameters params, String parameterName) {
         return ThreadingUtils.some(((File) params.getIn(parameterName, "tempfile")).toPath(),
                 Files::readAllLines,
@@ -23,7 +23,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testIE() throws IOException {
+    void testIE() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/ie");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -34,14 +34,14 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testContentTypeAndNoFilename() throws IOException {
+    void testContentTypeAndNoFilename() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/contentTypeAndNoFilename");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         assertThat(params.get("text")).isEqualTo("contents");
     }
 
     @Test
-    public void testEmpty() throws IOException {
+    void testEmpty() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/empty");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         assertThat(params.get("submit-name")).isEqualTo("Larry");
@@ -53,7 +53,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithEncodedWords() throws IOException {
+    void testFilenameWithEncodedWords() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithEncodedWords");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -65,7 +65,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithEscapeQuotes() throws IOException {
+    void testFilenameWithEscapeQuotes() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithEscapedQuotes");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -82,7 +82,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithEscapeQuotesAndModificationParam() throws IOException {
+    void testFilenameWithEscapeQuotesAndModificationParam() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithEscapedQuotesAndModificationParam");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -99,7 +99,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithPercentEscapedQuotes() throws IOException {
+    void testFilenameWithPercentEscapedQuotes() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithPercentEscapedQuotes");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -116,7 +116,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithSingleQuote() throws IOException {
+    void testFilenameWithSingleQuote() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithSingleQuote");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=AaB03x", 0);
         Optional<String> content = getFileContents(params, "files");
@@ -129,7 +129,7 @@ public class MultipartParserTest {
     }
 
     @Test
-    public void testFilenameWithUnescapedPercentages() throws IOException {
+    void testFilenameWithUnescapedPercentages() throws IOException {
         InputStream is = getClass().getResourceAsStream("/multipart/filenameWithUnescapedPercentages");
         Parameters params = MultipartParser.parse(is, null, "multipart/form-data; boundary=----WebKitFormBoundary2NHc7OhsgU68l3Al", 0);
         Optional<String> content = getFileContents(params, "document[attachment]");

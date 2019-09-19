@@ -2,6 +2,7 @@ package enkan.component;
 
 import enkan.exception.MisconfigurationException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public abstract class SystemComponent<T extends SystemComponent>  {
-    private Map<String, SystemComponent> dependencies;
+    private Map<String, SystemComponent> dependencies = new HashMap<>();
 
     protected void setDependencies(Map<String, SystemComponent> dependencies) {
         this.dependencies = dependencies;

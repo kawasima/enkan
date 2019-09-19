@@ -33,7 +33,7 @@ public class MiddlewareCommand implements SystemCommand {
 
         String appName = args[0];
         SystemComponent component = system.getComponent(appName);
-        if (component == null || !(component instanceof ApplicationComponent)) {
+        if (!(component instanceof ApplicationComponent)) {
             transport.sendErr(String.format("Application %s is not found.", appName));
             return true;
         }

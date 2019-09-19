@@ -1,17 +1,17 @@
 package db.migration;
 
-import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
 
-import java.sql.Connection;
 import java.sql.Statement;
 
 /**
  * @author kawasima
  */
-public class V2__CreateUsers implements JdbcMigration {
+public class V2__CreateUsers extends BaseJavaMigration {
     @Override
-    public void migrate(Connection connection) throws Exception {
-        try (Statement stmt = connection.createStatement()) {
+    public void migrate(Context context) throws Exception {
+        try (Statement stmt = context.getConnection().createStatement()) {
             stmt.execute("CREATE TABLE users " +
                     "(id VARCHAR(20) PRIMARY KEY," +
                     " first_name VARCHAR(30)," +

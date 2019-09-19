@@ -2,6 +2,7 @@ package enkan.predicate;
 
 import enkan.data.PrincipalAvailable;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -13,7 +14,7 @@ public class AuthenticatedPredicate<REQ extends PrincipalAvailable> implements P
     @Override
     public boolean test(REQ req) {
         return Stream.of(req)
-                .filter(PrincipalAvailable.class::isInstance)
+                .filter(Objects::nonNull)
                 .map(PrincipalAvailable.class::cast)
                 .anyMatch(p -> p.getPrincipal() != null);
     }

@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class Fressian {
             FressianReader reader = new FressianReader(bais, readHandlers::get)) {
             Object obj = reader.readObject();
             if (obj != null && !clazz.isInstance(obj)) {
-                throw new IllegalArgumentException(blob + " is not instance of " + clazz);
+                throw new IllegalArgumentException(Arrays.toString(blob) + " is not instance of " + clazz);
             }
             return (T) obj;
         } catch (IOException e) {

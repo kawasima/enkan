@@ -3,26 +3,35 @@ package enkan.middleware;
 import enkan.collection.Headers;
 import enkan.data.HttpResponse;
 import enkan.util.HttpResponseUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class DefaultCharsetMiddlewareTest {
+class DefaultCharsetMiddlewareTest {
     @Test
-    public void test() {
+    void test() {
         DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
         HttpResponse response = builder(HttpResponse.of("aaa"))
                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                 .build();
-        assertNotNull(HttpResponseUtils.getHeader(response, "Content-Type"));
+        String contentType = HttpResponseUtils.getHeader(response, "Content-Type");
+        assertThat(contentType).isNotNull();
+    }
+
+    @Test
+    void charset() {
+        DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
+        HttpResponse response = builder(HttpResponse.of("aaa"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
+                .build();
         middleware.addCharset(response, "UTF-8");
-        String type = HttpResponseUtils.getHeader(response, "Content-Type");
-        assertNotNull(type);
-        assertTrue(type.contains("UTF-8"));
+        String contentType = HttpResponseUtils.getHeader(response, "Content-Type");
+        assertThat(contentType)
+                .isNotNull()
+                .contains("UTF-8");
     }
 }

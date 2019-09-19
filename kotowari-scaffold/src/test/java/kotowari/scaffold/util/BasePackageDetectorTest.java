@@ -1,9 +1,9 @@
 package kotowari.scaffold.util;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,9 +12,9 @@ import java.nio.file.Paths;
 /**
  * @author kawasima
  */
-public class BasePackageDetectorTest {
-    @Before
-    public void setup() throws IOException {
+class BasePackageDetectorTest {
+    @BeforeEach
+    void setup() throws IOException {
         Files.createDirectories(Paths.get("target/basedetect/db/migration"));
         Files.createFile(Paths.get("target/basedetect/db/migration/Mig.java"));
 
@@ -23,13 +23,13 @@ public class BasePackageDetectorTest {
     }
 
     @Test
-    public void test() throws IOException {
-        String path = BasePackageDetector.detect("target/basedetect");
-        Assert.assertEquals("hoge.fuga.", path);
+    void test() throws IOException {
+        Assertions.assertThat(BasePackageDetector.detect("target/basedetect"))
+                .isEqualTo("hoge.fuga.");
     }
 
-    @After
-    public void deleteDirectories() throws IOException {
+    @AfterEach
+    void deleteDirectories() throws IOException {
         Files.deleteIfExists(Paths.get("target/basedetect/db/migration/Mig.java"));
         Files.deleteIfExists(Paths.get("target/basedetect/db/migration"));
         Files.deleteIfExists(Paths.get("target/basedetect/db"));

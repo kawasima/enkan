@@ -9,20 +9,21 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
 import enkan.util.HttpResponseUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class ContentTypeMiddlewareTest {
+class ContentTypeMiddlewareTest {
     private ContentTypeMiddleware<HttpResponse> middleware;
     private HttpRequest request;
-    @Before
-    public void setup() {
+
+    @BeforeEach
+    void setup() {
         middleware = new ContentTypeMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
@@ -33,7 +34,7 @@ public class ContentTypeMiddlewareTest {
     }
 
     @Test
-    public void testSetContentType() {
+    void testSetContentType() {
         MiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -41,22 +42,26 @@ public class ContentTypeMiddlewareTest {
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("text/html", HttpResponseUtils.getHeader(response, "content-type"));
+        final Object header = HttpResponseUtils.getHeader(response, "content-type");
+        assertThat(header)
+                .asString()
+                .isEqualTo("text/html");
     }
 
     @Test
-    public void defaultValueIsOctetStream() {
+    void defaultValueIsOctetStream() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("text/plain", HttpResponseUtils.getHeader(response, "content-type"));
+        final Object header = HttpResponseUtils.getHeader(response, "content-type");
+        assertThat(header).isEqualTo("text/plain");
     }
 
     @Test
-    public void testRedirect() {
+    void testRedirect() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -65,7 +70,8 @@ public class ContentTypeMiddlewareTest {
                                 .build());
 
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("This is a specification of ring content_type middleware",
-                "text/plain", HttpResponseUtils.getHeader(response, "content-type"));
+        assertThat((String)HttpResponseUtils.getHeader(response, "content-type"))
+                .as("This is a specification of ring content_type middleware")
+                .isEqualTo("text/plain");
     }
 }

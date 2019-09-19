@@ -7,20 +7,21 @@ import enkan.collection.Headers;
 import enkan.data.*;
 import enkan.util.MixinUtils;
 import enkan.util.Predicates;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class FlashMiddlewareTest {
+class FlashMiddlewareTest {
     private FlashMiddleware<HttpResponse> middleware;
     private HttpRequest request;
-    @Before
-    public void setup() {
+
+    @BeforeEach
+    void setup() {
         Session session = new Session();
         session.put("_flash", new Flash<>("message"));
         middleware = new FlashMiddleware<>();
@@ -30,7 +31,7 @@ public class FlashMiddlewareTest {
     }
 
     @Test
-    public void getFlash_and_NoResponseFlash() {
+    void getFlash_and_NoResponseFlash() {
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
                         builder(HttpResponse.of("hello"))
@@ -38,15 +39,15 @@ public class FlashMiddlewareTest {
                                 .build());
         request = MixinUtils.mixin(request, FlashAvailable.class);
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("message", request.getFlash().getValue());
-        assertNotNull(request.getSession());
-        assertFalse(request.getSession().containsKey("_flash"));
-        assertNull(response.getFlash());
-
+        assertThat(request.getFlash().getValue()).isEqualTo("message");
+        assertThat(request.getSession())
+                .isNotNull()
+                .doesNotContainKeys("_flash");
+        assertThat(response.getFlash()).isNull();
     }
 
     @Test
-    public void setFlash() {
+    void setFlash() {
         //noinspection unchecked
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req ->
@@ -55,8 +56,8 @@ public class FlashMiddlewareTest {
                                 .set(HttpResponse::setFlash, new Flash<>("new flash"))
                                 .build());
         HttpResponse response = middleware.handle(request, chain);
-        assertEquals("message", request.getFlash().getValue());
-        assertEquals("new flash", response.getFlash().getValue());
+        assertThat(request.getFlash().getValue()).isEqualTo("message");
+        assertThat(response.getFlash().getValue()).isEqualTo("new flash");
     }
 
 }

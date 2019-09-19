@@ -114,7 +114,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     }
 
     private Integer keyToInt(Object key) {
-        Integer i;
+        int i;
         if (key instanceof Number) {
             i = ((Number) key).intValue();
         } else {

@@ -9,29 +9,29 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 import static enkan.util.BeanBuilder.builder;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
-public class ContentNegotiationMiddlewareTest {
+class ContentNegotiationMiddlewareTest {
     private ContentNegotiationMiddleware<HttpResponse> middleware;
     private HttpRequest request;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         middleware = new ContentNegotiationMiddleware<>();
     }
 
     @Test
-    public void acceptLanguageWithoutAllowedLanguages() {
+    void acceptLanguageWithoutAllowedLanguages() {
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
                         Headers.of("Accept-Language", "ja,en;q=0.8,en-US;q=0.6"))
@@ -44,7 +44,7 @@ public class ContentNegotiationMiddlewareTest {
                             .filter(Objects::nonNull)
                             .findFirst();
 
-                    assertFalse(locale.isPresent());
+                    assertThat(locale).isNotPresent();
                     return builder(HttpResponse.of("hello"))
                             .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                             .build();
@@ -53,7 +53,7 @@ public class ContentNegotiationMiddlewareTest {
     }
 
     @Test
-    public void acceptLanguage() {
+    void acceptLanguage() {
         middleware.setAllowedLanguages(new HashSet<>(Collections.singletonList("ja")));
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
@@ -67,13 +67,13 @@ public class ContentNegotiationMiddlewareTest {
                             .filter(Objects::nonNull)
                             .findFirst();
 
-                    assertTrue(locale.isPresent());
-                    assertEquals(Locale.JAPANESE, locale.get());
+                    assertThat(locale).isPresent()
+                            .get()
+                            .isEqualTo(Locale.JAPANESE);
                     return builder(HttpResponse.of("hello"))
                             .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                             .build();
                 });
         middleware.handle(request, chain);
     }
-
 }
