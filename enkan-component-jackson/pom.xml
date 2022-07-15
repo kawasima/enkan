@@ -16,7 +16,7 @@
     <name>enkan-component-jackson</name>
 
     <properties>
-        <jackson.version>2.9.9.3</jackson.version>
+        <jackson.version>2.12.6.1</jackson.version>
         <jackson.datatype.version>2.9.9</jackson.datatype.version>
     </properties>
 
