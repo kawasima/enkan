@@ -18,8 +18,8 @@ import kotowari.routing.Routes;
 import kotowari.routing.RoutingGenerationContext;
 import kotowari.routing.UrlRewriter;
 
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;

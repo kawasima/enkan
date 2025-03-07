@@ -3,8 +3,7 @@ package kotowari.example.controller;
 import enkan.data.HttpResponse;
 import enkan.exception.UnreachableException;
 import kotowari.component.TemplateEngine;
-
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author kawasima

@@ -3,8 +3,8 @@ package kotowari.example.controller;
 import enkan.collection.Parameters;
 import enkan.data.HttpResponse;
 import kotowari.component.TemplateEngine;
-
-import javax.inject.Inject;
+import kotowari.example.form.ExampleForm;
+import jakarta.inject.Inject;
 
 /**
  * @author kawasima

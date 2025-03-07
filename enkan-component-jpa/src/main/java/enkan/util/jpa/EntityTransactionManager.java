@@ -1,7 +1,7 @@
 package enkan.util.jpa;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 /**
  * A transaction manager for entity manager.

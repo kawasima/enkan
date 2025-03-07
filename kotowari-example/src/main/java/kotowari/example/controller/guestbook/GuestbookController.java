@@ -7,10 +7,10 @@ import enkan.security.UserPrincipal;
 import kotowari.component.TemplateEngine;
 import kotowari.example.dao.GuestbookDao;
 import kotowari.example.entity.Guestbook;
-
-import javax.enterprise.context.Conversation;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import kotowari.routing.UrlRewriter;
+import jakarta.enterprise.context.Conversation;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;

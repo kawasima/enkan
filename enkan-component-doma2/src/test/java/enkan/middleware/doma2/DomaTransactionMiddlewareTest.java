@@ -13,7 +13,7 @@ import enkan.predicate.AnyPredicate;
 import enkan.util.MixinUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.lang.reflect.Method;
 
 import static enkan.util.BeanBuilder.*;

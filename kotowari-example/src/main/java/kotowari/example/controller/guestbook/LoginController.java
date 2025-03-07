@@ -9,9 +9,10 @@ import kotowari.component.TemplateEngine;
 import kotowari.example.dao.CustomerDao;
 import kotowari.example.entity.Customer;
 import kotowari.example.model.LoginPrincipal;
+import enkan.security.UserPrincipal;
 
-import javax.enterprise.context.Conversation;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Conversation;
+import jakarta.inject.Inject;
 
 import static enkan.util.BeanBuilder.builder;
 import static kotowari.routing.UrlRewriter.redirect;

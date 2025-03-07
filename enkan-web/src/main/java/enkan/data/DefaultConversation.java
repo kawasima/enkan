@@ -1,6 +1,6 @@
 package enkan.data;
 
-import javax.enterprise.context.Conversation;
+import jakarta.enterprise.context.Conversation;
 import java.util.Objects;
 import java.util.UUID;
 

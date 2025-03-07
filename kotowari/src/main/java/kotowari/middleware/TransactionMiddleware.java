@@ -7,8 +7,8 @@ import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 
-import javax.inject.Inject;
-import javax.transaction.*;
+import jakarta.inject.Inject;
+import jakarta.transaction.*;
 import java.lang.reflect.Method;
 
 /**

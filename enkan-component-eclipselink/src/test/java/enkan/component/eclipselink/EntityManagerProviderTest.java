@@ -7,10 +7,10 @@ import enkan.component.jpa.EntityManagerProvider;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -45,6 +45,7 @@ public class EntityManagerProviderTest {
             Person person = em.find(Person.class, 1L);
             assertThat(person).isNull();
             person = new Person();
+            person.setId(1L);
             person.setName("hoho");
             em.getTransaction().begin();
             em.merge(person);

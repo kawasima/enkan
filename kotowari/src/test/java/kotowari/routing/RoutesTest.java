@@ -10,7 +10,7 @@ import enkan.util.MixinUtils;
 import kotowari.routing.controller.ExampleController;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import static enkan.util.BeanBuilder.*;
 import static org.assertj.core.api.Assertions.*;

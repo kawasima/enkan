@@ -3,7 +3,7 @@ package enkan.util;
 import enkan.collection.Parameters;
 import enkan.exception.MisconfigurationException;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;

@@ -6,8 +6,8 @@ import enkan.component.jpa.EntityManagerProvider;
 import enkan.data.jpa.EntityManageable;
 import enkan.util.MixinUtils;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 @Middleware(name = "entityManager")
 public class EntityManagerMiddleware<REQ, RES> implements enkan.Middleware<REQ, RES, REQ, RES> {

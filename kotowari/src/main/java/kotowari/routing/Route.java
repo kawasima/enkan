@@ -7,7 +7,7 @@ import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import kotowari.routing.segment.DividerSegment;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

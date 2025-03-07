@@ -9,8 +9,8 @@ import enkan.util.CodecUtils;
 import kotowari.test.dto.TestDto;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;

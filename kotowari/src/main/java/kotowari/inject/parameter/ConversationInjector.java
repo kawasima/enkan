@@ -3,7 +3,7 @@ package kotowari.inject.parameter;
 import enkan.data.HttpRequest;
 import kotowari.inject.ParameterInjector;
 
-import javax.enterprise.context.Conversation;
+import jakarta.enterprise.context.Conversation;
 
 public class ConversationInjector implements ParameterInjector<Conversation> {
     @Override

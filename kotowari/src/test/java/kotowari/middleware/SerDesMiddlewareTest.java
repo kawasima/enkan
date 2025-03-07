@@ -3,7 +3,7 @@ package kotowari.middleware;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import enkan.Endpoint;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
@@ -16,7 +16,7 @@ import kotowari.test.dto.TestDto;
 import kotowari.util.ParameterUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;

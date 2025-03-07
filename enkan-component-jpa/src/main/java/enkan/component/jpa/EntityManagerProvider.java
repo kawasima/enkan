@@ -3,8 +3,8 @@ package enkan.component.jpa;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;

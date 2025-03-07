@@ -1,9 +1,8 @@
 package kotowari.middleware;
 
 import enkan.MiddlewareChain;
-import enkan.annotation.Middleware;
-import enkan.component.builtin.HmacEncoder;
-import enkan.data.ConversationState;
+import enkan.collection.Headers;
+import enkan.data.ConversationAvailable;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.PrincipalAvailable;
@@ -14,10 +13,12 @@ import enkan.security.UserPrincipal;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.scope.ExportSetting;
+import enkan.data.ConversationState;
+import enkan.component.builtin.HmacEncoder;
 import static kotowari.scope.ExportableScope.*;
 
-import javax.enterprise.context.Conversation;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Conversation;
+import jakarta.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
  *
  * @author kawasima
  */
-@Middleware(name = "renderTemplate")
+@enkan.annotation.Middleware(name = "template", dependencies = {"contentType"})
 public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     @Inject
     private HmacEncoder hmacEncoder;
@@ -142,13 +143,15 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
 
             if (exports.contains(CONVERSATION)) {
                 Conversation conversation = request.getConversation();
-                if (conversation != null && !request.getConversation().isTransient()) {
-                    String token = conversation.getId() + "$"
-                            + hmacEncoder.encodeToHex(conversation.getId() + "$" + conversation.getTimeout())
-                            + "$" + conversation.getTimeout();
-                    tres.getContext().put("conversationToken", token);
+                if (conversation instanceof Conversation) {
+                    if (conversation != null && !request.getConversation().isTransient()) {
+                        String token = conversation.getId() + "$"
+                                + hmacEncoder.encodeToHex(conversation.getId() + "$" + conversation.getTimeout())
+                                + "$" + conversation.getTimeout();
+                        tres.getContext().put("conversationToken", token);
+                    }
+                    tres.getContext().put(exports.getExportName(CONVERSATION), conversation);
                 }
-                tres.getContext().put(exports.getExportName(CONVERSATION), conversation);
             }
 
             if (exports.contains(CONVERSATION_STATE)) {

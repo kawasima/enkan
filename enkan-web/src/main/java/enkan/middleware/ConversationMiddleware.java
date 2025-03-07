@@ -11,8 +11,8 @@ import enkan.data.HttpResponse;
 import enkan.middleware.session.KeyValueStore;
 import enkan.middleware.session.MemoryStore;
 
-import javax.enterprise.context.Conversation;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Conversation;
+import jakarta.inject.Inject;
 import java.util.Objects;
 import java.util.function.Function;
 

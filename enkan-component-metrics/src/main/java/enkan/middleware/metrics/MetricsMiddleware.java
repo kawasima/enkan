@@ -5,7 +5,7 @@ import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.component.metrics.MetricsComponent;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author kawasima

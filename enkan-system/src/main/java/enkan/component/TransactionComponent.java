@@ -1,6 +1,6 @@
 package enkan.component;
 
-import javax.transaction.TransactionManager;
+import jakarta.transaction.TransactionManager;
 
 /**
  * @author kawasima

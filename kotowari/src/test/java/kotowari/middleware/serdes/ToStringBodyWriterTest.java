@@ -2,7 +2,7 @@ package kotowari.middleware.serdes;
 
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;

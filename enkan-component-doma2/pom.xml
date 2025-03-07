@@ -6,8 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.10.0</version>
-        <relativePath>../enkan-parent</relativePath>
+        <version>0.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>enkan-component-doma2</artifactId>
@@ -15,11 +14,23 @@
 
     <name>enkan-component-doma2</name>
 
+    <properties>
+        <doma.version>2.54.0</doma.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.seasar.doma</groupId>
-            <artifactId>doma</artifactId>
-            <version>2.25.1</version>
+            <artifactId>doma-core</artifactId>
+            <version>${doma.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
@@ -52,7 +63,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.199</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

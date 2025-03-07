@@ -6,8 +6,8 @@ import enkan.exception.MisconfigurationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 

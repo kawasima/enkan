@@ -3,7 +3,7 @@ package enkan.middleware.negotiation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

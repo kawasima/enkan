@@ -5,8 +5,8 @@ import enkan.data.HttpResponse;
 import enkan.data.Session;
 import kotowari.component.TemplateEngine;
 import kotowari.example.model.LoginPrincipal;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
 import java.io.File;
 
 import static enkan.util.BeanBuilder.builder;

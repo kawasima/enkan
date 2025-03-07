@@ -9,7 +9,7 @@ import enkan.middleware.negotiation.AcceptHeaderNegotiator;
 import enkan.middleware.negotiation.ContentNegotiator;
 import enkan.util.MixinUtils;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 
 import static enkan.util.ThreadingUtils.*;

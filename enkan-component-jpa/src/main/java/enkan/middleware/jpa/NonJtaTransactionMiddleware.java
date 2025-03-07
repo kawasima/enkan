@@ -6,8 +6,8 @@ import enkan.data.Routable;
 import enkan.data.jpa.EntityManageable;
 import enkan.exception.MisconfigurationException;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.lang.reflect.Method;
 import java.util.Optional;
 

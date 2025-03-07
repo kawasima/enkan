@@ -4,8 +4,8 @@ import enkan.data.ConversationState;
 import enkan.data.HttpResponse;
 import kotowari.component.TemplateEngine;
 
-import javax.enterprise.context.Conversation;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Conversation;
+import jakarta.inject.Inject;
 import java.util.Random;
 
 import static enkan.util.BeanBuilder.builder;

@@ -11,17 +11,18 @@ import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
+import enkan.util.ThreadingUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.inject.ParameterInjector;
 import kotowari.util.ParameterUtils;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyReader;
+import jakarta.ws.rs.ext.MessageBodyWriter;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -45,6 +46,9 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     private final List<MessageBodyReader<?>> bodyReaders = new ArrayList<>();
     private final List<MessageBodyWriter<?>> bodyWriters = new ArrayList<>();
     private List<ParameterInjector<?>> parameterInjectors;
+
+    private static final MediaType APPLICATION_JSON_TYPE = MediaType.APPLICATION_JSON_TYPE;
+    private static final MediaType TEXT_PLAIN_TYPE = MediaType.TEXT_PLAIN_TYPE;
 
     @PostConstruct
     private void loadReaderAndWriter() {

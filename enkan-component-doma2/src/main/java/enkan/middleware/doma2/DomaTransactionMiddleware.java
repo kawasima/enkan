@@ -13,10 +13,10 @@ import org.seasar.doma.jdbc.tx.EnkanLocalTransactionDataSource;
 import org.seasar.doma.jdbc.tx.LocalTransactionManager;
 import org.seasar.doma.jdbc.tx.TransactionManager;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.lang.reflect.Method;
 
 /**

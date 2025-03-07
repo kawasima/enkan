@@ -2,7 +2,7 @@ package enkan.middleware.negotiation;
 
 import enkan.util.CodecUtils;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
@@ -84,10 +84,10 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     @Override
     public MediaType bestAllowedContentType(String acceptsHeader, Set<String> allowedTypes) {
         Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
-                .map(CodecUtils::parseMediaType)
+                .<MediaType>map(CodecUtils::parseMediaType)
                 .collect(Collectors.toSet()));
         return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(accept -> parseAcceptFragment(accept, MediaType.class))
+                .<AcceptFragment<MediaType>>map(accept -> parseAcceptFragment(accept, MediaType.class))
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
                 .min(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))

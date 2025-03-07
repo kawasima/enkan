@@ -4,7 +4,7 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static enkan.component.ComponentRelationship.component;
 import static org.assertj.core.api.Assertions.*;

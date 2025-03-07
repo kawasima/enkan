@@ -18,35 +18,37 @@
         <enkan.version>0.11.0-SNAPSHOT</enkan.version>
         <maven.version>3.6.3</maven.version>
         <maven.surefire.version>3.2.5</maven.surefire.version>
+
+        <jackson.version>2.18.3</jackson.version>
     </properties>
 
     <modules>
-        <module>../enkan-core</module>
-        <module>../enkan-system</module>
-        <module>../enkan-web</module>
-        <module>../enkan-servlet</module>
-        <module>../enkan-repl</module>
-        <module>../enkan-repl-pseudo</module>
-        <module>../enkan-repl-jshell</module>
-        <module>../enkan-devel</module>
-        <module>../enkan-devel-gradle</module>
-        <module>../enkan-component-HikariCP</module>
-        <module>../enkan-component-freemarker</module>
-        <module>../enkan-component-thymeleaf</module>
+        <module>enkan-core</module>
+        <module>enkan-system</module>
+        <module>enkan-web</module>
+        <module>enkan-servlet</module>
+        <module>enkan-repl</module>
+        <module>enkan-repl-pseudo</module>
+        <module>enkan-repl-jshell</module>
+        <module>enkan-devel</module>
+        <module>enkan-devel-gradle</module>
+        <module>enkan-component-HikariCP</module>
+        <module>enkan-component-freemarker</module>
+        <module>enkan-component-thymeleaf</module>
         <!--<module>../enkan-component-jetty</module>-->
-        <module>../enkan-component-undertow</module>
-        <module>../enkan-component-flyway</module>
-        <module>../enkan-component-doma2</module>
-        <module>../enkan-component-jpa</module>
-        <module>../enkan-component-eclipselink</module>
-        <module>../enkan-component-jackson</module>
-        <module>../enkan-component-s2util-beans</module>
-        <module>../enkan-component-metrics</module>
-        <module>../kotowari</module>
-        <module>../kotowari-jpa</module>
-        <module>../enkan-throttling</module>
-        <module>../kotowari-scaffold</module>
-        <module>../kotowari-example</module>
+        <module>enkan-component-undertow</module>
+        <module>enkan-component-flyway</module>
+        <module>enkan-component-doma2</module>
+        <module>enkan-component-jpa</module>
+        <module>enkan-component-eclipselink</module>
+        <module>enkan-component-jackson</module>
+        <module>enkan-component-s2util-beans</module>
+        <module>enkan-component-metrics</module>
+        <module>kotowari</module>
+        <module>kotowari-jpa</module>
+        <module>enkan-throttling</module>
+        <module>kotowari-scaffold</module>
+        <module>kotowari-example</module>
 
     </modules>
     <build>
@@ -250,24 +252,14 @@
                 <version>2.0.0</version>
             </dependency>
             <dependency>
-                <groupId>jakarta.ws.rs</groupId>
-                <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>3.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>3.0.2</version>
-            </dependency>
-            <dependency>
                 <groupId>jakarta.enterprise</groupId>
                 <artifactId>jakarta.enterprise.cdi-api</artifactId>
                 <version>3.0.0</version>
             </dependency>
             <dependency>
-                <groupId>jakarta.annotation</groupId>
-                <artifactId>jakarta.annotation-api</artifactId>
-                <version>2.1.0</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -366,12 +358,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.17.0</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.17.0</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>

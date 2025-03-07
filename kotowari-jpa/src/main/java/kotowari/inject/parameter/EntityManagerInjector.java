@@ -4,7 +4,7 @@ import enkan.data.HttpRequest;
 import enkan.data.jpa.EntityManageable;
 import kotowari.inject.ParameterInjector;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.Optional;
 
 /**

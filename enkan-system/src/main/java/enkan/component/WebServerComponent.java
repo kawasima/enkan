@@ -3,9 +3,10 @@ package enkan.component;
 import enkan.collection.OptionMap;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
+import enkan.system.EnkanSystem;
 
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

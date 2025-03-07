@@ -3,8 +3,8 @@ package enkan.util;
 import enkan.exception.MisconfigurationException;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.*;
 

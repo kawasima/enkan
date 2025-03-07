@@ -10,7 +10,7 @@ import kotowari.inject.ParameterInjector;
 import kotowari.inject.parameter.*;
 import kotowari.util.ParameterUtils;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;

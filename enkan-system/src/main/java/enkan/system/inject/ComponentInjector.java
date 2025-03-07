@@ -4,9 +4,9 @@ import enkan.component.SystemComponent;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Comparator;

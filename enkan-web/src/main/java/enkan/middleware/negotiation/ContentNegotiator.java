@@ -1,6 +1,6 @@
 package enkan.middleware.negotiation;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Set;
 
 /**

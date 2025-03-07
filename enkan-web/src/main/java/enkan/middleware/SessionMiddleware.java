@@ -8,7 +8,7 @@ import enkan.middleware.session.MemoryStore;
 import enkan.middleware.session.KeyValueStore;
 import enkan.util.MixinUtils;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import static enkan.util.ThreadingUtils.some;
 
