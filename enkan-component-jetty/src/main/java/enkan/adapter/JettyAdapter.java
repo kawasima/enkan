@@ -7,20 +7,16 @@ import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.util.ServletUtils;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.Callback;
-import org.eclipse.jetty.server.Handler;
+import jakarta.servlet.http.HttpServletRequest;
+import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.util.function.BiFunction;
 
@@ -31,25 +27,25 @@ public class JettyAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(JettyAdapter.class);
 
     private static class ProxyHandler extends Handler.Abstract {
-        private WebApplication application;
+        private final WebApplication application;
         ProxyHandler(WebApplication application) {
             this.application = application;
         }
 
         @Override
-        public void handle(Request request, Response response, Callback callback) throws IOException, ServletException {
-            if (request.isHandled())
-                return;
-            HttpRequest httpRequest = ServletUtils.buildRequest(request);
+        public boolean handle(Request jettyRequest, Response jettyResponse, org.eclipse.jetty.util.Callback callback) throws Exception {
+            ServletContextRequest servletContextRequest = Request.as(jettyRequest, ServletContextRequest.class);
+            HttpServletRequest servletRequest = servletContextRequest.getServletApiRequest();
+            HttpServletResponse servletResponse = servletContextRequest.getHttpServletResponse();
+            HttpRequest request = ServletUtils.buildRequest(servletRequest);
             try {
-                HttpResponse httpResponse = application.handle(httpRequest);
-                ServletUtils.updateServletResponse(response, httpResponse);
+                HttpResponse response = application.handle(request);
+                ServletUtils.updateServletResponse(servletResponse, response);
             } catch (Exception e) {
                 LOG.error("Unhandled exception", e);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } finally {
-                baseRequest.setHandled(true);
+                servletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
+            return true;
         }
     }
 
@@ -96,7 +92,8 @@ public class JettyAdapter {
         config.addCustomizer(new SecureRequestCustomizer());
         HttpConnectionFactory httpFactory = new HttpConnectionFactory(config);
 
-        SslConnectionFactory sslFactory = new SslConnectionFactory(createSslContextFactory(options), "http/1.1");
+        SslContextFactory.Server sslServer = new SslContextFactory.Server();
+        SslConnectionFactory sslFactory = new SslConnectionFactory(sslServer, "http/1.1");
 
         ServerConnector connector = new ServerConnector(server, sslFactory, httpFactory);
         connector.setPort(sslPort);

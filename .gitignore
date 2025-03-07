@@ -1,5 +1,6 @@
 .idea
 *.iml
+.vscode
 nb-configuration.xml
 target
 *.class
