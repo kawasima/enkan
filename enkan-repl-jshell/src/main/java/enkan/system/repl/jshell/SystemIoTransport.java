@@ -2,7 +2,7 @@ package enkan.system.repl.jshell;
 
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
-import jline.internal.InputStreamReader;
+import org.jline.utils.InputStreamReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;

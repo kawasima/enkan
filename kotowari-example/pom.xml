@@ -39,7 +39,7 @@
                 <version>1.6.0</version>
                 <configuration>
                     <mainClass>kotowari.example.Main</mainClass>
-                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                    <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
             </plugin>
         </plugins>
@@ -114,6 +114,10 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

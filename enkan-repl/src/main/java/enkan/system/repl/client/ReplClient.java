@@ -5,10 +5,13 @@ import enkan.system.repl.serdes.Fressian;
 import enkan.system.repl.serdes.ReplResponseReader;
 import enkan.system.repl.serdes.ReplResponseWriter;
 import enkan.system.repl.serdes.ResponseStatusReader;
-import jline.console.ConsoleReader;
-import jline.console.completer.CandidateListCompletionHandler;
-import jline.console.history.FileHistory;
-import jline.console.history.History;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.DefaultParser;
+import org.jline.reader.impl.history.DefaultHistory;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.zeromq.*;
 import zmq.ZError;
 
@@ -20,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.nio.charset.Charset;
 
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
@@ -37,12 +41,12 @@ public class ReplClient implements AutoCloseable {
         private ZMQ.Socket socket;
         private ZMQ.Socket rendererSock;
         private ZMQ.Socket completerSock;
-        private ConsoleReader console;
+        private LineReader reader;
         private final Fressian fressian;
         private final AtomicBoolean isAvailable = new AtomicBoolean(true);
 
-        public ConsoleHandler(ConsoleReader console) {
-            this.console = console;
+        public ConsoleHandler(LineReader reader) {
+            this.reader = reader;
             this.ctx = new ZContext();
             this.fressian = new Fressian();
             fressian.putReadHandler(ReplResponse.class, new ReplResponseReader());
@@ -69,23 +73,21 @@ public class ReplClient implements AutoCloseable {
                 int retryCnt = 0;
                 boolean active = true;
                 while(active) {
-                    ZMQ.Event event = ZMQ.Event.recv(monitorSocket);
+                    ZEvent event = ZEvent.recv(monitorSocket, ZMQ.DONTWAIT);
                     if (event == null || monitorSocket.errno() == ZError.ETERM) {
                         break;
                     }
-                    switch (event.getEvent()) {
-                        case ZMQ.EVENT_DISCONNECTED:
-                            close();
+                    ZMonitor.Event eventType = event.getEvent();
+                    if (eventType == ZMonitor.Event.DISCONNECTED || eventType == ZMonitor.Event.CLOSED) {
+                        close();
+                        active = false;
+                        isSocketClosed.compareAndSet(false, true);
+                    } else if (eventType == ZMonitor.Event.CONNECT_RETRIED) {
+                        if (retryCnt++ > 3) {
+                            System.err.println("Connection failed");
                             active = false;
                             isSocketClosed.compareAndSet(false, true);
-                            break;
-                        case ZMQ.EVENT_CONNECT_RETRIED:
-                            if (retryCnt++ > 3) {
-                                System.err.println("Connection failed");
-                                active = false;
-                                isSocketClosed.compareAndSet(false, true);
-                            }
-                            break;
+                        }
                     }
                 }
             });
@@ -98,9 +100,9 @@ public class ReplClient implements AutoCloseable {
             ZMsg completerMsg = null;
             while (!Thread.currentThread().isInterrupted()) {
                 if (isSocketClosed.get()) {
-                    ctx.destroySocket(socket);
+                    socket.close();
                     socket = null;
-                    ctx.destroySocket(monitorSocket);
+                    monitorSocket.close();
                     poller.close();
                     return;
                 }
@@ -117,13 +119,19 @@ public class ReplClient implements AutoCloseable {
             if (completerPort != null && completerPort.matches("\\d+")) {
                 completerSock = ctx.createSocket(SocketType.DEALER);
                 completerSock.connect("tcp://" + host + ":" + Integer.parseInt(completerPort));
-                console.addCompleter(new RemoteCompleter(completerSock));
+                if (reader instanceof org.jline.reader.impl.LineReaderImpl) {
+                    System.out.println("Setting up RemoteCompleter");
+                    System.out.println("Current completer: " + ((org.jline.reader.impl.LineReaderImpl) reader).getCompleter());
+                    RemoteCompleter completer = new RemoteCompleter(completerSock);
+                    ((org.jline.reader.impl.LineReaderImpl) reader).setCompleter(completer);
+                    System.out.println("RemoteCompleter setup completed");
+                    System.out.println("New completer: " + ((org.jline.reader.impl.LineReaderImpl) reader).getCompleter());
+                } else {
+                    System.err.println("Reader is not an instance of LineReaderImpl: " + reader.getClass());
+                }
             }
-            if (console.getCompletionHandler() instanceof CandidateListCompletionHandler) {
-                ((CandidateListCompletionHandler) console.getCompletionHandler()).setPrintSpaceAfterFullCompletion(false);
-            }
-            console.println("Connected to server (port = " + port +")");
-            console.flush();
+            reader.getTerminal().writer().println("Connected to server (port = " + port +")");
+            reader.getTerminal().writer().flush();
 
             rendererSock = ZThread.fork(ctx, (args, c, pipe) -> {
                 while (socket != null) {
@@ -131,18 +139,18 @@ public class ReplClient implements AutoCloseable {
                         ZMsg msg = ZMsg.recvMsg(this.socket);
                         ReplResponse res = fressian.read(msg.pop().getData(), ReplResponse.class);
                         if (res.getOut() != null) {
-                            console.println(res.getOut());
+                            reader.getTerminal().writer().println(res.getOut());
                         } else if (res.getErr() != null) {
-                            console.println(res.getErr());
+                            reader.getTerminal().writer().println(res.getErr());
                         }
                         if (res.getStatus().contains(SHUTDOWN)) {
-                            console.flush();
+                            reader.getTerminal().writer().flush();
                             pipe.send("shutdown");
                             break;
                         } else if (res.getStatus().contains(DONE)) {
                             pipe.send("done");
                         }
-                        console.flush();
+                        reader.getTerminal().writer().flush();
                     } catch (ZMQException e) {
                         if (e.getErrorCode() == ZError.ETERM) {
                             break;
@@ -152,14 +160,13 @@ public class ReplClient implements AutoCloseable {
                     }
                 }
             });
-
         }
 
         @Override
         public void run() {
             while(isAvailable.get()) {
                 try {
-                    String line = console.readLine();
+                    String line = reader.readLine("enkan> ");
                     if (line == null) continue;
                     line = line.trim();
                     if (line.startsWith("/connect ")) {
@@ -172,7 +179,7 @@ public class ReplClient implements AutoCloseable {
                             int port = Integer.parseInt(arguments[2]);
                             connect(host, port);
                         } else {
-                            console.println("/connect [host] port");
+                            reader.getTerminal().writer().println("/connect [host] port");
                         }
                     } else if (line.equals("/exit")) {
                         if (rendererSock != null) {
@@ -182,9 +189,9 @@ public class ReplClient implements AutoCloseable {
                         return;
                     } else {
                         if (this.socket == null) {
-                            console.println("Unconnected to enkan system.");
+                            reader.getTerminal().writer().println("Unconnected to enkan system.");
                         } else {
-                            ((FileHistory) console.getHistory()).flush();
+                            ((DefaultHistory) reader.getHistory()).save();
                             this.socket.send(line);
                             String serverInstruction = rendererSock.recvStr();
                             if (Objects.equals(serverInstruction, "shutdown")) {
@@ -209,7 +216,7 @@ public class ReplClient implements AutoCloseable {
         public void close() {
             if (socket != null) {
                 socket.send("/disconnect", ZMQ.DONTWAIT);
-                ctx.destroySocket(socket);
+                socket.close();
                 socket = null;
             }
 
@@ -222,21 +229,68 @@ public class ReplClient implements AutoCloseable {
     }
 
     public void start(int initialPort) throws Exception {
-        ConsoleReader console = new ConsoleReader();
-        console.getTerminal().setEchoEnabled(false);
-        console.setPrompt("\u001B[32menkan\u001B[0m> ");
-        History history = new FileHistory(new File(System.getProperty("user.home"), ".enkan_history"));
-        console.setHistory(history);
+        try {
+            // Enable debug logging
+            System.setProperty("org.jline.terminal.debug", "true");
+            System.setProperty("org.jline.terminal.dumb", "false");
+            System.setProperty("org.jline.reader.debug", "true");
+            
+            // Try to create a native terminal
+            Terminal terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .signalHandler(Terminal.SignalHandler.SIG_DFL)
+                    .streams(System.in, System.out)
+                    .encoding(Charset.defaultCharset())
+                    .build();
 
-        CandidateListCompletionHandler handler = new CandidateListCompletionHandler();
-        console.setCompletionHandler(handler);
+            terminal.handle(Terminal.Signal.INT, signal -> {
+                System.out.println("\nReceived SIGINT - shutting down...");
+                close();
+                System.exit(0);
+            });
 
-        consoleHandler = new ConsoleHandler(console);
-        if (initialPort > 0) {
-            consoleHandler.connect(initialPort);
+            System.out.println("Terminal type: " + terminal.getType());
+            System.out.println("Terminal class: " + terminal.getClass().getName());
+            System.out.println("Terminal width: " + terminal.getWidth());
+            System.out.println("Terminal height: " + terminal.getHeight());
+
+            // Configure terminal attributes
+            terminal.enterRawMode();
+            Attributes attrs = terminal.getAttributes();
+            attrs.setLocalFlag(Attributes.LocalFlag.ECHO, false);
+            terminal.setAttributes(attrs);
+
+            // Configure parser
+            DefaultParser parser = new DefaultParser();
+            parser.setEscapeChars(null);
+
+            // Configure line reader
+            LineReader reader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .parser(parser)
+                    .option(LineReader.Option.DISABLE_EVENT_EXPANSION, false)
+                    .option(LineReader.Option.AUTO_FRESH_LINE, true)
+                    .option(LineReader.Option.COMPLETE_IN_WORD, true)
+                    .option(LineReader.Option.AUTO_MENU, true)
+                    .build();
+
+            reader.setVariable(LineReader.SECONDARY_PROMPT_PATTERN, "");
+            reader.setVariable(LineReader.HISTORY_FILE, new File(System.getProperty("user.home"), ".enkan_history"));
+
+            // Debug output
+            System.out.println("LineReader class: " + reader.getClass().getName());
+            System.out.println("Parser class: " + reader.getParser().getClass().getName());
+            System.out.println("Completer status: " + (reader.getClass().getName().contains("LineReaderImpl") ? "Available" : "Not available"));
+
+            consoleHandler = new ConsoleHandler(reader);
+            if (initialPort > 0) {
+                consoleHandler.connect(initialPort);
+            }
+            clientThread.execute(consoleHandler);
+            clientThread.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        clientThread.execute(consoleHandler);
-        clientThread.shutdown();
     }
 
     public void start() throws Exception {

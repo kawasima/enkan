@@ -27,11 +27,12 @@
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
+            <version>${enkan.version}</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-repl</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>${enkan.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

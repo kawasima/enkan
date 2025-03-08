@@ -15,6 +15,11 @@
     <name>enkan-repl</name>
     <description>REPL common libraries for Enkan</description>
 
+    <properties>
+        <jeromq.version>0.6.0</jeromq.version>
+        <jline.version>3.24.1</jline.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -30,12 +35,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.5.2</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals><goal>shade</goal></goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <outputFile>enkan-repl-client.jar</outputFile>
                     <transformers>
@@ -66,13 +65,24 @@
         <dependency>
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
-            <version>0.5.4</version>
+            <version>${jeromq.version}</version>
         </dependency>
         <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.14.6</version>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>2.4.1</version>
+            <scope>runtime</scope>
+        </dependency>        
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>

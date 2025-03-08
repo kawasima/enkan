@@ -17,6 +17,7 @@ import org.zeromq.*;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -27,9 +28,9 @@ import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 public class JShellRepl implements Repl {
     private static final Logger LOG = LoggerFactory.getLogger(JShellRepl.class);
 
-    private JShell jshell;
-    private JShellIoProxy ioProxy;
-    private ExecutorService threadPool;
+    private final JShell jshell;
+    private final JShellIoProxy ioProxy;
+    private final ExecutorService threadPool;
     private final Map<String, SystemCommand> localCommands = new HashMap<>();
     private final Set<String> commandNames = new HashSet<>();
     private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
@@ -53,7 +54,7 @@ public class JShellRepl implements Repl {
                     }
                     break;
                 case NONEXISTENT:
-                    LOG.info("NONEXISTENT:" + statement);
+                    LOG.info("NONEXISTENT:{}", statement);
                     break;
                 case REJECTED:
                     jshell.diagnostics(event.snippet())
@@ -66,7 +67,7 @@ public class JShellRepl implements Repl {
                             });
                     break;
                 default:
-                    LOG.warn(event.status() + ":" + statement);
+                    LOG.warn("{}:{}", event.status(), statement);
             }
         }
         return msg;
@@ -80,17 +81,21 @@ public class JShellRepl implements Repl {
                     .out(ioProxy.forJShellPrintStream())
                     .err(ioProxy.forJShellErrorStream())
                     .build();
-            String cp = System.getProperty("java.class.path");
-            jshell.addToClasspath(cp);
+            URLClassLoader cl = (URLClassLoader)Thread.currentThread().getContextClassLoader();
+            Arrays.stream(cl.getURLs()).forEach(url -> jshell.addToClasspath(url.toString()));
+            // Add target/classes to classpath
+            String userDir = System.getProperty("user.dir");
+            System.err.println("userDir: " + userDir);
+            jshell.addToClasspath(userDir + "/target/classes");
             
             executeStatement("import java.util.*");
             executeStatement("import enkan.system.*");
             executeStatement("import enkan.config.EnkanSystemFactory");
             executeStatement("import enkan.system.repl.jshell.JShellObjectTransferer");
             executeStatement("import enkan.system.repl.jshell.SystemIoTransport");
-            executeStatement("SystemIoTransport transport = new SystemIoTransport()");
-            executeStatement("EnkanSystem system = ((Class<? extends EnkanSystemFactory>)Class.forName(\"" + enkanSystemFactoryClassName + "\")).newInstance().create()");
-            executeStatement("Map<String, SystemCommand> __commands = new HashMap<>()");
+            executeStatement("var transport = new SystemIoTransport()");
+            executeStatement("var system = ((Class<? extends EnkanSystemFactory>)Class.forName(\"" + enkanSystemFactoryClassName + "\")).newInstance().create()");
+            executeStatement("var __commands = new HashMap<String, SystemCommand>()");
 
             threadPool = Executors.newCachedThreadPool(runnable -> {
                 Thread t = new Thread(runnable);
@@ -159,7 +164,7 @@ public class JShellRepl implements Repl {
     private void executeCommand(String commandName, String[] args, Transport transport) {
         try {
             String argStr = Arrays.stream(args)
-                    .map(arg -> "\"" + arg.replaceAll("\"", "\\\"") + "\"")
+                    .map(arg -> "\"" + arg.replaceAll("\"", "\"") + "\"")
                     .collect(Collectors.joining(","));
             StringBuilder execStatement = new StringBuilder("__commands.get(\"")
                     .append(commandName)
@@ -184,10 +189,9 @@ public class JShellRepl implements Repl {
     @Override
     public void run() {
         ZContext ctx = new ZContext();
-        ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
-        ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER);
 
-        try {
+        try (ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
+             ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER)) {
             int port = Env.getInt("repl.port", 0);
             String host = Env.getString("repl.host", "localhost");
             if (port == 0) {
@@ -196,7 +200,7 @@ public class JShellRepl implements Repl {
                 server.bind("tcp://" + host + ":" + port);
             }
             ioProxy.start();
-            LOG.info("Listen " + port);
+            LOG.info("Listen {}", port);
             replPort.complete(port);
 
             // Completer
@@ -247,17 +251,7 @@ public class JShellRepl implements Repl {
             LOG.error("REPL server error", e);
         } finally {
             LOG.info("Shutdown REPL server");
-            try {
-                threadPool.shutdown();
-                if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {
-                    threadPool.shutdownNow();
-                }
-            } catch (InterruptedException ex) {
-                threadPool.shutdownNow();
-            }
             jshell.close();
-            ctx.destroySocket(completerSock);
-            ctx.destroySocket(server);
             ctx.destroy();
         }
 
