@@ -23,7 +23,7 @@ public class UrlFormEncodedBodyWriterTest {
     public void test() throws IOException {
         EnkanSystem system = EnkanSystem.of("beans", new JacksonBeansConverter());
         system.start();
-        Map<String, SystemComponent> components = new HashMap<String, SystemComponent>() {{
+        Map<String, SystemComponent<?>> components = new HashMap<>() {{
             put("beans", system.getComponent("beans"));
         }};
         ComponentInjector injector = new ComponentInjector(components);

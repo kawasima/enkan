@@ -46,7 +46,7 @@ public class MethodOverrideMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         String val = getterFunction.apply(request);
         if (val != null) {
             request.setRequestMethod(val);

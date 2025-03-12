@@ -8,6 +8,6 @@ import enkan.system.inject.ComponentInjector;
  *
  * @author kawasima
  */
-public interface ApplicationFactory {
-    Application create(ComponentInjector injector);
+public interface ApplicationFactory<REQ,RES> {
+    Application<REQ,RES> create(ComponentInjector injector);
 }

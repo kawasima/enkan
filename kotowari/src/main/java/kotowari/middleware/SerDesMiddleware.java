@@ -52,7 +52,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     @PostConstruct
     private void loadReaderAndWriter() {
-        Map<String, SystemComponent> components = new HashMap<>();
+        Map<String, SystemComponent<?>> components = new HashMap<>();
         components.put("beans", (SystemComponent) beans);
         ComponentInjector injector = new ComponentInjector(components);
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
@@ -168,7 +168,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         MediaType responseType = ((ContentNegotiable) request).getMediaType();
         try {

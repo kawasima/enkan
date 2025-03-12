@@ -48,7 +48,7 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
         request = MixinUtils.mixin(request, Routable.class);
         Class<?> controllerClass;
 

@@ -15,7 +15,7 @@
     <name>enkan-component-doma2</name>
 
     <properties>
-        <doma.version>2.54.0</doma.version>
+        <doma.version>2.62.1</doma.version>
     </properties>
 
     <dependencies>

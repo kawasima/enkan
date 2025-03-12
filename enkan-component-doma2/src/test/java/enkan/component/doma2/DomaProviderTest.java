@@ -20,6 +20,7 @@ import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 public class DomaProviderTest {
     @Test
     public void test() throws Exception {
@@ -27,25 +28,7 @@ public class DomaProviderTest {
         ds.setURL("jdbc:h2:mem:test;AUTOCOMMIT=FALSE;DB_CLOSE_DELAY=-1");
 
         EnkanSystem system = EnkanSystem.of("doma", new DomaProvider(),
-                "datasource", new DataSourceComponent<DataSourceComponent>() {
-                    @Override
-                    public DataSource getDataSource() {
-                        return ds;
-                    }
-
-                    @Override
-                    protected ComponentLifecycle<DataSourceComponent> lifecycle() {
-                        return new ComponentLifecycle<DataSourceComponent>() {
-                            @Override
-                            public void start(DataSourceComponent component) {
-                            }
-
-                            @Override
-                            public void stop(DataSourceComponent dataSourceComponent) {
-                            }
-                        };
-                    }
-                }).relationships(
+                "datasource", new TestDataSourceComponent(ds)).relationships(
                 ComponentRelationship.component("doma").using("datasource")
         );
         system.start();
@@ -90,4 +73,30 @@ public class DomaProviderTest {
             system.stop();
         }
     }
+
+    static class TestDataSourceComponent extends DataSourceComponent<TestDataSourceComponent> {
+        private final DataSource ds;
+    
+        TestDataSourceComponent(DataSource ds) {
+            this.ds = ds;
+        }
+    
+        @Override
+        public DataSource getDataSource() {
+            return ds;
+        }
+    
+        @Override
+        protected ComponentLifecycle<TestDataSourceComponent> lifecycle() {
+            return new ComponentLifecycle<>() {
+                @Override
+                public void start(TestDataSourceComponent component) {
+                }
+    
+                @Override
+                public void stop(TestDataSourceComponent component) {
+                }
+            };
+        }
+    }    
 }

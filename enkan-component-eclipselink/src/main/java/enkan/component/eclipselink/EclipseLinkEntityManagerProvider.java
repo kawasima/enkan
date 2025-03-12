@@ -3,6 +3,7 @@ package enkan.component.eclipselink;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.jpa.EntityManagerProvider;
+import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
@@ -30,7 +31,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
     private static final Logger LOG = LoggerFactory.getLogger(EclipseLinkEntityManagerProvider.class);
 
     /** Managed classes */
-    private List<Class<?>> managedClasses = new ArrayList<>();
+    private final List<Class<?>> managedClasses = new ArrayList<>();
 
     private String sqlLogLevel = "FINE";
 
@@ -39,7 +40,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
      */
     @Override
     protected ComponentLifecycle<EclipseLinkEntityManagerProvider> lifecycle() {
-        return new ComponentLifecycle<EclipseLinkEntityManagerProvider>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(EclipseLinkEntityManagerProvider component) {
                 component.setDataSourceComponent(component.getDependency(DataSourceComponent.class));
@@ -47,6 +48,9 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
                 pu.setPersistenceUnitName(getName());
                 pu.setClassLoader(Thread.currentThread().getContextClassLoader());
                 URL dummyPersistenceXmlUrl = getClass().getResource("/META-INF/persistence.xml");
+                if (dummyPersistenceXmlUrl == null) {
+                    throw new MisconfigurationException("eclipselink.PERSISTENCE_XML_NOT_FOUND");
+                }
                 String s = dummyPersistenceXmlUrl.toExternalForm();
                 URI rootUri = URI.create(s.substring(0, s.length() - "persistence.xml".length()));
                 try {

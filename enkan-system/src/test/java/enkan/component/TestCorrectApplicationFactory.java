@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class TestCorrectApplicationFactory implements ApplicationFactory {
+public class TestCorrectApplicationFactory implements ApplicationFactory<String, String> {
     @Override
-    public Application create(ComponentInjector injector) {
-        Application<String, String> app = new Application<String, String>() {
+    public Application<String, String> create(ComponentInjector injector) {
+        Application<String, String> app = new Application<>() {
             private final List<MiddlewareChain<?, ?, ?, ?>> middlewares = new ArrayList<>();
 
             @Override
@@ -24,9 +24,15 @@ public class TestCorrectApplicationFactory implements ApplicationFactory {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public String handle(String s) {
-                return new DefaultMiddlewareChain<String, String, Object, Object> (Predicates.any(), "bootstrap", (req1, chain) ->
-                        (String) chain.next(req1)).setNext((MiddlewareChain<Object, Object, ?, ?>) middlewares.get(0)).next(s);
+                return new DefaultMiddlewareChain<>(Predicates.any(), "bootstrap",
+                        new Middleware<String, String, Object, Object>() {
+                            @Override
+                            public <NNREQ, NNRES> String handle(String req, MiddlewareChain<Object, Object, NNREQ, NNRES> chain) {
+                                return (String) chain.next(req);
+                            }
+                        }).setNext((MiddlewareChain<Object, Object, ?, ?>) middlewares.getFirst()).next(s);
             }
 
             @Override

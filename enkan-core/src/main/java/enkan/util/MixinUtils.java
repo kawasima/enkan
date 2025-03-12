@@ -2,7 +2,6 @@ package enkan.util;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -22,14 +21,10 @@ public class MixinUtils {
     private static final ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
 
     private static MethodHandle lookupSpecial(Method m) {
-        final Class<?> declaringClass = m.getDeclaringClass();
+        Class<?> declaringClass = m.getDeclaringClass();
         return tryReflection(() -> {
-            Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
-                    .getDeclaredConstructor(Class.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(declaringClass)
-                    .in(declaringClass)
-                    .unreflectSpecial(m, declaringClass);
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup());
+            return lookup.unreflectSpecial(m, declaringClass);
         });
     }
 
@@ -39,8 +34,8 @@ public class MixinUtils {
 
     static class MixinProxyHandler<T> implements InvocationHandler {
         private final T original;
-        private final Class[] proxyInterfaces;
-        MixinProxyHandler(T original, Class[] proxyInterfaces) {
+        private final Class<?>[] proxyInterfaces;
+        MixinProxyHandler(T original, Class<?>[] proxyInterfaces) {
             this.original = original;
             this.proxyInterfaces = proxyInterfaces;
         }
@@ -65,7 +60,7 @@ public class MixinUtils {
             return original;
         }
 
-        public Class[] getProxyInterfaces() {
+        public Class<?>[] getProxyInterfaces() {
             return proxyInterfaces;
         }
     }
@@ -84,7 +79,7 @@ public class MixinUtils {
 
     }
 
-    static Class[] getAllInterfaces(final Class<?> clazz) {
+    static Class<?>[] getAllInterfaces(final Class<?> clazz) {
         if (clazz == null) return null;
 
         final HashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
@@ -103,17 +98,17 @@ public class MixinUtils {
             return target;
         }
 
-        Class[] classes;
+        Class<?>[] classes;
         int addedIndex;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
             target = handler.getOriginal();
-            Class[] originalInterfaces = handler.getProxyInterfaces();
+            Class<?>[] originalInterfaces = handler.getProxyInterfaces();
             classes = new Class[originalInterfaces.length + interfaces.length];
             System.arraycopy(originalInterfaces, 0, classes, 0, originalInterfaces.length);
             addedIndex = originalInterfaces.length;
         } else {
-            Class[] targetInterfaces = getAllInterfaces(targetClass);
+            Class<?>[] targetInterfaces = getAllInterfaces(targetClass);
             classes = new Class[targetInterfaces.length + interfaces.length];
             System.arraycopy(targetInterfaces, 0, classes, 0, targetInterfaces.length);
             addedIndex = targetInterfaces.length;

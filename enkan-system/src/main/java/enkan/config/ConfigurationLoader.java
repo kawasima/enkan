@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -92,14 +91,14 @@ public class ConfigurationLoader extends ClassLoader {
         int idx = name.lastIndexOf('.');
         if (idx > 0) {
             String pkgName = name.substring(0, idx);
-            Package pkg = getPackage(pkgName);
+            Package pkg = getDefinedPackage(pkgName);
             if (pkg == null) {
                 definePackage(pkgName, null, null, null, null, null, null, null);
             }
         }
     }
 
-    private Class defineClass(String name, boolean resolve) {
+    private Class<?> defineClass(String name, boolean resolve) {
         try (InputStream in = getResourceAsStream(name.replaceAll("\\.", "/") + ".class");
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             if (in == null) return null;
@@ -122,28 +121,19 @@ public class ConfigurationLoader extends ClassLoader {
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class<?> c = findLoadedClass(name);
-        if (c != null) return c;
-
-        try {
-            Method findLoadedClassMethod = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
-            findLoadedClassMethod.setAccessible(true);
-            c = (Class) findLoadedClassMethod.invoke(getParent(), name);
-            if (c != null){
-                return c;
+        synchronized (getClassLoadingLock(name)) {
+            if (isTarget(name)) {
+                System.err.println("reloading target classA: " + name);
+                Class<?> c = findLoadedClass(name);
+                if (c != null) return c;
+                c = defineClass(name, resolve);
+                if (c != null) {
+                    System.err.println("Loaded: " + name);
+                    return c;
+                }
             }
-        } catch (Exception e) {
-            throw new ClassNotFoundException(name, e);
+            return super.loadClass(name, resolve);
         }
-
-
-        if (isTarget(name)) {
-            c = defineClass(name, resolve);
-            if (c != null)
-                return c;
-        }
-
-        return super.loadClass(name, resolve);
     }
 
     public List<File> reloadableFiles() {

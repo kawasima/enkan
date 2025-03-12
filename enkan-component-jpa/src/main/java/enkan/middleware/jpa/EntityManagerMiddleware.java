@@ -15,7 +15,7 @@ public class EntityManagerMiddleware<REQ, RES> implements enkan.Middleware<REQ, 
     private EntityManagerProvider entityManagerProvider;
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         EntityManager em = entityManagerProvider.createEntityManager();
         req = MixinUtils.mixin(req, EntityManageable.class);
         EntityManageable.class.cast(req).setEntityManager(em);

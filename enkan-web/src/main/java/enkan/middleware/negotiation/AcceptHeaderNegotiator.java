@@ -108,7 +108,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
             charset = charset.toLowerCase(Locale.US);
             return accepts.getOrDefault(charset,
                     accepts.getOrDefault("*",
-                            charset.equals("ISO_8859_1") ? 1.0 : 0.0));
+                            charset.equals("iso_8859_1") ? 1.0 : 0.0));
         }).orElse(null);
     }
 

@@ -16,10 +16,10 @@ public class UndertowComponent extends WebServerComponent<UndertowComponent> {
 
     @Override
     protected ComponentLifecycle<UndertowComponent> lifecycle() {
-        return new ComponentLifecycle<UndertowComponent>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(UndertowComponent component) {
-                ApplicationComponent app = getDependency(ApplicationComponent.class);
+                ApplicationComponent<?, ?> app = getDependency(ApplicationComponent.class);
                 if (server == null) {
                     OptionMap options = buildOptionMap();
                     server = new UndertowAdapter().runUndertow((WebApplication) app.getApplication(), options);

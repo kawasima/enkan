@@ -20,6 +20,10 @@ import jakarta.transaction.Transactional;
 import java.lang.reflect.Method;
 
 /**
+ * Middleware for Doma2 transaction management.
+ * This middleware opens and closes a transaction for each request.
+ * The transaction type is determined by the {@link Transactional} annotation.
+ * This middleware requires {@link DomaProvider} to provide a {@link Config} object.
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "domaTransaction")
@@ -29,6 +33,12 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
 
     private TransactionManager tm;
 
+    /**
+     * Retrieves the transaction type from the given method.
+     *
+     * @param m the method to inspect
+     * @return the transaction type, or null if not found
+     */
     private Transactional.TxType getTransactionType(Method m) {
         Transactional transactional = m.getDeclaredAnnotation(Transactional.class);
         return transactional != null ? transactional.value() : null;
@@ -45,7 +55,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NRES, NREQ> RES handle(REQ req, MiddlewareChain<REQ, RES, NRES, NREQ> chain) {
         if (req instanceof Routable) {
             Routable routable = (Routable) req;
             Method m = routable.getControllerMethod();

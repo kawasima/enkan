@@ -91,7 +91,7 @@ public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, N
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, ? ,?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, NNREQ,NNRES> next) {
         paramsRequest(httpRequest);
         return castToHttpResponse(next.next(httpRequest));
     }

@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import static enkan.util.ThreadingUtils.some;
 
 /**
+ * The middleware for session management.
  * @author kawasima
  */
 @Middleware(name = "session", dependencies = {"cookies"})
@@ -93,7 +94,7 @@ public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         request = MixinUtils.mixin(request, WebSessionAvailable.class);
         sessionRequest(request);
         HttpResponse response = castToHttpResponse(chain.next(request));

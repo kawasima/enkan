@@ -17,15 +17,13 @@ public class ContentTypeOptionsMiddleware<NRES> extends AbstractWebMiddleware<Ht
     private String contentTypeOptions = "nosniff";
 
     public ContentTypeOptionsMiddleware() {
-
     }
-
     public ContentTypeOptionsMiddleware(String contentTypeOptions) {
         this.contentTypeOptions = contentTypeOptions;
     }
 
     @Override
-    public HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
         HttpResponse response = castToHttpResponse(next.next(httpRequest));
         if (response != null) {
             header(response, "X-Content-Type-Options", contentTypeOptions);

@@ -14,11 +14,14 @@ import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.test.dto.TestDto;
 import kotowari.util.ParameterUtils;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
 
 import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +69,8 @@ public class SerDesMiddlewareTest {
 
         Object testDto = middleware.deserialize(request, List.class, new TypeReference<List<TestDto>>(){}.getType(), new MediaType("application", "json"));
         assertThat(testDto).isInstanceOf(List.class);
-        assertThat(testDto).asList().size().isEqualTo(2);
-        assertThat(testDto).asList().contains(builder(new TestDto())
+        assertThat(testDto).asInstanceOf(InstanceOfAssertFactories.LIST).size().isEqualTo(2);
+        assertThat(testDto).asInstanceOf(InstanceOfAssertFactories.LIST).contains(builder(new TestDto())
                 .set(TestDto::setA, 1)
                 .set(TestDto::setB, "ccb")
                 .build());
@@ -88,7 +91,7 @@ public class SerDesMiddlewareTest {
 
         Object testDto = middleware.deserialize(request, Object.class, Object.class, new MediaType("application", "json"));
         assertThat(testDto).isInstanceOf(List.class);
-        assertThat(testDto).asList().size().isEqualTo(2);
+        assertThat(testDto).asInstanceOf(InstanceOfAssertFactories.LIST).size().isEqualTo(2);
     }
 
     @Test
@@ -112,13 +115,13 @@ public class SerDesMiddlewareTest {
         MiddlewareChain<HttpRequest, Object, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, Object>) req ->
                         tryReflection(() -> {
-                            List<TestDto> obj = BodyDeserializable.class.cast(req).getDeserializedBody();
-                            return Routable.class.cast(req).getControllerMethod().invoke(controller, obj);
+                            List<TestDto> obj = ((BodyDeserializable) req).getDeserializedBody();
+                            return ((Routable) req).getControllerMethod().invoke(controller, obj);
                         }));
 
         HttpResponse resp = tryReflection(() -> {
             Method fooMethod = TestController.class.getMethod("foo", List.class);
-            Routable.class.cast(request).setControllerMethod(fooMethod);
+            ((Routable) request).setControllerMethod(fooMethod);
             return middleware.handle(request, chain);
         });
 
@@ -133,7 +136,11 @@ public class SerDesMiddlewareTest {
         SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
                 .set(SerDesMiddleware::setBodyReaders, jsonProvider)
                 .build();
-        middleware.serialize(null, new MediaType("application", "json"));
+        try (InputStream in = middleware.serialize(null, new MediaType("application", "json"))) {
+            assertThat(in).isInstanceOf(ByteArrayInputStream.class);
+        } catch (IOException e) {
+            fail("IOException occurred.", e);
+        };
     }
 
     @Test

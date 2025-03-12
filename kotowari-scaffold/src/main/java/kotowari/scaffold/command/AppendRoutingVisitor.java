@@ -1,12 +1,13 @@
 package kotowari.scaffold.command;
 
-import com.github.javaparser.ASTHelper;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+
+import static com.github.javaparser.StaticJavaParser.parseClassOrInterfaceType;
 
 /**
  * @author kawasima
@@ -19,7 +20,7 @@ public class AppendRoutingVisitor extends VoidVisitorAdapter<RoutingDefineContex
     }
 
     public void visit(final MethodCallExpr n, final RoutingDefineContext arg) {
-        if (n.getName().equals("define") && n.getScope().equals(ASTHelper.createNameExpr("Routes"))) {
+        if (n.getName().asString().equals("define") && n.getScope().filter(s -> s.equals(new NameExpr("Routes"))).isPresent()) {
             arg.setInRoutingDefine(true);
             super.visit(n, arg);
             arg.setInRoutingDefine(false);
@@ -38,13 +39,10 @@ public class AppendRoutingVisitor extends VoidVisitorAdapter<RoutingDefineContex
     public void visit(final BlockStmt n, final RoutingDefineContext arg) {
         if (arg.isInRoutingDefine()) {
             MethodCallExpr call = new MethodCallExpr(
-                    ASTHelper.createNameExpr(arg.getRoutingParameter().getId().getName()),
+                    new NameExpr(arg.getRoutingParameter().getNameAsString()),
                     "resource");
-
-            ReferenceType rt = ASTHelper.createReferenceType(controllerClassName, 0);
-
-            ASTHelper.addArgument(call, new ClassExpr(rt.getType()));
-            ASTHelper.addStmt(n, call);
+            call.addArgument(new ClassExpr(parseClassOrInterfaceType(controllerClassName)));
+            n.addStatement(call);
         } else {
             super.visit(n, arg);
         }

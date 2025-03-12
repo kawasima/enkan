@@ -9,7 +9,6 @@ import java.util.*;
 
 /**
  * If the exception is caused by a misconfiguration, throws this exception.
- *
  * MisconfigurationException is for the developers.
  *
  * @author kawasima

@@ -12,11 +12,27 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Proxies input/output operations for a JShell environment.
+ *
+ * <p>
+ * This class manages communication between JShell and ZeroMQ transports,
+ * redirecting standard output and error streams to connected clients.
+ * </p>
+ *
+ * <p>
+ * It uses piped streams to capture JShell output and redirects it to
+ * appropriate ZeroMQ transports.
+ * </p>
+ *
+ * @author kawasima
+ */
 public class JShellIoProxy {
-    private PrintStream out;
-    private PrintStream err;
-    private BufferedReader outReader;
-    private BufferedReader errReader;
+    /** PrintStream for capturing standard output */
+    private final PrintStream out;
+    private final PrintStream err;
+    private final BufferedReader outReader;
+    private final BufferedReader errReader;
     private final Map<ZFrame, ZmqServerTransport> transports;
     private final ExecutorService ioThreadPool = Executors.newFixedThreadPool(2);
 
@@ -91,18 +107,10 @@ public class JShellIoProxy {
     public void stop() {
         ioThreadPool.shutdown();
         try {
-            if (out != null)
-                out.close();
-
-            if (err != null)
-                err.close();
-
-            if (outReader != null)
-                outReader.close();
-
-            if (errReader != null)
-                errReader.close();
-
+            out.close();
+            err.close();
+            outReader.close();
+            errReader.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

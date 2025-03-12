@@ -15,28 +15,45 @@ import java.util.function.Predicate;
 /**
  * The middleware for normalizing parameter values.
  *
+ * @param <NRES> the type of the response object
  * @author kawasima
  */
 @Middleware(name = "normalization", dependencies = {"params"})
 public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
-    private List<NormalizationSpec<Object>> normalizationSpecs;
+    private final List<NormalizationSpec<Object>> normalizationSpecs;
 
     public NormalizationMiddleware() {
         this.normalizationSpecs = new ArrayList<>();
     }
 
+    @SafeVarargs
     public NormalizationMiddleware(NormalizationSpec<Object> spec, NormalizationSpec<Object>... specs) {
         this();
         normalizationSpecs.add(spec);
         normalizationSpecs.addAll(Arrays.asList(specs));
     }
 
+    /**
+     * Creates a normalization specification.
+     *
+     * @param <T> the type of the value to be normalized
+     * @param predicate the predicate to test parameter keys
+     * @param normalizer the normalizer to apply
+     * @return a new normalization specification
+     */
     public static <T> NormalizationSpec<T> normalization(Predicate<String> predicate, Normalizer<T> normalizer) {
         return new NormalizationSpec<>(predicate, normalizer);
     }
 
+    /**
+     * Adds a normalization specification.
+     *
+     * @param request the request object
+     * @param chain the middleware chain
+     * @return the response object
+     */
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         Parameters params = request.getParams();
         if (params != null) {
             params.keySet().forEach(key -> {
@@ -53,6 +70,11 @@ public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpReq
         return castToHttpResponse(chain.next(request));
     }
 
+    /**
+     * A normalization specification.
+     *
+     * @param <T> the type of the value to be normalized
+     */
     public static class NormalizationSpec<T> {
         private Normalizer<T> normalizer;
         private Predicate<String> predicate;

@@ -26,10 +26,6 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
     private String table = "schema_version";
     private Flyway flyway;
 
-    public FlywayMigration() {
-
-    }
-
     private boolean isMigrationAvailable() {
         return Arrays.stream(flyway.getConfiguration().getLocations())
                 .anyMatch(l-> {
@@ -43,7 +39,7 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
 
     @Override
     protected ComponentLifecycle<FlywayMigration> lifecycle() {
-        return new ComponentLifecycle<FlywayMigration>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(FlywayMigration component) {
                 DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);

@@ -13,7 +13,7 @@ class ApplicationComponentTest {
     @Test
     void validationError() {
         assertThatThrownBy(() -> {
-            ApplicationComponent component = new ApplicationComponent(TestApplicationFactory.class.getName());
+            ApplicationComponent<String, String> component = new ApplicationComponent<>(TestApplicationFactory.class.getName());
             component.lifecycle().start(component);
         }).isExactlyInstanceOf(MisconfigurationException.class);
     }

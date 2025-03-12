@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 /**
  * The application applied middlewares.
- *
  * When you use a middleware, call the <code>use</code> method.
  *
  * @author kawasima
@@ -73,8 +72,8 @@ public interface Application<AREQ, ARES> {
         Set<String> priorMiddelwares = new HashSet<>();
         priorMiddelwares.add("");
 
-        for (MiddlewareChain chain : getMiddlewareStack()) {
-            Middleware middleware = chain.getMiddleware();
+        for (MiddlewareChain<?,?,?,?> chain : getMiddlewareStack()) {
+            Middleware<?,?,?,?> middleware = chain.getMiddleware();
             enkan.annotation.Middleware anno = middleware.getClass().getAnnotation(enkan.annotation.Middleware.class);
             if (anno == null) continue;
             String name = anno.name();

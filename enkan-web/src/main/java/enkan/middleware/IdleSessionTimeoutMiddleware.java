@@ -27,11 +27,6 @@ public class IdleSessionTimeoutMiddleware<NRES> extends AbstractWebMiddleware<Ht
             HttpResponseUtils.redirect("/", TEMPORARY_REDIRECT);
     private static final String SESSION_KEY = IdleSessionTimeoutMiddleware.class.getName() + "/idleTimeout";
 
-
-    public IdleSessionTimeoutMiddleware() {
-
-    }
-
     /**
      * Returns a current time seconds from epoch.
      *
@@ -42,7 +37,7 @@ public class IdleSessionTimeoutMiddleware<NRES> extends AbstractWebMiddleware<Ht
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         Optional<Long> endTime = some(request.getSession(),
                 session -> session.get(SESSION_KEY),
                 obj -> Long.parseLong(Objects.toString(obj)));
@@ -66,7 +61,19 @@ public class IdleSessionTimeoutMiddleware<NRES> extends AbstractWebMiddleware<Ht
         }
     }
 
+    /**
+     * Sets the timeout in seconds.
+     * @param timeout the timeout in seconds
+     */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+
+    /**
+     * Sets the endpoint to redirect when the session is expired.
+     * @param timeoutEndpoint the endpoint to redirect
+     */
+    public void setIdleTimeoutEndpoint(Endpoint<HttpRequest, HttpResponse> timeoutEndpoint) {
+        this.timeoutEndpoint = timeoutEndpoint;
     }
 }

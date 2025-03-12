@@ -9,7 +9,7 @@ import enkan.annotation.Middleware;
 @Middleware(name = "test2")
 public class Test2Middleware<NREQ, NRES> implements enkan.Middleware<String, String, NREQ, NRES> {
     @Override
-    public String handle(String s, MiddlewareChain<NREQ, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> String handle(String s, MiddlewareChain<NREQ, NRES, NNREQ, NNRES> chain) {
         return s;
     }
 }

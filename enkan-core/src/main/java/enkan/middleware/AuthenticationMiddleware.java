@@ -25,7 +25,7 @@ public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<R
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> next) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> next) {
         final REQ request = MixinUtils.mixin(req, PrincipalAvailable.class);
         for (AuthBackend<REQ, T> backend : backends) {
             Optional<Principal> principal = ThreadingUtils.some(

@@ -1,5 +1,6 @@
 package enkan.middleware;
 
+import enkan.Endpoint;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.data.PrincipalAvailable;
 import enkan.security.AuthBackend;
@@ -23,7 +24,7 @@ public class AuthenticationMiddlewareTest {
         AuthenticationMiddleware<Request, String, String> middleware = new AuthenticationMiddleware<>(Collections.singletonList(createAuthBackend()));
         Request request = new Request("kawasima");
         middleware.handle(request, new DefaultMiddlewareChain<>(Predicates.any(), "",
-                (req, chain) -> "ok"));
+                (Endpoint<Request, String>) req -> "ok"));
         assertThat(request.getPrincipal()).isNotNull();
     }
 

@@ -21,7 +21,7 @@ public class ThrottlingMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
     private List<Throttle> throttles = Collections.emptyList();
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         if (throttles.stream()
                 .anyMatch(throttle -> throttle.apply(request))) {
             return builder(HttpResponseUtils.response("Too Many Request"))

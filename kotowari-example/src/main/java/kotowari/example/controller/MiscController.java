@@ -17,7 +17,7 @@ import static enkan.util.HttpResponseUtils.response;
  */
 public class MiscController {
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     public HttpResponse uploadForm() {
         return templateEngine.render("misc/upload");

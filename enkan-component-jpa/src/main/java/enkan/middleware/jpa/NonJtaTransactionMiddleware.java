@@ -24,7 +24,7 @@ public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<R
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         EntityManager em = Optional.ofNullable(req)
                 .filter(EntityManageable.class::isInstance)
                 .map(EntityManageable.class::cast)

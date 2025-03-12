@@ -1,6 +1,5 @@
 package kotowari.scaffold.command;
 
-import com.github.javaparser.ASTHelper;
 import com.github.javaparser.ast.ImportDeclaration;
 import enkan.component.ApplicationComponent;
 import enkan.component.DataSourceComponent;
@@ -197,7 +196,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
 
             cu.getImports().add(
                     new ImportDeclaration(
-                            ASTHelper.createNameExpr(pkgName + "controller." + controllerClassName),
+                            pkgName + "controller." + controllerClassName,
                             false, false));
             cu.accept(new AppendRoutingVisitor(controllerClassName),
                     new RoutingDefineContext());

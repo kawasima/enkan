@@ -54,7 +54,7 @@ public class AbsoluteRedirectsMiddleware<NRES> extends AbstractWebMiddleware<Htt
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (isRedirectResponse(response)) {
             updateHeader(response, "location", request);

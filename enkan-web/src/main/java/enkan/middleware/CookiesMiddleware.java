@@ -67,7 +67,7 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
         cookiesRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
         if (response != null) {

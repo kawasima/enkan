@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
  */
 public class HospitalityDemoController {
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     public String unreachable() {
         throw new UnreachableException();

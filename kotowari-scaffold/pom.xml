@@ -22,22 +22,22 @@
         <dependency>
             <groupId>net.unit8.amagicman</groupId>
             <artifactId>amagicman-generator</artifactId>
-            <version>0.1.1</version>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.seasar.doma</groupId>
             <artifactId>doma-gen</artifactId>
-            <version>2.25.1</version>
+            <version>2.28.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.7</version>
+            <version>1.10.15</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.erebus</groupId>
             <artifactId>erebus</artifactId>
-            <version>0.1.1</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

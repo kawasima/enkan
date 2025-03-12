@@ -33,7 +33,7 @@ public class FrameOptionsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         String headerValue = formatFrameOptions();
         HttpResponse response = castToHttpResponse(chain.next(request));
         HttpResponseUtils.header(response, "X-Frame-Options", headerValue);

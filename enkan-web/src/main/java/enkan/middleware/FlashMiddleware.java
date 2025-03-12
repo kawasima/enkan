@@ -38,11 +38,11 @@ public class FlashMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NR
         if (response == null) return;
 
         Session session = response.getSession();
-        if (session == null || PersistentMarkedSession.class.isInstance(session)) {
+        if (session == null || session instanceof PersistentMarkedSession) {
             session = request.getSession();
         }
 
-        Flash responseFlash = FlashAvailable.class.cast(response).getFlash();
+        Flash responseFlash = response.getFlash();
         if (responseFlash != null) {
             if (session == null) {
                 session = new Session();
@@ -56,7 +56,7 @@ public class FlashMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NR
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
         request = MixinUtils.mixin(request, FlashAvailable.class);
         flashRequest(request);
 

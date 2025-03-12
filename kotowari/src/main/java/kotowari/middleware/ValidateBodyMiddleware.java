@@ -41,7 +41,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
     }
 
     @Override
-    public RES handle(HttpRequest request, MiddlewareChain<HttpRequest, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<HttpRequest, RES, NNREQ, NNRES> chain) {
 
         Optional<Validatable> validatable = ThreadingUtils.some(getValidatable(request), form -> {
             Multimap<String, Object> errors = Multimap.empty();

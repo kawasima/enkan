@@ -34,14 +34,13 @@ public class EntityManagerProviderTest {
                 component("eclipselink").using("datasource")
         );
         system.start();
-        DataSourceComponent dsComponent = system.getComponent("datasource");
+        DataSourceComponent<HikariCPComponent> dsComponent = system.getComponent("datasource");
         try (Connection connection = dsComponent.getDataSource().getConnection();
              Statement stmt = connection.createStatement()){
             stmt.executeUpdate("CREATE TABLE person(id IDENTITY, name VARCHAR(100))");
         }
-        try {
-            EntityManagerProvider provider = system.getComponent("eclipselink");
-            EntityManager em = provider.createEntityManager();
+        EntityManagerProvider<EclipseLinkEntityManagerProvider> provider = system.getComponent("eclipselink");
+        try (EntityManager em = provider.createEntityManager()) {
             Person person = em.find(Person.class, 1L);
             assertThat(person).isNull();
             person = new Person();

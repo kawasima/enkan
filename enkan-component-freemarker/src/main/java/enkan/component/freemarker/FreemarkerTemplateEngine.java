@@ -69,16 +69,16 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
      */
     @Override
     protected ComponentLifecycle<FreemarkerTemplateEngine> lifecycle() {
-        return new ComponentLifecycle<FreemarkerTemplateEngine>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(FreemarkerTemplateEngine component) {
                 if (classLoader == null) {
                     classLoader = Thread.currentThread().getContextClassLoader();
                 }
-                config = new Configuration(new Version(2,3,27));
+                config = new Configuration(new Version(2,3,34));
                 config.setTemplateLoader(createTemplateLoader());
                 config.setOutputFormat(outputFormat);
-                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,27)) {
+                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,34)) {
                     @Override
                     protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
                         if (obj instanceof Validatable) {
@@ -157,5 +157,9 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
 
     public void setSuffix(String suffix) {
         this.suffix = suffix;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 }

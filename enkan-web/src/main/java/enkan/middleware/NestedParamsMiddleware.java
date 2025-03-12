@@ -162,7 +162,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         return castToHttpResponse(chain.next(nestedParamsRequest(request, parseNestedKeys)));
     }
 }

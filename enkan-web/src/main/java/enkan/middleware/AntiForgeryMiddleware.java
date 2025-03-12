@@ -76,7 +76,7 @@ public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpReque
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
         String token = sessionToken(request).orElseGet(this::newToken);
         if (!isGetRequest(request) && !isValidRequest(request)) {
             return builder(HttpResponse.of("<h1>Invalid anti-forgery token</h1>"))

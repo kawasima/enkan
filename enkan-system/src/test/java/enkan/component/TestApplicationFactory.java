@@ -14,10 +14,10 @@ import java.util.function.Predicate;
 /**
  * @author kawasima
  */
-public class TestApplicationFactory implements ApplicationFactory {
+public class TestApplicationFactory implements ApplicationFactory<String, String> {
     @Override
-    public Application create(ComponentInjector injector) {
-        Application<String, String> app = new Application<String, String>() {
+    public Application<String, String> create(ComponentInjector injector) {
+        Application<String, String> app = new Application<>() {
             private final List<MiddlewareChain<?, ?, ?, ?>> middlewares = new ArrayList<>();
 
             @Override

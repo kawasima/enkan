@@ -28,7 +28,7 @@ public class CustomerController {
     private static final Logger LOG = LoggerFactory.getLogger(CustomerController.class);
 
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     @Inject
     private DomaProvider daoProvider;

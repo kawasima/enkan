@@ -104,7 +104,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         if (request.getUri().startsWith(mountPath + "/")) {
             return traceRouting.handle(request);
         } else {

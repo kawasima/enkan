@@ -27,7 +27,7 @@ public class ContentTypeMiddleware<NRES> extends AbstractWebMiddleware<HttpReque
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (response != null) {
             contentTypeResponse(response, request);

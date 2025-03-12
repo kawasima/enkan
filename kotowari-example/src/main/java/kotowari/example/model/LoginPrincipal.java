@@ -8,10 +8,6 @@ import enkan.security.UserPrincipal;
 public class LoginPrincipal implements UserPrincipal {
     private String name;
 
-    public LoginPrincipal() {
-
-    }
-
     public LoginPrincipal(String name) {
         this.name = name;
     }

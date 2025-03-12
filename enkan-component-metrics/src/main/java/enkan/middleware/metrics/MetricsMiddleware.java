@@ -16,7 +16,7 @@ public class MetricsMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RE
     private MetricsComponent metrics;
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         Timer.Context context = metrics.getRequestTimer().time();
         metrics.getActiveRequests().inc();
 

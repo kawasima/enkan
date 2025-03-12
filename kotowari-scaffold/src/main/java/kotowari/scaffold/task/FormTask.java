@@ -1,14 +1,14 @@
 package kotowari.scaffold.task;
 
-import com.github.javaparser.ASTHelper;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import kotowari.scaffold.model.EntityField;
 import kotowari.scaffold.util.BasePackageDetector;
@@ -21,6 +21,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.github.javaparser.ast.NodeList.nodeList;
 
 /**
  * @author kawasima
@@ -44,24 +46,24 @@ public class FormTask implements GenTask {
     public void execute(PathResolver pathResolver) throws Exception {
         CompilationUnit cu = new CompilationUnit();
         String basePackage = BasePackageDetector.detect();
-        cu.setPackage(new PackageDeclaration(ASTHelper.createNameExpr(basePackage + "form")));
+        cu.setPackageDeclaration(basePackage + "form");
 
         ClassOrInterfaceDeclaration formClass = new ClassOrInterfaceDeclaration(
-                ModifierSet.PUBLIC, false, CaseConverter.pascalCase(tableName) + "Form");
-        ASTHelper.addTypeDeclaration(cu, formClass);
-        formClass.setExtends(Collections.singletonList(
-                new ClassOrInterfaceType("FormBase")
+                nodeList(Modifier.publicModifier()), false, CaseConverter.pascalCase(tableName) + "Form");
+        cu.addType(formClass);
+        formClass.setExtendedTypes(nodeList(
+                StaticJavaParser.parseClassOrInterfaceType("FormBase")
         ));
 
         fields.stream()
                 .filter(f -> !f.isId())
-                .forEach(f -> ASTHelper.addMember(formClass, fieldDeclaration(f)));
+                .forEach(f -> formClass.addMember(fieldDeclaration(f)));
         fields.stream()
                 .filter(f -> !f.isId())
-                .forEach(f -> ASTHelper.addMember(formClass, getterDeclaration(f)));
+                .forEach(f -> formClass.addMember(getterDeclaration(f)));
         fields.stream()
                 .filter(f -> !f.isId())
-                .forEach(f -> ASTHelper.addMember(formClass, setterDeclaration(f)));
+                .forEach(f -> formClass.addMember(setterDeclaration(f)));
 
         try (Writer writer = new OutputStreamWriter(pathResolver.destinationAsStream(destination))) {
             writer.write(cu.toString());
@@ -74,21 +76,19 @@ public class FormTask implements GenTask {
     }
 
     private FieldDeclaration fieldDeclaration(EntityField field) {
-        VariableDeclarator variableDec = new VariableDeclarator(new VariableDeclaratorId(field.getName()));
-        List<AnnotationExpr> annoList = new ArrayList<>();
-        return new FieldDeclaration(ModifierSet.PRIVATE,
-                annoList,
-                ASTHelper.createReferenceType(field.getType().getSimpleName(), 0),
-                Collections.singletonList(variableDec));
+        return new FieldDeclaration(nodeList(Modifier.publicModifier()),
+                StaticJavaParser.parseClassOrInterfaceType(field.getType().getSimpleName()),
+                field.getName());
+
     }
 
     private MethodDeclaration getterDeclaration(EntityField field) {
-        MethodDeclaration decl = new MethodDeclaration(ModifierSet.PUBLIC,
-                ASTHelper.createReferenceType(field.getType().getSimpleName(), 0),
+        MethodDeclaration decl = new MethodDeclaration(nodeList(Modifier.publicModifier()),
+                StaticJavaParser.parseClassOrInterfaceType(field.getType().getSimpleName()),
                 "get" + CaseConverter.pascalCase(field.getName()));
         BlockStmt body = new BlockStmt();
-        body.setStmts(
-                Collections.singletonList(
+        body.setStatements(
+                nodeList(
                         new ReturnStmt(
                                 new FieldAccessExpr(new ThisExpr(), field.getName()))));
         decl.setBody(body);
@@ -96,16 +96,16 @@ public class FormTask implements GenTask {
     }
 
     private MethodDeclaration setterDeclaration(EntityField field) {
-        MethodDeclaration decl = new MethodDeclaration(ModifierSet.PUBLIC,
+        MethodDeclaration decl = new MethodDeclaration(nodeList(Modifier.publicModifier()),
                 new VoidType(),
                 "set" + CaseConverter.pascalCase(field.getName()),
                 Collections.singletonList(new Parameter(
                         ASTHelper.createReferenceType(field.getType().getSimpleName(), 0),
-                        new VariableDeclaratorId(field.getName()))));
+                        field.getName())));
 
         BlockStmt body = new BlockStmt();
-        body.setStmts(
-                Collections.singletonList(
+        body.setStatements(
+                nodeList(
                         new ExpressionStmt(
                                 new AssignExpr(
                                         new FieldAccessExpr(new ThisExpr(), field.getName()),

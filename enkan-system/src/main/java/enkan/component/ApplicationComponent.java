@@ -15,7 +15,7 @@ import static enkan.util.ReflectionUtils.*;
  *
  * @author kawasima
  */
-public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
+public class ApplicationComponent<AREQ, ARES> extends SystemComponent<ApplicationComponent<AREQ, ARES>> {
     /** An application instance*/
     private Application<AREQ, ARES> application;
 
@@ -35,20 +35,20 @@ public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
     }
 
     @Override
-    protected ComponentLifecycle<ApplicationComponent> lifecycle() {
-        return new ComponentLifecycle<ApplicationComponent>() {
-            @SuppressWarnings("unchecked")
+    protected ComponentLifecycle<ApplicationComponent<AREQ, ARES>> lifecycle() {
+        return new ComponentLifecycle<>() {
             @Override
-            public void start(ApplicationComponent component) {
+            public void start(ApplicationComponent<AREQ, ARES> component) {
                 if (component.application == null) {
                     component.application = tryReflection(() -> {
                         component.loader = new ConfigurationLoader(getClass().getClassLoader());
                         component.originalLoader = Thread.currentThread().getContextClassLoader();
                         Thread.currentThread().setContextClassLoader(loader);
-                        Class<? extends ApplicationFactory> factoryClass =
-                                (Class<? extends ApplicationFactory>) loader.loadClass(factoryClassName);
+                        @SuppressWarnings("unchecked")
+                        Class<? extends ApplicationFactory<AREQ, ARES>> factoryClass =
+                                (Class<? extends ApplicationFactory<AREQ, ARES>>) loader.loadClass(factoryClassName);
                         ComponentInjector injector = new ComponentInjector(getAllDependencies());
-                        ApplicationFactory factory = factoryClass.getConstructor().newInstance();
+                        ApplicationFactory<AREQ, ARES> factory = factoryClass.getConstructor().newInstance();
                         Application<AREQ, ARES> app = factory.create(injector);
                         app.getMiddlewareStack().stream()
                                 .map(MiddlewareChain::getMiddleware)
@@ -64,7 +64,7 @@ public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
             }
 
             @Override
-            public void stop(ApplicationComponent component) {
+            public void stop(ApplicationComponent<AREQ, ARES> component) {
                 component.application = null;
                 component.loader = null;
                 if (originalLoader != null) {
@@ -74,7 +74,7 @@ public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
         };
     }
 
-    public Application getApplication() {
+    public Application<AREQ, ARES> getApplication() {
         return application;
     }
 
@@ -99,4 +99,5 @@ public class ApplicationComponent<AREQ, ARES> extends SystemComponent {
                 + "\n}";
 
     }
+
 }

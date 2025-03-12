@@ -8,7 +8,6 @@ import java.util.Set;
 
 /**
  * Data that have the lifecycle between multiple requests.
- *
  * This is not dependent on javax.servlet.HttpSession.
  *
  * @author kawasima

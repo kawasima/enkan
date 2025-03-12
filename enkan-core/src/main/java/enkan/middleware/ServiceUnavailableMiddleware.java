@@ -17,7 +17,7 @@ public class ServiceUnavailableMiddleware<REQ, RES> implements Middleware<REQ, R
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> next) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> next) {
         if (endpoint != null) {
             return endpoint.handle(req);
         }

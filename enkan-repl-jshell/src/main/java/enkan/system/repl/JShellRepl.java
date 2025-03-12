@@ -17,6 +17,7 @@ import org.zeromq.*;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,6 +26,10 @@ import java.util.stream.Collectors;
 import static enkan.system.ReplResponse.ResponseStatus.DONE;
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
+/**
+ * The REPL (Read-Eval-Print Loop) implementation using JShell.
+ * @author kawasima
+ */
 public class JShellRepl implements Repl {
     private static final Logger LOG = LoggerFactory.getLogger(JShellRepl.class);
 
@@ -81,20 +86,26 @@ public class JShellRepl implements Repl {
                     .out(ioProxy.forJShellPrintStream())
                     .err(ioProxy.forJShellErrorStream())
                     .build();
-            URLClassLoader cl = (URLClassLoader)Thread.currentThread().getContextClassLoader();
-            Arrays.stream(cl.getURLs()).forEach(url -> jshell.addToClasspath(url.toString()));
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            if (cl instanceof URLClassLoader) {
+                URL[] urls = ((URLClassLoader) cl).getURLs();
+                Arrays.stream(urls)
+                        .map(URL::toString)
+                        .forEach(jshell::addToClasspath);
+            } else {
+                String[] paths = System.getProperty("java.class.path").split(":");
+                Arrays.stream(paths).forEach(jshell::addToClasspath);
+            }
             // Add target/classes to classpath
             String userDir = System.getProperty("user.dir");
-            System.err.println("userDir: " + userDir);
             jshell.addToClasspath(userDir + "/target/classes");
-            
             executeStatement("import java.util.*");
             executeStatement("import enkan.system.*");
             executeStatement("import enkan.config.EnkanSystemFactory");
             executeStatement("import enkan.system.repl.jshell.JShellObjectTransferer");
             executeStatement("import enkan.system.repl.jshell.SystemIoTransport");
-            executeStatement("var transport = new SystemIoTransport()");
             executeStatement("var system = ((Class<? extends EnkanSystemFactory>)Class.forName(\"" + enkanSystemFactoryClassName + "\")).newInstance().create()");
+            executeStatement("var transport = new SystemIoTransport()");
             executeStatement("var __commands = new HashMap<String, SystemCommand>()");
 
             threadPool = Executors.newCachedThreadPool(runnable -> {
@@ -235,6 +246,7 @@ public class JShellRepl implements Repl {
                         ioProxy.unlisten(clientAddress);
                     } else if (localCommands.containsKey(commandName)) {
                         SystemCommand command = localCommands.get(commandName);
+                        command.execute(null, transport, Arrays.copyOfRange(cmds, 1, cmds.length));
                     } else {
                         String[] args = new String[cmds.length - 1];
                         System.arraycopy(cmds, 1, args, 0, cmds.length - 1);

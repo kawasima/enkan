@@ -169,7 +169,6 @@ public class CodecUtils {
 
     /**
      * Convert media type to a String represents the MediaType.
-     *
      * MediaType#toString requires a JAX-RS implementation.
      * To avoid that enkan requires a JAX-RS implementation, Use this method.
      *

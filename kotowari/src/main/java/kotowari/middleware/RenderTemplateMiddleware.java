@@ -114,7 +114,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (TemplatedHttpResponse.class.isInstance(response)) {
             TemplatedHttpResponse tres = TemplatedHttpResponse.class.cast(response);

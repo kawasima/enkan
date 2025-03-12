@@ -11,7 +11,7 @@ public class Test1Middleware<NREQ, NRES> implements enkan.Middleware<String, Str
     private String additionalMessage = "";
 
     @Override
-    public String handle(String s, MiddlewareChain<NREQ, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> String handle(String s, MiddlewareChain<NREQ, NRES, NNREQ, NNRES> chain) {
         return additionalMessage + s;
     }
 

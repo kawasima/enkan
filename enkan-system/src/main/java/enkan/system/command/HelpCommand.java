@@ -7,8 +7,14 @@ import enkan.system.Transport;
 
 import java.util.Set;
 
+/**
+ * The HelpCommand class provides a method to execute a help command.
+ * It sends a response with a list of available commands.
+ *
+ * @author kawasima
+ */
 public class HelpCommand implements SystemCommand {
-    private Set<String> commands;
+    private final Set<String> commands;
 
     public HelpCommand(Set<String> commands) {
         this.commands = commands;

@@ -20,7 +20,6 @@ import static enkan.util.ReflectionUtils.*;
 
 /**
  * Kotowari endpoint.
- *
  * This middleware inject arguments to controller method.
  *
  * <ul>
@@ -49,6 +48,12 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         }
     }
 
+    /**
+     * Create arguments for controller method.
+     *
+     * @param request the request object
+     * @return arguments for controller method
+     */
     protected Object[] createArguments(HttpRequest request) {
         Method method = ((Routable) request).getControllerMethod();
         Object[] arguments = new Object[method.getParameterCount()];
@@ -77,7 +82,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
 
     @SuppressWarnings("unchecked")
     @Override
-    public RES handle(HttpRequest request, MiddlewareChain<Void, Void, ?, ?> next) {
+    public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<Void, Void, NNREQ, NNRES> next) {
         if (request instanceof Routable) {
             Method controllerMethod = ((Routable) request).getControllerMethod();
             Class<?> controllerClass = controllerMethod.getDeclaringClass();

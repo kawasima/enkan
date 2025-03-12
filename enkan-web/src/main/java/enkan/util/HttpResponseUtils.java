@@ -34,7 +34,7 @@ public class HttpResponseUtils {
         TEMPORARY_REDIRECT(307),
         PERMANENT_REDIRECT(308);
 
-        private int code;
+        private final int code;
 
         RedirectStatusCode(int statusCode) {
             this.code = statusCode;

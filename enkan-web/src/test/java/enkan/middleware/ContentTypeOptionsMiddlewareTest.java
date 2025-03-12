@@ -23,7 +23,8 @@ class ContentTypeOptionsMiddlewareTest {
 
     @BeforeEach
     void setup() {
-        middleware = new ContentTypeOptionsMiddleware<>();
+        middleware = new ContentTypeOptionsMiddleware<>("nosniff");
+
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")

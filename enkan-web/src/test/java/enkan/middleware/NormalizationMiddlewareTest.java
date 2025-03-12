@@ -25,10 +25,15 @@ class NormalizationMiddlewareTest {
         NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<>();
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", "B", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
-                builder(HttpResponse.of("dummy"))
-                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                        .build());
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
+                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
+                    @Override
+                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                        return builder(HttpResponse.of("dummy"))
+                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                                .build();
+                    }
+                });
         middleware.handle(request, chain);
         assertThat(request.getParams())
                 .containsExactly(entry("A", "B"),
@@ -42,10 +47,15 @@ class NormalizationMiddlewareTest {
         );
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
-                builder(HttpResponse.of("dummy"))
-                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                        .build());
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
+                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
+                    @Override
+                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                        return builder(HttpResponse.of("dummy"))
+                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                                .build();
+                    }
+                });
         middleware.handle(request, chain);
         assertThat(request.getParams())
                 .containsExactly(entry("A", "B"),

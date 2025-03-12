@@ -36,7 +36,7 @@ public class ExampleSystemFactory implements EnkanSystemFactory {
                 "template", new FreemarkerTemplateEngine(),
                 "metrics", new MetricsComponent(),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
-                "app", new ApplicationComponent("kotowari.example.ExampleApplicationFactory"),
+                "app", new ApplicationComponent<>("kotowari.example.ExampleApplicationFactory"),
                 "http", builder(new UndertowComponent())
                         .set(WebServerComponent::setPort, Env.getInt("PORT", 3000))
                         .set(WebServerComponent::setSslPort, Env.getInt("SSL_PORT", 3002))

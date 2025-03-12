@@ -8,6 +8,7 @@ import enkan.data.Traceable;
 import enkan.util.MixinUtils;
 
 /**
+ * Adds trace log to the response.
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "trace")
@@ -15,7 +16,7 @@ public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES>
     private boolean enabled = true;
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         if (req != null) {
             req = MixinUtils.mixin(req, Traceable.class);
         }

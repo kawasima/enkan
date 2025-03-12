@@ -47,8 +47,12 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
 
     @Override
     public HttpResponse handle(HttpRequest req) {
-        return new DefaultMiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> (Predicates.any(), "bootstrap", (req1, chain) ->
-                chain.next(req1)).setNext(cast(middlewareStack.getFirst())).next(req);
+        return new DefaultMiddlewareChain<> (Predicates.any(), "bootstrap", new Middleware<HttpRequest, HttpResponse, HttpRequest, HttpResponse>() {
+            @Override
+            public <NNREQ, NNRES> HttpResponse handle(HttpRequest req1, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                return chain.next(req1);
+            }
+        }).setNext(cast(middlewareStack.getFirst())).next(req);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
      * @return the middleware chain with type parameters
      */
     @SuppressWarnings("unchecked")
-    private <REQ, RES> MiddlewareChain<REQ, RES, ?, ?> cast(MiddlewareChain chain) {
-        return chain;
+    private <REQ, RES, NREQ, NRES> MiddlewareChain<REQ, RES, NREQ, NRES> cast(MiddlewareChain<?, ?, ?, ?> chain) {
+        return (MiddlewareChain<REQ, RES, NREQ, NRES>) chain;
     }
 }

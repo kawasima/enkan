@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class EntityManagerProvider<T extends SystemComponent> extends SystemComponent<T> {
+public abstract class EntityManagerProvider<T extends SystemComponent<T>> extends SystemComponent<T> {
     private String name;
 
     private DataSourceComponent dataSourceComponent;

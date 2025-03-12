@@ -40,7 +40,7 @@ public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {

@@ -3,7 +3,6 @@ package enkan.component;
 import enkan.collection.OptionMap;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import enkan.system.EnkanSystem;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -21,7 +20,7 @@ import static enkan.util.ThreadingUtils.some;
 /**
  * @author kawasima
  */
-public abstract class WebServerComponent<T extends SystemComponent> extends SystemComponent<T> {
+public abstract class WebServerComponent<T extends WebServerComponent<T>> extends SystemComponent<T> {
     @DecimalMax("65535")
     @DecimalMin("1")
     private Integer port = 80;

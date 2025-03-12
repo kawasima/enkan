@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
  */
 public class ExampleController {
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     public HttpResponse index() {
         return templateEngine.render("index");

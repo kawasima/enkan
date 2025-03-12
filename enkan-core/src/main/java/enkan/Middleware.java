@@ -13,5 +13,5 @@ public interface Middleware<REQ, RES, NREQ, NRES> {
      * @param chain A chain of middlewares
      * @return      A response object
      */
-    RES handle(REQ req, MiddlewareChain<NREQ, NRES, ?, ?> chain);
+    <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<NREQ, NRES, NNREQ, NNRES> chain);
 }

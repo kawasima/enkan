@@ -32,7 +32,7 @@ public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<Ht
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
         String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");

@@ -28,10 +28,15 @@ class ResourceMiddlewareTest {
         request.setRequestMethod("GET");
         request.setUri("/assets/test.txt");
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
-                builder(HttpResponse.of("dummy"))
-                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                        .build());
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
+                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
+                    @Override
+                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                        return builder(HttpResponse.of("dummy"))
+                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                                .build();
+                    }
+                });
         HttpResponse response = middleware.handle(request, chain);
         assertThat(response.getBody())
                 .isEqualTo(new File(ClassLoader.getSystemResource("public/test.txt").toURI()));
@@ -47,10 +52,15 @@ class ResourceMiddlewareTest {
         request.setRequestMethod("GET");
         request.setUri("/test.txt");
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", (req, c) ->
-                builder(HttpResponse.of("dummy"))
-                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                        .build());
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
+                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
+                    @Override
+                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                        return builder(HttpResponse.of("dummy"))
+                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                                .build();
+                    }
+                });
         HttpResponse response = middleware.handle(request, chain);
         assertThat(response.getBody())
                 .isEqualTo(new File(ClassLoader.getSystemResource("public/test.txt").toURI()));

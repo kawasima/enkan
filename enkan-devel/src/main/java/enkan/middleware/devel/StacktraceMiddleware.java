@@ -23,6 +23,7 @@ import static enkan.util.BeanBuilder.builder;
 import static net.unit8.moshas.RenderUtils.text;
 
 /**
+ * Middleware to render stacktrace.
  * @author kawasima
  */
 @Middleware(name = "stacktrace")
@@ -38,6 +39,9 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
         }
     }
 
+    /**
+     * Represents the page is rendered by the moshas engine.
+     */
     private final Snippet stackTraceElementSnippet = moshas.describe("templates/stacktrace.html", ".trace > table > tbody > tr", s -> {
         s.select("td.source", (el, ctx) ->
                 el.text(ctx.getString("stackTraceElement", "fileName") +
@@ -49,6 +53,12 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
                         ctx.getString("stackTraceElement", "methodName")));
     });
 
+    /**
+     * Renders HTML using by template.
+     * @param template Template
+     * @param args Arguments
+     * @return HttpResponse
+     */
     protected HttpResponse render(Template template, Object... args) {
         StringWriter sw = new StringWriter();
         Context ctx = new Context();
@@ -61,6 +71,11 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
         return response;
     }
 
+    /**
+     * Casts the response to HttpResponse.
+     * @param ex Exception
+     * @return HttpResponse
+     */
     protected HttpResponse htmlUnreachableExResponse(UnreachableException ex) {
         Template template = moshas.describe("templates/unreachable.html", t -> {});
         return builder(render(template))
@@ -69,6 +84,12 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
                 .build();
     }
 
+    /**
+     * Casts the response to HttpResponse.
+     * @param ex Exception
+     * @param request HttpRequest
+     * @return HttpResponse
+     */
     protected HttpResponse htmlMisconfigExResponse(MisconfigurationException ex, HttpRequest request) {
         String primer = this.primer;
         Template template = moshas.describe("templates/misconfiguration.html", t -> {
@@ -93,6 +114,11 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
                 .build();
     }
 
+    /**
+     * Casts the response to HttpResponse.
+     * @param ex Exception
+     * @return HttpResponse
+     */
     protected HttpResponse htmlExResponse(Throwable ex) {
         Template template = moshas.describe("templates/stacktrace.html", t -> {
             t.select("#class-name", (el, ctx) -> el.text(
@@ -112,6 +138,12 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
                 .build();
     }
 
+    /**
+     * Casts the response to HttpResponse.
+     * @param request HttpRequest
+     * @param ex Throwable
+     * @return HttpResponse
+     */
     protected HttpResponse exResponse(HttpRequest request, Throwable ex) {
         String accept = request.getHeaders().get("accept");
         if (accept != null && accept.matches("^text/javascript")) {
@@ -133,8 +165,16 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
         }
     }
 
+    /**
+     * Casts the response to HttpResponse.
+     * @param request   A request object
+     * @param chain A chain of middlewares
+     * @return HttpResponse
+     * @param <NNREQ> A request object
+     * @param <NNRES> A response object
+     */
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         try {
             return castToHttpResponse(chain.next(request));
         } catch (Throwable t) {

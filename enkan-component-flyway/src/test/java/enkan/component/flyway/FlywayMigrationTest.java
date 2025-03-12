@@ -31,7 +31,7 @@ public class FlywayMigrationTest {
                 component("flyway").using("datasource")
         );
         system.start();
-        DataSourceComponent dataSourceComponent = system.getComponent("datasource");
+        DataSourceComponent<HikariCPComponent> dataSourceComponent = system.getComponent("datasource");
         DataSource ds = dataSourceComponent.getDataSource();
         try(Connection conn = ds.getConnection();
             ResultSet rs = conn.getMetaData().getTables(null, null, "EMP", null)) {
@@ -59,7 +59,7 @@ public class FlywayMigrationTest {
                 component("flyway2").using("datasource", "flyway")
         );
         system.start();
-        DataSourceComponent dataSourceComponent = system.getComponent("datasource");
+        DataSourceComponent<HikariCPComponent> dataSourceComponent = system.getComponent("datasource");
         DataSource ds = dataSourceComponent.getDataSource();
         try(Connection conn = ds.getConnection()) {
             try(ResultSet rs = conn.getMetaData().getTables(null, null, "EMP", null)) {

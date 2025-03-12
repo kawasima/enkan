@@ -1,12 +1,15 @@
 package kotowari.middleware;
 
+import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.collection.Headers;
 import enkan.collection.Parameters;
 import enkan.component.jackson.JacksonBeansConverter;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
+import enkan.data.HttpResponse;
 import enkan.data.Routable;
+import enkan.middleware.AbstractWebMiddleware;
 import enkan.middleware.NestedParamsMiddleware;
 import enkan.middleware.ParamsMiddleware;
 import enkan.util.MixinUtils;
@@ -33,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author kawasima
  */
-public class FormMiddlewareTest extends FormMiddleware {
+public class FormMiddlewareTest {
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)]");
     protected Function<String, String[]> parseNestedKeys = (paramName) -> {
@@ -64,15 +67,15 @@ public class FormMiddlewareTest extends FormMiddleware {
         request.setRequestMethod("GET");
         request.setQueryString(qs);
 
-        new ParamsMiddleware().paramsRequest(request);
-        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
+        new ParamsMiddleware<>().paramsRequest(request);
+        new NestedParamsMiddleware<>().nestedParamsRequest(request, parseNestedKeys);
 
         return request.getParams();
     }
 
     @Test
     public void test() {
-        beans = new JacksonBeansConverter() {{
+        JacksonBeansConverter beans = new JacksonBeansConverter() {{
             lifecycle().start(this);
         }};
         HttpRequest request = new DefaultHttpRequest();
@@ -83,16 +86,22 @@ public class FormMiddlewareTest extends FormMiddleware {
                 "&itemArray[][name]=item4&itemArray[][name]=item5");
         request = MixinUtils.mixin(request, BodyDeserializable.class);
 
-        new ParamsMiddleware().paramsRequest(request);
-        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
+        new ParamsMiddleware<>().paramsRequest(request);
+        new NestedParamsMiddleware<>().nestedParamsRequest(request, parseNestedKeys);
 
-        FormMiddleware<Void> formMiddleware = new FormMiddleware<>();
+        FormMiddleware<HttpResponse> formMiddleware = new FormMiddleware<>();
         formMiddleware.setParameterInjectors(ParameterUtils.getDefaultParameterInjectors());
         formMiddleware.beans = beans;
         request = MixinUtils.mixin(request, Routable.class);
         Method method = tryReflection(() -> TestController.class.getMethod("index", NestedForm.class));
-        Routable.class.cast(request).setControllerMethod(method);
-        formMiddleware.handle(request, new DefaultMiddlewareChain<>(Predicates.none(), "dummy", (o, chain) -> null));
+        ((Routable) request).setControllerMethod(method);
+        formMiddleware.handle(request, new DefaultMiddlewareChain<>(Predicates.none(), "dummy",
+                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
+                    @Override
+                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest r, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                        return null;
+                    }
+                }));
 
         NestedForm form = BodyDeserializable.class.cast(request).getDeserializedBody();
         assertThat(form.getIntVal()).isEqualTo(123);

@@ -96,9 +96,9 @@ public class FlywayTask implements GenTask {
     }
     private BlockStmt createStatementExecuteBlock() {
         BlockStmt block = new BlockStmt();
-        MethodCallExpr stmtExecute = new MethodCallExpr(ASTHelper.createNameExpr("stmt"), "execute");
-        ASTHelper.addArgument(stmtExecute, new StringLiteralExpr(createTableStatement));
-        ASTHelper.addStmt(block, stmtExecute);
+        MethodCallExpr stmtExecute = new MethodCallExpr(new NameExpr("stmt"), "execute");
+        stmtExecute.addArgument(new StringLiteralExpr(createTableStatement));
+        block.addStatement(stmtExecute);
         return block;
     }
 

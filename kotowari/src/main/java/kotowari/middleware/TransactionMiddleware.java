@@ -24,7 +24,7 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ
     }
 
     @Override
-    public RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         RES res;
         if (req instanceof Routable) {
             Routable routable = (Routable) req;

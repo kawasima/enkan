@@ -14,11 +14,15 @@
 
     <name>enkan-component-freemarker</name>
 
+    <properties>
+        <freemarker.version>2.3.34</freemarker.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.29</version>
+            <version>${freemarker.version}</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>

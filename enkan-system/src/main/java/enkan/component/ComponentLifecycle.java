@@ -15,7 +15,7 @@ package enkan.component;
  * @param <T> The type of system component this lifecycle manages, must extend {@link SystemComponent}
  * @author kawasima
  */
-public interface ComponentLifecycle<T extends SystemComponent> {
+public interface ComponentLifecycle<T extends SystemComponent<T>> {
     /**
      * Starts the component and initializes its resources.
      * This method should handle all necessary setup operations such as:

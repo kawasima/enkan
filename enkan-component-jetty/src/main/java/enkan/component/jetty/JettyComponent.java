@@ -6,6 +6,8 @@ import enkan.collection.OptionMap;
 import enkan.component.ApplicationComponent;
 import enkan.component.ComponentLifecycle;
 import enkan.component.WebServerComponent;
+import enkan.data.HttpRequest;
+import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -21,10 +23,10 @@ public class JettyComponent extends WebServerComponent<JettyComponent> {
 
     @Override
     protected ComponentLifecycle<JettyComponent> lifecycle() {
-        return new ComponentLifecycle<JettyComponent>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(JettyComponent component) {
-                ApplicationComponent app = getDependency(ApplicationComponent.class);
+                ApplicationComponent<HttpRequest, HttpResponse> app = getDependency(ApplicationComponent.class);
                 if (server == null) {
                     OptionMap options = buildOptionMap();
                     if (serverConnectorFactory != null) options.put("serverConnectorFactory", serverConnectorFactory);

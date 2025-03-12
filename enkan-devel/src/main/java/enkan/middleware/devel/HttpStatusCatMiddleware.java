@@ -16,6 +16,7 @@ import static enkan.util.HttpResponseUtils.*;
 import static net.unit8.moshas.RenderUtils.*;
 
 /**
+ * Middleware to render HTTP status cats.
  * @author kawasima
  */
 @Middleware(name = "httpStatusCat", dependencies = {"contentType"})
@@ -34,7 +35,7 @@ public class HttpStatusCatMiddleware extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, ? , ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (response != null && (isEmptyBody(response) || isMoreCats(response))) {
             String type = getHeader(response, "Content-Type");

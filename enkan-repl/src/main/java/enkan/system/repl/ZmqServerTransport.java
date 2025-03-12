@@ -27,7 +27,7 @@ public class ZmqServerTransport implements Transport {
     }
 
     private boolean isClosed = false;
-    private Socket socket;
+    private final Socket socket;
     private ZFrame clientAddress;
 
     public ZmqServerTransport(Socket socket, ZFrame clientAddress) {

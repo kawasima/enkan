@@ -1,5 +1,6 @@
 package kotowari.middleware;
 
+import enkan.Endpoint;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
@@ -28,7 +29,7 @@ import java.util.function.Predicate;
 import static org.assertj.core.api.Assertions.*;
 
 class RenderTemplateMiddlewareTest {
-    private RenderTemplateMiddleware sut;
+    private RenderTemplateMiddleware<HttpResponse> sut;
     @SuppressWarnings("unchecked")
     private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
@@ -79,10 +80,10 @@ class RenderTemplateMiddlewareTest {
     @Test
     void handle() {
         final HttpRequest request = new DefaultHttpRequest();
-        Map<String, SystemComponent> components = new HashMap<>();
-        TemplateEngine templateEngine = new TemplateEngine() {
+        Map<String, SystemComponent<?>> components = new HashMap<>();
+        TemplateEngine<? extends TemplateEngine<?>> templateEngine = new TemplateEngine() {
             @Override
-            protected ComponentLifecycle lifecycle() {
+            protected ComponentLifecycle<? extends TemplateEngine<?>> lifecycle() {
                 return null;
             }
 
@@ -104,10 +105,8 @@ class RenderTemplateMiddlewareTest {
         ComponentInjector injector = new ComponentInjector(components);
         injector.inject(sut);
 
-        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain(Predicates.ANY, "null",
-                (Middleware<HttpRequest, HttpResponse, HttpRequest, HttpResponse>) (request1, chain) ->
-                        templateEngine.render("template1")));
-
+        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain<>(Predicates.ANY, "null",
+                (Endpoint<HttpRequest, HttpResponse>) request1 -> templateEngine.render("template1")));
         assertThat(res.getBodyAsString()).isEqualTo("hello");
     }
 

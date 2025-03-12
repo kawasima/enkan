@@ -13,7 +13,7 @@ public interface Endpoint<REQ, RES> extends Middleware<REQ, RES, REQ, RES> {
      * @param next  {@inheritDoc}
      * @return      {@inheritDoc}
      */
-    default RES handle(REQ req, MiddlewareChain<REQ, RES, ?, ?> next) {
+    default <NREQ, NRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NREQ, NRES> next) {
         return handle(req);
     }
 

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author kawasima
  */
 public class ComponentInjectorTest {
-    private Map<String, SystemComponent> componentMap;
+    private Map<String, SystemComponent<?>> componentMap;
 
     @BeforeEach
     public void setup() {
@@ -71,8 +71,8 @@ public class ComponentInjectorTest {
         TestComponent tc;
     }
 
-    private static class TestComponent extends SystemComponent {
-        private String id;
+    private static class TestComponent extends SystemComponent<TestComponent> {
+        private final String id;
         public TestComponent(String id) {
             this.id = id;
         }

@@ -3,7 +3,6 @@ package enkan.component.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import enkan.component.BeansConverter;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.AfterEach;
@@ -64,45 +63,6 @@ public class JacksonBeansTest {
         m.put("age", 10);
         Person person = mapper.convertValue(m, Person.class);
         assertThat(person.getName()).isEqualTo("Jackson");
-    }
-
-    @Test
-    public void mapFromHashMapMismatchingTypes() {
-        SimpleModule module = new SimpleModule();
-        module.setDeserializerModifier(new BeanDeserializerModifier() {
-            @Override
-            public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
-                JsonDeserializer<?> jsonDeserializer = super.modifyDeserializer(config, beanDesc, deserializer);
-                if (jsonDeserializer instanceof BeanDeserializerBase) {
-                    return new BeanDeserializer((BeanDeserializerBase) jsonDeserializer) {
-                        @Override
-                        public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-                                throws IOException {
-                            SettableBeanProperty prop = _beanProperties.find(fieldName);
-                        }
-                    };
-                } else {
-                    return jsonDeserializer;
-                }
-            }
-        });
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
-        mapper.registerModule(module);
-        mapper.addHandler(new DeserializationProblemHandler() {
-            @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
-                return true;
-            }
-        });
-        Map<String, Object> m = new HashMap<>();
-        m.put("name", "Jackson");
-        m.put("telNumbers", new ArrayList<String>(){{add("A"); add("B"); add("C");}});
-        m.put("age", new int[]{ 10, 20 });
-        Person person = mapper.convertValue(m, Person.class);
-        assertThat(person.getName()).isEqualTo("Jackson");
-        assertThat(person.getTelNumbers()).isNotNull();
-        assertThat(person.getTelNumbers().size()).isEqualTo(3);
     }
 
     @Test

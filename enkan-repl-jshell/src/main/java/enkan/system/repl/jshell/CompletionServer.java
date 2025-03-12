@@ -8,6 +8,10 @@ import org.zeromq.ZMsg;
 import java.util.Set;
 import java.util.function.Predicate;
 
+/**
+ * A server that provides completion suggestions for the JShell REPL.
+ * @author kawasima
+ */
 public class CompletionServer implements Runnable {
     private final ZMQ.Socket socket;
     private final SourceCodeAnalysis analysis;
@@ -18,6 +22,7 @@ public class CompletionServer implements Runnable {
         this.analysis = analysis;
         this.commandNames = commandNames;
     }
+
     @Override
     public void run() {
         while(!Thread.currentThread().isInterrupted()) {

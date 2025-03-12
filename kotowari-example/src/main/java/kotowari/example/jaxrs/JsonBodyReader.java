@@ -11,7 +11,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-public class JsonBodyReader implements MessageBodyReader {
+public class JsonBodyReader<T> implements MessageBodyReader<T> {
     private final ObjectMapper mapper;
 
     public JsonBodyReader(ObjectMapper mapper) {
@@ -24,7 +24,7 @@ public class JsonBodyReader implements MessageBodyReader {
     }
 
     @Override
-    public Object readFrom(Class type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+    public T readFrom(Class type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
         return mapper.readerFor(mapper.constructType(genericType))
                 .readValue(entityStream);
     }

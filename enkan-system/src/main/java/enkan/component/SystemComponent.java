@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
  * @param <T> The concrete type of the component, used for type-safe lifecycle management
  * @author kawasima
  */
-public abstract class SystemComponent<T extends SystemComponent>  {
-    private Map<String, SystemComponent> dependencies = new HashMap<>();
+public abstract class SystemComponent<T extends SystemComponent<T>>  {
+    private Map<String, SystemComponent<?>> dependencies = new HashMap<>();
 
     /**
      * Sets the dependencies for this component.
@@ -34,7 +34,7 @@ public abstract class SystemComponent<T extends SystemComponent>  {
      *
      * @param dependencies Map of component name to component instance
      */
-    protected void setDependencies(Map<String, SystemComponent> dependencies) {
+    protected void setDependencies(Map<String, SystemComponent<?>> dependencies) {
         this.dependencies = dependencies;
     }
 
@@ -48,7 +48,7 @@ public abstract class SystemComponent<T extends SystemComponent>  {
      * @throws MisconfigurationException if no component of the specified type is found
      */
     @SuppressWarnings("unchecked")
-    protected <S extends SystemComponent> S getDependency(Class<S> componentClass) {
+    protected <S extends SystemComponent<?>> S getDependency(Class<S> componentClass) {
         return (S) dependencies.values().stream()
                 .filter(c -> componentClass.isAssignableFrom(c.getClass()))
                 .findAny()
@@ -60,7 +60,7 @@ public abstract class SystemComponent<T extends SystemComponent>  {
      *
      * @return Map of component name to component instance
      */
-    protected Map<String, SystemComponent> getAllDependencies() {
+    protected Map<String, SystemComponent<?>> getAllDependencies() {
         return dependencies;
     }
 

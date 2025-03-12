@@ -4,6 +4,8 @@ import enkan.Application;
 import enkan.MiddlewareChain;
 import enkan.component.ApplicationComponent;
 import enkan.component.SystemComponent;
+import enkan.data.HttpRequest;
+import enkan.data.HttpResponse;
 import enkan.system.Repl;
 import enkan.system.ReplResponse;
 import enkan.system.repl.SystemCommandRegister;
@@ -23,9 +25,9 @@ public class KotowariCommandRegister implements SystemCommandRegister {
             }
 
             String appName = args[0];
-            SystemComponent component = system.getComponent(appName);
+            SystemComponent<?> component = system.getComponent(appName);
             if (component instanceof ApplicationComponent) {
-                Application<?, ?> app = ((ApplicationComponent) component).getApplication();
+                Application<HttpRequest, HttpResponse> app = ((ApplicationComponent<HttpRequest, HttpResponse>) component).getApplication();
                 if (app == null) {
                     transport.sendErr(String.format("Application %s is not running.", appName));
                     return true;
@@ -33,7 +35,7 @@ public class KotowariCommandRegister implements SystemCommandRegister {
                 app.getMiddlewareStack().stream()
                         .map(MiddlewareChain::getMiddleware)
                         .filter(middleware -> middleware instanceof RoutingMiddleware)
-                        .map(m -> ReplResponse.withOut(((RoutingMiddleware) m).getRoutes().toString()))
+                        .map(m -> ReplResponse.withOut(((RoutingMiddleware<HttpResponse>) m).getRoutes().toString()))
                         .forEach(transport::send);
                 transport.sendOut("", ReplResponse.ResponseStatus.DONE);
             } else {

@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class EnkanSystem {
-    private Map<String, SystemComponent> components;
-    private LinkedList<String> componentsOrder;
+    private final Map<String, SystemComponent<?>> components;
+    private final LinkedList<String> componentsOrder;
 
     private EnkanSystem() {
         components = new HashMap<>();
@@ -30,12 +30,12 @@ public class EnkanSystem {
     public static EnkanSystem of(Object... args) {
         EnkanSystem system = new EnkanSystem();
         for(int i = 0; i < args.length; i += 2) {
-            system.setComponent(args[i].toString(), (SystemComponent) args[i + 1]);
+            system.setComponent(args[i].toString(), (SystemComponent<?>) args[i + 1]);
         }
         return system;
     }
 
-    public void setComponent(String name, SystemComponent component) {
+    public <T extends SystemComponent<T>> void setComponent(String name, SystemComponent<T> component) {
         components.put(name, component);
         componentsOrder.add(name);
     }
@@ -45,7 +45,7 @@ public class EnkanSystem {
      *
      * @return all components
      */
-    public Collection<SystemComponent> getAllComponents() {
+    public Collection<SystemComponent<?>> getAllComponents() {
         return components.values();
     }
 
@@ -56,11 +56,11 @@ public class EnkanSystem {
      * @return component
      */
     @SuppressWarnings("unchecked")
-    public <T extends SystemComponent> T getComponent(String name) {
+    public <T extends SystemComponent<T>> T getComponent(String name) {
         return (T) components.get(name);
     }
 
-    public <T extends SystemComponent> T getComponent(String name, Class<? extends T> componentType) {
+    public <T extends SystemComponent<T>> T getComponent(String name, Class<? extends T> componentType) {
         return components.entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(name))
@@ -76,7 +76,7 @@ public class EnkanSystem {
      * @param componentType component type
      * @return A list of components
      */
-    public <T extends SystemComponent> List<T> getComponents(Class<T> componentType) {
+    public <T extends SystemComponent<T>> List<T> getComponents(Class<T> componentType) {
         return components.values()
                 .stream()
                 .filter(componentType::isInstance)
@@ -102,21 +102,23 @@ public class EnkanSystem {
     /**
      * Start all components
      */
-    public void start() {
+    @SuppressWarnings("unchecked")
+    public <T extends SystemComponent<T>> void start() {
         componentsOrder.stream()
-                .map(key -> components.get(key))
-                .forEach(LifecycleManager::start);
+                .map(components::get)
+                .forEach(component -> LifecycleManager.start((T) component));
     }
 
     /**
      * Stop all components
      */
-    public void stop() {
+    @SuppressWarnings("unchecked")
+    public <T extends SystemComponent<T>> void stop() {
         List<String> reverse = new ArrayList<>(componentsOrder);
         Collections.reverse(reverse);
         reverse.stream()
-                .map(key -> components.get(key))
-                .forEach(LifecycleManager::stop);
+                .map(components::get)
+                .forEach(component -> LifecycleManager.stop((T) component));
     }
 
     @Override

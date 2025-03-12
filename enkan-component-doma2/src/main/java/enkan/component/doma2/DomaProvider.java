@@ -20,6 +20,52 @@ import java.util.concurrent.ConcurrentHashMap;
 import static enkan.util.ReflectionUtils.*;
 
 /**
+ * Provides Doma2 configuration and DAO instances.
+ * <p>
+ * This component requires a {@link DataSourceComponent} to provide a {@link DataSource} object.
+ * </p>
+ * <p>
+ * The configuration and DAO instances are created lazily, and are cached in the instance of this class.
+ * </p>
+ * <p>
+ * The configuration is created with the given {@link Dialect}, {@link Naming}, and other settings.
+ * </p>
+ * <p>
+ * The DAO instances are created with the given {@link DataSource} or the default configuration.
+ * </p>
+ * <p>
+ * This component also provides a method to get the DAO instances.
+ * </p>
+ * <p>
+ * Here is an example of how to use this component:
+ * </p>
+ * <pre>{@code
+ * DomaProvider domaProvider = new DomaProvider();
+ * DataSourceComponent dataSourceComponent = new DataSourceComponent();
+ * dataSourceComponent.setDataSource(dataSource);
+ * domaProvider.setDependency(dataSourceComponent);
+ * domaProvider.setDialect(new H2Dialect());
+ * domaProvider.setNaming(Naming.SNAKE_LOWER_CASE);
+ * domaProvider.start();
+ *
+ * MyDao myDao = domaProvider.getDao(MyDao.class);
+ * MyEntity entity = myDao.selectById(1);
+ * }</pre>
+ *
+ * <p>
+ * In this example, {@code dataSource} is a {@link DataSource} object that is provided by the {@link DataSourceComponent}.
+ * {@code MyDao} is a DAO interface that is annotated as a Doma2 DAO.
+ * {@code MyEntity} is an entity class that is annotated as a Doma2 entity.
+ * </p>
+ * <p>
+ * The {@code domaProvider} object is created and configured with the {@code dataSource} object and the Doma2 settings.
+ * The {@code dataSourceComponent} object is created and configured with the {@code dataSource} object.
+ * The {@code domaProvider} object is started, and then the {@code myDao} object is obtained by calling the {@code getDao} method.
+ * The {@code myDao} object is used to execute a SQL query to get an entity object.
+ * </p>
+ * <p>
+ * The {@code domaProvider} object is created and configured with the {@code dataSource} object and the Doma2 settings.
+ * The {@code dataSourceComponent} object is created and configured with the
  * @author kawasima
  */
 public class DomaProvider extends SystemComponent<DomaProvider> {
@@ -33,6 +79,7 @@ public class DomaProvider extends SystemComponent<DomaProvider> {
     private int fetchSize = 0;
     private int queryTimeout = 0;
     private int batchSize = 0;
+
     /**
      * Gets the DAO.
      *
@@ -46,7 +93,8 @@ public class DomaProvider extends SystemComponent<DomaProvider> {
                 tryReflection(() -> {
                     Class<? extends T> daoClass;
                     try {
-                         daoClass = (Class<? extends T>) Class.forName(daoInterface.getName() + "Impl", true, daoInterface.getClassLoader());
+                        String implPackageName = daoInterface.getPackageName() + ".impl";
+                        daoClass = (Class<? extends T>) Class.forName(implPackageName + "." + daoInterface.getSimpleName() + "Impl", true, daoInterface.getClassLoader());
                     } catch (ClassNotFoundException ex) {
                         throw new MisconfigurationException("doma2.DAO_IMPL_NOT_FOUND", daoInterface.getName(), ex);
                     }
@@ -63,7 +111,7 @@ public class DomaProvider extends SystemComponent<DomaProvider> {
 
     @Override
     protected ComponentLifecycle<DomaProvider> lifecycle() {
-        return new ComponentLifecycle<DomaProvider>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(DomaProvider component) {
                 DataSourceComponent dataSourceComponent = component.getDependency(DataSourceComponent.class);

@@ -20,9 +20,9 @@ import static enkan.util.SearchUtils.levenshteinDistance;
  * @author kawasima
  */
 public class ComponentInjector {
-    private final Map<String, SystemComponent> components;
+    private final Map<String, SystemComponent<?>> components;
 
-    public ComponentInjector(Map<String, SystemComponent> components) {
+    public ComponentInjector(Map<String, SystemComponent<?>> components) {
         this.components = components;
     }
 
@@ -32,7 +32,6 @@ public class ComponentInjector {
 
     /**
      * Set a value to a field of an object.
-     *
      * Notes: Field#isAccessible method is deprecated from Java9.
      *
      * @param target an injection target object
@@ -55,7 +54,7 @@ public class ComponentInjector {
         Named named = f.getAnnotation(Named.class);
         if (named != null) {
             String name = named.value();
-            SystemComponent component = components.get(name);
+            SystemComponent<?> component = components.get(name);
             if (component != null) {
                 setValueToField(target, f, component);
             } else {

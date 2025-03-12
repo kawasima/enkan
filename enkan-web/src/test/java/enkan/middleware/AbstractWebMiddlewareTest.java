@@ -14,11 +14,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AbstractWebMiddlewareTest {
     @Test
     void test() {
-        AbstractWebMiddleware<HttpRequest, String> middleware = new AbstractWebMiddleware<HttpRequest, String>() {
-             @Override
-             public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, String, ?, ?> chain) {
-                 return HttpResponse.of("hello");
-             }
+        AbstractWebMiddleware<HttpRequest, String> middleware = new AbstractWebMiddleware<>() {
+            @Override
+            public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, String, NNREQ, NNRES> chain) {
+                return HttpResponse.of("hello");
+            }
         };
         assertThatThrownBy(() -> middleware.castToHttpResponse(""))
                 .isInstanceOf(MisconfigurationException.class);

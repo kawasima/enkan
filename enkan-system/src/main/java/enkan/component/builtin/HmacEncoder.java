@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author kawasima
  */
-public class HmacEncoder extends SystemComponent {
+public class HmacEncoder extends SystemComponent<HmacEncoder> {
     private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
     private String algorithm = "HmacSHA256";
     private String secret = "This is secret";
@@ -44,7 +44,7 @@ public class HmacEncoder extends SystemComponent {
 
     @Override
     protected ComponentLifecycle<HmacEncoder> lifecycle() {
-        return new ComponentLifecycle<HmacEncoder>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(HmacEncoder component) {
 

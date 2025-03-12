@@ -24,7 +24,7 @@ import static kotowari.routing.UrlRewriter.redirect;
  */
 public class GuestbookController {
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     @Inject
     private DomaProvider domaProvider;

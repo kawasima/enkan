@@ -13,14 +13,13 @@ import java.util.function.Predicate;
  */
 public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareChain<REQ, RES, NREQ, NRES> {
     private Predicate<? super REQ> predicate;
-    private Middleware<REQ, RES, NREQ, NRES> middleware;
-    private String middlewareName;
+    private final Middleware<REQ, RES, NREQ, NRES> middleware;
+    private final String middlewareName;
     private MiddlewareChain<NREQ, NRES, ?, ?> chain;
 
 
     /**
      * Creates the chain of middleware.
-     *
      * If middlewareName is not given, the name of middleware is given the default from the annotation.
      *
      * @param predicate       a condition of applying the middleware
@@ -41,7 +40,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     }
 
     /**
-     * Sets the chain chain of middleware.
+     * Sets the chain of middleware.
      *
      * @param next {@inheritDoc}
      * @return     {@inheritDoc}
@@ -69,7 +68,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     }
 
     /**
-     * Dispatches a request to the chain chain of middleware.
+     * Dispatches a request to the chain of middleware.
      *
      * @param req  {@inheritDoc}
      * @return     {@inheritDoc}
@@ -83,9 +82,9 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
             writeTraceLog(res, middlewareName);
             return res;
         } else if (chain != null){
-            RES res = (RES) chain.next((NREQ) req);
+            NRES res = chain.next((NREQ) req);
             writeTraceLog(res, middlewareName);
-            return res;
+            return (RES) res;
         } else {
             return null;
         }

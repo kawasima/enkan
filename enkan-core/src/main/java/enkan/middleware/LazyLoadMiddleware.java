@@ -20,8 +20,8 @@ import static enkan.util.ReflectionUtils.tryReflection;
  */
 public class LazyLoadMiddleware<REQ, RES, NREQ, NRES> implements Middleware<REQ, RES, NREQ, NRES> {
     private Middleware<REQ, RES, NREQ, NRES> instance;
-    private Lock initializingLock = new ReentrantLock();
-    private String middlewareClassName;
+    private final Lock initializingLock = new ReentrantLock();
+    private final String middlewareClassName;
 
     public LazyLoadMiddleware(String middlewareClassName) {
         this.middlewareClassName = middlewareClassName;
@@ -32,7 +32,7 @@ public class LazyLoadMiddleware<REQ, RES, NREQ, NRES> implements Middleware<REQ,
      */
     @SuppressWarnings("unchecked")
     @Override
-    public RES handle(REQ request, MiddlewareChain<NREQ, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> RES handle(REQ request, MiddlewareChain<NREQ, NRES, NNREQ, NNRES> chain) {
         if (instance == null) {
             try {
                 initializingLock.lock();

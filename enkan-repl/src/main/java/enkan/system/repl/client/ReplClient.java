@@ -31,7 +31,7 @@ import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 /**
  * @author kawasima
  */
-public class ReplClient implements AutoCloseable {
+public class ReplClient {
     private final ExecutorService clientThread = Executors.newSingleThreadExecutor();
     private ConsoleHandler consoleHandler;
 
@@ -41,7 +41,7 @@ public class ReplClient implements AutoCloseable {
         private ZMQ.Socket socket;
         private ZMQ.Socket rendererSock;
         private ZMQ.Socket completerSock;
-        private LineReader reader;
+        private final LineReader reader;
         private final Fressian fressian;
         private final AtomicBoolean isAvailable = new AtomicBoolean(true);
 
@@ -120,12 +120,8 @@ public class ReplClient implements AutoCloseable {
                 completerSock = ctx.createSocket(SocketType.DEALER);
                 completerSock.connect("tcp://" + host + ":" + Integer.parseInt(completerPort));
                 if (reader instanceof org.jline.reader.impl.LineReaderImpl) {
-                    System.out.println("Setting up RemoteCompleter");
-                    System.out.println("Current completer: " + ((org.jline.reader.impl.LineReaderImpl) reader).getCompleter());
                     RemoteCompleter completer = new RemoteCompleter(completerSock);
                     ((org.jline.reader.impl.LineReaderImpl) reader).setCompleter(completer);
-                    System.out.println("RemoteCompleter setup completed");
-                    System.out.println("New completer: " + ((org.jline.reader.impl.LineReaderImpl) reader).getCompleter());
                 } else {
                     System.err.println("Reader is not an instance of LineReaderImpl: " + reader.getClass());
                 }
@@ -186,6 +182,7 @@ public class ReplClient implements AutoCloseable {
                             rendererSock.close();
                         }
                         close();
+                        isAvailable.set(false);
                         return;
                     } else {
                         if (this.socket == null) {
@@ -214,6 +211,22 @@ public class ReplClient implements AutoCloseable {
         }
 
         public void close() {
+            isAvailable.set(false);
+
+            if (completerSock != null) {
+                try {
+                    completerSock.close();
+                    completerSock = null;
+                } catch (Exception ignore) {
+                }
+            }
+            if (rendererSock != null) {
+                try {
+                    rendererSock.close();
+                    rendererSock = null;
+                } catch (Exception ignore) {
+                }
+            }
             if (socket != null) {
                 socket.send("/disconnect", ZMQ.DONTWAIT);
                 socket.close();
@@ -224,7 +237,6 @@ public class ReplClient implements AutoCloseable {
                 ctx.close();
                 ctx = null;
             }
-            isAvailable.set(false);
         }
     }
 
@@ -248,11 +260,6 @@ public class ReplClient implements AutoCloseable {
                 close();
                 System.exit(0);
             });
-
-            System.out.println("Terminal type: " + terminal.getType());
-            System.out.println("Terminal class: " + terminal.getClass().getName());
-            System.out.println("Terminal width: " + terminal.getWidth());
-            System.out.println("Terminal height: " + terminal.getHeight());
 
             // Configure terminal attributes
             terminal.enterRawMode();

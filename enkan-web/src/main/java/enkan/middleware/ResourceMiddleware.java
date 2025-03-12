@@ -44,7 +44,7 @@ public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     }
 
     @Override
-    public HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, ?, ?> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = resourceRequest(request, rootPath);
         if (response == null) {
             response = castToHttpResponse(chain.next(request));

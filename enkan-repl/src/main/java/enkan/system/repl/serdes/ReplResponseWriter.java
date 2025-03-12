@@ -8,6 +8,10 @@ import org.fressian.handlers.WriteHandler;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * A write handler for ReplResponse.
+ * @author kawasima
+ */
 public class ReplResponseWriter implements WriteHandler {
     @Override
     public void write(Writer w, Object obj) throws IOException {

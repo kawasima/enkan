@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 /**
  * The utilities of environments.
- *
  * In the Enkan application, set environments apart from configurations.
  *
  * @author kawasima

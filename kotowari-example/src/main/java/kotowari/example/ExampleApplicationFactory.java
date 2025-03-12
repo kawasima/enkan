@@ -42,9 +42,9 @@ import static enkan.util.Predicates.*;
 /**
  * @author kawasima
  */
-public class ExampleApplicationFactory implements ApplicationFactory {
+public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest, HttpResponse> {
     @Override
-    public Application create(ComponentInjector injector) {
+    public Application<HttpRequest, HttpResponse> create(ComponentInjector injector) {
         WebApplication app = new WebApplication();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -101,8 +101,7 @@ public class ExampleApplicationFactory implements ApplicationFactory {
         app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware<>());
 
         app.use(new AuthenticationMiddleware<>(Collections.singletonList(new SessionBackend())));
-        //app.use(and(path("^/guestbook/"), authenticated().negate()),
-        app.use(authenticated().negate(),
+        app.use(and(path("^/guestbook/"), authenticated().negate()),
                 (Endpoint<HttpRequest , HttpResponse>)req ->
                         HttpResponseUtils.redirect("/guestbook/login?url=" + req.getUri(),
                                 HttpResponseUtils.RedirectStatusCode.TEMPORARY_REDIRECT));
@@ -117,9 +116,9 @@ public class ExampleApplicationFactory implements ApplicationFactory {
                 .set(SerDesMiddleware::setBodyWriters,
                         new MessageBodyWriter[]{
                                 new ToStringBodyWriter(),
-                                new JsonBodyWriter(mapper)})
+                                new JsonBodyWriter<>(mapper)})
                 .set(SerDesMiddleware::setBodyReaders,
-                        new JsonBodyReader(mapper))
+                        new JsonBodyReader<>(mapper))
                 .build());
         app.use(new ValidateBodyMiddleware<>());
         app.use(new ControllerInvokerMiddleware<>(injector));
