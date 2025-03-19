@@ -12,17 +12,15 @@ import jakarta.persistence.EntityManager;
 @Middleware(name = "entityManager")
 public class EntityManagerMiddleware<REQ, RES> implements enkan.Middleware<REQ, RES, REQ, RES> {
     @Inject
-    private EntityManagerProvider entityManagerProvider;
+    private EntityManagerProvider<?> entityManagerProvider;
 
     @Override
     public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         EntityManager em = entityManagerProvider.createEntityManager();
-        req = MixinUtils.mixin(req, EntityManageable.class);
-        EntityManageable.class.cast(req).setEntityManager(em);
-        try {
+        try (em) {
+            req = MixinUtils.mixin(req, EntityManageable.class);
+            ((EntityManageable) req).setEntityManager(em);
             return chain.next(req);
-        } finally {
-            em.close();
         }
     }
 }

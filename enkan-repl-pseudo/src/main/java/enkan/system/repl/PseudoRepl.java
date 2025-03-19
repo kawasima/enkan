@@ -105,7 +105,7 @@ public class PseudoRepl implements Repl {
                 return true;
             });
 
-            LOG.info("Listen " + port);
+            LOG.info("Listen {}", port);
             replPort.complete(port);
 
             while(!Thread.currentThread().isInterrupted()) {

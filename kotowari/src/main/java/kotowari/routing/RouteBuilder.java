@@ -25,12 +25,11 @@ public class RouteBuilder {
     private static final Pattern separatorRegexp = Pattern.compile("[" + RegexpUtils.escape(String.join("", SEPARATORS)) + "]");
     private static final Pattern nonseparatorRegexp = Pattern.compile("\\A([^" + RegexpUtils.escape(String.join("", SEPARATORS))+ "]+)");
 
-    @SuppressWarnings("Convert2Diamond")
     public List<Segment> segmentsForRoutePath(String path) {
         List<Segment> segments = new ArrayList<>();
         StringBuilder rest = new StringBuilder(path);
 
-        while (rest.length() > 0) {
+        while (!rest.isEmpty()) {
             Segment segment = segmentFor(rest);
             segments.add(segment);
         }
@@ -84,7 +83,7 @@ public class RouteBuilder {
         List<String> pathKeys = segments.stream()
                 .filter(Segment::hasKey)
                 .map(Segment::getKey)
-                .collect(Collectors.toList());
+                .toList();
 
         for (Map.Entry<String, Object> e : options.entrySet()) {
             if (pathKeys.contains(e.getKey()) && !(e.getValue() instanceof Pattern)) {

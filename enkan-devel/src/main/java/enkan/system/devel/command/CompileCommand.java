@@ -33,7 +33,6 @@ public class CompileCommand implements SystemCommand {
             transport.sendOut("Finished compiling.");
         } else {
             final StringWriter sw = new StringWriter();
-            //noinspection ThrowableResultOfMethodCallIgnored
             exception.printStackTrace(new PrintWriter(sw));
             sw.append("Failed to compile.");
             transport.sendErr(sw.toString());

@@ -39,7 +39,7 @@ public class MethodOverrideMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     protected Function<HttpRequest, String> createGetter(String str) {
-        if (str.substring(0, 2).toUpperCase().equals("X-")) {
+        if (str.substring(0, 2).equalsIgnoreCase("X-")) {
             return createHeaderGetter(str);
         }
         return createQueryGetter(str);

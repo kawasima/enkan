@@ -15,9 +15,9 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 - Middleware pattern
 - No configuration files
 - Avoid blackbox
-- Less annotations
+- Fewer annotations
 - Less library dependencies
-- Single instance (Middlewares and compoments, controller)
+- Single instance (Middlewares and components, controller)
 
 ### Ease of development
 
@@ -29,13 +29,13 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 ### Ease of operation
 
 - Starting server is fast. (~3 seconds)
-- Resetting application is very fast. (~1 seconds)
+- Resetting application is very fast. (~1 second)
 - Run-time change predicates of middleware on the REPL
 
 ## Requirements
 
-- Java8 or higher
-- Java EE 7 Specification
+- Java 21 or higher
+- Java EE 10 Specification
 
 ## Middleware
 

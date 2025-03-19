@@ -75,9 +75,9 @@ public class OptimizedRecognizer implements Recognizer {
     }
 
     private static class SegmentNode {
-        private int index;
-        private String label;
-        private List<SegmentNode> childNodes;
+        private final int index;
+        private final String label;
+        private final List<SegmentNode> childNodes;
 
         SegmentNode(int index) {
             this(null, index);

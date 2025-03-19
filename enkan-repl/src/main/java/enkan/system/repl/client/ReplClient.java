@@ -59,7 +59,7 @@ public class ReplClient {
             connect("localhost", port);
         }
 
-        public void connect(String host, int port) throws IOException {
+        public void connect(String host, int port) {
             String monitorAddress = MONITOR_ADDRESS + UUID.randomUUID();
             socket = ctx.createSocket(SocketType.DEALER);
             final AtomicBoolean isSocketClosed = new AtomicBoolean(false);
@@ -188,7 +188,7 @@ public class ReplClient {
                         if (this.socket == null) {
                             reader.getTerminal().writer().println("Unconnected to enkan system.");
                         } else {
-                            ((DefaultHistory) reader.getHistory()).save();
+                            reader.getHistory().save();
                             this.socket.send(line);
                             String serverInstruction = rendererSock.recvStr();
                             if (Objects.equals(serverInstruction, "shutdown")) {
@@ -240,7 +240,7 @@ public class ReplClient {
         }
     }
 
-    public void start(int initialPort) throws Exception {
+    public void start(int initialPort) {
         try {
             // Enable debug logging
             System.setProperty("org.jline.terminal.debug", "true");

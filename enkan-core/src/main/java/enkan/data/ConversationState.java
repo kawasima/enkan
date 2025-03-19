@@ -11,7 +11,6 @@ import java.util.Set;
  *
  * @author kawasima
  */
-@SuppressWarnings("NullableProblems")
 public class ConversationState implements Map<String, Object>, Serializable {
     private final Map<String, Object> attrs = new HashMap<>();
 

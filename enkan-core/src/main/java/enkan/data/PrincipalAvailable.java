@@ -7,7 +7,7 @@ import java.security.Principal;
  */
 public interface PrincipalAvailable extends Extendable {
     default Principal getPrincipal() {
-        return (Principal) getExtension("principal");
+        return getExtension("principal");
     }
 
     default void setPrincipal(Principal principal) {

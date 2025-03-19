@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  */
 public interface Routable extends Extendable {
     default Class<?> getControllerClass() {
-        return (Class<?>) getExtension("controllerClass");
+        return getExtension("controllerClass");
     }
 
     default void setControllerClass(Class<?> controllerClass) {
@@ -17,7 +17,7 @@ public interface Routable extends Extendable {
     }
 
     default Method getControllerMethod() {
-        return (Method) getExtension("controllerMethod");
+        return getExtension("controllerMethod");
     }
     default void setControllerMethod(Method controllerMethod) {
         setExtension("controllerMethod", controllerMethod);

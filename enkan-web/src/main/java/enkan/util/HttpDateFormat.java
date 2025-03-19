@@ -17,7 +17,7 @@ public enum HttpDateFormat {
     RFC1036("EEEE, dd-MMM-yy HH:mm:ss zzz"),
     ASCTIME("EEE MMM d HH:mm:ss yyyy");
 
-    private String formatStr;
+    private final String formatStr;
 
     HttpDateFormat(String formatStr) {
         this.formatStr = formatStr;

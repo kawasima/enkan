@@ -1,7 +1,7 @@
 package enkan.exception;
 
 /**
- * We think unreachable Unreachable
+ * This exception is thrown when the exception is caused by a framework bug.
  *
  * @author kawasima
  */

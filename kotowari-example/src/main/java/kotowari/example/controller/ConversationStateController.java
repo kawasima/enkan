@@ -15,7 +15,7 @@ import static enkan.util.BeanBuilder.builder;
  */
 public class ConversationStateController {
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     public HttpResponse page1(Conversation conversation) {
         if (conversation.isTransient()) conversation.begin();

@@ -22,11 +22,7 @@ package org.seasar.util.exception;
  *
  */
 public class PropertyNotFoundRuntimeException extends RuntimeException {
-
-    private static final long serialVersionUID = -5177019197796206774L;
-
     private final Class<?> targetClass;
-
     private final String propertyName;
 
     /**

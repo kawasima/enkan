@@ -9,7 +9,7 @@ import static kotowari.scope.ExportableScope.*;
  * @author kawasima
  */
 public class ExportSetting {
-    private Map<ExportableScope, String> exports;
+    private final Map<ExportableScope, String> exports;
 
     public static final ExportSetting DEFAULT_EXPORTS = ExportSetting.of(
             REQUEST, "request",

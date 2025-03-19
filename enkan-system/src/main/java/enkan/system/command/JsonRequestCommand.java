@@ -38,12 +38,12 @@ public class JsonRequestCommand implements SystemCommand {
             sb.append(args[i]).append(" ");
         }
         String jsonBody = sb.toString().trim();
-        List<WebServerComponent> webServers = system.getComponents(WebServerComponent.class);
+        List<WebServerComponent<?>> webServers = system.getComponents(WebServerComponent.class);
         if (webServers.isEmpty()) {
             transport.sendErr("WebServerComponent not found", DONE);
             return true;
         }
-        WebServerComponent webServer = webServers.get(0);
+        WebServerComponent<?> webServer = webServers.getFirst();
         URL url;
         try {
             url = new URL(webServer.isSsl() ? "https" : "http",

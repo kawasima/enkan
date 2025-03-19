@@ -48,7 +48,7 @@ public class HttpResponseUtils {
      * Create a response with a Location header.
      *
      * @param url   a redirect url
-     * @param code  a HTTP status code in redirect
+     * @param code  an HTTP status code in redirect
      * @return response
      */
     public static HttpResponse redirect(String url, RedirectStatusCode code) {

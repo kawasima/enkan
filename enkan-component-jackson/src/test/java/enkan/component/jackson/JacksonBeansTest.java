@@ -40,7 +40,7 @@ public class JacksonBeansTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
                 return true;
             }
         });
@@ -54,7 +54,7 @@ public class JacksonBeansTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
                 return true;
             }
         });
@@ -66,7 +66,7 @@ public class JacksonBeansTest {
     }
 
     @Test
-    public void testNull() throws Exception {
+    public void testNull() {
         BeansConverter beansConverter = system.getComponent("beans");
 
         Object bean1 = new TestBean(null, "10", "TOKYO");

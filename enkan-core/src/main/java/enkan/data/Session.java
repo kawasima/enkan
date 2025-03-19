@@ -12,7 +12,6 @@ import java.util.Set;
  *
  * @author kawasima
  */
-@SuppressWarnings("NullableProblems")
 public class Session implements Map<String, Serializable>, Serializable {
     /** Holds the attributes of session **/
     private final Map<String, Serializable> attrs;

@@ -7,7 +7,7 @@ import java.io.InputStream;
  * @author kawasima
  */
 public class LazyRenderInputStream extends InputStream {
-    private LazyRenderer renderer;
+    private final LazyRenderer renderer;
     private InputStream in;
 
     public LazyRenderInputStream(LazyRenderer renderer) {

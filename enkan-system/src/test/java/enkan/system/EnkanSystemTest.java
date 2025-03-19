@@ -13,25 +13,28 @@ import static org.assertj.core.api.Assertions.*;
  * @author kawasima
  */
 class EnkanSystemTest {
+    private static class TestComponent extends SystemComponent<TestComponent> {
+        private final String msg;
+
+        public TestComponent() {
+            this(null);
+        }
+        public TestComponent(String msg) {
+            this.msg = msg;
+        }
+        @Override
+        protected ComponentLifecycle<TestComponent> lifecycle() {
+            return null;
+        }
+        @Override
+        public String toString() {
+            return msg;
+        }
+    }
     @Test
     void systemCreation() {
-        SystemComponent c1 = new SystemComponent() {
-            @Override
-            public ComponentLifecycle lifecycle() {
-                return null;
-            }
-        };
-        SystemComponent c2 = new SystemComponent() {
-            @Override
-            public ComponentLifecycle lifecycle() {
-                return null;
-            }
-
-            @Override
-            public String toString() {
-                return "c2 component";
-            }
-        };
+        TestComponent c1 = new TestComponent();
+        TestComponent c2 = new TestComponent("c2 component");
         EnkanSystem system = EnkanSystem.of("c1", c1, "c2", c2);
         assertThat(system.getAllComponents().size()).isEqualTo(2);
         assertThat(system.getComponent("c2").toString()).isEqualTo("c2 component");

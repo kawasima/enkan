@@ -22,10 +22,10 @@ import static enkan.util.ThreadingUtils.some;
  */
 public class Route {
     /** Path segments */
-    private List<Segment> segments;
+    private final List<Segment> segments;
 
-    private OptionMap constraints;
-    private OptionMap conditions;
+    private final OptionMap constraints;
+    private final OptionMap conditions;
     private List<String> significantKeys;
     private OptionMap parameterShell;
     private boolean matchingPrepared;
@@ -148,7 +148,7 @@ public class Route {
         if (value == null) {
             return "";
         } else if (value instanceof Collection) {
-            Collection<?> values = Collection.class.cast(value);
+            Collection<?> values = (Collection) value;
             List<String> pairs = new ArrayList<>(values.size());
             for (Object val : values) {
                 if (val == null)
@@ -170,7 +170,7 @@ public class Route {
         elements.addAll(onlyKeys.stream()
                 .filter(hash::containsKey)
                 .map(key -> getUrlEncodedString(hash, key))
-                .collect(Collectors.toList()));
+                .toList());
         return elements.isEmpty() ? "" : "?" + String.join("&", elements);
     }
 
@@ -256,7 +256,7 @@ public class Route {
         if (hash != null) {
             extraKeys.addAll(hash.keySet().stream()
                     .filter(key -> !significantKeys.contains(key))
-                    .collect(Collectors.toList()));
+                    .toList());
         }
         return extraKeys;
     }
@@ -277,7 +277,7 @@ public class Route {
         }
         StringBuilder out = new StringBuilder(256);
         for (Object method : methods) {
-            out.append(String.format(Locale.US, "%-6s %-40s %s\n", method.toString().toUpperCase(), segs.toString(), constraints));
+            out.append(String.format(Locale.US, "%-6s %-40s %s\n", method.toString().toUpperCase(), segs, constraints));
         }
         return out.toString();
     }

@@ -156,7 +156,7 @@ public class CopyOptions {
      * @return このインスタンス自身
      */
     public CopyOptions prefix(final CharSequence prefix) {
-        if (prefix == null || prefix.length() == 0)
+        if (prefix == null || prefix.isEmpty())
             throw new IllegalArgumentException("prefix is empty");
 
         this.prefix = prefix.toString();
@@ -252,7 +252,7 @@ public class CopyOptions {
             converters.add(converter);
         } else {
             for (final CharSequence name : propertyNames) {
-                if (name == null || name.length() == 0) throw new IllegalArgumentException("A element of propertyNames is empty");
+                if (name == null || name.isEmpty()) throw new IllegalArgumentException("A element of propertyNames is empty");
                 converterMap.put(name.toString(), converter);
             }
         }

@@ -82,15 +82,10 @@ public class ReflectionUtilsTest {
 
     @Test
     public void occursInvocationTargetException_checked() {
-        try {
-            ReflectionUtils.tryReflection(() -> {
-                InvocationTarget t = new InvocationTarget();
-                return InvocationTarget.class.getMethod("throwCheckedException").invoke(t);
-            });
-            fail("Unreachable");
-        } catch (RuntimeException ex) {
-            assertThat(ex.getCause()).isOfAnyClassIn(IOException.class);
-        }
+        assertThatThrownBy(() -> ReflectionUtils.tryReflection(() -> {
+            InvocationTarget t = new InvocationTarget();
+            return InvocationTarget.class.getMethod("throwCheckedException").invoke(t);
+        })).hasCauseInstanceOf(IOException.class);
     }
 
     private static class InvocationTarget {

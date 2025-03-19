@@ -7,7 +7,6 @@ import enkan.security.UserPrincipal;
 import kotowari.component.TemplateEngine;
 import kotowari.example.dao.GuestbookDao;
 import kotowari.example.entity.Guestbook;
-import kotowari.routing.UrlRewriter;
 import jakarta.enterprise.context.Conversation;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

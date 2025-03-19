@@ -16,14 +16,13 @@ public class MergeableResourceBundle extends ResourceBundle {
     }
 
     @Override
-    protected Object handleGetObject(@SuppressWarnings("NullableProblems") String key) {
+    protected Object handleGetObject(String key) {
         if (key == null) {
             throw new NullPointerException();
         }
         return lookup.get(key);
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public Enumeration<String> getKeys() {
         ResourceBundle parent = this.parent;
@@ -43,7 +42,7 @@ public class MergeableResourceBundle extends ResourceBundle {
                         next = iterator.next();
                         while(next == null && enumeration.hasMoreElements()) {
                             next = enumeration.nextElement();
-                            if (lookup.keySet().contains(next)) {
+                            if (lookup.containsKey(next)) {
                                 next = null;
                             }
                         }

@@ -15,7 +15,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * @author kawasima
  */
 public class ClassWatcher implements Runnable {
-    private WatchService watchService;
+    private final WatchService watchService;
     private final ConcurrentHashMap<WatchKey, Path> watchings = new ConcurrentHashMap<>();
     private final Runnable callback;
 
@@ -29,7 +29,7 @@ public class ClassWatcher implements Runnable {
         try {
             Files.walkFileTree(base, new SimpleFileVisitor<Path>() {
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     register(dir);
                     return FileVisitResult.CONTINUE;
                 }
@@ -63,7 +63,7 @@ public class ClassWatcher implements Runnable {
 
             boolean changed = false;
             for (WatchEvent<?> event : key.pollEvents()) {
-                WatchEvent.Kind kind = event.kind();
+                WatchEvent.Kind<?> kind = event.kind();
 
                 if (kind == StandardWatchEventKinds.OVERFLOW) continue;
 

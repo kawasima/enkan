@@ -80,7 +80,7 @@ public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
 
             String newSessionKey = null;
             if (session != null) {
-                if (!PersistentMarkedSession.class.isInstance(session)) {
+                if (!(session instanceof PersistentMarkedSession)) {
                     session.persist();
                     newSessionKey = store.write(sessionKey, session);
                 }

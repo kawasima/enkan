@@ -49,7 +49,7 @@ public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
             if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
                 continue;
 
-            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            BodyDeserializable bodyDeserializable = (BodyDeserializable) request;
             Object body = bodyDeserializable.getDeserializedBody();
             try {
                 if (body == null) {

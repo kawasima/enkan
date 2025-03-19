@@ -11,7 +11,6 @@ import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
 import enkan.util.MixinUtils;
-import enkan.util.ThreadingUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.inject.ParameterInjector;
 import kotowari.util.ParameterUtils;
@@ -79,7 +78,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                     .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
                     .map(reader -> {
                         try {
-                            return (T) MessageBodyReader.class.cast(reader)
+                            return (T) ((MessageBodyReader) reader)
                                     .readFrom(type, genericType, null, mediaType, headers, request.getBody());
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
@@ -109,7 +108,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                                 writer2.isWriteable(obj.getClass(), obj.getClass(), null, mediaType)))
                 .map(writer -> {
                     try {
-                        MessageBodyWriter.class.cast(writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
+                        ((MessageBodyWriter) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
                         return baos.toByteArray();
                     } catch (IOException e) {
                         return null;
@@ -129,7 +128,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         if (mediaTypeTokens.length == 2) {
             MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
             Parameter[] parameters = method != null ? method.getParameters() : new Parameter[0];
-            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            BodyDeserializable bodyDeserializable = (BodyDeserializable) request;
             for (Parameter parameter : parameters) {
                 Class<?> type = parameter.getType();
                 Type genericType = parameter.getParameterizedType();
@@ -149,7 +148,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     public void handleRequest(HttpRequest request) throws IOException {
         Method method = ((Routable) request).getControllerMethod();
         if (HttpRequestUtils.isUrlEncodedForm(request)) {
-            BodyDeserializable bodyDeserializable = BodyDeserializable.class.cast(request);
+            BodyDeserializable bodyDeserializable = (BodyDeserializable) request;
             if (bodyDeserializable.getDeserializedBody() == null) {
                 Parameter[] parameters = some(method, Method::getParameters).orElse(new Parameter[0]);
                 for (Parameter parameter : parameters) {
@@ -213,7 +212,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     private Object extractBody(NRES response) {
         if (response instanceof HasBody) {
-            return HasBody.class.cast(response).getBody();
+            return ((HasBody) response).getBody();
         } else {
             return response;
         }
@@ -222,7 +221,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     private Headers extractHeaders(NRES response, MediaType responseType) {
         Headers headers;
         if (response instanceof HasHeaders) {
-            headers = HasHeaders.class.cast(response).getHeaders();
+            headers = ((HasHeaders) response).getHeaders();
         } else {
             headers = Headers.empty();
         }
@@ -232,7 +231,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     private int extractStatus(NRES response) {
         if (response instanceof HasStatus) {
-            return HasStatus.class.cast(response).getStatus();
+            return ((HasStatus) response).getStatus();
         } else {
             return 200;
         }

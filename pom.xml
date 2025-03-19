@@ -15,10 +15,32 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
+
         <enkan.version>0.11.0-SNAPSHOT</enkan.version>
         <maven.version>3.6.3</maven.version>
-        <maven.surefire.version>3.2.5</maven.surefire.version>
+
+        <!-- Maven Plugin-->
+        <maven.surefire.version>3.5.2</maven.surefire.version>
+        <maven.compiler.version>3.14.0</maven.compiler.version>
+        <maven.javadoc.version>3.11.2</maven.javadoc.version>
+        <maven.gpg.plugin>3.2.7</maven.gpg.plugin>
+        <maven.source.plugin>3.3.1</maven.source.plugin>
+        <version.maven.version>2.18.0</version.maven.version>
+
+
+        <!-- Jakarta EE -->
+        <jakarta.transaction.version>2.0.0</jakarta.transaction.version>
+        <jakarta.enterprise.version>3.0.0</jakarta.enterprise.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jackson.version>2.18.3</jackson.version>
+        <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+        <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
+
+        <doma.version>2.62.1</doma.version>
+        <slf4j.version>2.0.12</slf4j.version>
+        <junit.version>5.12.0</junit.version>
+        <assertj.version>3.27.3</assertj.version>
     </properties>
 
     <modules>
@@ -55,7 +77,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.12.1</version>
+                    <version>${maven.compiler.version}</version>
                     <configuration>
                         <release>21</release>
                     </configuration>
@@ -63,7 +85,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.3</version>
+                    <version>${maven.javadoc.version}</version>
                     <configuration>
                         <source>21</source>
                     </configuration>
@@ -79,6 +101,12 @@
                         </argLine>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${version.maven.version}</version>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -103,21 +131,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>3.1.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
@@ -125,9 +138,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>2.16.2</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven.gpg.plugin}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -252,60 +265,60 @@
             <dependency>
                 <groupId>jakarta.transaction</groupId>
                 <artifactId>jakarta.transaction-api</artifactId>
-                <version>2.0.0</version>
+                <version>${jakarta.transaction.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.enterprise</groupId>
                 <artifactId>jakarta.enterprise.cdi-api</artifactId>
-                <version>3.0.0</version>
+                <version>${jakarta.enterprise.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
-                <version>6.1.0</version>
+                <version>${jakarta.servlet.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>2.0.12</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>2.0.12</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.12.0</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.12.0</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.27.3</version>
+                <version>${assertj.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>3.1.0</version>
+                <version>${jakarta.ws.rs.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
-                <version>3.0.2</version>
+                <version>${jakarta.validation.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>jakarta.persistence</groupId>
                 <artifactId>jakarta.persistence-api</artifactId>
-                <version>3.1.0</version>
+                <version>${jakarta.persistence.version}</version>
             </dependency>
 
             <dependency>
@@ -363,7 +376,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -376,7 +388,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.11.2</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -389,7 +400,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

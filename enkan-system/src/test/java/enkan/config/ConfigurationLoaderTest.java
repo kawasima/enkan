@@ -28,7 +28,7 @@ public class ConfigurationLoaderTest {
     }
 
     @Test
-    public void testReloadableFiles() throws Exception {
+    public void testReloadableFiles() {
         ClassLoader cl = getClass().getClassLoader();
         ConfigurationLoader configurationLoader = new ConfigurationLoader(cl);
 
@@ -84,7 +84,7 @@ public class ConfigurationLoaderTest {
     }
 
     @Test
-    public void testClassLoading() throws Exception {
+    public void testClassLoading() {
         ClassLoader cl = getClass().getClassLoader();
         ConfigurationLoader configurationLoader = new ConfigurationLoader(cl);
 

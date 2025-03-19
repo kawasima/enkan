@@ -1,8 +1,6 @@
 package kotowari.middleware;
 
 import enkan.MiddlewareChain;
-import enkan.collection.Headers;
-import enkan.data.ConversationAvailable;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.PrincipalAvailable;
@@ -44,7 +42,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     private HmacEncoder hmacEncoder;
 
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     private Map<String, Function<List, Object>> userFunctions = Collections.emptyMap();
 
@@ -53,7 +51,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
         if (arguments.size() == 2) {
             Object principal = arguments.get(0);
             String permission = Objects.toString(arguments.get(1));
-            if (UserPrincipal.class.isInstance(principal)) {
+            if (principal instanceof UserPrincipal) {
                 return ((UserPrincipal) principal).hasPermission(permission);
             } else {
                 throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasPermission");
@@ -106,7 +104,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
                 baos.write(buf.array(), 0, read);
                 buf.reset();
             }
-            String body = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+            String body = baos.toString(StandardCharsets.UTF_8);
             response.setBody(body);
         } catch (IOException ex) {
             throw new FalteringEnvironmentException(ex);
@@ -116,8 +114,8 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     @Override
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
-        if (TemplatedHttpResponse.class.isInstance(response)) {
-            TemplatedHttpResponse tres = TemplatedHttpResponse.class.cast(response);
+        if (response instanceof TemplatedHttpResponse) {
+            TemplatedHttpResponse tres = (TemplatedHttpResponse) response;
             if (exports.contains(REQUEST)) {
                 tres.getContext().put(exports.getExportName(REQUEST), request);
             }

@@ -13,7 +13,7 @@ public class MixinUtilsTest {
         Money m1 = new MoneyImpl(5);
         m1 = MixinUtils.mixin(m1, ComparableMoney.class);
 
-        assertThat(ComparableMoney.class.cast(m1).isBigger(new MoneyImpl(3)))
+        assertThat(((ComparableMoney) m1).isBigger(new MoneyImpl(3)))
                 .isTrue();
     }
 
@@ -22,7 +22,7 @@ public class MixinUtilsTest {
         assertThatThrownBy(() -> {
             ImplOnly impl = new ImplOnly();
             impl = MixinUtils.mixin(impl, ComparableMoney.class);
-            ComparableMoney.class.cast(impl);
+            ComparableMoney impl1 = (ComparableMoney) impl;
         }).isExactlyInstanceOf(ClassCastException.class);
     }
 
@@ -43,7 +43,7 @@ public class MixinUtilsTest {
     }
 
     public static class MoneyImpl implements Money {
-        private int amount;
+        private final int amount;
 
         public MoneyImpl(int amount) {
             this.amount = amount;

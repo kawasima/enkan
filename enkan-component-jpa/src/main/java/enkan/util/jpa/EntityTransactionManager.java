@@ -9,7 +9,7 @@ import jakarta.persistence.EntityTransaction;
  * @author kawasima
  */
 public class EntityTransactionManager {
-    private EntityManager em;
+    private final EntityManager em;
 
     public EntityTransactionManager(EntityManager em) {
         this.em = em;

@@ -84,13 +84,13 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     @Override
     public MediaType bestAllowedContentType(String acceptsHeader, Set<String> allowedTypes) {
         Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
-                .<MediaType>map(CodecUtils::parseMediaType)
+                .map(CodecUtils::parseMediaType)
                 .collect(Collectors.toSet()));
         return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .<AcceptFragment<MediaType>>map(accept -> parseAcceptFragment(accept, MediaType.class))
+                .map(accept -> parseAcceptFragment(accept, MediaType.class))
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
-                .min(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
+                .max(Comparator.comparing(AcceptFragment::getQ))
                 .map(af -> af.fragment)
                 .orElse(null);
     }

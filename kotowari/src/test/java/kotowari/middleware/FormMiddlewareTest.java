@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class FormMiddlewareTest {
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)]");
-    protected Function<String, String[]> parseNestedKeys = (paramName) -> {
+    protected final Function<String, String[]> parseNestedKeys = (paramName) -> {
         if (paramName == null) return new String[]{};
 
         Matcher m = RE_NESTED_NAME.matcher(paramName);
@@ -103,7 +103,7 @@ public class FormMiddlewareTest {
                     }
                 }));
 
-        NestedForm form = BodyDeserializable.class.cast(request).getDeserializedBody();
+        NestedForm form = ((BodyDeserializable) request).getDeserializedBody();
         assertThat(form.getIntVal()).isEqualTo(123);
         assertThat(form.getDoubleVal()).isEqualTo(1.7320508);
         assertThat(form.getDecimalVal()).isEqualTo(new BigDecimal("65536"));
@@ -138,7 +138,7 @@ public class FormMiddlewareTest {
 
         // Difference from rack. rack returns "[nil]".
         p = parseFromQuery("foo[]");
-        assertEquals(0, ((List) p.getIn("foo")).size());
+        assertEquals(0, ((List<?>) p.getIn("foo")).size());
 
         p = parseFromQuery("foo[]=bar");
         assertEquals(1, p.getList("foo").size());

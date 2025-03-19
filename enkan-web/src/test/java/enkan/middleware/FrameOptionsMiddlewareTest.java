@@ -18,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class FrameOptionsMiddlewareTest {
-    private FrameOptionsMiddleware middleware;
+    private FrameOptionsMiddleware<HttpResponse> middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
-        middleware = new FrameOptionsMiddleware();
+        middleware = new FrameOptionsMiddleware<>();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
                         Headers.of("Host", "example.com"))

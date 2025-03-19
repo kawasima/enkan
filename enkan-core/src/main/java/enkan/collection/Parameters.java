@@ -8,9 +8,8 @@ import java.util.*;
  *
  * @author kawasima
  */
-@SuppressWarnings("NullableProblems")
 public class Parameters implements Map<String, Object>, Serializable {
-    private TreeMap<String, Object> params = new TreeMap<>();
+    private final TreeMap<String, Object> params = new TreeMap<>();
     private boolean caseSensitive = true;
 
     protected Parameters() {
@@ -82,8 +81,8 @@ public class Parameters implements Map<String, Object>, Serializable {
      */
     @Override
     public boolean containsKey(Object key) {
-        if (!caseSensitive && String.class.isInstance(key)) {
-            key = String.class.cast(key).toLowerCase(Locale.US);
+        if (!caseSensitive && key instanceof String) {
+            key = ((String) key).toLowerCase(Locale.US);
         }
         return params.containsKey(key);
     }
@@ -105,8 +104,8 @@ public class Parameters implements Map<String, Object>, Serializable {
      */
     @Override
     public String get(Object key) {
-        if (!caseSensitive && String.class.isInstance(key)) {
-            key = String.class.cast(key).toLowerCase(Locale.US);
+        if (!caseSensitive && key instanceof String) {
+            key = ((String) key).toLowerCase(Locale.US);
         }
         Object val = params.get(key);
         if (val == null) return null;
@@ -142,13 +141,13 @@ public class Parameters implements Map<String, Object>, Serializable {
             if (keys[idx] == null) return null;
 
             if (current instanceof List) {
-                List<?> list = List.class.cast(current);
+                List<?> list = (List) current;
                 Integer i = keyToInt(keys[idx]);
                 if (i == null || i < 0 || i >= list.size()) return null;
 
                 current = list.get(i);
             } else if (current instanceof Parameters) {
-                Parameters map = Parameters.class.cast(current);
+                Parameters map = (Parameters) current;
                 current = map.getRawType(keys[idx]);
             } else {
                 return null;
@@ -160,8 +159,8 @@ public class Parameters implements Map<String, Object>, Serializable {
     }
 
     public Object getRawType(Object key) {
-        if (!caseSensitive && String.class.isInstance(key)) {
-            key = String.class.cast(key).toLowerCase(Locale.US);
+        if (!caseSensitive && key instanceof String) {
+            key = ((String) key).toLowerCase(Locale.US);
         }
 
         return params.get(key.toString());
@@ -172,7 +171,7 @@ public class Parameters implements Map<String, Object>, Serializable {
         if (value == null) {
             return new ArrayList<>();
         } else if (value instanceof List) {
-            return List.class.cast(value);
+            return (List) value;
         } else {
             List<T> values = new ArrayList<>();
             values.add(value);

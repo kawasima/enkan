@@ -10,6 +10,6 @@ public interface EntityManageable extends Extendable {
     }
 
     default EntityManager getEntityManager() {
-        return (EntityManager) getExtension("entityManager");
+        return getExtension("entityManager");
     }
 }

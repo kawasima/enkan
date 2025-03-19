@@ -8,8 +8,8 @@ import java.util.Objects;
  * @author kawasima
  */
 public class LimitRate implements Serializable {
-    private long max;
-    private Duration duration;
+    private final long max;
+    private final Duration duration;
 
     public LimitRate(long max, Duration duration) {
         this.max = max;

@@ -39,9 +39,9 @@ public class PropertyDescImpl implements PropertyDesc {
 
     private static final Object[] EMPTY_ARGS = new Object[0];
 
-    private String propertyName;
+    private final String propertyName;
 
-    private Class<?> propertyType;
+    private final Class<?> propertyType;
 
     private Method readMethod;
 
@@ -49,7 +49,7 @@ public class PropertyDescImpl implements PropertyDesc {
 
     private Field field;
 
-    private BeanDesc beanDesc;
+    private final BeanDesc beanDesc;
 
     private Constructor<?> stringConstructor;
 

@@ -143,7 +143,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     }
 
     /**
-     * Set an template loader used by this freemarker.
+     * Set a template loader used by this freemarker.
      *
      * @param templateLoader template loader
      */

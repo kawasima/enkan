@@ -166,7 +166,7 @@ public abstract class ParameterizedClassDescFactory {
         final ParameterizedClassDesc[] parameterDescs =
                 Arrays.stream(parameterTypes)
                         .map(t -> createParameterizedClassDesc(t, map))
-                        .collect(Collectors.toList())
+                        .toList()
                         .toArray(new ParameterizedClassDesc[parameterTypes.length]);
         desc.setArguments(parameterDescs);
         return desc;
@@ -175,20 +175,18 @@ public abstract class ParameterizedClassDescFactory {
     private static Class<?> getActualClass(final Type type,
                                     final Map<TypeVariable<?>, Type> map) {
         if (type instanceof Class) {
-            return Class.class.cast(type);
+            return (Class) type;
         }
         if (type instanceof ParameterizedType) {
-            return getActualClass(ParameterizedType.class
-                    .cast(type)
+            return getActualClass(((ParameterizedType) type)
                     .getRawType(), map);
         }
         if (type instanceof WildcardType) {
-            return getActualClass(WildcardType.class
-                    .cast(type)
+            return getActualClass(((WildcardType) type)
                     .getUpperBounds()[0], map);
         }
         if (type instanceof TypeVariable) {
-            final TypeVariable<?> typeVariable = TypeVariable.class.cast(type);
+            final TypeVariable<?> typeVariable = (TypeVariable) type;
             if (map.containsKey(typeVariable)) {
                 return getActualClass(map.get(typeVariable), map);
             }
@@ -196,7 +194,7 @@ public abstract class ParameterizedClassDescFactory {
         }
         if (type instanceof GenericArrayType) {
             final GenericArrayType genericArrayType =
-                    GenericArrayType.class.cast(type);
+                    (GenericArrayType) type;
             final Class<?> componentClass =
                     getActualClass(genericArrayType.getGenericComponentType(), map);
             return Array.newInstance(componentClass, 0).getClass();
@@ -206,11 +204,10 @@ public abstract class ParameterizedClassDescFactory {
 
     private static Type[] getGenericParameters(final Type type) {
         if (type instanceof ParameterizedType) {
-            return ParameterizedType.class.cast(type).getActualTypeArguments();
+            return ((ParameterizedType) type).getActualTypeArguments();
         }
         if (type instanceof GenericArrayType) {
-            return getGenericParameters(GenericArrayType.class
-                    .cast(type)
+            return getGenericParameters(((GenericArrayType) type)
                     .getGenericComponentType());
         }
         return null;
@@ -269,10 +266,9 @@ public abstract class ParameterizedClassDescFactory {
                                               final Map<TypeVariable<?>, Type> map) {
         if (type instanceof ParameterizedType) {
             final ParameterizedType parameterizedType =
-                    ParameterizedType.class.cast(type);
+                    (ParameterizedType) type;
             final TypeVariable<?>[] typeVariables =
-                    GenericDeclaration.class
-                            .cast(parameterizedType.getRawType())
+                    ((GenericDeclaration) parameterizedType.getRawType())
                             .getTypeParameters();
             final Type[] actualTypes =
                     parameterizedType.getActualTypeArguments();

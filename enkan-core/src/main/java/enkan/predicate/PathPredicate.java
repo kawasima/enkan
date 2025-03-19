@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
  * @author kawasima
  */
 public class PathPredicate<REQ extends UriAvailable> implements PrintablePredicate<REQ> {
-    private String method;
-    private Pattern pathPattern;
+    private final String method;
+    private final Pattern pathPattern;
 
     protected PathPredicate(String method, String patternString) {
         this.method = method;

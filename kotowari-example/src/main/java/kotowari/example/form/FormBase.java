@@ -10,7 +10,7 @@ import java.util.Map;
  * @author kawasima
  */
 public class FormBase implements Validatable, Serializable {
-    private Map<String, Object> extensions = new HashMap<>();
+    private final Map<String, Object> extensions = new HashMap<>();
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getExtension(String name) {

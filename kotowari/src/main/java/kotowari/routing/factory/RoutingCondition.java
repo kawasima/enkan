@@ -1,8 +1,6 @@
 package kotowari.routing.factory;
 
 import enkan.collection.OptionMap;
-import enkan.collection.Headers;
-import enkan.data.HttpRequest;
 import kotowari.routing.Route;
 
 import jakarta.ws.rs.core.MediaType;
@@ -19,9 +17,9 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class RoutingCondition {
-    private String method;
-    private String path;
-    private OptionMap requirements;
+    private final String method;
+    private final String path;
+    private final OptionMap requirements;
     private Set<MediaType> consumes;
     private Set<MediaType> produces;
     private RoutePatterns.PatternsContext context;

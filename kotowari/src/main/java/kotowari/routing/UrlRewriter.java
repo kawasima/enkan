@@ -12,7 +12,7 @@ import java.util.List;
 import static enkan.util.BeanBuilder.builder;
 
 /**
- * The utilities for rewriting an URL.
+ * The utilities for rewriting a URL.
  *
  * @author kawasima
  */

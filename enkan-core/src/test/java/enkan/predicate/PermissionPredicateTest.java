@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class PermissionPredicateTest {
     static class PrincipalRequest implements PrincipalAvailable, Extendable {
-        private Map<String, Object> extensions = new HashMap<>();
+        private final Map<String, Object> extensions = new HashMap<>();
 
         @SuppressWarnings("unchecked")
         @Override

@@ -8,7 +8,7 @@ import java.util.Locale;
  */
 public interface ContentNegotiable extends Extendable {
     default MediaType getMediaType() {
-        return (MediaType) getExtension("mediaType");
+        return getExtension("mediaType");
     }
 
     default void setMediaType(MediaType mediaType) {
@@ -16,7 +16,7 @@ public interface ContentNegotiable extends Extendable {
     }
 
     default Locale getLocale() {
-        return (Locale) getExtension("locale");
+        return getExtension("locale");
     }
 
     default void setLocale(Locale locale) {

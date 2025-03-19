@@ -42,8 +42,7 @@ public class ThreadingUtilsTest {
         assertThat(encoded.isPresent()).isTrue();
 
         str = null;
-        //noinspection ConstantConditions
-        encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, StandardCharsets.UTF_8.name()));
+        encoded = ThreadingUtils.some(str, s -> URLEncoder.encode(s, StandardCharsets.UTF_8));
         assertThat(encoded.isPresent()).isFalse();
     }
 }

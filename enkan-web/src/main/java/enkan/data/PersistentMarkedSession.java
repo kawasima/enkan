@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * @author kawasima
  */
-@SuppressWarnings("NullableProblems")
 public final class PersistentMarkedSession extends Session {
     public boolean isNew() {
         return false;

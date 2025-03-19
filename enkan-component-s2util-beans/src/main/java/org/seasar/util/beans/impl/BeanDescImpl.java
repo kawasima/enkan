@@ -180,7 +180,7 @@ public class BeanDescImpl implements BeanDesc {
     public <T> T newInstance(final Object... args) {
         final ConstructorDesc constructorDesc =
             getSuitableConstructorDesc(args);
-        return (T) constructorDesc.newInstance(args);
+        return constructorDesc.newInstance(args);
     }
 
     @Override

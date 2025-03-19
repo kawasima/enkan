@@ -50,13 +50,13 @@ public class CodecUtils {
         try {
             Matcher m = RE_URL_ENCODE_TARGET.matcher(unencoded);
 
-            StringBuffer sb = new StringBuffer(unencoded.length() * 2);
+            StringBuilder sb = new StringBuilder(unencoded.length() * 2);
             while (m.find()) {
                 String s = m.group(0);
                 StringBuilder encodedSb = new StringBuilder();
                 for (byte b : s.getBytes(encoding)) {
                     encodedSb.append("%");
-                    int d = (int) b;
+                    int d = b;
                     if (d < 0) {
                         d += 256;
                     }
@@ -81,7 +81,7 @@ public class CodecUtils {
     public static String urlDecode(String encoded, String encoding) {
         try {
             Matcher m = RE_URL_ENCODED_CHARS.matcher(encoded);
-            StringBuffer sb = new StringBuffer(encoded.length());
+            StringBuilder sb = new StringBuilder(encoded.length());
             while (m.find()) {
                 String chars = m.group(0);
                 m.appendReplacement(sb, new String(parseBytes(chars), encoding));
@@ -98,30 +98,34 @@ public class CodecUtils {
     }
 
     public static <T> String formEncode(T x, String encoding) {
-        if (x == null) {
-            return "";
-        } else if (x instanceof String) {
-            try {
-                return URLEncoder.encode((String) x, encoding);
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalArgumentException(String.format("encoding %s is not supported", x), e);
+        switch (x) {
+            case null -> {
+                return "";
             }
-        } else if (x instanceof Map) {
-            Map<?, ?> m = (Map) x;
-            return m.entrySet().stream()
-                    .map(e -> {
-                        if (e.getValue() instanceof Collection) {
-                            String encodedKey = formEncode(e.getKey());
-                            return ((Collection<?>) e.getValue()).stream()
-                                    .map(v -> encodedKey + "=" + formEncode(v))
-                                    .collect(Collectors.joining("&"));
-                        } else {
-                            return formEncode(e.getKey()) + "=" + formEncode(e.getValue());
-                        }
-                    })
-                    .collect(Collectors.joining("&"));
-        } else {
-            return formEncode(x.toString(), encoding);
+            case String s -> {
+                try {
+                    return URLEncoder.encode((String) x, encoding);
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(String.format("encoding %s is not supported", x), e);
+                }
+            }
+            case Map<?, ?> m -> {
+                return m.entrySet().stream()
+                        .map(e -> {
+                            if (e.getValue() instanceof Collection) {
+                                String encodedKey = formEncode(e.getKey());
+                                return ((Collection<?>) e.getValue()).stream()
+                                        .map(v -> encodedKey + "=" + formEncode(v))
+                                        .collect(Collectors.joining("&"));
+                            } else {
+                                return formEncode(e.getKey()) + "=" + formEncode(e.getValue());
+                            }
+                        })
+                        .collect(Collectors.joining("&"));
+            }
+            default -> {
+                return formEncode(x.toString(), encoding);
+            }
         }
     }
 

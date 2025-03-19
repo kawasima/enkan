@@ -14,9 +14,9 @@ import java.util.*;
  * @author kawasima
  */
 public class MisconfigurationException extends UnrecoverableException {
-    private static Logger LOG = LoggerFactory.getLogger("enkan.misconfiguration");
-    private String problem;
-    private String solution;
+    private static final Logger LOG = LoggerFactory.getLogger("enkan.misconfiguration");
+    private final String problem;
+    private final String solution;
 
     static ResourceBundle misconfigurationMessages;
 

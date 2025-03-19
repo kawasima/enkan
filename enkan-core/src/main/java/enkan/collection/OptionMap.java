@@ -14,7 +14,7 @@ public class OptionMap extends HashMap<String, Object> {
 
     public static OptionMap of(OptionMap init) {
         OptionMap m = empty();
-        init.forEach(m::put);
+        m.putAll(init);
         return m;
     }
 
@@ -93,7 +93,7 @@ public class OptionMap extends HashMap<String, Object> {
         } else if (value.getClass().isArray()) {
             valueList = Arrays.asList((Object[])value);
         } else if (Collection.class.isAssignableFrom(value.getClass())) {
-            valueList = new ArrayList<>(Collection.class.cast(value));
+            valueList = new ArrayList<>((Collection) value);
         } else {
             valueList = new ArrayList<>(1);
             valueList.add(value);

@@ -9,11 +9,11 @@ import java.io.OutputStream;
  * @author kawasima
  */
 public abstract class MimePart {
-    protected String head;
-    private OutputStream body;
-    protected String filename;
-    protected String contentType;
-    protected String name;
+    protected final String head;
+    private final OutputStream body;
+    protected final String filename;
+    protected final String contentType;
+    protected final String name;
 
     public MimePart(OutputStream body, String head, String filename, String contentType, String name) {
         this.head = head;

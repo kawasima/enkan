@@ -19,17 +19,19 @@ public class ThreadingUtils {
             }};
 
     @SuppressWarnings("unchecked")
-    private static <X, Y> Optional<Y> doSome(X start, ThreadingFunction... functions) {
+    private static <X, Y> Optional<Y> doSome(X start, ThreadingFunction<?,?>... functions) {
         if (functions == null || start == null) {
             return Optional.ofNullable((Y) start);
         }
 
         Object v = start;
-        LinkedList<ThreadingFunction> funcQueue = new LinkedList<>(Arrays.asList(functions));
+        LinkedList<ThreadingFunction<?,?>> funcQueue = new LinkedList<>(Arrays.asList(functions));
         while(!funcQueue.isEmpty()) {
-            ThreadingFunction f = funcQueue.removeFirst();
+            ThreadingFunction<?, ?> f = funcQueue.removeFirst();
             try {
-                v = f.apply(v);
+                @SuppressWarnings("unchecked")
+                ThreadingFunction<Object, ?> typedFunction = (ThreadingFunction<Object, ?>) f;
+                v = typedFunction.apply(v);
             } catch (Exception e) {
                 if (DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS.contains(e.getClass())) {
                     throw new IllegalArgumentException(e);
@@ -47,18 +49,18 @@ public class ThreadingUtils {
     }
 
     public static <X, Y> Optional<Y> some(X start, ThreadingFunction<X, Y> f1) {
-        return doSome(start, new ThreadingFunction[]{ f1 });
+        return doSome(start, f1);
     }
 
     public static <X0, X1, Y> Optional<Y> some(X0 start, ThreadingFunction<X0, X1> f1, ThreadingFunction<X1, Y> f2) {
-        return doSome(start, new ThreadingFunction[]{ f1, f2 });
+        return doSome(start, f1, f2);
     }
 
     public static <X0, X1, X2, Y> Optional<Y> some(X0 start,
                                          ThreadingFunction<X0, X1> f1,
                                          ThreadingFunction<X1, X2> f2,
                                          ThreadingFunction<X2, Y> f3) {
-        return doSome(start, new ThreadingFunction[]{ f1, f2, f3 });
+        return doSome(start, f1, f2, f3);
     }
 
     public static <X0, X1, X2, X3, Y> Optional<Y> some(
@@ -66,8 +68,8 @@ public class ThreadingUtils {
             ThreadingFunction<X0, X1> f1,
             ThreadingFunction<X1, X2> f2,
             ThreadingFunction<X2, X3> f3,
-            ThreadingFunction<X2, Y> f4) {
-        return doSome(start, new ThreadingFunction[]{ f1, f2, f3, f4});
+            ThreadingFunction<X3, Y> f4) {
+        return doSome(start, f1, f2, f3, f4);
     }
 
     public static <X, X1, Y> ThreadingFunction<X, Y> partial(ThreadingBiFunction<X, X1, Y> f, X1 arg) {

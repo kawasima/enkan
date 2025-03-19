@@ -7,10 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A predicate for the environment.
  * @author kawasima
  */
 public class EnvPredicate<REQ> implements PrintablePredicate<REQ> {
-    private Set<String> allowedEnv = new HashSet<>();
+    private final Set<String> allowedEnv = new HashSet<>();
 
     public EnvPredicate(String... envs) {
         allowedEnv.addAll(Arrays.asList(envs));

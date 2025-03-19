@@ -18,7 +18,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
 
             @Override
             public String toString() {
-                return orig.toString() + " && " + other.toString();
+                return orig + " && " + other;
             }
         };
     }
@@ -34,7 +34,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
 
             @Override
             public String toString() {
-                return "(" + orig.toString() + ") || (" + other.toString() + ")";
+                return "(" + orig + ") || (" + other + ")";
             }
         };
     }
@@ -50,7 +50,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
 
             @Override
             public String toString() {
-                return "!" + orig.toString();
+                return "!" + orig;
             }
         };
     }

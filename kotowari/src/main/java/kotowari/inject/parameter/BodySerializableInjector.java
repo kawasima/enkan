@@ -13,7 +13,7 @@ public class BodySerializableInjector<T> implements ParameterInjector<T> {
     @Override
     public boolean isApplicable(Class<?> type, HttpRequest request) {
         if (request instanceof BodyDeserializable) {
-            Object bodyObj = BodyDeserializable.class.cast(request).getDeserializedBody();
+            Object bodyObj = ((BodyDeserializable) request).getDeserializedBody();
             return bodyObj == null || type.isAssignableFrom(bodyObj.getClass());
         }
         return false;
@@ -21,6 +21,6 @@ public class BodySerializableInjector<T> implements ParameterInjector<T> {
 
     @Override
     public T getInjectObject(HttpRequest request) {
-        return BodyDeserializable.class.cast(request).getDeserializedBody();
+        return ((BodyDeserializable) request).getDeserializedBody();
     }
 }

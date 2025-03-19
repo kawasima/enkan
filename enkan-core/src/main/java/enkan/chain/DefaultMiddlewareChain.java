@@ -35,7 +35,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
         } else if (anno != null) {
             this.middlewareName = anno.name();
         } else {
-            this.middlewareName = "Anonymous(" + middleware.toString() + ")";
+            this.middlewareName = "Anonymous(" + middleware + ")";
         }
     }
 
@@ -113,7 +113,9 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     /**
      * Sets the predicate.
      *
+     * <p>
      * If this predicate returns true, middleware will be applied.
+     * </p>
      *
      * @param predicate predicate for applying the middleware.
      */

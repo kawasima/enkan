@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * An Utility of builder pattern.
+ * A Utility of builder pattern.
  *
  * @author kawasima
  */

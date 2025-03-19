@@ -35,9 +35,9 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     private Routes routes;
 
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
-    private ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
 
     public RoutingMiddleware(Routes routes) {
         this.routes = routes;
@@ -69,7 +69,7 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
             }
 
 
-            if (controllerClass == null || (action != null && Routable.class.cast(request).getControllerMethod() == null)) {
+            if (controllerClass == null || (action != null && ((Routable) request).getControllerMethod() == null)) {
                 HttpResponse response = HttpResponse.of("NotFound");
                 response.setStatus(404);
                 return response;
@@ -98,17 +98,17 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
                 });
         if (response instanceof TemplatedHttpResponse) {
             Function<List, Object> urlForFunction = arguments -> {
-                if (arguments.size() < 1) {
+                if (arguments.isEmpty()) {
                     return "/";
                 } else if (arguments.size() == 1){
-                    return routes.generate(UrlRewriter.urlFor(controllerClass, arguments.get(0).toString()).getOptions());
+                    return routes.generate(UrlRewriter.urlFor(controllerClass, arguments.getFirst().toString()).getOptions());
                 } else {
                     try {
                         Class<?> ctrlClass = Class.forName(arguments.get(0).toString(), true,
                                 Thread.currentThread().getContextClassLoader());
                         return routes.generate(UrlRewriter.urlFor(ctrlClass, arguments.get(1).toString()).getOptions());
                     } catch (ClassNotFoundException e) {
-                        throw new MisconfigurationException("core.CLASS_NOT_FOUND", arguments.get(0).toString(), e);
+                        throw new MisconfigurationException("core.CLASS_NOT_FOUND", arguments.getFirst().toString(), e);
                     }
                 }
             };

@@ -12,8 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author kawasima
  */
 public class MemoryStore implements KeyValueStore {
-    private ConcurrentHashMap<String, byte[]> sessionMap = new ConcurrentHashMap<>();
-
+    private final ConcurrentHashMap<String, byte[]> sessionMap = new ConcurrentHashMap<>();
 
     @Override
     public Serializable read(String key) {
@@ -119,7 +118,7 @@ public class MemoryStore implements KeyValueStore {
          */
         @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
-                throws IOException, ClassNotFoundException {
+                throws ClassNotFoundException {
 
             Class<?>[] cinterfaces = new Class[interfaces.length];
             for (int i = 0; i < interfaces.length; i++)

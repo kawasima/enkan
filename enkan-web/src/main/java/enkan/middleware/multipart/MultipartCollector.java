@@ -10,8 +10,8 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 public class MultipartCollector {
-    private BiFunction<String, String, File> tempfileFactory;
-    private List<MimePart> mimeParts = new ArrayList<>();
+    private final BiFunction<String, String, File> tempfileFactory;
+    private final List<MimePart> mimeParts = new ArrayList<>();
 
     public MultipartCollector(BiFunction<String, String, File> tempfileFactory) {
         this.tempfileFactory = tempfileFactory;

@@ -21,13 +21,12 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class ConfigurationLoader extends ClassLoader {
-    List<File> dirs;
+    private final List<File> dirs;
 
     public ConfigurationLoader(ClassLoader parent) {
         super(parent);
         URL[] urls;
-        if (parent instanceof URLClassLoader) {
-            final URLClassLoader ucl = (URLClassLoader) parent;
+        if (parent instanceof URLClassLoader ucl) {
             urls = ucl.getURLs();
         } else {
             urls = getURLs();

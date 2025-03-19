@@ -20,18 +20,18 @@ public class ToStringBodyWriterTest {
         List<String> list = Arrays.asList("apple", "orange", "banana");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bw.writeTo(list, null, null, null, MediaType.TEXT_PLAIN_TYPE, null, baos);
-        assertThat(new String(baos.toByteArray())).isEqualTo("[apple, orange, banana]");
+        assertThat(baos.toString()).isEqualTo("[apple, orange, banana]");
 
         baos.reset();
         bw.writeTo(list, null, null, null, MediaType.TEXT_HTML_TYPE, null, baos);
-        assertThat(new String(baos.toByteArray())).isEqualTo("<html><body>[apple, orange, banana]</body></html>");
+        assertThat(baos.toString()).isEqualTo("<html><body>[apple, orange, banana]</body></html>");
 
         baos.reset();
         bw.writeTo(list, null, null, null, MediaType.TEXT_XML_TYPE, null, baos);
-        assertThat(new String(baos.toByteArray())).isEqualTo("<message>[apple, orange, banana]</message>");
+        assertThat(baos.toString()).isEqualTo("<message>[apple, orange, banana]</message>");
 
         baos.reset();
         bw.writeTo(list, null, null, null, MediaType.WILDCARD_TYPE, null, baos);
-        assertThat(new String(baos.toByteArray())).isEqualTo("[apple, orange, banana]");
+        assertThat(baos.toString()).isEqualTo("[apple, orange, banana]");
     }
 }

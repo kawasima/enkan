@@ -68,22 +68,23 @@ public class ThrottlingMiddlewareTest {
                 (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
 
         final AtomicInteger count429 = new AtomicInteger(0);
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(3);
-        service.scheduleAtFixedRate(() -> {
-            req.setRemoteAddr(RandomUtils.nextInt(1, 255)
-                    + "." + RandomUtils.nextInt(1, 255)
-                    + "." + RandomUtils.nextInt(1, 255)
-                    + "." + RandomUtils.nextInt(1, 255)
-            );
-            HttpResponse res = middleware.handle(req, chain);
-            if (res.getStatus() == 429) {
-                count429.addAndGet(1);
-            }
-        }, 0, 250, TimeUnit.MILLISECONDS);
+        try (ScheduledExecutorService service = Executors.newScheduledThreadPool(3)) {
+            service.scheduleAtFixedRate(() -> {
+                req.setRemoteAddr(RandomUtils.nextInt(1, 255)
+                        + "." + RandomUtils.nextInt(1, 255)
+                        + "." + RandomUtils.nextInt(1, 255)
+                        + "." + RandomUtils.nextInt(1, 255)
+                );
+                HttpResponse res = middleware.handle(req, chain);
+                if (res.getStatus() == 429) {
+                    count429.addAndGet(1);
+                }
+            }, 0, 250, TimeUnit.MILLISECONDS);
 
-        service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
-        service.awaitTermination(5, TimeUnit.SECONDS);
+            service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
+            service.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertThat(count429.get()).isEqualTo(0);
+            assertThat(count429.get()).isEqualTo(0);
+        }
     }
 }

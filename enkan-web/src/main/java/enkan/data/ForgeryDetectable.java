@@ -5,7 +5,7 @@ package enkan.data;
  */
 public interface ForgeryDetectable extends Extendable {
     default String getAntiForgeryToken() {
-        return (String) getExtension("antiForgeryToken");
+        return getExtension("antiForgeryToken");
     }
 
     default void setAntiForgeryToken(String token) {

@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
  * @author kawasima
  */
 public class GradleCompiler implements Compiler {
-    private static Logger LOG = LoggerFactory.getLogger(GradleCompiler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GradleCompiler.class);
 
     private String projectDirectory = ".";
     private String gradleVersion;
@@ -59,10 +59,10 @@ public class GradleCompiler implements Compiler {
         try {
             GradleConnectionException gce = future.get();
             if (out.size() > 0) {
-                t.send(ReplResponse.withOut(new String(out.toByteArray())));
+                t.send(ReplResponse.withOut(out.toString()));
             }
             if (err.size() > 0) {
-                t.send(ReplResponse.withErr(new String(err.toByteArray())));
+                t.send(ReplResponse.withErr(err.toString()));
             }
             CompileResult result = new CompileResult();
             result.setExecutionException(gce);

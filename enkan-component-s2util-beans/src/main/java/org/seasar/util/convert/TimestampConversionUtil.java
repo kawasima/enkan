@@ -448,7 +448,6 @@ public abstract class TimestampConversionUtil {
      *            ロケール
      * @return 変換された{@link Date}
      */
-    @SuppressWarnings("unchecked")
     protected static Date toDate(final String str, final Locale locale) {
         Stream<DateFormat> dateFormats = Arrays.stream(STYLES)
                 .mapToObj(style -> DateFormat.getDateTimeInstance(style, style, locale));

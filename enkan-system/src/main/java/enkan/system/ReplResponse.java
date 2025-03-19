@@ -12,7 +12,7 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  */
 public class ReplResponse implements Serializable {
     private String id;
-    private Set<ResponseStatus> status;
+    private final Set<ResponseStatus> status;
     private String value;
     private String out;
     private String err;

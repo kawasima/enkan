@@ -3,7 +3,6 @@ package kotowari.example.controller;
 import enkan.collection.Parameters;
 import enkan.data.HttpResponse;
 import kotowari.component.TemplateEngine;
-import kotowari.example.form.ExampleForm;
 import jakarta.inject.Inject;
 
 /**

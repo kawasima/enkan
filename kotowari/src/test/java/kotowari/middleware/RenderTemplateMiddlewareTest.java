@@ -1,8 +1,6 @@
 package kotowari.middleware;
 
 import enkan.Endpoint;
-import enkan.Middleware;
-import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.component.ComponentLifecycle;
 import enkan.component.SystemComponent;
@@ -16,22 +14,19 @@ import enkan.util.Predicates;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
 import kotowari.io.LazyRenderInputStream;
-import kotowari.io.LazyRenderer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.*;
 
 class RenderTemplateMiddlewareTest {
     private RenderTemplateMiddleware<HttpResponse> sut;
     @SuppressWarnings("unchecked")
-    private static Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
+    private static final Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.get(0);
             if (principal instanceof UserPrincipal) {
@@ -48,7 +43,7 @@ class RenderTemplateMiddlewareTest {
 
     @BeforeEach
     void setup() {
-        sut = new RenderTemplateMiddleware();
+        sut = new RenderTemplateMiddleware<>();
     }
 
     @Test
@@ -77,30 +72,41 @@ class RenderTemplateMiddlewareTest {
         assertThat(response.getBodyAsString()).isEqualTo("hello");
     }
 
+    private static class TestTemplateEngine extends TemplateEngine<TestTemplateEngine> {
+        @Override
+        protected ComponentLifecycle<TestTemplateEngine> lifecycle() {
+            return new ComponentLifecycle<>() {
+                @Override
+                public void start(TestTemplateEngine component) {
+
+                }
+
+                @Override
+                public void stop(TestTemplateEngine component) {
+
+                }
+            };
+        }
+
+        @Override
+        public HttpResponse render(String name, Object... keyOrVals) {
+            final TemplatedHttpResponse response = TemplatedHttpResponse.create("template1");
+            response.setBody(new LazyRenderInputStream(() ->
+                    new ByteArrayInputStream("hello".getBytes())));
+
+            return response;
+        }
+
+        @Override
+        public Object createFunction(Function func) {
+            return null;
+        }
+    }
     @Test
     void handle() {
         final HttpRequest request = new DefaultHttpRequest();
         Map<String, SystemComponent<?>> components = new HashMap<>();
-        TemplateEngine<? extends TemplateEngine<?>> templateEngine = new TemplateEngine() {
-            @Override
-            protected ComponentLifecycle<? extends TemplateEngine<?>> lifecycle() {
-                return null;
-            }
-
-            @Override
-            public HttpResponse render(String name, Object... keyOrVals) {
-                final TemplatedHttpResponse response = TemplatedHttpResponse.create("template1");
-                response.setBody(new LazyRenderInputStream(() ->
-                        new ByteArrayInputStream("hello".getBytes())));
-
-                return response;
-            }
-
-            @Override
-            public Object createFunction(Function func) {
-                return null;
-            }
-        };
+        TemplateEngine<?> templateEngine = new TestTemplateEngine();
         components.put("templateEngine", templateEngine);
         ComponentInjector injector = new ComponentInjector(components);
         injector.inject(sut);

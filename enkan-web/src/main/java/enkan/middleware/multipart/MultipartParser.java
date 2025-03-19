@@ -72,11 +72,11 @@ public class MultipartParser {
         BOUNDARY, END_BOUNDARY, EMPTY
     }
 
-    private ByteBuffer buf;
-    private String boundary;
+    private final ByteBuffer buf;
+    private final String boundary;
     private ParseState state;
     private int mimeIndex;
-    private MultipartCollector collector;
+    private final MultipartCollector collector;
 
     public MultipartParser(String boundary, int bufferSize) {
         this.boundary = "--" + boundary;
@@ -315,7 +315,7 @@ public class MultipartParser {
         if (filename == null) return null;
 
         filename = CodecUtils.urlDecode(filename);
-        if (!filename.matches("\\[^\"]")) {
+        if (!filename.matches("[^\"]")) {
             filename = filename.replaceAll("\\\\(.)", "$1");
         }
 

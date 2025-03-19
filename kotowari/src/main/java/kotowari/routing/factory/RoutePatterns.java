@@ -15,10 +15,10 @@ import java.util.function.Function;
  * @author kawasima
  */
 public class RoutePatterns {
-    private List<Route> routeList;
-    private PatternsContext context;
-    private RouteBuilder builder;
-    private Function<List<Route>, Routes> routeCompiler;
+    private final List<Route> routeList;
+    private final PatternsContext context;
+    private final RouteBuilder builder;
+    private final Function<List<Route>, Routes> routeCompiler;
 
     public RoutePatterns(String prefix, Function<List<Route>, Routes> routeCompiler) {
         this.routeCompiler = routeCompiler;
@@ -102,8 +102,8 @@ public class RoutePatterns {
     }
 
     static class PatternsContext {
-        private String prefix;
-        private RoutePatterns patterns;
+        private final String prefix;
+        private final RoutePatterns patterns;
 
         public PatternsContext(String prefix, RoutePatterns routes) {
             this.prefix = prefix;

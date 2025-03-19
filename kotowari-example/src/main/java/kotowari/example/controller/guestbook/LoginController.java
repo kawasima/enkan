@@ -9,7 +9,6 @@ import kotowari.component.TemplateEngine;
 import kotowari.example.dao.CustomerDao;
 import kotowari.example.entity.Customer;
 import kotowari.example.model.LoginPrincipal;
-import enkan.security.UserPrincipal;
 
 import jakarta.enterprise.context.Conversation;
 import jakarta.inject.Inject;

@@ -114,7 +114,7 @@ public class DomaProvider extends SystemComponent<DomaProvider> {
         return new ComponentLifecycle<>() {
             @Override
             public void start(DomaProvider component) {
-                DataSourceComponent dataSourceComponent = component.getDependency(DataSourceComponent.class);
+                DataSourceComponent<?> dataSourceComponent = component.getDependency(DataSourceComponent.class);
                 component.dataSource = dataSourceComponent.getDataSource();
 
                 if (useLocalTransaction && !(component.dataSource instanceof LocalTransactionDataSource)) {

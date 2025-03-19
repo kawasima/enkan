@@ -94,7 +94,7 @@ public class ApplicationComponent<AREQ, ARES> extends SystemComponent<Applicatio
     public String toString() {
         return "#ApplicationComponent {\n"
                 + "  \"application\": \"" + application + "\",\n"
-                + "  \"factoryClassName\": \"" + factoryClassName + "\",\n"
+                + "  \"factoryClassName\": \"" + getFactoryClassName() + "\",\n"
                 + "  \"dependencies\": " + dependenciesToString()
                 + "\n}";
 

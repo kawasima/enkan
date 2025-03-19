@@ -42,7 +42,7 @@ public class FlashMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NR
             session = request.getSession();
         }
 
-        Flash responseFlash = response.getFlash();
+        Flash<?> responseFlash = response.getFlash();
         if (responseFlash != null) {
             if (session == null) {
                 session = new Session();

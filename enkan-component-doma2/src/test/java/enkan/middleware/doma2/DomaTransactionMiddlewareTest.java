@@ -36,7 +36,7 @@ public class DomaTransactionMiddlewareTest {
 
         assertThatThrownBy(() -> tryReflection(() -> {
             Method controllerMethod = TestController.class.getMethod("index");
-            Routable.class.cast(request).setControllerMethod(controllerMethod);
+            ((Routable) request).setControllerMethod(controllerMethod);
             return middleware.handle(request, chain);
         })).isExactlyInstanceOf(MisconfigurationException.class);
     }

@@ -40,8 +40,8 @@ public class ToStringBodyWriter implements MessageBodyWriter<Object> {
                     .orElse(StringBodyConverter.PLAIN);
         }
 
-        private String format;
-        private Function<String, String> escaper;
+        private final String format;
+        private final Function<String, String> escaper;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ToStringBodyWriter implements MessageBodyWriter<Object> {
 
     private static String escapeXml(String s) {
         return escapeHtml(s)
-                .replace("\'", "&apos;")
+                .replace("'", "&apos;")
                 .replaceAll("[\u0000-\u001f\ufffe\uffff]+", "");
     }
 

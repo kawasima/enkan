@@ -7,6 +7,7 @@ import org.seasar.doma.Id;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 
 
 /**
@@ -84,28 +85,26 @@ public class Customer implements Serializable {
 
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof Customer)) return false;
-        final Customer other = (Customer) o;
+        if (!(o instanceof Customer other)) return false;
         if (!other.canEqual(this)) return false;
         final Object this$id = this.getId();
         final Object other$id = other.getId();
-        if (this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        if (!Objects.equals(this$id, other$id)) return false;
         final Object this$name = this.getName();
         final Object other$name = other.getName();
-        if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+        if (!Objects.equals(this$name, other$name)) return false;
         final Object this$password = this.getPassword();
         final Object other$password = other.getPassword();
-        if (this$password == null ? other$password != null : !this$password.equals(other$password)) return false;
+        if (!Objects.equals(this$password, other$password)) return false;
         final Object this$email = this.getEmail();
         final Object other$email = other.getEmail();
-        if (this$email == null ? other$email != null : !this$email.equals(other$email)) return false;
+        if (!Objects.equals(this$email, other$email)) return false;
         final Object this$gender = this.getGender();
         final Object other$gender = other.getGender();
-        if (this$gender == null ? other$gender != null : !this$gender.equals(other$gender)) return false;
+        if (!Objects.equals(this$gender, other$gender)) return false;
         final Object this$birthday = this.getBirthday();
         final Object other$birthday = other.getBirthday();
-        if (this$birthday == null ? other$birthday != null : !this$birthday.equals(other$birthday)) return false;
-        return true;
+        return Objects.equals(this$birthday, other$birthday);
     }
 
     public int hashCode() {

@@ -10,7 +10,7 @@ import enkan.util.HttpResponseUtils;
  * @author kawasima
  */
 public class ResourceEndpoint implements Endpoint<HttpRequest, HttpResponse> {
-    private String path;
+    private final String path;
 
     public ResourceEndpoint(String path) {
         this.path = path;

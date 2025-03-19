@@ -23,7 +23,7 @@ public interface BeansConverter  {
      * Create a destination object and copy properties from a source object.
      *
      * @param source  an Object that is a source
-     * @param destinationClass an Class that is a destination
+     * @param destinationClass a Class that is a destination
      * @param <S> a type of destination
      * @return an Object that is instance of destination class
      */

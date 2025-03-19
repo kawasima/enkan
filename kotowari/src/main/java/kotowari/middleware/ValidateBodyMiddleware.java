@@ -5,8 +5,6 @@ import enkan.MiddlewareChain;
 import enkan.collection.Multimap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.exception.MisconfigurationException;
-import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.data.Validatable;
@@ -54,10 +52,10 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
         });
 
         RES response = chain.next(request);
-        if (HttpResponse.class.isInstance(response)
+        if (response instanceof HttpResponse
                 && validatable.isPresent()
                 && validatable.get().hasErrors()) {
-            HttpResponse.class.cast(response).setStatus(400);
+            ((HttpResponse) response).setStatus(400);
         }
         return response;
     }

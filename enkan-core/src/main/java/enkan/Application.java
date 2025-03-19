@@ -21,8 +21,8 @@ public interface Application<AREQ, ARES> {
      * Declare to use a middleware.
      *
      * @param middleware middleware
-     * @param <REQ>  A type of a request
-     * @param <RES>  A type of a response
+     * @param <REQ>  A type of request
+     * @param <RES>  A type of response
      * @param <NREQ> A type of the next request
      * @param <NRES> A type of the next response
      */
@@ -35,8 +35,8 @@ public interface Application<AREQ, ARES> {
      *
      * @param predicate A predicate for using the middleware
      * @param middleware A middleware
-     * @param <REQ>  A type of a request
-     * @param <RES>  A type of a response
+     * @param <REQ>  A type of request
+     * @param <RES>  A type of response
      * @param <NREQ> A type of the next request
      * @param <NRES> A type of the next response
      */
@@ -50,8 +50,8 @@ public interface Application<AREQ, ARES> {
      * @param predicate A predicate for using the middleware
      * @param middlewareName the name of a middleware
      * @param middleware A middleware
-     * @param <REQ>  A type of a request
-     * @param <RES>  A type of a response
+     * @param <REQ>  A type of request
+     * @param <RES>  A type of response
      * @param <NREQ> A type of the next request
      * @param <NRES> A type of the next response
      */

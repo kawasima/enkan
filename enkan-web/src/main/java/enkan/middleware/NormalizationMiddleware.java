@@ -76,8 +76,8 @@ public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpReq
      * @param <T> the type of the value to be normalized
      */
     public static class NormalizationSpec<T> {
-        private Normalizer<T> normalizer;
-        private Predicate<String> predicate;
+        private final Normalizer<T> normalizer;
+        private final Predicate<String> predicate;
 
         public NormalizationSpec(Predicate<String> predicate, Normalizer<T> normalizer) {
             this.predicate = predicate;

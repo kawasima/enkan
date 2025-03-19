@@ -27,40 +27,40 @@ import java.util.Base64;
 public abstract class StringConversionUtil {
 
     /** WAVE DASH */
-    public static final char WAVE_DASH = '\u301C';
+    public static final char WAVE_DASH = '〜';
 
     /** FULLWIDTH TILDE */
-    public static final char FULLWIDTH_TILDE = '\uFF5E';
+    public static final char FULLWIDTH_TILDE = '～';
 
     /** DOUBLE VERTICAL LINE */
-    public static final char DOUBLE_VERTICAL_LINE = '\u2016';
+    public static final char DOUBLE_VERTICAL_LINE = '‖';
 
     /** PARALLEL TO */
-    public static final char PARALLEL_TO = '\u2225';
+    public static final char PARALLEL_TO = '∥';
 
     /** MINUS SIGN */
-    public static final char MINUS_SIGN = '\u2212';
+    public static final char MINUS_SIGN = '−';
 
     /** FULLWIDTH HYPHEN-MINUS */
-    public static final char FULLWIDTH_HYPHEN_MINUS = '\uFF0D';
+    public static final char FULLWIDTH_HYPHEN_MINUS = '－';
 
     /** CENT SIGN */
-    public static final char CENT_SIGN = '\u00A2';
+    public static final char CENT_SIGN = '¢';
 
     /** FULLWIDTH CENT SIGN */
-    public static final char FULLWIDTH_CENT_SIGN = '\uFFE0';
+    public static final char FULLWIDTH_CENT_SIGN = '￠';
 
     /** POUND SIGN */
-    public static final char POUND_SIGN = '\u00A3';
+    public static final char POUND_SIGN = '£';
 
     /** FULLWIDTH POUND SIGN */
-    public static final char FULLWIDTH_POUND_SIGN = '\uFFE1';
+    public static final char FULLWIDTH_POUND_SIGN = '￡';
 
     /** NOT SIGN */
-    public static final char NOT_SIGN = '\u00AC';
+    public static final char NOT_SIGN = '¬';
 
     /** FULLWIDTH NOT SIGN */
-    public static final char FULLWIDTH_NOT_SIGN = '\uFFE2';
+    public static final char FULLWIDTH_NOT_SIGN = '￢';
 
     /**
      * 文字列に変換します。
@@ -83,19 +83,14 @@ public abstract class StringConversionUtil {
      * @return 変換された{@literal String}
      */
     public static String toString(final Object value, final String pattern) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof String) {
-            return (String) value;
-        } else if (value instanceof java.util.Date) {
-            return toString((java.util.Date) value, pattern);
-        } else if (value instanceof Number) {
-            return toString((Number) value, pattern);
-        } else if (value instanceof byte[]) {
-            return Base64.getUrlEncoder().encodeToString((byte[]) value);
-        } else {
-            return value.toString();
-        }
+        return switch (value) {
+            case null -> null;
+            case String s -> s;
+            case java.util.Date date -> toString(date, pattern);
+            case Number number -> toString(number, pattern);
+            case byte[] bytes -> Base64.getUrlEncoder().encodeToString(bytes);
+            default -> value.toString();
+        };
     }
 
     /**

@@ -110,8 +110,8 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
         } else {
             request = MixinUtils.mixin(request, Traceable.class);
             HttpResponse response = castToHttpResponse(chain.next(request));
-            Traceable requestTrace  = Traceable.class.cast(request);
-            Traceable responseTrace = Traceable.class.cast(response);
+            Traceable requestTrace  = (Traceable) request;
+            Traceable responseTrace = (Traceable) response;
             synchronized (this) {
                 if (idList.size() >= storeSize) {
                     LogKey oldestLogKey = idList.removeLast();
@@ -167,10 +167,9 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
 
         @Override
         public boolean equals(Object another) {
-            return LogKey.class.isInstance(another) && Objects.equals(this.id, ((LogKey) another).getId());
+            return another instanceof LogKey && Objects.equals(this.id, ((LogKey) another).getId());
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
         public int compareTo(LogKey another) {
             return this.dateTime.compareTo(another.getDateTime());

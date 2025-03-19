@@ -7,6 +7,7 @@ import enkan.data.HttpResponse;
 import enkan.util.ThreadingUtils;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,9 +33,9 @@ public class AbsoluteRedirectsMiddleware<NRES> extends AbstractWebMiddleware<Htt
 
     protected boolean isUrl(String s) {
         try {
-            new URL(s);
+            URL url = URI.create(s).toURL();
             return true;
-        } catch (MalformedURLException e) {
+        } catch (IllegalArgumentException | MalformedURLException e) {
             return false;
         }
     }
@@ -44,7 +45,7 @@ public class AbsoluteRedirectsMiddleware<NRES> extends AbstractWebMiddleware<Htt
             return location;
         } else {
             try {
-                URL url = new URL(requestUrl(request));
+                URL url = URI.create(requestUrl(request)).toURL();
                 return new URL(url, location).toString();
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(

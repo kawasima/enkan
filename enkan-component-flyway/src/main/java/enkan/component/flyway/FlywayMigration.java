@@ -42,7 +42,7 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
         return new ComponentLifecycle<>() {
             @Override
             public void start(FlywayMigration component) {
-                DataSourceComponent dataSourceComponent = getDependency(DataSourceComponent.class);
+                DataSourceComponent<?> dataSourceComponent = getDependency(DataSourceComponent.class);
                 DataSource dataSource = dataSourceComponent.getDataSource();
                 FluentConfiguration configuration = Flyway.configure(Thread.currentThread().getContextClassLoader())
                         .table(table)

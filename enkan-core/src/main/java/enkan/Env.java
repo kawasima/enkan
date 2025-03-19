@@ -72,7 +72,7 @@ public class Env {
     }
 
     /**
-     * Get a environment variable
+     * Get an environment variable
      *
      * @param name variable name
      * @return value
@@ -82,7 +82,7 @@ public class Env {
     }
 
     /**
-     * Get a environment variable as String.
+     * Get an environment variable as String.
      *
      * @param name variable name
      * @param defaultValue default value
@@ -98,7 +98,7 @@ public class Env {
     }
 
     /**
-     * Get a environment variable as Integer.
+     * Get an environment variable as Integer.
      *
      * @param name variable name
      * @param defaultValue default value
@@ -115,7 +115,7 @@ public class Env {
     }
 
     /**
-     * Get a environment variable as Long.
+     * Get an environment variable as Long.
      *
      * @param name variable name
      * @param defaultValue default value
@@ -128,6 +128,23 @@ public class Env {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .map(Long::parseLong)
+                .orElse(defaultValue);
+    }
+
+    /**
+     * Get an environment variable as Boolean.
+     *
+     * @param name variable name
+     * @param defaultValue default value
+     * @return boolean value
+     */
+    public static boolean getBoolean(String name, boolean defaultValue) {
+        return Stream.of(name)
+                .map(Env::normalizeKey)
+                .map(envMap::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(Boolean::parseBoolean)
                 .orElse(defaultValue);
     }
 

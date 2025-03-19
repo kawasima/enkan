@@ -20,7 +20,7 @@ public class PrincipalInjector implements ParameterInjector<Principal> {
     @Override
     public Principal getInjectObject(HttpRequest request) {
         if (request != null) {
-            return PrincipalAvailable.class.cast(request).getPrincipal();
+            return ((PrincipalAvailable) request).getPrincipal();
         }
         return null;
     }

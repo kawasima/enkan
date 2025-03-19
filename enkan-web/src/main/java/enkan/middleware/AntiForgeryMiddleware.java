@@ -85,7 +85,7 @@ public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpReque
                     .build();
         } else {
             request = MixinUtils.mixin(request, ForgeryDetectable.class);
-            ForgeryDetectable.class.cast(request).setAntiForgeryToken(token);
+            ((ForgeryDetectable) request).setAntiForgeryToken(token);
             HttpResponse response = castToHttpResponse(next.next(request));
             putSessionToken(response, request, token);
             return response;

@@ -5,13 +5,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- *
+ * Represents a map that can hold multiple values for a single key.
  *
  * @author kawasima
  */
-@SuppressWarnings("NullableProblems")
 public class Multimap<K, V> implements Map<K, V> {
-    private HashMap<K, List<V>> hashMap;
+    private final HashMap<K, List<V>> hashMap;
 
     private Multimap() {
         hashMap = new HashMap<>();

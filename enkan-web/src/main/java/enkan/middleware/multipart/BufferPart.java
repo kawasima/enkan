@@ -16,8 +16,7 @@ public class BufferPart extends MimePart {
 
     @Override
     public Parameters getData() {
-        byte[] buf = ((ByteArrayOutputStream) getBody()).toByteArray();
-        String value = new String(buf, StandardCharsets.ISO_8859_1);
+        String value = ((ByteArrayOutputStream) getBody()).toString(StandardCharsets.ISO_8859_1);
         return Parameters.of(name, value);
     }
 

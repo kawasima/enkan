@@ -15,7 +15,6 @@ import kotowari.data.BodyDeserializable;
 import kotowari.test.dto.TestDto;
 import kotowari.util.ParameterUtils;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
 
 import jakarta.ws.rs.core.MediaType;
@@ -110,7 +109,7 @@ public class SerDesMiddlewareTest {
                 Routable.class,
                 ContentNegotiable.class,
                 BodyDeserializable.class);
-        ContentNegotiable.class.cast(request).setMediaType(new MediaType("application", "json"));
+        ((ContentNegotiable) request).setMediaType(new MediaType("application", "json"));
         TestController controller = new TestController();
         MiddlewareChain<HttpRequest, Object, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, Object>) req ->
@@ -140,7 +139,7 @@ public class SerDesMiddlewareTest {
             assertThat(in).isInstanceOf(ByteArrayInputStream.class);
         } catch (IOException e) {
             fail("IOException occurred.", e);
-        };
+        }
     }
 
     @Test

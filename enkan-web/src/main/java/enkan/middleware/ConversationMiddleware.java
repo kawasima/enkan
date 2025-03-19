@@ -93,8 +93,8 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
     }
 
     private class ConversationToken {
-        private String id;
-        private String hash;
+        private final String id;
+        private final String hash;
         private long expires;
 
         ConversationToken(String id, long expires) {
@@ -122,5 +122,13 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
         public String toString() {
             return id + "$" + hash + "$" + expires;
         }
+    }
+
+    public void setStore(KeyValueStore store) {
+        this.store = store;
+    }
+
+    public void setReadTokenFunc(Function<HttpRequest, String> readTokenFunc) {
+        this.readTokenFunc = readTokenFunc;
     }
 }

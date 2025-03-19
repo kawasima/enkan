@@ -9,7 +9,7 @@ import jakarta.enterprise.context.Conversation;
  */
 public interface ConversationAvailable extends Extendable {
     default Conversation getConversation() {
-        return (Conversation) getExtension("conversation");
+        return getExtension("conversation");
     }
 
     default void setConversation(Conversation conversation) {
@@ -17,7 +17,7 @@ public interface ConversationAvailable extends Extendable {
     }
 
     default ConversationState getConversationState() {
-        return (ConversationState) getExtension("conversationState");
+        return getExtension("conversationState");
     }
 
     default void setConversationState(ConversationState conversationState) {

@@ -40,8 +40,8 @@ public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<Ht
         Locale locale = Objects.equals(lang, "*")? null : some(lang, Locale::forLanguageTag).orElse(null);
 
         request = MixinUtils.mixin(request, ContentNegotiable.class);
-        ContentNegotiable.class.cast(request).setMediaType(mediaType);
-        ContentNegotiable.class.cast(request).setLocale(locale);
+        ((ContentNegotiable) request).setMediaType(mediaType);
+        ((ContentNegotiable) request).setLocale(locale);
         return castToHttpResponse(chain.next(request));
     }
 

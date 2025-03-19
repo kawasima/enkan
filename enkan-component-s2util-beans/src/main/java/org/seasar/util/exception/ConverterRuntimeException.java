@@ -23,11 +23,7 @@ import org.seasar.util.beans.Converter;
  * @author higa
  */
 public class ConverterRuntimeException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
-
     private final String propertyName;
-
     private final Object value;
 
     /**

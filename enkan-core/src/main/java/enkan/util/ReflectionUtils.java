@@ -18,7 +18,7 @@ public class ReflectionUtils {
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(ClassLoader.getSystemClassLoader());
 
-        while (!URLClassLoader.class.isInstance(cl)) {
+        while (!(cl instanceof URLClassLoader)) {
             cl = cl.getParent();
             if (cl == null) return "Classpath is empty";
         }

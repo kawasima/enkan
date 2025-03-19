@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class EntityManagerProvider<T extends SystemComponent<T>> extends SystemComponent<T> {
     private String name;
 
-    private DataSourceComponent dataSourceComponent;
+    private DataSourceComponent<?> dataSourceComponent;
 
     private Map<String, Object> jpaProperties = new HashMap<>();
 
@@ -48,7 +48,7 @@ public abstract class EntityManagerProvider<T extends SystemComponent<T>> extend
         return dataSourceComponent.getDataSource();
     }
 
-    protected void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
+    protected void setDataSourceComponent(DataSourceComponent<?> dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
     }
 }

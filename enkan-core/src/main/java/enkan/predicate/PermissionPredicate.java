@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 public class PermissionPredicate<REQ extends PrincipalAvailable> implements PrintablePredicate<REQ> {
-    private String permission;
+    private final String permission;
 
     public PermissionPredicate(String permission) {
         this.permission = permission;

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * @author kawasima
  */
 public class DynamicSegment extends Segment {
-    private String key;
+    private final String key;
     private String defaultValue;
     private Pattern regexp;
     private boolean wrapParentheses = false;

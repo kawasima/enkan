@@ -29,7 +29,6 @@ import kotowari.example.jaxrs.JsonBodyReader;
 import kotowari.example.jaxrs.JsonBodyWriter;
 import kotowari.middleware.*;
 import kotowari.middleware.serdes.ToStringBodyWriter;
-import kotowari.middleware.serdes.UrlFormEncodedBodyWriter;
 import kotowari.routing.Routes;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 
