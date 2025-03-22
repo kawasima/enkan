@@ -1,6 +1,7 @@
 package kotowari.test.dto;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class TestDto implements Serializable {
     private int a;
@@ -27,13 +28,12 @@ public class TestDto implements Serializable {
 
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof TestDto)) return false;
-        final TestDto other = (TestDto) o;
+        if (!(o instanceof TestDto other)) return false;
         if (!other.canEqual(this)) return false;
         if (this.getA() != other.getA()) return false;
         final Object this$b = this.getB();
         final Object other$b = other.getB();
-        if (this$b == null ? other$b != null : !this$b.equals(other$b)) return false;
+        if (!Objects.equals(this$b, other$b)) return false;
         return true;
     }
 

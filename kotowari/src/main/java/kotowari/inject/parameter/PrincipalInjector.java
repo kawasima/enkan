@@ -1,7 +1,6 @@
 package kotowari.inject.parameter;
 
 import enkan.data.HttpRequest;
-import enkan.data.PrincipalAvailable;
 import kotowari.inject.ParameterInjector;
 
 import java.security.Principal;
@@ -20,7 +19,7 @@ public class PrincipalInjector implements ParameterInjector<Principal> {
     @Override
     public Principal getInjectObject(HttpRequest request) {
         if (request != null) {
-            return ((PrincipalAvailable) request).getPrincipal();
+            return request.getPrincipal();
         }
         return null;
     }

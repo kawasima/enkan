@@ -7,19 +7,15 @@ import java.io.Serializable;
  *
  * @author kawasima
  */
-public class Flash<T extends Serializable> implements Serializable {
-    private final T value;
-
-    public Flash(T value) {
-        this.value = value;
-    }
+public record Flash<T extends Serializable>(T value) implements Serializable {
 
     /**
      * Gets the flashing value.
      *
      * @return a flashing value
      */
-    public T getValue() {
+    @Override
+    public T value() {
         return value;
     }
 }

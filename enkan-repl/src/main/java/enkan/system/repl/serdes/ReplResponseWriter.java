@@ -15,15 +15,13 @@ import java.util.Collections;
 public class ReplResponseWriter implements WriteHandler {
     @Override
     public void write(Writer w, Object obj) throws IOException {
-        if (obj instanceof ReplResponse) {
+        if (obj instanceof ReplResponse replResponse) {
             w.writeTag("ReplResponse", 3);
-            ReplResponse replResponse = (ReplResponse) obj;
             w.writeString(replResponse.getOut());
             w.writeString(replResponse.getErr());
             w.writeObject(Collections.unmodifiableSet(replResponse.getStatus()));
-        } else if (obj instanceof ReplResponse.ResponseStatus) {
+        } else if (obj instanceof ResponseStatus status) {
             w.writeTag("ResponseStatus", 1);
-            ResponseStatus status = (ResponseStatus) obj;
             w.writeString(status.name());
         }
     }

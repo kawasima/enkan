@@ -27,7 +27,7 @@ public class ClassWatcher implements Runnable {
 
     private void registerAll(final Path base) {
         try {
-            Files.walkFileTree(base, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(base, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     register(dir);

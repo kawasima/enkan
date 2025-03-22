@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?\\])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)\\]");
-    protected Function<String, String[]> parseNestedKeys = (paramName) -> {
+    protected final Function<String, String[]> parseNestedKeys = (paramName) -> {
         if (paramName == null) return new String[]{};
 
         Matcher m = RE_NESTED_NAME.matcher(paramName);
@@ -91,7 +91,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
                 if (values.size() > 1) {
                     assocVector(map, key, value);
                 } else if (values.size() == 1) {
-                    map.put(key, values.get(0));
+                    map.put(key, values.getFirst());
                 }
             } else {
                 map.put(key, value);
@@ -127,7 +127,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
                                     assocNested((Parameters) Optional.ofNullable(nestedList.get(i)).orElse(Parameters.empty())
                                             , js, vs));
                         } else {
-                            nestedList.set(i, vs.get(0));
+                            nestedList.set(i, vs.getFirst());
                         }
 
                     }

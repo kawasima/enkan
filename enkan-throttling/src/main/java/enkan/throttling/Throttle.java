@@ -29,8 +29,8 @@ public class Throttle {
         if (discriminator == null) return false;
 
         TokenBucket bucket = buckets.computeIfAbsent(discriminator, key ->
-                new TokenBucket(limitRate.getMax(), limitRate.getMax(),
-                        new RefillStrategy(limitRate.getMax(), limitRate.getDuration()),
+                new TokenBucket(limitRate.max(), limitRate.max(),
+                        new RefillStrategy(limitRate.max(), limitRate.duration()),
                         () -> {
                             boolean interrupted = false;
                             try {

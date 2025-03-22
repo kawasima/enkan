@@ -35,7 +35,7 @@ import java.security.*;
  * @author kawasima
  */
 public class UndertowAdapter {
-    private static IoCallback callback = new IoCallback() {
+    private static final IoCallback callback = new IoCallback() {
         @Override
         public void onComplete(HttpServerExchange exchange, Sender sender) {
 
@@ -48,29 +48,16 @@ public class UndertowAdapter {
     };
 
     private static void setBody(Sender sender, Object body) throws IOException {
-        if (body == null) {
-            return; // Do nothing
-        }
-
-        if (body instanceof String) {
-            sender.send((String) body);
-        } else if (body instanceof InputStream) {
-            ReadableByteChannel chan = Channels.newChannel((InputStream) body);
-
-            ByteBuffer buf = ByteBuffer.allocate(4096);
-            for (;;) {
-                int size = chan.read(buf);
-                if (size <= 0) break;
-                buf.flip();
-                sender.send(buf, callback);
-                buf.clear();
+        switch (body) {
+            case null -> {
+                // Do nothing
             }
-            sender.close(IoCallback.END_EXCHANGE);
-        } else if (body instanceof File) {
-            try(FileInputStream fis = new FileInputStream((File) body);
-                FileChannel chan = fis.getChannel()) {
+            case String s -> sender.send(s);
+            case InputStream inputStream -> {
+                ReadableByteChannel chan = Channels.newChannel(inputStream);
+
                 ByteBuffer buf = ByteBuffer.allocate(4096);
-                for (;;) {
+                for (; ; ) {
                     int size = chan.read(buf);
                     if (size <= 0) break;
                     buf.flip();
@@ -79,9 +66,23 @@ public class UndertowAdapter {
                 }
                 sender.close(IoCallback.END_EXCHANGE);
             }
-        } else {
-            throw new UnreachableException();
+            case File file -> {
+                try (FileInputStream fis = new FileInputStream((File) body);
+                     FileChannel chan = fis.getChannel()) {
+                    ByteBuffer buf = ByteBuffer.allocate(4096);
+                    for (; ; ) {
+                        int size = chan.read(buf);
+                        if (size <= 0) break;
+                        buf.flip();
+                        sender.send(buf, callback);
+                        buf.clear();
+                    }
+                    sender.close(IoCallback.END_EXCHANGE);
+                }
+            }
+            default -> throw new UnreachableException();
         }
+
     }
 
     private void setResponseHeaders(Headers headers, HttpServerExchange exchange) {

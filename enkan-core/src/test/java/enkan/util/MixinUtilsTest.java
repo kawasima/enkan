@@ -42,31 +42,21 @@ public class MixinUtilsTest {
         assertThat(m2).isEqualTo(m1);
     }
 
-    public static class MoneyImpl implements Money {
-        private final int amount;
-
-        public MoneyImpl(int amount) {
-            this.amount = amount;
-        }
+    public record MoneyImpl(int amount) implements Money {
 
         @Override
-        public int getAmount() {
-            return amount;
+            public String toString() {
+                return Integer.toString(amount);
+            }
         }
-
-        @Override
-        public String toString() {
-            return Integer.toString(amount);
-        }
-    }
 
     public interface Money {
-        int getAmount();
+        int amount();
     }
 
     public interface ComparableMoney extends Money {
         default boolean isBigger(Money other) {
-            return getAmount() > other.getAmount();
+            return amount() > other.amount();
         }
     }
 

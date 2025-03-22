@@ -8,7 +8,7 @@ import java.io.*;
  * @author kawasima
  */
 public class TempfilePart extends MimePart {
-    private File tempfile;
+    private final File tempfile;
 
     private static OutputStream getOutputStream(File file) throws IOException {
         return new BufferedOutputStream(new FileOutputStream(file));

@@ -6,6 +6,7 @@ import kotowari.routing.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -43,9 +44,11 @@ public class OptimizedRecognizer implements Recognizer {
                 if (!seg.isEmpty() && seg.charAt(0) == ':') {
                     seg = ":dynamic";
                 }
-                if (node.isEmpty() || !seg.equals(node.lastChild().getLabel()))
+                if (node.isEmpty() || !seg.equals(Objects.requireNonNull(node.lastChild()).getLabel())) {
                     node.add(new SegmentNode(seg, i));
+                }
                 node = node.lastChild();
+                if (node == null) break;
             }
         }
     }
@@ -100,7 +103,7 @@ public class OptimizedRecognizer implements Recognizer {
         SegmentNode lastChild() {
             if (isEmpty())
                 return null;
-            return childNodes.get(childNodes.size() - 1);
+            return childNodes.getLast();
         }
 
         String getLabel() {

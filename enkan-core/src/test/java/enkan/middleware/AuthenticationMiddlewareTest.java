@@ -52,7 +52,7 @@ public class AuthenticationMiddlewareTest {
     }
 
     private AuthBackend<Request, String> createAuthBackend() {
-        return new AuthBackend<Request, String>() {
+        return new AuthBackend<>() {
             @Override
             public String parse(Request request) {
                 return request.getName();

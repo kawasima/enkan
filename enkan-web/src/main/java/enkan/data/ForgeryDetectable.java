@@ -1,6 +1,8 @@
 package enkan.data;
 
 /**
+ * Anti-forgery token support.
+ *
  * @author kawasima
  */
 public interface ForgeryDetectable extends Extendable {

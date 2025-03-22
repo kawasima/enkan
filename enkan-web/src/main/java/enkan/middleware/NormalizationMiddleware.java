@@ -61,8 +61,8 @@ public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpReq
                 if (obj == null) return;
 
                 normalizationSpecs.forEach(c -> {
-                    if (c.getPredicate().test(key) && c.getNormalizer().canNormalize(obj.getClass())) {
-                        params.replace(key, c.getNormalizer().normalize(obj));
+                    if (c.predicate().test(key) && c.normalizer().canNormalize(obj.getClass())) {
+                        params.replace(key, c.normalizer().normalize(obj));
                     }
                 });
             });
@@ -71,25 +71,10 @@ public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpReq
     }
 
     /**
-     * A normalization specification.
-     *
-     * @param <T> the type of the value to be normalized
-     */
-    public static class NormalizationSpec<T> {
-        private final Normalizer<T> normalizer;
-        private final Predicate<String> predicate;
-
-        public NormalizationSpec(Predicate<String> predicate, Normalizer<T> normalizer) {
-            this.predicate = predicate;
-            this.normalizer = normalizer;
-        }
-
-        public Normalizer<T> getNormalizer() {
-            return normalizer;
-        }
-
-        public Predicate<String> getPredicate() {
-            return predicate;
-        }
+         * A normalization specification.
+         *
+         * @param <T> the type of the value to be normalized
+         */
+        public record NormalizationSpec<T>(Predicate<String> predicate, Normalizer<T> normalizer) {
     }
 }

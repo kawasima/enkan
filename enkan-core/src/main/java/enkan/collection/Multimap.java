@@ -85,7 +85,7 @@ public class Multimap<K, V> implements Map<K, V> {
         if (values == null || values.isEmpty())
             return null;
 
-        return values.get(0);
+        return values.getFirst();
     }
 
     /**
@@ -127,7 +127,7 @@ public class Multimap<K, V> implements Map<K, V> {
     public V remove(Object key) {
         List<V> old = hashMap.remove(key);
         if (old != null && !old.isEmpty()) {
-            return old.get(0);
+            return old.getFirst();
         } else {
             return null;
         }
@@ -164,7 +164,7 @@ public class Multimap<K, V> implements Map<K, V> {
     public Collection<V> values() {
         return hashMap.values()
                 .stream()
-                .map(vs -> (vs != null && !vs.isEmpty()) ? vs.get(0) : null)
+                .map(vs -> (vs != null && !vs.isEmpty()) ? vs.getFirst() : null)
                 .collect(Collectors.toList());
     }
 
@@ -184,7 +184,7 @@ public class Multimap<K, V> implements Map<K, V> {
                     @Override
                     public V getValue() {
                         List<V> values = e.getValue();
-                        return (values != null && !values.isEmpty()) ? values.get(0) : null;
+                        return (values != null && !values.isEmpty()) ? values.getFirst() : null;
                     }
 
                     @Override

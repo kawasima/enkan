@@ -27,7 +27,7 @@ public class MergeableResourceBundle extends ResourceBundle {
     public Enumeration<String> getKeys() {
         ResourceBundle parent = this.parent;
         Enumeration<String> enumeration = (parent != null) ? parent.getKeys() : null;
-        return new Enumeration<String>() {
+        return new Enumeration<>() {
             private final Iterator<String> iterator = lookup.keySet().iterator();
             private String next = null;
 
@@ -40,7 +40,7 @@ public class MergeableResourceBundle extends ResourceBundle {
                 if (next == null) {
                     if (iterator.hasNext()) {
                         next = iterator.next();
-                        while(next == null && enumeration.hasMoreElements()) {
+                        while (next == null && enumeration.hasMoreElements()) {
                             next = enumeration.nextElement();
                             if (lookup.containsKey(next)) {
                                 next = null;

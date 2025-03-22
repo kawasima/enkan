@@ -7,11 +7,13 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 
 /**
+ * Represents the utility class for threading functions.
+ *
  * @author kawasima
  */
 public class ThreadingUtils {
     private static final Set<Class<? extends Exception>> DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS =
-            new HashSet<Class<? extends Exception>>() {{
+            new HashSet<>() {{
                 add(URISyntaxException.class);
                 add(MalformedURLException.class);
                 add(UnsupportedEncodingException.class);
@@ -48,14 +50,46 @@ public class ThreadingUtils {
         return Optional.of((Y) v);
     }
 
+    /**
+     * Applies the given functions to the start value.
+     *
+     * @param start the start value
+     * @param f1 the first function
+     * @return the result of the last function
+     * @param <X> the type of the start value
+     * @param <Y> the type of the result value
+     */
     public static <X, Y> Optional<Y> some(X start, ThreadingFunction<X, Y> f1) {
         return doSome(start, f1);
     }
 
+    /**
+     *  Applies the given two functions to the start value.
+     *
+     * @param start the start value
+     * @param f1 the first function
+     * @param f2 the second function
+     * @return the result of the last function
+     * @param <X0> the type of the start value
+     * @param <X1> the type of the intermediate value
+     * @param <Y> the type of the result value
+     */
     public static <X0, X1, Y> Optional<Y> some(X0 start, ThreadingFunction<X0, X1> f1, ThreadingFunction<X1, Y> f2) {
         return doSome(start, f1, f2);
     }
 
+    /**
+     *  Applies the given three functions to the start value.
+     * @param start the start value
+     * @param f1 the first function
+     * @param f2 the second function
+     * @param f3 the third function
+     * @return the result of the last function
+     * @param <X0> the type of the start value
+     * @param <X1> the type of the intermediate value
+     * @param <X2> the type of the intermediate value
+     * @param <Y> the type of the result value
+     */
     public static <X0, X1, X2, Y> Optional<Y> some(X0 start,
                                          ThreadingFunction<X0, X1> f1,
                                          ThreadingFunction<X1, X2> f2,
@@ -63,6 +97,20 @@ public class ThreadingUtils {
         return doSome(start, f1, f2, f3);
     }
 
+    /**
+     * Applies the given four functions to the start value.
+     * @param start the start value
+     * @param f1 the first function
+     * @param f2 the second function
+     * @param f3 the third function
+     * @param f4 the fourth function
+     * @return the result of the last function
+     * @param <X0> the type of the start value
+     * @param <X1> the type of the intermediate value
+     * @param <X2> the type of the intermediate value
+     * @param <X3> the type of the intermediate value
+     * @param <Y> the type of the result value
+     */
     public static <X0, X1, X2, X3, Y> Optional<Y> some(
             X0 start,
             ThreadingFunction<X0, X1> f1,
@@ -72,11 +120,17 @@ public class ThreadingUtils {
         return doSome(start, f1, f2, f3, f4);
     }
 
+    /**
+     * Partially applies the given function with the given argument.
+     *
+     * @param f the function
+     * @param arg the argument
+     * @return the partially applied function
+     * @param <X> the type of the first argument
+     * @param <X1> the type of the second argument
+     * @param <Y> the type of the result value
+     */
     public static <X, X1, Y> ThreadingFunction<X, Y> partial(ThreadingBiFunction<X, X1, Y> f, X1 arg) {
         return x -> f.apply(x, arg);
-    }
-
-    interface ThreadingBiFunction<X, X1, Y> {
-        Y apply(X x, X1 x1) throws Exception;
     }
 }

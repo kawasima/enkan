@@ -102,7 +102,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Object createFunction(Function<List, Object> func) {
+    public Object createFunction(Function<List<?>, Object> func) {
         return (TemplateMethodModelEx) arguments ->
                 func.apply((List)arguments.stream().map(arg -> {
                     if (arg instanceof BeanModel) {
@@ -116,8 +116,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     private TemplateLoader createTemplateLoader() {
         TemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
         if (templateLoader != null) {
-            if (templateLoader instanceof MultiTemplateLoader) {
-                MultiTemplateLoader mtl = (MultiTemplateLoader) templateLoader;
+            if (templateLoader instanceof MultiTemplateLoader mtl) {
                 TemplateLoader[] loaders = new TemplateLoader[mtl.getTemplateLoaderCount() + 1];
                 for(int i=0; i < mtl.getTemplateLoaderCount(); i++) {
                     loaders[i] = mtl.getTemplateLoader(i);

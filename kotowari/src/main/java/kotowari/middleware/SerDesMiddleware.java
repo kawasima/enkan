@@ -52,15 +52,15 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     @PostConstruct
     private void loadReaderAndWriter() {
         Map<String, SystemComponent<?>> components = new HashMap<>();
-        components.put("beans", (SystemComponent) beans);
+        components.put("beans", (SystemComponent<?>) beans);
         ComponentInjector injector = new ComponentInjector(components);
         ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(getClass().getClassLoader());
-        for (MessageBodyReader reader : ServiceLoader.load(MessageBodyReader.class, cl)) {
+        for (MessageBodyReader<?> reader : ServiceLoader.load(MessageBodyReader.class, cl)) {
             injector.inject(reader);
             bodyReaders.add(reader);
         }
-        for (MessageBodyWriter writer : ServiceLoader.load(MessageBodyWriter.class, cl)) {
+        for (MessageBodyWriter<?> writer : ServiceLoader.load(MessageBodyWriter.class, cl)) {
             injector.inject(writer);
             bodyWriters.add(writer);
         }
@@ -73,12 +73,12 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     @SuppressWarnings("unchecked")
     protected <T> T deserialize(HttpRequest request, Class<T> type, Type genericType, MediaType mediaType) throws IOException {
         try {
-            MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+            MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
             return bodyReaders.stream()
                     .filter(reader -> reader.isReadable(type, genericType, null, mediaType))
                     .map(reader -> {
                         try {
-                            return (T) ((MessageBodyReader) reader)
+                            return ((MessageBodyReader<T>) reader)
                                     .readFrom(type, genericType, null, mediaType, headers, request.getBody());
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);

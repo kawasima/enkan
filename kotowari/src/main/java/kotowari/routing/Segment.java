@@ -37,7 +37,7 @@ public abstract class Segment {
             return interpolationStatement(list, hash);
         } else {
             List<Segment> newPriors = list.subList(0, list.size() - 1);
-            return list.get(list.size() - 1).stringStructure(newPriors, hash);
+            return list.getLast().stringStructure(newPriors, hash);
         }
     }
     public String interpolationChunk(OptionMap hash) {

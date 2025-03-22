@@ -26,6 +26,7 @@ public class JettyComponent extends WebServerComponent<JettyComponent> {
         return new ComponentLifecycle<>() {
             @Override
             public void start(JettyComponent component) {
+                @SuppressWarnings("unchecked")
                 ApplicationComponent<HttpRequest, HttpResponse> app = getDependency(ApplicationComponent.class);
                 if (server == null) {
                     OptionMap options = buildOptionMap();

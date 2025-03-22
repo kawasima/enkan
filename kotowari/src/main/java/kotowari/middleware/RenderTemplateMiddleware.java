@@ -44,10 +44,10 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     @Inject
     private TemplateEngine<?> templateEngine;
 
-    private Map<String, Function<List, Object>> userFunctions = Collections.emptyMap();
+    private Map<String, Function<List<?>, Object>> userFunctions = Collections.emptyMap();
 
-    private ExportSetting exports = ExportSetting.DEFAULT_EXPORTS;
-    private static final Function<List, Object> HAS_PERMISSION = arguments -> {
+    private final ExportSetting exports = ExportSetting.DEFAULT_EXPORTS;
+    private static final Function<List<?>, Object> HAS_PERMISSION = arguments -> {
         if (arguments.size() == 2) {
             Object principal = arguments.get(0);
             String permission = Objects.toString(arguments.get(1));
@@ -61,10 +61,9 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
         }
     };
 
-    @SuppressWarnings("unchecked")
-    private static final Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
+    private static final Function<List<?>, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
-            Object principal = arguments.get(0);
+            Object principal = arguments.getFirst();
             if (principal instanceof UserPrincipal) {
                 return arguments.subList(1, arguments.size())
                         .stream()
@@ -77,10 +76,9 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
         }
     };
 
-    @SuppressWarnings("unchecked")
-    private static final Function<List, Object> HAS_ALL_PERMISSIONS = arguments -> {
+    private static final Function<List<?>, Object> HAS_ALL_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
-            Object principal = arguments.get(0);
+            Object principal = arguments.getFirst();
             if (principal instanceof UserPrincipal) {
                 return arguments.subList(1, arguments.size())
                         .stream()
@@ -114,8 +112,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     @Override
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
-        if (response instanceof TemplatedHttpResponse) {
-            TemplatedHttpResponse tres = (TemplatedHttpResponse) response;
+        if (response instanceof TemplatedHttpResponse tres) {
             if (exports.contains(REQUEST)) {
                 tres.getContext().put(exports.getExportName(REQUEST), request);
             }
@@ -141,8 +138,8 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
 
             if (exports.contains(CONVERSATION)) {
                 Conversation conversation = request.getConversation();
-                if (conversation instanceof Conversation) {
-                    if (conversation != null && !request.getConversation().isTransient()) {
+                if (conversation != null) {
+                    if (!request.getConversation().isTransient()) {
                         String token = conversation.getId() + "$"
                                 + hmacEncoder.encodeToHex(conversation.getId() + "$" + conversation.getTimeout())
                                 + "$" + conversation.getTimeout();
@@ -163,7 +160,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
         return response;
     }
 
-    public void setUserFunctions(Map<String, Function<List, Object>> userFunctions) {
+    public void setUserFunctions(Map<String, Function<List<?>, Object>> userFunctions) {
         this.userFunctions = userFunctions;
     }
 }

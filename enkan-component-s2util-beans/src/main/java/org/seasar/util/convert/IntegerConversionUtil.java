@@ -45,24 +45,32 @@ public abstract class IntegerConversionUtil {
      * @return 変換された{@link Integer}
      */
     public static Integer toInteger(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof Integer) {
-            return (Integer) o;
-        } else if (o instanceof Number) {
-            return ((Number) o).intValue();
-        } else if (o instanceof String) {
-            return toInteger((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Integer.valueOf(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return null;
             }
-            return (int) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? Integer.valueOf(1) : Integer
-                .valueOf(0);
-        } else {
-            return toInteger(o.toString());
+            case Integer i -> {
+                return i;
+            }
+            case Number number -> {
+                return number.intValue();
+            }
+            case String s -> {
+                return toInteger(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Integer.valueOf(new SimpleDateFormat(pattern).format(o));
+                }
+                return (int) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? Integer.valueOf(1) : Integer
+                        .valueOf(0);
+            }
+            default -> {
+                return toInteger(o.toString());
+            }
         }
     }
 
@@ -94,22 +102,29 @@ public abstract class IntegerConversionUtil {
      * @return 変換された{@literal int}
      */
     public static int toPrimitiveInt(final Object o, final String pattern) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof Number) {
-            return ((Number) o).intValue();
-        } else if (o instanceof String) {
-            return toPrimitiveInt((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Integer
-                    .parseInt(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return 0;
             }
-            return (int) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? 1 : 0;
-        } else {
-            return toPrimitiveInt(o.toString());
+            case Number number -> {
+                return number.intValue();
+            }
+            case String s -> {
+                return toPrimitiveInt(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Integer
+                            .parseInt(new SimpleDateFormat(pattern).format(o));
+                }
+                return (int) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? 1 : 0;
+            }
+            default -> {
+                return toPrimitiveInt(o.toString());
+            }
         }
     }
 

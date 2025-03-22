@@ -317,14 +317,18 @@ public abstract class DateConversionUtil {
      */
     protected static Calendar toCalendar(final Object src,
             final String pattern, final Locale locale) {
-        if (src == null) {
-            return null;
-        }
-        if (src instanceof Calendar) {
-            return (Calendar) src;
-        }
-        if (src instanceof Date) {
-            return toCalendar((Date) src, locale);
+        switch (src) {
+            case null -> {
+                return null;
+            }
+            case Calendar calendar -> {
+                return calendar;
+            }
+            case Date date -> {
+                return toCalendar(date, locale);
+            }
+            default -> {
+            }
         }
         final String str = src.toString();
         if (str.isEmpty()) {
@@ -400,17 +404,21 @@ public abstract class DateConversionUtil {
      */
     protected static java.sql.Date toSqlDate(final Object src,
             final String pattern, final Locale locale) {
-        if (src == null) {
-            return null;
-        }
-        if (src instanceof java.sql.Date) {
-            return (java.sql.Date) src;
-        }
-        if (src instanceof Date) {
-            return new java.sql.Date(((Date) src).getTime());
-        }
-        if (src instanceof Calendar) {
-            return new java.sql.Date(((Calendar) src).getTimeInMillis());
+        switch (src) {
+            case null -> {
+                return null;
+            }
+            case java.sql.Date date -> {
+                return date;
+            }
+            case Date date -> {
+                return new java.sql.Date(date.getTime());
+            }
+            case Calendar calendar -> {
+                return new java.sql.Date(calendar.getTimeInMillis());
+            }
+            default -> {
+            }
         }
         final String str = src.toString();
         if (str.isEmpty()) {

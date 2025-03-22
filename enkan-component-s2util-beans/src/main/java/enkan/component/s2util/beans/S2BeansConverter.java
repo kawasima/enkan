@@ -2,7 +2,6 @@ package enkan.component.s2util.beans;
 
 import enkan.component.AbstractBeansConverter;
 import enkan.component.ComponentLifecycle;
-import enkan.exception.UnreachableException;
 import org.seasar.util.beans.factory.BeanDescFactory;
 import org.seasar.util.beans.util.BeanUtil;
 import org.seasar.util.beans.util.CopyOptions;
@@ -15,16 +14,11 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
     private static final CopyOptions EXCLUDE_NULL_OPTIONS = CopyOptionsUtil.excludeNull();
 
     private CopyOptions createCopyOptions(CopyOption option) {
-        switch(option) {
-            case REPLACE_ALL:
-                return DEFAULT_OPTIONS;
-            case REPLACE_NON_NULL:
-                return EXCLUDE_NULL_OPTIONS;
-            case PRESERVE_NON_NULL:
-                throw new UnsupportedOperationException("PRESERVE_NON_NULL");
-            default:
-                throw new UnreachableException();
-        }
+        return switch (option) {
+            case REPLACE_ALL -> DEFAULT_OPTIONS;
+            case REPLACE_NON_NULL -> EXCLUDE_NULL_OPTIONS;
+            case PRESERVE_NON_NULL -> throw new UnsupportedOperationException("PRESERVE_NON_NULL");
+        };
     }
     @SuppressWarnings("unchecked")
     @Override
@@ -57,7 +51,7 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
 
     @Override
     protected ComponentLifecycle<S2BeansConverter> lifecycle() {
-        return new ComponentLifecycle<S2BeansConverter>() {
+        return new ComponentLifecycle<>() {
 
             @Override
             public void start(S2BeansConverter component) {

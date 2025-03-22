@@ -101,7 +101,7 @@ public class RoutePatterns {
         return routeCompiler.apply(routeList);
     }
 
-    static class PatternsContext {
+    public static class PatternsContext {
         private final String prefix;
         private final RoutePatterns patterns;
 

@@ -29,20 +29,20 @@ class UrlRewriterTest {
 
     @Test
     void urlFor() {
-        assertThat(UrlRewriter.urlFor(FooController.class, "index?d=4").getOptions())
+        assertThat(UrlRewriter.urlFor(FooController.class, "index?d=4").options())
                 .contains(entry("d", "4"))
                 .contains(entry("controller", FooController.class));
     }
 
     @Test
     void urlForWithControllerParameter() {
-        assertThat(UrlRewriter.urlFor(FooController.class, "index?controller=Bar").getOptions())
+        assertThat(UrlRewriter.urlFor(FooController.class, "index?controller=Bar").options())
                 .contains(entry("controller", FooController.class));
     }
 
     @Test
     void urlForWithOptionMap() {
-        assertThat(UrlRewriter.urlFor(OptionMap.of("e", "4")).getOptions())
+        assertThat(UrlRewriter.urlFor(OptionMap.of("e", "4")).options())
                 .contains(entry("e", "4"));
     }
 

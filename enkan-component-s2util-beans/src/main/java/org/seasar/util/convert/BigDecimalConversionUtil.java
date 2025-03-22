@@ -46,23 +46,28 @@ public abstract class BigDecimalConversionUtil {
      * @return 変換された{@link BigDecimal}
      */
     public static BigDecimal toBigDecimal(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof BigDecimal) {
-            return (BigDecimal) o;
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return new BigDecimal(new SimpleDateFormat(pattern).format(o));
-            }
-            return new BigDecimal(Long.toString(((java.util.Date) o).getTime()));
-        } else if (o instanceof String) {
-            final String s = (String) o;
-            if (s.isEmpty()) {
+        switch (o) {
+            case null -> {
                 return null;
             }
-            return normalize(new BigDecimal(s));
-        } else {
-            return normalize(new BigDecimal(o.toString()));
+            case BigDecimal bigDecimal -> {
+                return bigDecimal;
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return new BigDecimal(new SimpleDateFormat(pattern).format(o));
+                }
+                return new BigDecimal(Long.toString(date.getTime()));
+            }
+            case String s -> {
+                if (s.isEmpty()) {
+                    return null;
+                }
+                return normalize(new BigDecimal(s));
+            }
+            default -> {
+                return normalize(new BigDecimal(o.toString()));
+            }
         }
     }
 

@@ -45,24 +45,32 @@ public abstract class ByteConversionUtil {
      * @return 変換された{@link Byte}
      */
     public static Byte toByte(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof Byte) {
-            return (Byte) o;
-        } else if (o instanceof Number) {
-            return ((Number) o).byteValue();
-        } else if (o instanceof String) {
-            return toByte((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Byte.valueOf(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return null;
             }
-            return (byte) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? Byte.valueOf((byte) 1) : Byte
-                .valueOf((byte) 0);
-        } else {
-            return toByte(o.toString());
+            case Byte b -> {
+                return b;
+            }
+            case Number number -> {
+                return number.byteValue();
+            }
+            case String s -> {
+                return toByte(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Byte.valueOf(new SimpleDateFormat(pattern).format(o));
+                }
+                return (byte) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? Byte.valueOf((byte) 1) : Byte
+                        .valueOf((byte) 0);
+            }
+            default -> {
+                return toByte(o.toString());
+            }
         }
     }
 
@@ -94,21 +102,28 @@ public abstract class ByteConversionUtil {
      * @return 変換された{@literal byte}
      */
     public static byte toPrimitiveByte(final Object o, final String pattern) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof Number) {
-            return ((Number) o).byteValue();
-        } else if (o instanceof String) {
-            return toPrimitiveByte((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Byte.parseByte(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return 0;
             }
-            return (byte) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? (byte) 1 : (byte) 0;
-        } else {
-            return toPrimitiveByte(o.toString());
+            case Number number -> {
+                return number.byteValue();
+            }
+            case String s -> {
+                return toPrimitiveByte(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Byte.parseByte(new SimpleDateFormat(pattern).format(o));
+                }
+                return (byte) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? (byte) 1 : (byte) 0;
+            }
+            default -> {
+                return toPrimitiveByte(o.toString());
+            }
         }
     }
 

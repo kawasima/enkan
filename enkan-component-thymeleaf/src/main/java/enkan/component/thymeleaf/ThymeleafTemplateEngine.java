@@ -60,13 +60,13 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
     }
 
     @Override
-    public Object createFunction(Function<List, Object> func) {
+    public Object createFunction(Function<List<?>, Object> func) {
         return func;
     }
 
     @Override
     protected ComponentLifecycle<ThymeleafTemplateEngine> lifecycle() {
-        return new ComponentLifecycle<ThymeleafTemplateEngine>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(ThymeleafTemplateEngine component) {
                 component.thymeleafEngine = new org.thymeleaf.TemplateEngine();

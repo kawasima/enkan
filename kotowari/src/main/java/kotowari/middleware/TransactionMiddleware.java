@@ -26,8 +26,7 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ
     @Override
     public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         RES res;
-        if (req instanceof Routable) {
-            Routable routable = (Routable) req;
+        if (req instanceof Routable routable) {
             Method m = routable.getControllerMethod();
             Transactional.TxType type= getTransactionType(m);
             if (type != null) {

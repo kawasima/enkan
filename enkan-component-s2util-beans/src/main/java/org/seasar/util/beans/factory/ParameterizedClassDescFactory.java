@@ -22,7 +22,6 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * フィールの型やメソッドの引数型、戻り値型を表現する{@link ParameterizedClassDesc}を作成するファクトリです。
@@ -192,9 +191,7 @@ public abstract class ParameterizedClassDescFactory {
             }
             return getActualClass(typeVariable.getBounds()[0], map);
         }
-        if (type instanceof GenericArrayType) {
-            final GenericArrayType genericArrayType =
-                    (GenericArrayType) type;
+        if (type instanceof GenericArrayType genericArrayType) {
             final Class<?> componentClass =
                     getActualClass(genericArrayType.getGenericComponentType(), map);
             return Array.newInstance(componentClass, 0).getClass();
@@ -264,9 +261,7 @@ public abstract class ParameterizedClassDescFactory {
 
     protected static void gatherTypeVariables(final Type type,
                                               final Map<TypeVariable<?>, Type> map) {
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType parameterizedType =
-                    (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
             final TypeVariable<?>[] typeVariables =
                     ((GenericDeclaration) parameterizedType.getRawType())
                             .getTypeParameters();

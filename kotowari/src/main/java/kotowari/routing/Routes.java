@@ -18,7 +18,7 @@ import static enkan.util.SearchUtils.levenshteinDistance;
  */
 public class Routes {
     private Recognizer recognizer;
-    private List<Route> routeList;
+    private final List<Route> routeList;
 
     private Routes(List<Route> routeList) {
         this.routeList = routeList;

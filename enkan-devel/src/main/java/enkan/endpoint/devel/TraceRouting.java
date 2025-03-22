@@ -50,13 +50,6 @@ public class TraceRouting {
         }
     }
 
-    private static class Route {
-        final PathPredicate<HttpRequest> predicate;
-        final BiConsumer<HttpRequest, OutputStream> action;
-
-        public Route(PathPredicate<HttpRequest> predicate, BiConsumer<HttpRequest, OutputStream> action) {
-            this.predicate = predicate;
-            this.action = action;
-        }
+    private record Route(PathPredicate<HttpRequest> predicate, BiConsumer<HttpRequest, OutputStream> action) {
     }
 }

@@ -48,29 +48,24 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
     private void init() {
         Config defaultConfig = DomaPrividerUtils.getDefaultConfig(domaProvider);
         DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
-        if (ds instanceof EnkanLocalTransactionDataSource) {
-            EnkanLocalTransactionDataSource ltds = (EnkanLocalTransactionDataSource) ds;
+        if (ds instanceof EnkanLocalTransactionDataSource ltds) {
             tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
         }
     }
 
     @Override
     public <NRES, NREQ> RES handle(REQ req, MiddlewareChain<REQ, RES, NRES, NREQ> chain) {
-        if (req instanceof Routable) {
-            Routable routable = (Routable) req;
+        if (req instanceof Routable routable) {
             Method m = routable.getControllerMethod();
             Transactional.TxType type= getTransactionType(m);
 
             if (type != null) {
-                switch(type) {
-                    case REQUIRED:
-                        return tm.required(() ->
+                return switch (type) {
+                    case REQUIRED -> tm.required(() ->
                             chain.next(req));
-                    case REQUIRES_NEW:
-                        return tm.requiresNew(() -> chain.next(req));
-                    default:
-                        throw new MisconfigurationException("doma2.UNSUPPORTED_TX_TYPE", type);
-                }
+                    case REQUIRES_NEW -> tm.requiresNew(() -> chain.next(req));
+                    default -> throw new MisconfigurationException("doma2.UNSUPPORTED_TX_TYPE", type);
+                };
             }
         }
         return chain.next(req);

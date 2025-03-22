@@ -45,24 +45,32 @@ public abstract class ShortConversionUtil {
      * @return 変換された{@link Short}
      */
     public static Short toShort(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof Short) {
-            return (Short) o;
-        } else if (o instanceof Number) {
-            return ((Number) o).shortValue();
-        } else if (o instanceof String) {
-            return toShort((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Short.valueOf(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return null;
             }
-            return (short) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? Short.valueOf((short) 1)
-                : Short.valueOf((short) 0);
-        } else {
-            return toShort(o.toString());
+            case Short i -> {
+                return i;
+            }
+            case Number number -> {
+                return number.shortValue();
+            }
+            case String s -> {
+                return toShort(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Short.valueOf(new SimpleDateFormat(pattern).format(o));
+                }
+                return (short) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? Short.valueOf((short) 1)
+                        : Short.valueOf((short) 0);
+            }
+            default -> {
+                return toShort(o.toString());
+            }
         }
     }
 
@@ -94,22 +102,29 @@ public abstract class ShortConversionUtil {
      * @return 変換された{@literal short}
      */
     public static short toPrimitiveShort(final Object o, final String pattern) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof Number) {
-            return ((Number) o).shortValue();
-        } else if (o instanceof String) {
-            return toPrimitiveShort((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Short
-                    .parseShort(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return 0;
             }
-            return (short) ((java.util.Date) o).getTime();
-        } else if (o instanceof Boolean) {
-            return (Boolean) o ? (short) 1 : (short) 0;
-        } else {
-            return toPrimitiveShort(o.toString());
+            case Number number -> {
+                return number.shortValue();
+            }
+            case String s -> {
+                return toPrimitiveShort(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Short
+                            .parseShort(new SimpleDateFormat(pattern).format(o));
+                }
+                return (short) date.getTime();
+            }
+            case Boolean b -> {
+                return b ? (short) 1 : (short) 0;
+            }
+            default -> {
+                return toPrimitiveShort(o.toString());
+            }
         }
     }
 

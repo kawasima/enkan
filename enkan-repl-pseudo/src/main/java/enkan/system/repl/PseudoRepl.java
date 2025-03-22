@@ -56,10 +56,12 @@ public class PseudoRepl implements Repl {
     }
 
     protected void printHelp() {
-        System.out.println("start - Start system\n" +
-                "stop - Stop system.\n" +
-                "reset - Reset system.\n" +
-                "exit - exit repl.\n"
+        System.out.println("""
+                start - Start system
+                stop - Stop system.
+                reset - Reset system.
+                exit - exit repl.
+                """
         );
     }
 
@@ -80,9 +82,8 @@ public class PseudoRepl implements Repl {
     @Override
     public void run() {
         Thread.currentThread().setName("pseudo-repl-server");
-        ZContext ctx = new ZContext();
-        try (ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
-             ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER)){
+        try (ZContext ctx = new ZContext(); ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
+             ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER)) {
             int port = Env.getInt("repl.port", 0);
             String host = Env.getString("repl.host", "localhost");
             if (port == 0) {
@@ -108,7 +109,7 @@ public class PseudoRepl implements Repl {
             LOG.info("Listen {}", port);
             replPort.complete(port);
 
-            while(!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {
                 ZMsg msg = ZMsg.recvMsg(server);
                 ZFrame clientAddress = msg.pop();
                 ZmqServerTransport transport = new ZmqServerTransport(server, clientAddress);
@@ -137,17 +138,6 @@ public class PseudoRepl implements Repl {
             }
         } catch (Exception e) {
             LOG.error("Repl server error", e);
-        } finally {
-
-            ctx.close();
-            try {
-                threadPool.shutdown();
-                if (!threadPool.awaitTermination(3L, TimeUnit.SECONDS)) {
-                    threadPool.shutdownNow();
-                }
-            } catch (InterruptedException ex) {
-                threadPool.shutdownNow();
-            }
         }
     }
 

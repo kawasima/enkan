@@ -10,7 +10,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
     default Predicate<T> and(Predicate<? super T> other) {
         Objects.requireNonNull(other);
         Predicate<T> orig = this;
-        return new PrintablePredicate<T>() {
+        return new PrintablePredicate<>() {
             @Override
             public boolean test(T t) {
                 return orig.test(t) && other.test(t);
@@ -26,7 +26,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
     default Predicate<T> or(Predicate<? super T> other) {
         Objects.requireNonNull(other);
         Predicate<T> orig = this;
-        return new PrintablePredicate<T>() {
+        return new PrintablePredicate<>() {
             @Override
             public boolean test(T t) {
                 return orig.test(t) || other.test(t);
@@ -42,7 +42,7 @@ public interface PrintablePredicate<T> extends Predicate<T> {
     @Override
     default Predicate<T> negate() {
         Predicate<T> orig = this;
-        return new PrintablePredicate<T>() {
+        return new PrintablePredicate<>() {
             @Override
             public boolean test(T s) {
                 return !orig.test(s);

@@ -70,31 +70,33 @@ public class ServletUtils {
     }
 
     private static void setBody(HttpServletResponse servletResponse, Object body) throws IOException {
-        if (body == null) {
-            return; // Do nothing
-        }
-
-        if (body instanceof String) {
-            try(PrintWriter writer = servletResponse.getWriter()) {
-                writer.print((String) body);
+        switch (body) {
+            case null -> {
+                // Do nothing
             }
-        } else if (body instanceof InputStream) {
-            InputStream input = (InputStream) body;
-            try (ServletOutputStream output = servletResponse.getOutputStream()) {
-                byte[] buf = new byte[4096];
-                for (; ; ) {
-                    int size = input.read(buf);
-                    if (size <= 0) break;
-                    output.write(buf, 0, size);
+            case String s -> {
+                try (PrintWriter writer = servletResponse.getWriter()) {
+                    writer.print((String) body);
                 }
             }
-        } else if (body instanceof File) {
-            try(InputStream in = new FileInputStream((File) body)) {
-                setBody(servletResponse, in);
+            case InputStream input -> {
+                try (ServletOutputStream output = servletResponse.getOutputStream()) {
+                    byte[] buf = new byte[4096];
+                    for (; ; ) {
+                        int size = input.read(buf);
+                        if (size <= 0) break;
+                        output.write(buf, 0, size);
+                    }
+                }
             }
-        } else {
-            throw new UnreachableException();
+            case File file -> {
+                try (InputStream in = new FileInputStream((File) body)) {
+                    setBody(servletResponse, in);
+                }
+            }
+            default -> throw new UnreachableException();
         }
+
     }
 
     public static void updateServletResponse(HttpServletResponse servletResponse, HttpResponse response) {

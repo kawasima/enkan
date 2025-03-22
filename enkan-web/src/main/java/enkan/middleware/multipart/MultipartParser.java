@@ -55,7 +55,7 @@ public class MultipartParser {
     private static final MultipartInfo EMPTY = new MultipartInfo(null, new ArrayList<>());
     private static final BiFunction<String, String, File> TEMPFILE_FACTORY = (filename, contentType) -> {
         int idx = filename.indexOf('.');
-        String extName = (idx >= 0 && idx < filename.length()) ? filename.substring(idx) : "";
+        String extName = (idx >= 0 && idx < filename.length() - 1) ? filename.substring(idx) : "";
         try {
             return File.createTempFile("EnkanMultipart", extName);
         } catch (IOException e) {

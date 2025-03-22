@@ -45,21 +45,28 @@ public abstract class FloatConversionUtil {
      * @return 変換された{@link Float}
      */
     public static Float toFloat(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof Float) {
-            return (Float) o;
-        } else if (o instanceof Number) {
-            return ((Number) o).floatValue();
-        } else if (o instanceof String) {
-            return toFloat((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Float.parseFloat(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return null;
             }
-            return (float) ((java.util.Date) o).getTime();
-        } else {
-            return toFloat(o.toString());
+            case Float v -> {
+                return v;
+            }
+            case Number number -> {
+                return number.floatValue();
+            }
+            case String s -> {
+                return toFloat(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Float.parseFloat(new SimpleDateFormat(pattern).format(o));
+                }
+                return (float) date.getTime();
+            }
+            default -> {
+                return toFloat(o.toString());
+            }
         }
     }
 
@@ -91,20 +98,26 @@ public abstract class FloatConversionUtil {
      * @return 変換された{@literal float}
      */
     public static float toPrimitiveFloat(final Object o, final String pattern) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof Number) {
-            return ((Number) o).floatValue();
-        } else if (o instanceof String) {
-            return toPrimitiveFloat((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Float
-                    .parseFloat(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return 0;
             }
-            return ((java.util.Date) o).getTime();
-        } else {
-            return toPrimitiveFloat(o.toString());
+            case Number number -> {
+                return number.floatValue();
+            }
+            case String s -> {
+                return toPrimitiveFloat(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Float
+                            .parseFloat(new SimpleDateFormat(pattern).format(o));
+                }
+                return date.getTime();
+            }
+            default -> {
+                return toPrimitiveFloat(o.toString());
+            }
         }
     }
 

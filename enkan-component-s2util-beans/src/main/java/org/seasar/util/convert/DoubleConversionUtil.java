@@ -45,21 +45,28 @@ public abstract class DoubleConversionUtil {
      * @return 変換された{@link Double}
      */
     public static Double toDouble(final Object o, final String pattern) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof Double) {
-            return (Double) o;
-        } else if (o instanceof Number) {
-            return ((Number) o).doubleValue();
-        } else if (o instanceof String) {
-            return toDouble((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Double.parseDouble(new SimpleDateFormat(pattern).format(o));
+        switch (o) {
+            case null -> {
+                return null;
             }
-            return (double) ((java.util.Date) o).getTime();
-        } else {
-            return toDouble(o.toString());
+            case Double v -> {
+                return v;
+            }
+            case Number number -> {
+                return number.doubleValue();
+            }
+            case String s -> {
+                return toDouble(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Double.parseDouble(new SimpleDateFormat(pattern).format(o));
+                }
+                return (double) date.getTime();
+            }
+            default -> {
+                return toDouble(o.toString());
+            }
         }
     }
 
@@ -91,20 +98,26 @@ public abstract class DoubleConversionUtil {
      * @return 変換された{@literal double}
      */
     public static double toPrimitiveDouble(final Object o, final String pattern) {
-        if (o == null) {
-            return 0;
-        } else if (o instanceof Number) {
-            return ((Number) o).doubleValue();
-        } else if (o instanceof String) {
-            return toPrimitiveDouble((String) o);
-        } else if (o instanceof java.util.Date) {
-            if (pattern != null) {
-                return Double.parseDouble(new SimpleDateFormat(pattern)
-                    .format(o));
+        switch (o) {
+            case null -> {
+                return 0;
             }
-            return ((java.util.Date) o).getTime();
-        } else {
-            return toPrimitiveDouble(o.toString());
+            case Number number -> {
+                return number.doubleValue();
+            }
+            case String s -> {
+                return toPrimitiveDouble(s);
+            }
+            case java.util.Date date -> {
+                if (pattern != null) {
+                    return Double.parseDouble(new SimpleDateFormat(pattern)
+                            .format(o));
+                }
+                return date.getTime();
+            }
+            default -> {
+                return toPrimitiveDouble(o.toString());
+            }
         }
     }
 

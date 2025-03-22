@@ -10,7 +10,7 @@ import enkan.exception.ServiceUnavailableException;
  */
 @enkan.annotation.Middleware(name = "serviceUnavailable")
 public class ServiceUnavailableMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
-    private Endpoint<REQ, RES> endpoint;
+    private final Endpoint<REQ, RES> endpoint;
 
     public ServiceUnavailableMiddleware(Endpoint<REQ, RES> endpoint) {
         this.endpoint = endpoint;

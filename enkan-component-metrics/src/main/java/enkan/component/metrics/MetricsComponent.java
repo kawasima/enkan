@@ -36,7 +36,7 @@ public class MetricsComponent extends SystemComponent<MetricsComponent> {
 
     @Override
     protected ComponentLifecycle<MetricsComponent> lifecycle() {
-        return new ComponentLifecycle<MetricsComponent>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(MetricsComponent component) {
                 component.timeoutsMeter = metricRegistry.meter(name(metricName, "timeouts"));

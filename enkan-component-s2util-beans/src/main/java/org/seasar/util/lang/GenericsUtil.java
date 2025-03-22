@@ -42,9 +42,7 @@ public abstract class GenericsUtil {
         if (type instanceof Class) {
             return clazz.isAssignableFrom((Class<?>) type);
         }
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType parameterizedType =
-                    (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
             return isTypeOf(parameterizedType.getRawType(), clazz);
         }
         return false;
@@ -68,19 +66,14 @@ public abstract class GenericsUtil {
         if (type instanceof Class) {
             return (Class) type;
         }
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType parameterizedType =
-                    (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
             return getRawClass(parameterizedType.getRawType());
         }
-        if (type instanceof WildcardType) {
-            final WildcardType wildcardType = (WildcardType) type;
+        if (type instanceof WildcardType wildcardType) {
             final Type[] types = wildcardType.getUpperBounds();
             return getRawClass(types[0]);
         }
-        if (type instanceof GenericArrayType) {
-            final GenericArrayType genericArrayType =
-                    (GenericArrayType) type;
+        if (type instanceof GenericArrayType genericArrayType) {
             final Class<?> rawClass =
                 getRawClass(genericArrayType.getGenericComponentType());
             return Array.newInstance(rawClass, 0).getClass();
@@ -318,9 +311,7 @@ public abstract class GenericsUtil {
      */
     protected static void gatherTypeVariables(final Type type,
             final Map<TypeVariable<?>, Type> map) {
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType parameterizedType =
-                    (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
             final TypeVariable<?>[] typeVariables =
                 ((GenericDeclaration) parameterizedType.getRawType())
                     .getTypeParameters();
@@ -370,9 +361,7 @@ public abstract class GenericsUtil {
             }
             return getActualClass(typeVariable.getBounds()[0], map);
         }
-        if (type instanceof GenericArrayType) {
-            final GenericArrayType genericArrayType =
-                    (GenericArrayType) type;
+        if (type instanceof GenericArrayType genericArrayType) {
             final Class<?> componentClass =
                 getActualClass(genericArrayType.getGenericComponentType(), map);
             return Array.newInstance(componentClass, 0).getClass();

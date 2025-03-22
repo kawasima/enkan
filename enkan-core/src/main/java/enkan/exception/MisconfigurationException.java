@@ -18,7 +18,7 @@ public class MisconfigurationException extends UnrecoverableException {
     private final String problem;
     private final String solution;
 
-    static ResourceBundle misconfigurationMessages;
+    static final ResourceBundle misconfigurationMessages;
 
     static {
         misconfigurationMessages = ResourceBundle.getBundle("META-INF/misconfiguration", new MergeableResourceBundleControl());

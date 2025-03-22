@@ -30,15 +30,12 @@ public abstract class BinaryConversionUtil {
      * @return {@literal byte}の配列
      */
     public static byte[] toBinary(final Object o) {
-        if (o instanceof byte[]) {
-            return (byte[]) o;
-        } else if (o == null) {
-            return null;
-        } else if (o instanceof String){
-            return ((String) o).getBytes();
-        } else {
-            throw new IllegalArgumentException("Can't parse as binary:" + o);
-        }
+        return switch (o) {
+            case byte[] bytes -> bytes;
+            case null -> null;
+            case String s -> s.getBytes();
+            default -> throw new IllegalArgumentException("Can't parse as binary:" + o);
+        };
     }
 
 }

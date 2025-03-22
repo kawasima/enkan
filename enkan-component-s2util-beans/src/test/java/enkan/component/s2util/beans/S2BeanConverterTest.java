@@ -71,8 +71,7 @@ public class S2BeanConverterTest {
 
         public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof Foo)) return false;
-            final Foo other = (Foo) o;
+            if (!(o instanceof Foo other)) return false;
             if (!other.canEqual(this)) return false;
             if (this.getA() != other.getA()) return false;
             if (this.getB() != other.getB()) return false;
@@ -87,7 +86,7 @@ public class S2BeanConverterTest {
             int result = 1;
             result = result * PRIME + this.getA();
             final long $b = this.getB();
-            result = result * PRIME + (int) ($b >>> 32 ^ $b);
+            result = result * PRIME + Long.hashCode($b);
             result = result * PRIME + this.getC();
             final Object $d = this.getD();
             result = result * PRIME + ($d == null ? 43 : $d.hashCode());

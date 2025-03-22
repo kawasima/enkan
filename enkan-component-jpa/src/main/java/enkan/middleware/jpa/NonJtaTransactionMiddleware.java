@@ -30,8 +30,7 @@ public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<R
                 .map(EntityManageable.class::cast)
                 .map(EntityManageable::getEntityManager)
                 .orElseThrow(() -> new MisconfigurationException("jpa.NOT_ENTITY_MANAGEABLE_REQUEST"));
-        if (req instanceof Routable) {
-            Routable routable = (Routable) req;
+        if (req instanceof Routable routable) {
             Transactional.TxType type = getTransactionType(routable.getControllerClass());
             Method m = routable.getControllerMethod();
             if (m != null) {

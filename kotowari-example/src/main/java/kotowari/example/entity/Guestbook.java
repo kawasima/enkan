@@ -6,6 +6,7 @@ import org.seasar.doma.GenerationType;
 import org.seasar.doma.Id;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author kawasima
@@ -63,21 +64,20 @@ public class Guestbook {
 
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof Guestbook)) return false;
-        final Guestbook other = (Guestbook) o;
+        if (!(o instanceof Guestbook other)) return false;
         if (!other.canEqual(this)) return false;
         final Object this$id = this.getId();
         final Object other$id = other.getId();
-        if (this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        if (!Objects.equals(this$id, other$id)) return false;
         final Object this$name = this.getName();
         final Object other$name = other.getName();
-        if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+        if (!Objects.equals(this$name, other$name)) return false;
         final Object this$message = this.getMessage();
         final Object other$message = other.getMessage();
-        if (this$message == null ? other$message != null : !this$message.equals(other$message)) return false;
+        if (!Objects.equals(this$message, other$message)) return false;
         final Object this$postedAt = this.getPostedAt();
         final Object other$postedAt = other.getPostedAt();
-        if (this$postedAt == null ? other$postedAt != null : !this$postedAt.equals(other$postedAt)) return false;
+        if (!Objects.equals(this$postedAt, other$postedAt)) return false;
         return true;
     }
 

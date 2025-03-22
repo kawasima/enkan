@@ -39,7 +39,7 @@ class FlashMiddlewareTest {
                                 .build());
         request = MixinUtils.mixin(request, FlashAvailable.class);
         HttpResponse response = middleware.handle(request, chain);
-        assertThat(request.getFlash().getValue()).isEqualTo("message");
+        assertThat(request.getFlash().value()).isEqualTo("message");
         assertThat(request.getSession())
                 .isNotNull()
                 .doesNotContainKeys("_flash");
@@ -56,8 +56,8 @@ class FlashMiddlewareTest {
                                 .set(HttpResponse::setFlash, new Flash<>("new flash"))
                                 .build());
         HttpResponse response = middleware.handle(request, chain);
-        assertThat(request.getFlash().getValue()).isEqualTo("message");
-        assertThat(response.getFlash().getValue()).isEqualTo("new flash");
+        assertThat(request.getFlash().value()).isEqualTo("message");
+        assertThat(response.getFlash().value()).isEqualTo("new flash");
     }
 
 }

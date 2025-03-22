@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DevMain {
     private static final Logger LOG = LoggerFactory.getLogger(DevMain.class);
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         JShellRepl repl = new JShellRepl(ExampleSystemFactory.class.getName());
 
         ReplBoot.start(repl,

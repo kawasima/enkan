@@ -5,10 +5,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import enkan.collection.OptionMap;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
+import enkan.exception.MisconfigurationException;
 
 import javax.sql.DataSource;
 
 /**
+ * Enkan component for HikariCP.
  * @author kawasima
  */
 public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
@@ -41,10 +43,15 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
 
     @Override
     protected ComponentLifecycle<HikariCPComponent> lifecycle() {
-        return new ComponentLifecycle<HikariCPComponent>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(HikariCPComponent component) {
                 if (component.dataSource == null) {
+                    try {
+                        config.validate();
+                    } catch (IllegalArgumentException | IllegalStateException e) {
+                        throw new MisconfigurationException("hikariCP.CONFIGURATION", e.getMessage());
+                    }
                     component.dataSource = new HikariDataSource(config);
                 }
             }

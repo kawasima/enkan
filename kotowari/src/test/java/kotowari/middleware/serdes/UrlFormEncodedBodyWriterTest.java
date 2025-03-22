@@ -37,7 +37,7 @@ public class UrlFormEncodedBodyWriterTest {
             bodyWriter.writeTo(dto, TestDto.class, TestDto.class, null, new MediaType("", ""),
                     new MultivaluedHashMap<>(), entityStream);
 
-            String out = new String(entityStream.toByteArray());
+            String out = entityStream.toString();
             Parameters params = CodecUtils.formDecode(out, "UTF-8");
             assertThat(params.getLong("a")).isEqualTo(8);
             assertThat(params.get("b")).isEqualTo("あいうえお");

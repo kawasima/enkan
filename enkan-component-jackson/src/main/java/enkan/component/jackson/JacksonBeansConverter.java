@@ -56,7 +56,7 @@ public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansCo
 
     @Override
     protected ComponentLifecycle<JacksonBeansConverter> lifecycle() {
-        return new ComponentLifecycle<JacksonBeansConverter>() {
+        return new ComponentLifecycle<>() {
             @Override
             public void start(JacksonBeansConverter component) {
                 component.mapper = new ObjectMapper();

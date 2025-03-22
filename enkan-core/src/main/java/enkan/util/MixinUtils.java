@@ -32,38 +32,24 @@ public class MixinUtils {
         return  methodHandleCache.computeIfAbsent(method, MixinUtils::lookupSpecial);
     }
 
-    static class MixinProxyHandler<T> implements InvocationHandler {
-        private final T original;
-        private final Class<?>[] proxyInterfaces;
-        MixinProxyHandler(T original, Class<?>[] proxyInterfaces) {
-            this.original = original;
-            this.proxyInterfaces = proxyInterfaces;
-        }
+    record MixinProxyHandler<T>(T original, Class<?>[] proxyInterfaces) implements InvocationHandler {
 
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (method.getDeclaringClass().isAssignableFrom(original.getClass())) {
-                if (method.getName().equals("equals") && args.length == 1) {
-                    return args[0] == proxy;
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getDeclaringClass().isAssignableFrom(original.getClass())) {
+                    if (method.getName().equals("equals") && args.length == 1) {
+                        return args[0] == proxy;
+                    } else {
+                        return method.invoke(original, args);
+                    }
                 } else {
-                    return method.invoke(original, args);
+                    return getMethodHandle(method)
+                            .bindTo(proxy)
+                            .invokeWithArguments(args);
                 }
-            } else {
-                return getMethodHandle(method)
-                        .bindTo(proxy)
-                        .invokeWithArguments(args);
             }
         }
-
-        public T getOriginal() {
-            return original;
-        }
-
-        public Class<?>[] getProxyInterfaces() {
-            return proxyInterfaces;
-        }
-    }
 
     private static void getAllInterfaces(Class<?> clazz, final HashSet<Class<?>> interfacesFound) {
         while (clazz != null) {
@@ -102,8 +88,8 @@ public class MixinUtils {
         int addedIndex;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
-            target = handler.getOriginal();
-            Class<?>[] originalInterfaces = handler.getProxyInterfaces();
+            target = handler.original();
+            Class<?>[] originalInterfaces = handler.proxyInterfaces();
             classes = new Class[originalInterfaces.length + interfaces.length];
             System.arraycopy(originalInterfaces, 0, classes, 0, originalInterfaces.length);
             addedIndex = originalInterfaces.length;

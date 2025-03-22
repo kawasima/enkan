@@ -233,9 +233,9 @@ public class HttpResponseUtils {
     }
 
     private static abstract class ContentData<T> implements Serializable {
-        private T content;
-        private Long contentLength;
-        private Date lastModifiedDate;
+        private final T content;
+        private final Long contentLength;
+        private final Date lastModifiedDate;
 
         public ContentData(T content, Long contentLength, Date lastModifiedDate) {
             this.content = content;
@@ -247,24 +247,12 @@ public class HttpResponseUtils {
             return content;
         }
 
-        public void setContent(T content) {
-            this.content = content;
-        }
-
         public Long getContentLength() {
             return contentLength;
         }
 
-        public void setContentLength(Long contentLength) {
-            this.contentLength = contentLength;
-        }
-
         public Date getLastModifiedDate() {
             return lastModifiedDate;
-        }
-
-        public void setLastModifiedDate(Date lastModifiedDate) {
-            this.lastModifiedDate = lastModifiedDate;
         }
     }
 

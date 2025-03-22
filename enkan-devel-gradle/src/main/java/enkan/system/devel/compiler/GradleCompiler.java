@@ -43,7 +43,7 @@ public class GradleCompiler implements Compiler {
         launcher.setStandardOutput(out);
         launcher.forTasks("compileJava");
         CompletableFuture<GradleConnectionException> future = new CompletableFuture<>();
-        launcher.run(new ResultHandler<Void>() {
+        launcher.run(new ResultHandler<>() {
             @Override
             public void onComplete(Void result) {
                 LOG.info("gradle execution complete");

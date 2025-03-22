@@ -70,7 +70,7 @@ class EnkanSystemTest {
 
         @Override
         protected ComponentLifecycle<Foo> lifecycle() {
-            return new ComponentLifecycle<Foo>() {
+            return new ComponentLifecycle<>() {
                 @Override
                 public void start(Foo component) {
 
@@ -87,7 +87,7 @@ class EnkanSystemTest {
     private static class Bar extends SystemComponent<Bar> {
         @Override
         protected ComponentLifecycle<Bar> lifecycle() {
-            return new ComponentLifecycle<Bar>() {
+            return new ComponentLifecycle<>() {
                 @Override
                 public void start(Bar component) {
 
@@ -103,7 +103,7 @@ class EnkanSystemTest {
     private static class Baz extends SystemComponent<Baz> {
         @Override
         protected ComponentLifecycle<Baz> lifecycle() {
-            return new ComponentLifecycle<Baz>() {
+            return new ComponentLifecycle<>() {
                 @Override
                 public void start(Baz component) {
 

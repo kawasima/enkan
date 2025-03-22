@@ -110,9 +110,9 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
     /**
      * Set the logging level for executed SQLs.
      *
-     * @param sqllogLevel the logging level
+     * @param sqlLogLevel the logging level
      */
-    public void setSqlLogLevel(String sqllogLevel) {
+    public void setSqlLogLevel(String sqlLogLevel) {
         this.sqlLogLevel = sqlLogLevel;
     }
 }

@@ -29,12 +29,13 @@ public class SqlCommand implements SystemCommand {
         }
 
         boolean isDML = Arrays.stream(args).anyMatch(DML_KEYWORDS::contains);
-        List<DataSourceComponent> components = system.getComponents(DataSourceComponent.class);
+        @SuppressWarnings("unchecked")
+        List<DataSourceComponent<?>> components = (List<DataSourceComponent<?>>)(List<?>)system.getComponents(DataSourceComponent.class);
         if (components.isEmpty()) {
             transport.sendErr("Not found DataSource");
             return true;
         }
-        DataSourceComponent dataSourceComponent = components.get(0);
+        DataSourceComponent<?> dataSourceComponent = components.getFirst();
         DataSource ds = dataSourceComponent.getDataSource();
         if (ds == null) {
             transport.sendErr("DataSourceComponent is not started");
@@ -62,7 +63,7 @@ public class SqlCommand implements SystemCommand {
                     }
 
                     String header = colMetas.stream().map(meta ->
-                            String.format(Locale.US, "%-" + meta.getDispSize() + "s", meta.name)
+                            String.format(Locale.US, "%-" + meta.dispSize() + "s", meta.name)
                     ).collect(Collectors.joining("|"));
                     transport.send(ReplResponse.withOut(header));
                     transport.send(ReplResponse.withOut(new String(new char[header.length()]).replace("\0", "-")));
@@ -72,7 +73,7 @@ public class SqlCommand implements SystemCommand {
                         List<String> values = new ArrayList<>();
                         for (int i = 0; i < cols; i++) {
                             values.add(String.format(Locale.US,
-                                    "%-" + colMetas.get(i).getDispSize() + "s",
+                                    "%-" + colMetas.get(i).dispSize() + "s",
                                     rs.getString(i+1)));
                         }
                         transport.send(ReplResponse.withOut(String.join("|", values)));
@@ -87,45 +88,9 @@ public class SqlCommand implements SystemCommand {
         return true;
     }
 
-    private static class ColumnMeta implements Serializable {
-        private String name;
-        private int dispSize;
-
+    private record ColumnMeta(String name, int dispSize) implements Serializable {
         @java.beans.ConstructorProperties({"name", "dispSize"})
-        public ColumnMeta(String name, int dispSize) {
-            this.name = name;
-            this.dispSize = dispSize;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public int getDispSize() {
-            return this.dispSize;
-        }
-
-        public boolean equals(Object o) {
-            if (o == this) return true;
-            if (!(o instanceof ColumnMeta)) return false;
-            final ColumnMeta other = (ColumnMeta) o;
-            final Object this$name = this.getName();
-            final Object other$name = other.getName();
-            if (!Objects.equals(this$name, other$name)) return false;
-            return this.getDispSize() == other.getDispSize();
-        }
-
-        public int hashCode() {
-            final int PRIME = 59;
-            int result = 1;
-            final Object $name = this.getName();
-            result = result * PRIME + ($name == null ? 43 : $name.hashCode());
-            result = result * PRIME + this.getDispSize();
-            return result;
-        }
-
-        public String toString() {
-            return "SqlCommand.ColumnMeta(name=" + this.getName() + ", dispSize=" + this.getDispSize() + ")";
+        private ColumnMeta {
         }
     }
 }

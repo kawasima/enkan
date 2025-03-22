@@ -147,8 +147,7 @@ public class Route {
         Object value = options.get(key);
         if (value == null) {
             return "";
-        } else if (value instanceof Collection) {
-            Collection<?> values = (Collection) value;
+        } else if (value instanceof Collection<?> values) {
             List<String> pairs = new ArrayList<>(values.size());
             for (Object val : values) {
                 if (val == null)

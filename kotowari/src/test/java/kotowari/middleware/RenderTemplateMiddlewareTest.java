@@ -25,10 +25,10 @@ import static org.assertj.core.api.Assertions.*;
 
 class RenderTemplateMiddlewareTest {
     private RenderTemplateMiddleware<HttpResponse> sut;
-    @SuppressWarnings("unchecked")
-    private static final Function<List, Object> HAS_ANY_PERMISSIONS = arguments -> {
+
+    private static final Function<List<?>, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
-            Object principal = arguments.get(0);
+            Object principal = arguments.getFirst();
             if (principal instanceof UserPrincipal) {
                 return arguments.subList(1, arguments.size())
                         .stream()
@@ -98,8 +98,8 @@ class RenderTemplateMiddlewareTest {
         }
 
         @Override
-        public Object createFunction(Function func) {
-            return null;
+        public Object createFunction(Function<List<?>, Object> func) {
+            return (Function<List<?>, Object>) arguments -> null;
         }
     }
     @Test

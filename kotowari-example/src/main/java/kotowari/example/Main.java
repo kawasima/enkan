@@ -10,7 +10,7 @@ import kotowari.system.KotowariCommandRegister;
  * @author kawasima
  */
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         JShellRepl repl = new JShellRepl(ExampleSystemFactory.class.getName());
         ReplBoot.start(repl,
                 new KotowariCommandRegister(),

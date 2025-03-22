@@ -39,14 +39,11 @@ public class ReflectionUtils {
             throw new MisconfigurationException("core.INSTANTIATION", e.getMessage(), e);
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
-            if (t instanceof Error) {
-                throw (Error) t;
-            } else if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            } else if (t instanceof Exception) {
-                throw new RuntimeException(t);
-            } else {
-                throw new InternalError(t);
+            switch (t) {
+                case Error error -> throw error;
+                case RuntimeException runtimeException -> throw runtimeException;
+                case Exception exception -> throw new RuntimeException(t);
+                case null, default -> throw new InternalError(t);
             }
         } catch (NoSuchMethodException e) {
             throw new MisconfigurationException("core.NO_SUCH_METHOD", e.getMessage(), e);

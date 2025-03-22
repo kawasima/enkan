@@ -32,7 +32,9 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
 
     private String primer;
     {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/css/primer.css"), StandardCharsets.ISO_8859_1))) {
+        try (InputStream is = getClass().getResourceAsStream("/css/primer.css");
+             InputStreamReader isReader = new InputStreamReader(Objects.requireNonNull(is), StandardCharsets.ISO_8859_1);
+            BufferedReader reader = new BufferedReader(isReader)) {
             primer = reader.lines().collect(Collectors.joining());
         } catch (Exception e) {
             primer = "";

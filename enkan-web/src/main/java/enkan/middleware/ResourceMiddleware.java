@@ -23,7 +23,7 @@ public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     private String rootPath = "public";
     private String uriPrefix = "assets/";
 
-    private static final Set<String> ACCEPTABLE_METHODS = new HashSet<String>() {{
+    private static final Set<String> ACCEPTABLE_METHODS = new HashSet<>() {{
         add("GET");
         add("HEAD");
     }};

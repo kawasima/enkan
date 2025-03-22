@@ -146,8 +146,7 @@ public class Parameters implements Map<String, Object>, Serializable {
                 if (i == null || i < 0 || i >= list.size()) return null;
 
                 current = list.get(i);
-            } else if (current instanceof Parameters) {
-                Parameters map = (Parameters) current;
+            } else if (current instanceof Parameters map) {
                 current = map.getRawType(keys[idx]);
             } else {
                 return null;

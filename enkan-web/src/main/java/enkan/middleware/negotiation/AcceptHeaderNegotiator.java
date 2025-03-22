@@ -75,9 +75,9 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     protected Optional<String> selectBest(Set<String> candidates, Function<String, Double> scoreFunc) {
         return candidates.stream()
                 .map(c -> new AcceptFragment<>(c, scoreFunc.apply(c)))
-                .sorted(Comparator.comparing(AcceptFragment::getQ, reverseOrder()))
-                .filter(af -> af.getQ() > 0.0)
-                .map(AcceptFragment::getFragment)
+                .sorted(Comparator.comparing(AcceptFragment::q, reverseOrder()))
+                .filter(af -> af.q() > 0.0)
+                .map(AcceptFragment::fragment)
                 .findFirst();
     }
 
@@ -90,7 +90,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(accept -> parseAcceptFragment(accept, MediaType.class))
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
-                .max(Comparator.comparing(AcceptFragment::getQ))
+                .max(Comparator.comparing(AcceptFragment::q))
                 .map(af -> af.fragment)
                 .orElse(null);
     }
@@ -102,8 +102,8 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(accept -> parseAcceptFragment(accept, String.class))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
-                        AcceptFragment::getFragment,
-                        AcceptFragment::getQ));
+                        AcceptFragment::fragment,
+                        AcceptFragment::q));
         return selectBest(available, charset -> {
             charset = charset.toLowerCase(Locale.US);
             return accepts.getOrDefault(charset,
@@ -119,8 +119,8 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(accept -> parseAcceptFragment(accept, String.class))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
-                        AcceptFragment::getFragment,
-                        AcceptFragment::getQ));
+                        AcceptFragment::fragment,
+                        AcceptFragment::q));
         available = new HashSet<>(available);
         available.add("identity");
         return selectBest(available, encoding ->
@@ -144,8 +144,8 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(accept -> parseAcceptFragment(accept, String.class))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
-                        AcceptFragment::getFragment,
-                        AcceptFragment::getQ));
+                        AcceptFragment::fragment,
+                        AcceptFragment::q));
         Function<String, Double> score = langtag -> {
             for (String x = langtag;  x != null; x = x.substring(0, x.lastIndexOf('-'))) {
                 Double q = accepts.get(x);
@@ -159,22 +159,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     }
 
 
-    private static class AcceptFragment<T> implements Serializable {
-        private final double q;
-        private final T fragment;
-
-        AcceptFragment(T fragment, double q) {
-            this.fragment = fragment;
-            this.q = q;
-        }
-
-        T getFragment() {
-            return fragment;
-        }
-
-        double getQ() {
-            return q;
-        }
+    private record AcceptFragment<T>(T fragment, double q) implements Serializable {
     }
 
 }

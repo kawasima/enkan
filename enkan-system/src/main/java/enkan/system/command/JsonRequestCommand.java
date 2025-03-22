@@ -9,6 +9,7 @@ import enkan.system.Transport;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -38,7 +39,8 @@ public class JsonRequestCommand implements SystemCommand {
             sb.append(args[i]).append(" ");
         }
         String jsonBody = sb.toString().trim();
-        List<WebServerComponent<?>> webServers = system.getComponents(WebServerComponent.class);
+        @SuppressWarnings("unchecked")
+        List<WebServerComponent<?>> webServers = (List<WebServerComponent<?>>)(List<?>)system.getComponents(WebServerComponent.class);
         if (webServers.isEmpty()) {
             transport.sendErr("WebServerComponent not found", DONE);
             return true;
@@ -46,10 +48,10 @@ public class JsonRequestCommand implements SystemCommand {
         WebServerComponent<?> webServer = webServers.getFirst();
         URL url;
         try {
-            url = new URL(webServer.isSsl() ? "https" : "http",
-                    webServer.getHost(),
-                    webServer.getPort(),
-                    pathAndQuery);
+            url = URI.create(webServer.isSsl() ? "https" : "http"
+                    + "://" + webServer.getHost()
+                    + ":" + webServer.getPort()
+                    + pathAndQuery).toURL();
         } catch (MalformedURLException e) {
             transport.sendErr("Malformed url: " + pathAndQuery, DONE);
             return true;

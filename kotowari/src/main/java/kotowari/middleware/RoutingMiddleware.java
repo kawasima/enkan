@@ -91,22 +91,22 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
         ThreadingUtils.some(headers.getRawType("Location"),
                 loc -> {
                     if (loc instanceof RoutingGenerationContext) {
-                        headers.replace("Location", routes.generate(((RoutingGenerationContext) loc).getOptions()));
+                        headers.replace("Location", routes.generate(((RoutingGenerationContext) loc).options()));
                         return headers;
                     }
                     return null;
                 });
         if (response instanceof TemplatedHttpResponse) {
-            Function<List, Object> urlForFunction = arguments -> {
+            Function<List<?>, Object> urlForFunction = arguments -> {
                 if (arguments.isEmpty()) {
                     return "/";
                 } else if (arguments.size() == 1){
-                    return routes.generate(UrlRewriter.urlFor(controllerClass, arguments.getFirst().toString()).getOptions());
+                    return routes.generate(UrlRewriter.urlFor(controllerClass, arguments.getFirst().toString()).options());
                 } else {
                     try {
                         Class<?> ctrlClass = Class.forName(arguments.get(0).toString(), true,
                                 Thread.currentThread().getContextClassLoader());
-                        return routes.generate(UrlRewriter.urlFor(ctrlClass, arguments.get(1).toString()).getOptions());
+                        return routes.generate(UrlRewriter.urlFor(ctrlClass, arguments.get(1).toString()).options());
                     } catch (ClassNotFoundException e) {
                         throw new MisconfigurationException("core.CLASS_NOT_FOUND", arguments.getFirst().toString(), e);
                     }

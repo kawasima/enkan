@@ -20,7 +20,7 @@ public class MultimapTest {
 
         List<String> values = mm.getAll("aaa");
         assertThat(values.size()).isEqualTo(1);
-        assertThat(values.get(0)).isEqualTo("bbb");
+        assertThat(values.getFirst()).isEqualTo("bbb");
 
         mm.add("aaa", "ccc");
         assertThat(mm.get("aaa")).isEqualTo("bbb");

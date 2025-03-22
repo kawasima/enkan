@@ -8,7 +8,6 @@ import enkan.system.repl.serdes.ResponseStatusReader;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -55,7 +54,7 @@ public class ReplClient {
             fressian.putWriteHandler(ReplResponse.ResponseStatus.class, new ReplResponseWriter());
         }
 
-        public void connect(int port) throws IOException {
+        public void connect(int port) {
             connect("localhost", port);
         }
 
@@ -300,7 +299,7 @@ public class ReplClient {
         }
     }
 
-    public void start() throws Exception {
+    public void start() {
         start(-1);
     }
 
@@ -316,7 +315,7 @@ public class ReplClient {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         final ReplClient client = new ReplClient();
         Runtime.getRuntime().addShutdownHook(new Thread(client::close));
         client.start();

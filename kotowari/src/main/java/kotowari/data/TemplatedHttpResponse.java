@@ -13,8 +13,8 @@ import java.util.Map;
  * @author kawasima
  */
 public class TemplatedHttpResponse extends DefaultHttpResponse {
-    private String templateName;
-    private Map<String, Object> context;
+    private final String templateName;
+    private final Map<String, Object> context;
 
     private TemplatedHttpResponse(String templateName) {
         super(200, Headers.of("Content-Type", "text/html"));

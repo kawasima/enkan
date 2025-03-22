@@ -21,5 +21,5 @@ public abstract class TemplateEngine<T extends TemplateEngine<T>> extends System
      */
     public abstract HttpResponse render(String name, Object... keyOrVals);
 
-    public abstract Object createFunction(Function<List, Object> func);
+    public abstract Object createFunction(Function<List<?>, Object> func);
 }

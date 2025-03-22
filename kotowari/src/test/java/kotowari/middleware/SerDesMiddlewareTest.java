@@ -125,7 +125,8 @@ public class SerDesMiddlewareTest {
         });
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> res = mapper.readValue(resp.getBodyAsStream(), new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> res = mapper.readValue(resp.getBodyAsStream(), new TypeReference<>() {
+        });
         assertThat(res).containsEntry("a", 1);
         assertThat(res).containsEntry("b", "ccb");
     }
@@ -162,7 +163,7 @@ public class SerDesMiddlewareTest {
 
     static class TestController {
         public TestDto foo(List<TestDto> testDtoList) {
-            return testDtoList.get(0);
+            return testDtoList.getFirst();
         }
     }
 }

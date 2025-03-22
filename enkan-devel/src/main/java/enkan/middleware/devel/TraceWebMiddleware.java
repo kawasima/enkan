@@ -29,16 +29,16 @@ import java.util.Objects;
  */
 @Middleware(name = "traceWeb")
 public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
-    private LinkedList<LogKey> idList;
-    private KeyValueStore store;
+    private final LinkedList<LogKey> idList;
+    private final KeyValueStore store;
     private String mountPath = "/x-enkan/requests";
-    private TraceRouting traceRouting;
+    private final TraceRouting traceRouting;
     private long storeSize = 100;
 
     public static class ElapseTime {
         private Long inbound;
         private Long outbound;
-        private String middlewareName;
+        private final String middlewareName;
 
         public ElapseTime(String middlewareName) {
             this.middlewareName = middlewareName;
@@ -83,7 +83,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
             LinkedList<ElapseTime> middlewareTraces = new LinkedList<>();
 
             long t = 0;
-            for (TraceLog.Entry e : requestLog.getInboundLog().getEntries()) {
+            for (TraceLog.Entry e : requestLog.inboundLog().getEntries()) {
                 if (!middlewareTraces.isEmpty()) {
                     middlewareTraces.getLast().setInboundElapse(e.getTimestamp() - t);
                 }
@@ -91,14 +91,14 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
                 middlewareTraces.add(new ElapseTime(e.getMiddleware()));
             }
             int idx = middlewareTraces.size();
-            for (TraceLog.Entry e : requestLog.getOutboundLog().getEntries()) {
+            for (TraceLog.Entry e : requestLog.outboundLog().getEntries()) {
                 middlewareTraces.get(--idx).setOutboundElapse(e.getTimestamp() - t);
                 t = e.getTimestamp();
             }
 
             traceDetail.render(os,
-                    "headers", requestLog.getHeaders(),
-                    "parameters", requestLog.getParameters(),
+                    "headers", requestLog.headers(),
+                    "parameters", requestLog.parameters(),
                     "traces", middlewareTraces);
         });
     }
@@ -110,8 +110,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
         } else {
             request = MixinUtils.mixin(request, Traceable.class);
             HttpResponse response = castToHttpResponse(chain.next(request));
-            Traceable requestTrace  = (Traceable) request;
-            Traceable responseTrace = (Traceable) response;
+            Traceable requestTrace  = request;
             synchronized (this) {
                 if (idList.size() >= storeSize) {
                     LogKey oldestLogKey = idList.removeLast();
@@ -119,7 +118,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
                 }
                 idList.addFirst(new LogKey(requestTrace.getId(), request.getRequestMethod(), request.getUri()));
                 store.write(requestTrace.getId(), new RequestLog(request.getHeaders(), request.getParams(),
-                        requestTrace.getTraceLog(), responseTrace.getTraceLog()));
+                        requestTrace.getTraceLog(), response.getTraceLog()));
             }
             idList.add(new LogKey(requestTrace.getId(), request.getRequestMethod(), request.getUri()));
 
@@ -132,10 +131,10 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     }
 
     public static class LogKey implements Serializable, Comparable<LogKey> {
-        private String id;
-        private String method;
-        private String uri;
-        private LocalDateTime dateTime;
+        private final String id;
+        private final String method;
+        private final String uri;
+        private final LocalDateTime dateTime;
 
         public LogKey(String id, String method, String uri) {
             this.id = id;
@@ -176,34 +175,8 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
         }
     }
 
-    public static class RequestLog implements Serializable {
-        private Headers headers;
-        private Parameters parameters;
-        private TraceLog inboundLog;
-        private TraceLog outboundLog;
-
-        public RequestLog(Headers headers, Parameters parameters, TraceLog inboundLog, TraceLog outboundLog) {
-            this.headers = headers;
-            this.parameters = parameters;
-            this.inboundLog = inboundLog;
-            this.outboundLog = outboundLog;
-        }
-
-        public Headers getHeaders() {
-            return headers;
-        }
-
-        public Parameters getParameters() {
-            return parameters;
-        }
-
-        public TraceLog getInboundLog() {
-            return inboundLog;
-        }
-
-        public TraceLog getOutboundLog() {
-            return outboundLog;
-        }
+    public record RequestLog(Headers headers, Parameters parameters, TraceLog inboundLog,
+                             TraceLog outboundLog) implements Serializable {
     }
 
     /**

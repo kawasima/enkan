@@ -321,14 +321,18 @@ public abstract class TimestampConversionUtil {
      */
     protected static Calendar toCalendar(final Object src,
             final String pattern, final Locale locale) {
-        if (src == null) {
-            return null;
-        }
-        if (src instanceof Calendar) {
-            return (Calendar) src;
-        }
-        if (src instanceof Date) {
-            return toCalendar((Date) src, locale);
+        switch (src) {
+            case null -> {
+                return null;
+            }
+            case Calendar calendar -> {
+                return calendar;
+            }
+            case Date date -> {
+                return toCalendar(date, locale);
+            }
+            default -> {
+            }
         }
         final String str = src.toString();
         if (str.isEmpty()) {

@@ -83,7 +83,7 @@ public class ComponentInjectorTest {
 
         @Override
         protected ComponentLifecycle<TestComponent> lifecycle() {
-            return new ComponentLifecycle<TestComponent>() {
+            return new ComponentLifecycle<>() {
                 @Override
                 public void start(TestComponent component) {
 

@@ -21,6 +21,7 @@ import static kotowari.routing.UrlRewriter.redirect;
 /**
  * @author kawasima
  */
+@SuppressWarnings("unused")
 public class GuestbookController {
     @Inject
     private TemplateEngine<?> templateEngine;
