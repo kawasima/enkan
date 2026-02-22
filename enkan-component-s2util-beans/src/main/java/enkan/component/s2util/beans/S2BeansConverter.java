@@ -26,13 +26,13 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
         CopyOptions copyOptions = createCopyOptions(option);
         if (source instanceof Map) {
             if (destination instanceof Map) {
-                BeanUtil.copyMapToMap((Map)source, (Map)destination, copyOptions);
+                BeanUtil.copyMapToMap((Map<String, ?>)source, (Map<String, Object>)destination, copyOptions);
             } else {
-                BeanUtil.copyMapToBean((Map) source, destination, copyOptions);
+                BeanUtil.copyMapToBean((Map<String, ?>) source, destination, copyOptions);
             }
         } else {
             if (destination instanceof Map) {
-                BeanUtil.copyBeanToMap(source, (Map) destination, copyOptions);
+                BeanUtil.copyBeanToMap(source, (Map<String, Object>) destination, copyOptions);
             } else {
                 BeanUtil.copyBeanToBean(source, destination, copyOptions);
             }
@@ -43,7 +43,7 @@ public class S2BeansConverter extends AbstractBeansConverter<S2BeansConverter> {
     @Override
     public <T> T createFrom(Object source, Class<T> destinationClass) {
         if (source instanceof Map) {
-            return (T) BeanUtil.copyMapToNewBean((Map) source, destinationClass);
+            return (T) BeanUtil.copyMapToNewBean((Map<String, ?>) source, destinationClass);
         } else {
             return BeanUtil.copyBeanToNewBean(source, destinationClass);
         }

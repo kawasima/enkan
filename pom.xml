@@ -20,27 +20,27 @@
         <maven.version>3.6.3</maven.version>
 
         <!-- Maven Plugin-->
-        <maven.surefire.version>3.5.2</maven.surefire.version>
-        <maven.compiler.version>3.14.0</maven.compiler.version>
-        <maven.javadoc.version>3.11.2</maven.javadoc.version>
-        <maven.gpg.plugin>3.2.7</maven.gpg.plugin>
-        <maven.source.plugin>3.3.1</maven.source.plugin>
-        <version.maven.version>2.18.0</version.maven.version>
+        <maven.surefire.version>3.5.5</maven.surefire.version>
+        <maven.compiler.version>3.15.0</maven.compiler.version>
+        <maven.javadoc.version>3.12.0</maven.javadoc.version>
+        <maven.gpg.plugin>3.2.8</maven.gpg.plugin>
+        <maven.source.plugin>3.4.0</maven.source.plugin>
+        <version.maven.version>2.21.0</version.maven.version>
 
 
         <!-- Jakarta EE -->
         <jakarta.transaction.version>2.0.0</jakarta.transaction.version>
         <jakarta.enterprise.version>3.0.0</jakarta.enterprise.version>
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
-        <jackson.version>2.18.3</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
         <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
 
         <doma.version>2.62.1</doma.version>
-        <slf4j.version>2.0.12</slf4j.version>
-        <junit.version>5.12.0</junit.version>
-        <assertj.version>3.27.3</assertj.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <junit.version>5.14.3</junit.version>
+        <assertj.version>3.27.6</assertj.version>
     </properties>
 
     <modules>
@@ -57,6 +57,7 @@
         <module>enkan-component-freemarker</module>
         <module>enkan-component-thymeleaf</module>
         <module>enkan-component-jetty</module>
+        <module>enkan-component-jooq</module>
         <module>enkan-component-undertow</module>
         <module>enkan-component-flyway</module>
         <module>enkan-component-doma2</module>
@@ -127,12 +128,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.5.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.1.4</version>
                 <configuration>
                     <deployAtEnd>true</deployAtEnd>
                 </configuration>
@@ -145,7 +146,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.3</version>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -161,7 +162,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -324,22 +325,22 @@
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>8.0.1.Final</version>
+                <version>8.0.3.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
                 <artifactId>expressly</artifactId>
-                <version>5.0.0</version>
+                <version>6.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.2.224</version>
+                <version>2.4.240</version>
             </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>5.1.0</version>
+                <version>6.3.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -354,7 +355,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.11.0</version>
+                <version>1.15.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -363,7 +364,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.12.0</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

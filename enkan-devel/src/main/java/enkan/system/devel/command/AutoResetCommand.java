@@ -49,10 +49,11 @@ public class AutoResetCommand implements SystemCommand {
         }
     }
 
-    protected ConfigurationLoader findConfigurationLoader(final EnkanSystem system) {
+    @SuppressWarnings("unchecked")
+    protected <AREQ, ARES> ConfigurationLoader findConfigurationLoader(final EnkanSystem system) {
         final Optional<ConfigurationLoader> loader = system.getAllComponents().stream()
                 .filter(c -> c instanceof ApplicationComponent)
-                .map(c -> ((ApplicationComponent) c).getLoader())
+                .map(c -> ((ApplicationComponent<AREQ, ARES>) c).getLoader())
                 .filter(Objects::nonNull)
                 .findFirst();
         return loader.orElse(null);

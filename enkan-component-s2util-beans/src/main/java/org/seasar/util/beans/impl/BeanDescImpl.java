@@ -175,7 +175,6 @@ public class BeanDescImpl implements BeanDesc {
         return unmodifiableCollection(fieldDescCache.values());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T newInstance(final Object... args) {
         final ConstructorDesc constructorDesc =

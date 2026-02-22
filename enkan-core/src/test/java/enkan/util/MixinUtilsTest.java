@@ -22,7 +22,7 @@ public class MixinUtilsTest {
         assertThatThrownBy(() -> {
             ImplOnly impl = new ImplOnly();
             impl = MixinUtils.mixin(impl, ComparableMoney.class);
-            ComparableMoney impl1 = (ComparableMoney) impl;
+            assertThat((ComparableMoney) impl).isNotNull();
         }).isExactlyInstanceOf(ClassCastException.class);
     }
 

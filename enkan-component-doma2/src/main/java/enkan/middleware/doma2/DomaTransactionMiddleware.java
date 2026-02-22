@@ -3,7 +3,7 @@ package enkan.middleware.doma2;
 
 import enkan.Middleware;
 import enkan.MiddlewareChain;
-import enkan.component.doma2.DomaPrividerUtils;
+import enkan.component.doma2.DomaProviderUtils;
 import enkan.component.doma2.DomaProvider;
 import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
@@ -46,7 +46,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
 
     @PostConstruct
     private void init() {
-        Config defaultConfig = DomaPrividerUtils.getDefaultConfig(domaProvider);
+        Config defaultConfig = DomaProviderUtils.getDefaultConfig(domaProvider);
         DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
         if (ds instanceof EnkanLocalTransactionDataSource ltds) {
             tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));

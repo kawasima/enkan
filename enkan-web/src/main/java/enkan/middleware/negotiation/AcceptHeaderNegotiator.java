@@ -32,7 +32,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         }
     }
 
-    public <S> AcceptFragment<S> parseAcceptFragment(String accept, Class<? extends S> acceptType) {
+    public AcceptFragment<MediaType> parseMediaTypeAcceptFragment(String accept) {
         String[] tokens = ACCEPT_DELIMITER.split(accept);
         if (tokens.length > 0) {
             Optional<Double> q = Arrays.stream(tokens).skip(1)
@@ -41,12 +41,31 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                     .filter(m -> m.group(1).equals("q"))
                     .map(m -> parseQ(m.group(2)))
                     .findFirst();
-            if (acceptType.equals(MediaType.class)) {
-                return new <MediaType>AcceptFragment(CodecUtils.parseMediaType(tokens[0]),
-                        q.orElse(1.0));
-            } else if (acceptType.equals(String.class)) {
-                return new <String>AcceptFragment(tokens[0], q.orElse(1.0));
-            }
+            return new AcceptFragment<>(CodecUtils.parseMediaType(tokens[0]), q.orElse(1.0));
+        }
+        return null;
+    }
+
+    public AcceptFragment<String> parseStringAcceptFragment(String accept) {
+        String[] tokens = ACCEPT_DELIMITER.split(accept);
+        if (tokens.length > 0) {
+            Optional<Double> q = Arrays.stream(tokens).skip(1)
+                    .map(ACCEPT_FRAGMENT_PARAM_RE::matcher)
+                    .filter(Matcher::find)
+                    .filter(m -> m.group(1).equals("q"))
+                    .map(m -> parseQ(m.group(2)))
+                    .findFirst();
+            return new AcceptFragment<>(tokens[0], q.orElse(1.0));
+        }
+        return null;
+    }
+
+    @Deprecated
+    public <S> AcceptFragment<S> parseAcceptFragment(String accept, Class<? extends S> acceptType) {
+        if (acceptType.equals(MediaType.class)) {
+            return (AcceptFragment<S>) parseMediaTypeAcceptFragment(accept);
+        } else if (acceptType.equals(String.class)) {
+            return (AcceptFragment<S>) parseStringAcceptFragment(accept);
         }
         return null;
     }
@@ -87,7 +106,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
                 .map(CodecUtils::parseMediaType)
                 .collect(Collectors.toSet()));
         return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(accept -> parseAcceptFragment(accept, MediaType.class))
+                .map(this::parseMediaTypeAcceptFragment)
                 .filter(Objects::nonNull)
                 .map(serverWeightFunc)
                 .max(Comparator.comparing(AcceptFragment::q))
@@ -99,7 +118,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     public String bestAllowedCharset(String acceptsHeader, Set<String> available) {
         Map<String, Double> accepts = Arrays
                 .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(accept -> parseAcceptFragment(accept, String.class))
+                .map(this::parseStringAcceptFragment)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         AcceptFragment::fragment,
@@ -116,7 +135,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     public String bestAllowedEncoding(String acceptsHeader, Set<String> available) {
         Map<String, Double> accepts = Arrays
                 .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(accept -> parseAcceptFragment(accept, String.class))
+                .map(this::parseStringAcceptFragment)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         AcceptFragment::fragment,
@@ -141,7 +160,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     public String bestAllowedLanguage(String acceptsHeader, Set<String> available) {
         Map<String, Double> accepts = Arrays
                 .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(accept -> parseAcceptFragment(accept, String.class))
+                .map(this::parseStringAcceptFragment)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         AcceptFragment::fragment,

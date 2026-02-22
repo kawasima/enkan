@@ -9,42 +9,36 @@
         <version>0.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kotowari</artifactId>
+    <artifactId>enkan-component-jooq</artifactId>
     <packaging>jar</packaging>
 
-    <name>kotowari</name>
+    <name>enkan-component-jooq</name>
+
+    <properties>
+        <jooq.version>3.20.11</jooq.version>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-web</artifactId>
-            <version>${enkan.version}</version>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
-            <version>${enkan.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-component-jackson</artifactId>
-            <version>${enkan.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
-            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-            <version>2.21.0</version>
-            <scope>test</scope>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -57,8 +51,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.expressly</groupId>
-            <artifactId>expressly</artifactId>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

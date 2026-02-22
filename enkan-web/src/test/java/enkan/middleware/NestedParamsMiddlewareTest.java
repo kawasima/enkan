@@ -3,6 +3,7 @@ package enkan.middleware;
 import enkan.collection.Parameters;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
+import enkan.data.HttpResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,10 +14,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author kawasima
  */
-class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
+class NestedParamsMiddlewareTest {
+    NestedParamsMiddleware<HttpResponse> sut = new NestedParamsMiddleware<>();
+
     @Test
     void testParseNestedKeys() {
-        Function<String, String[]> keyParser = parseNestedKeys;
+        Function<String, String[]> keyParser = sut.parseNestedKeys;
         assertThat(keyParser.apply("foo[]")).containsExactly("foo", "");
         assertThat(keyParser.apply("foo[bar][][baz]"))
                 .containsExactly("foo", "bar", "", "baz");
@@ -29,21 +32,21 @@ class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
     @Test
     void testNestedParams() {
         Parameters params = Parameters.empty();
-        assocNested(params,
+        sut.assocNested(params,
                 new String[]{"val", ""},
                 new ArrayList<String>(){{ add("hoge"); }});
         assertThat(params.getIn("val", 0))
                 .isEqualTo("hoge");
 
         params = Parameters.empty();
-        assocNested(params,
+        sut.assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); }});
         assertThat(params.getIn("foo", "bar"))
                 .isEqualTo("baz");
 
         params = Parameters.empty();
-        assocNested(params,
+        sut.assocNested(params,
                 new String[]{"foo", "bar"},
                 new ArrayList<String>(){{ add("baz"); add("bay"); }});
         assertThat(params.getIn("foo", "bar", 1))
@@ -57,7 +60,7 @@ class NestedParamsMiddlewareTest extends NestedParamsMiddleware {
                 "foo[aaa]", "a3",
                 "foo[bbb]", "b3",
                 "bar[][telNo]", "090"));
-        nestedParamsRequest(request, parseNestedKeys);
+        sut.nestedParamsRequest(request, sut.parseNestedKeys);
         assertThat(request.getParams().getIn("bar", "0", "telNo"))
                 .isEqualTo("090");
     }

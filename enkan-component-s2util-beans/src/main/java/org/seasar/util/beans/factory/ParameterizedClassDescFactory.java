@@ -174,7 +174,7 @@ public abstract class ParameterizedClassDescFactory {
     private static Class<?> getActualClass(final Type type,
                                     final Map<TypeVariable<?>, Type> map) {
         if (type instanceof Class) {
-            return (Class) type;
+            return (Class<?>) type;
         }
         if (type instanceof ParameterizedType) {
             return getActualClass(((ParameterizedType) type)
@@ -185,7 +185,7 @@ public abstract class ParameterizedClassDescFactory {
                     .getUpperBounds()[0], map);
         }
         if (type instanceof TypeVariable) {
-            final TypeVariable<?> typeVariable = (TypeVariable) type;
+            final TypeVariable<?> typeVariable = (TypeVariable<?>) type;
             if (map.containsKey(typeVariable)) {
                 return getActualClass(map.get(typeVariable), map);
             }

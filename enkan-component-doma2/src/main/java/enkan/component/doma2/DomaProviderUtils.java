@@ -5,11 +5,11 @@ import org.seasar.doma.jdbc.Config;
 /**
  * Utility class for DomaProvider related operations.
  */
-public class DomaPrividerUtils {
+public class DomaProviderUtils {
     /**
      * Private constructor to prevent instantiation.
      */
-    private DomaPrividerUtils() {
+    private DomaProviderUtils() {
         // Prevent instantiation
     }
 

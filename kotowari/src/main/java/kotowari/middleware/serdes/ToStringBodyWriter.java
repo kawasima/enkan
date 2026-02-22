@@ -62,18 +62,47 @@ public class ToStringBodyWriter implements MessageBodyWriter<Object> {
         entityStream.write(converter.convert(o).getBytes(StandardCharsets.UTF_8));
     }
 
-    // FIXME It's not efficient. But I don't wanna use commons-lang just for this.
     private static String escapeHtml(String s) {
-        return s.replaceAll("\"", "&quot;")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;");
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+        
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '&':  sb.append("&amp;"); break;
+                case '<':  sb.append("&lt;"); break;
+                case '>':  sb.append("&gt;"); break;
+                case '"':  sb.append("&quot;"); break;
+                default:   sb.append(c); break;
+            }
+        }
+        return sb.toString();
     }
 
     private static String escapeXml(String s) {
-        return escapeHtml(s)
-                .replace("'", "&apos;")
-                .replaceAll("[\u0000-\u001f\ufffe\uffff]+", "");
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+        
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '&':  sb.append("&amp;"); break;
+                case '<':  sb.append("&lt;"); break;
+                case '>':  sb.append("&gt;"); break;
+                case '"':  sb.append("&quot;"); break;
+                case '\'': sb.append("&apos;"); break;
+                default:   
+                    if (c >= 0x20 && (c < 0xfffe || c > 0xffff)) {
+                        sb.append(c);
+                    }
+                    break;
+            }
+        }
+        return sb.toString();
     }
 
 }

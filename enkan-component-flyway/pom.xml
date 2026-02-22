@@ -15,7 +15,7 @@
     <name>enkan-component-flyway</name>
 
     <properties>
-        <flyway.version>11.3.4</flyway.version>
+        <flyway.version>11.20.3</flyway.version>
     </properties>
 
     <dependencies>
