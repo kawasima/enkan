@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import enkan.Application;
 import enkan.Endpoint;
-import enkan.Env;
 import enkan.application.WebApplication;
 import enkan.config.ApplicationFactory;
 import enkan.data.HttpRequest;
@@ -15,8 +14,6 @@ import enkan.endpoint.ResourceEndpoint;
 import enkan.middleware.*;
 import enkan.middleware.doma2.DomaTransactionMiddleware;
 import enkan.middleware.metrics.MetricsMiddleware;
-import enkan.middleware.session.JCacheStore;
-import enkan.middleware.session.KeyValueStore;
 import enkan.middleware.session.MemoryStore;
 import enkan.predicate.PathPredicate;
 import enkan.security.backend.SessionBackend;
@@ -33,7 +30,6 @@ import kotowari.routing.Routes;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 
 import java.util.Collections;
-import java.util.Objects;
 
 import static enkan.util.BeanBuilder.*;
 import static enkan.util.Predicates.*;
@@ -93,9 +89,8 @@ public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest
         app.use(new NestedParamsMiddleware<>());
         app.use(new CookiesMiddleware<>());
 
-        KeyValueStore store = Objects.equals(Env.get("ENKAN_ENV"), "jcache") ? new JCacheStore() : new MemoryStore();
         app.use(builder(new SessionMiddleware<>())
-                .set(SessionMiddleware::setStore, store)
+                .set(SessionMiddleware::setStore, new MemoryStore())
                 .build());
         app.use(PathPredicate.ANY("^/(guestbook|conversation)/.*"), new ConversationMiddleware<>());
 

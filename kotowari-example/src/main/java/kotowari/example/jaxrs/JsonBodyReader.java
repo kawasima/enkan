@@ -19,12 +19,12 @@ public class JsonBodyReader<T> implements MessageBodyReader<T> {
     }
 
     @Override
-    public boolean isReadable(Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return Objects.equals(mediaType.getSubtype(), "json");
     }
 
     @Override
-    public T readFrom(Class type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+    public T readFrom(Class<T> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
         return mapper.readerFor(mapper.constructType(genericType))
                 .readValue(entityStream);
     }
