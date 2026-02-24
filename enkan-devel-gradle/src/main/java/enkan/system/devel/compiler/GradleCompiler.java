@@ -7,56 +7,64 @@ import enkan.system.Transport;
 import enkan.system.devel.CompileResult;
 import enkan.system.devel.Compiler;
 import org.gradle.tooling.*;
-import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
+ * A compiler implementation that delegates to Gradle's compileJava task
+ * via the Gradle Tooling API.
+ *
+ * <p>By default, the Tooling API downloads a Gradle distribution automatically.
+ * You can override the Gradle version by calling {@link #setGradleVersion(String)}
+ * or by setting the {@code GRADLE_HOME} environment variable to use a local installation.</p>
+ *
  * @author kawasima
  */
 public class GradleCompiler implements Compiler {
     private static final Logger LOG = LoggerFactory.getLogger(GradleCompiler.class);
 
     private String projectDirectory = ".";
-    private String gradleVersion;
+    private String gradleVersion = "8.14.4";
 
     @Override
     public CompileResult execute(Transport t) {
-        GradleConnector c = GradleConnector.newConnector();
-        c.useGradleVersion(Optional.ofNullable(gradleVersion).orElse(GradleVersion.current().getVersion()))
+        GradleConnector connector = GradleConnector.newConnector()
                 .forProjectDirectory(new File(projectDirectory));
 
-        String gradleHome = Env.get("GRADLE_HOME");
-        c.useInstallation(new File(gradleHome));
-        ProjectConnection connection = c.connect();
+        String gradleHome = Env.getString("GRADLE_HOME", null);
+        if (gradleHome != null && !gradleHome.isEmpty()) {
+            connector.useInstallation(new File(gradleHome));
+        } else {
+            connector.useGradleVersion(gradleVersion);
+        }
 
-        BuildLauncher launcher = connection.newBuild();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
-        launcher.setStandardError(err);
-        launcher.setStandardOutput(out);
-        launcher.forTasks("compileJava");
-        CompletableFuture<GradleConnectionException> future = new CompletableFuture<>();
-        launcher.run(new ResultHandler<>() {
-            @Override
-            public void onComplete(Void result) {
-                LOG.info("gradle execution complete");
-                future.complete(null);
-            }
+        try (ProjectConnection connection = connector.connect()) {
+            BuildLauncher launcher = connection.newBuild();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ByteArrayOutputStream err = new ByteArrayOutputStream();
+            launcher.setStandardOutput(out);
+            launcher.setStandardError(err);
+            launcher.forTasks("compileJava");
 
-            @Override
-            public void onFailure(GradleConnectionException failure) {
-                future.complete(failure);
-            }
-        });
+            CompletableFuture<GradleConnectionException> future = new CompletableFuture<>();
+            launcher.run(new ResultHandler<>() {
+                @Override
+                public void onComplete(Void result) {
+                    LOG.info("Gradle compileJava completed successfully");
+                    future.complete(null);
+                }
 
-        try {
+                @Override
+                public void onFailure(GradleConnectionException failure) {
+                    future.complete(failure);
+                }
+            });
+
             GradleConnectionException gce = future.get();
             if (out.size() > 0) {
                 t.send(ReplResponse.withOut(out.toString()));

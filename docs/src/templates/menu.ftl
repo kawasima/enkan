@@ -55,6 +55,11 @@
         File uploading
       </a>
     </li>
+    <li class="sidebar-brand">
+      <a href="${content.rootpath}guide/development.html">
+        Development tools
+      </a>
+    </li>
   </ul>
 
   <h3>Reference</h3>

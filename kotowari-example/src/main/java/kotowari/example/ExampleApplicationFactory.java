@@ -20,6 +20,7 @@ import enkan.security.backend.SessionBackend;
 import enkan.system.inject.ComponentInjector;
 import enkan.util.HttpResponseUtils;
 import kotowari.example.controller.*;
+import kotowari.example.controller.api.TodoApiController;
 import kotowari.example.controller.guestbook.GuestbookController;
 import kotowari.example.controller.guestbook.LoginController;
 import kotowari.example.jaxrs.JsonBodyReader;
@@ -71,6 +72,13 @@ public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest
             r.resource(CustomerController.class);
             r.get("/customer/list").to(CustomerController.class, "list");
             r.post("/customer/validate").to(CustomerController.class, "validate");
+
+            // JSON API
+            r.get("/api/todo").to(TodoApiController.class, "list");
+            r.get("/api/todo/:id").to(TodoApiController.class, "show");
+            r.post("/api/todo").to(TodoApiController.class, "create");
+            r.put("/api/todo/:id").to(TodoApiController.class, "update");
+            r.delete("/api/todo/:id").to(TodoApiController.class, "delete");
         }).compile();
 
         // Enkan

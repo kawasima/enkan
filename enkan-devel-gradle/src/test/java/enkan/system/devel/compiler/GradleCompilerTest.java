@@ -2,12 +2,15 @@ package enkan.system.devel.compiler;
 
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
+import enkan.system.devel.CompileResult;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -27,7 +30,6 @@ public class GradleCompilerTest {
         );
     }
 
-
     @Test
     public void success() throws IOException {
         FileUtils.copyFileToDirectory(
@@ -36,10 +38,12 @@ public class GradleCompilerTest {
         );
         GradleCompiler compiler = new GradleCompiler();
         compiler.setProjectDirectory("target/proj");
+
+        List<ReplResponse> responses = new ArrayList<>();
         Transport t = new Transport() {
             @Override
             public void send(ReplResponse response) {
-                assertThat(response.getOut().contains("BUILD SUCCESSFUL")).isTrue();
+                responses.add(response);
             }
 
             @Override
@@ -47,7 +51,9 @@ public class GradleCompilerTest {
                 return null;
             }
         };
-        compiler.execute(t);
+
+        CompileResult result = compiler.execute(t);
+        assertThat(result.getExecutionException()).isNull();
     }
 
     @Test
@@ -58,14 +64,12 @@ public class GradleCompilerTest {
         );
         GradleCompiler compiler = new GradleCompiler();
         compiler.setProjectDirectory("target/proj");
+
+        List<ReplResponse> responses = new ArrayList<>();
         Transport t = new Transport() {
             @Override
             public void send(ReplResponse response) {
-                if (response.getStatus().contains(ReplResponse.ResponseStatus.ERROR)) {
-                    assertThat(response.getErr().contains("FAILURE")).isTrue();
-                } else {
-                    assertThat(response.getOut().contains(":compileJava FAILED")).isTrue();
-                }
+                responses.add(response);
             }
 
             @Override
@@ -73,7 +77,8 @@ public class GradleCompilerTest {
                 return null;
             }
         };
-        compiler.execute(t);
-    }
 
+        CompileResult result = compiler.execute(t);
+        assertThat(result.getExecutionException()).isNotNull();
+    }
 }

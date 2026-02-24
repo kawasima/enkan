@@ -122,14 +122,10 @@ public class ConfigurationLoader extends ClassLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
             if (isTarget(name)) {
-                System.err.println("reloading target classA: " + name);
                 Class<?> c = findLoadedClass(name);
                 if (c != null) return c;
                 c = defineClass(name, resolve);
-                if (c != null) {
-                    System.err.println("Loaded: " + name);
-                    return c;
-                }
+                if (c != null) return c;
             }
             return super.loadClass(name, resolve);
         }

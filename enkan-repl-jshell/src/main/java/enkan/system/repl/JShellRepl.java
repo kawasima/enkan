@@ -175,10 +175,10 @@ public class JShellRepl implements Repl {
     private void executeCommand(String commandName, String[] args, Transport transport) {
         try {
             String argStr = Arrays.stream(args)
-                    .map(arg -> "\"" + arg.replaceAll("\"", "\"") + "\"")
+                    .map(arg -> "\"" + arg.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"") + "\"")
                     .collect(Collectors.joining(","));
             StringBuilder execStatement = new StringBuilder("__commands.get(\"")
-                    .append(commandName)
+                    .append(commandName.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\""))
                     .append("\").execute(system, transport");
             if (!argStr.isEmpty()) {
                 execStatement.append(",").append(argStr);

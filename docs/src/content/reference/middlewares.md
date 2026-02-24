@@ -239,7 +239,7 @@ app.use(new ResourceMiddleware());
 
 ### Session
 
-SessionMiddleware enables to store/load session objects to/from in-memory or JCache.
+SessionMiddleware enables to store/load session objects to/from in-memory stores.
 
 #### Usage
 
@@ -350,18 +350,47 @@ app.use(new SerDesMiddleware());
 
 ### Transaction
 
-TBD
-
-### ValidateForm
-
-Validates the body object. If body object is implemented the `Validatable` interface, the error messages is set to it.
+Manages database transactions around controller invocation.
 
 #### Usage
 
 ```language-java
-app.use(new ValidateFormMiddleware());
+app.use(new DomaTransactionMiddleware());
+```
+
+### ValidateBody
+
+Validates the body object. If body object implements the `Validatable` interface, the error messages are set to it.
+
+#### Usage
+
+```language-java
+app.use(new ValidateBodyMiddleware());
 ```
 
 #### Properties
 
-`ValidateFormMiddleware` has no properties. 
+`ValidateBodyMiddleware` has no properties.
+
+## Additional Middleware
+
+### Cors
+
+`CorsMiddleware` handles Cross-Origin Resource Sharing (CORS) headers.
+
+#### Usage
+
+```language-java
+app.use(new CorsMiddleware());
+```
+
+### ForwardedScheme
+
+`ForwardedSchemeMiddleware` detects the original request scheme from `X-Forwarded-Proto` header and sets it on the request.
+
+#### Usage
+
+```language-java
+app.use(new ForwardedSchemeMiddleware());
+```
+

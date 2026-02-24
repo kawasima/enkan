@@ -17,40 +17,22 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
         <destination>${project.build.directory}/docs</destination>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.lesscss</groupId>
-                <artifactId>lesscss-maven-plugin</artifactId>
-                <version>1.7.0.1.1</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>src/less</sourceDirectory>
-                            <outputDirectory>${destination}/css</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>build-docs</id>
                         <phase>compile</phase>
                         <goals><goal>java</goal></goals>
                         <configuration>
-                            <mainClass>org.jbake.launcher.Main</mainClass>
+                            <mainClass>enkan.docs.BakeDocsSite</mainClass>
                             <arguments>
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${destination}</argument>
@@ -63,7 +45,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -71,7 +52,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.4</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -83,12 +63,22 @@
         <dependency>
             <groupId>org.jbake</groupId>
             <artifactId>jbake-core</artifactId>
-            <version>2.6.7</version>
+            <version>2.7.0</version>
         </dependency>
         <dependency>
-            <groupId>org.pegdown</groupId>
-            <artifactId>pegdown</artifactId>
-            <version>1.6.0</version>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark</artifactId>
+            <version>0.64.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-profile-pegdown</artifactId>
+            <version>0.64.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -98,16 +88,30 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.7</version>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Override vulnerable transitive dependencies from jbake-core -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.18.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.16</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.5.16</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>2.11.0</version>
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>local-release</id>
-            <properties>
-                <destination>../../enkan.github.io</destination>
-            </properties>
-        </profile>
-    </profiles>
 </project>

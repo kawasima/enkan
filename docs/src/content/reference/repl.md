@@ -1,47 +1,96 @@
 type=page
 status=published
-title=REPL command | Enkan
+title=REPL Commands | Enkan
 ~~~~~~
 
-# REPL command
+# REPL Commands
 
-## Core
+## Core Commands
 
-### /connect [port]
-
-Connect to a remote Enkan system.
-
-### /exit
-
-Disconnect from a remote Enkan system.
+These commands are always available in the Enkan REPL.
 
 ### /start
 
-Start the Enkan system.
+Start the Enkan system. All components are started in dependency order.
 
-###  /stop
+### /stop
 
-Stop the Enkan system.
+Stop the Enkan system. All components are stopped in reverse dependency order.
 
 ### /reset
 
-Stop and start the Enkan system.
+Stop and restart the Enkan system. This triggers class reloading
+when `META-INF/reload.xml` is present in the classpath.
 
 ### /shutdown
 
-Shutdown the Enkan system.
+Shut down the Enkan system and exit the REPL process.
+
+### /help
+
+Show the list of available commands.
 
 ### /middleware [app] list
 
-Show the list of middlewares.
+Show the middleware stack for the specified application component.
 
-## Devel
+## Devel Commands
+
+Registered by `DevelCommandRegister`. Requires the `enkan-devel` dependency.
 
 ### /autoreset
 
-Reset automatically when a class has changed.
+Watch compiled class files for changes and automatically reset the application
+when a modification is detected. Uses `WatchService` to monitor all
+directories marked with `META-INF/reload.xml`.
+
+See [Development Tools](../guide/development.html) for details on the class reloading mechanism.
 
 ### /compile
 
-Compile source codes using maven.
- 
+Compile the project using the configured build tool.
+By default, uses Maven (`MavenCompiler`). Can be configured to use Gradle
+by passing a `GradleCompiler` to `DevelCommandRegister`.
+
+## Kotowari Commands
+
+Registered by `KotowariCommandRegister`. Available when using the Kotowari web framework.
+
+### /routes [app]
+
+Show the routing table for the specified application component.
+
+## Scaffold Commands
+
+Registered by `ScaffoldCommandRegister`. Requires the `kotowari-scaffold` dependency.
+
+### /generate table TABLE_NAME (column definitions)
+
+Generate a Flyway migration script for creating a database table.
+
+```
+enkan> /generate table PRODUCT (id identity primary key, name varchar(255))
+```
+
+### /generate crud TABLE_NAME
+
+Generate a CRUD controller, DAO, entity, and templates for the specified table.
+
+```
+enkan> /generate crud PRODUCT
+```
+
+After generating, compile and reset to make the new routes available:
+
+```
+enkan> /compile
+enkan> /reset
+```
+
+## Metrics Commands
+
+Registered by `MetricsCommandRegister`. Requires the `enkan-component-metrics` dependency.
+
+### /metrics
+
+Display collected application metrics from the Metrics component.

@@ -19,3 +19,4 @@ hs_err_pid*
 .attach_pid*
 
 .gradle
+dependency-reduced-pom.xml
