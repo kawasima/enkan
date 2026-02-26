@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to enkan.github.io
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.DEPLOY_TOKEN }}
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
           external_repository: enkan/enkan.github.io
           publish_branch: master
           publish_dir: ./docs/target/docs
