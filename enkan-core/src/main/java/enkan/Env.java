@@ -45,9 +45,7 @@ public class Env {
             try (Reader reader=new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
                 properties.load(reader);
                 properties.stringPropertyNames()
-                        .stream()
-                        .map(Env::normalizeKey)
-                        .forEach(k -> envMap.put(k, properties.getProperty(k)));
+                        .forEach(k -> envMap.put(normalizeKey(k), properties.getProperty(k)));
             } catch (IOException e) {
                 throw new FalteringEnvironmentException(e);
             }
@@ -59,9 +57,7 @@ public class Env {
      */
     private static void readSystemProps() {
         System.getProperties().stringPropertyNames()
-                .stream()
-                .map(Env::normalizeKey)
-                .forEach(k -> envMap.put(k, System.getProperty(k)));
+                .forEach(k -> envMap.put(normalizeKey(k), System.getProperty(k)));
     }
 
     /**
