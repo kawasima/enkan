@@ -8,7 +8,9 @@ import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 import enkan.util.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -16,7 +18,9 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.util.function.BiFunction;
 
@@ -26,17 +30,16 @@ import java.util.function.BiFunction;
 public class JettyAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(JettyAdapter.class);
 
-    private static class ProxyHandler extends Handler.Abstract {
+    private static class ProxyServlet extends HttpServlet {
         private final WebApplication application;
-        ProxyHandler(WebApplication application) {
+
+        ProxyServlet(WebApplication application) {
             this.application = application;
         }
 
         @Override
-        public boolean handle(Request jettyRequest, Response jettyResponse, org.eclipse.jetty.util.Callback callback) throws Exception {
-            ServletContextRequest servletContextRequest = Request.as(jettyRequest, ServletContextRequest.class);
-            HttpServletRequest servletRequest = servletContextRequest.getServletApiRequest();
-            HttpServletResponse servletResponse = servletContextRequest.getHttpServletResponse();
+        protected void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+                throws ServletException, IOException {
             HttpRequest request = ServletUtils.buildRequest(servletRequest);
             try {
                 HttpResponse response = application.handle(request);
@@ -45,7 +48,6 @@ public class JettyAdapter {
                 LOG.error("Unhandled exception", e);
                 servletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-            return true;
         }
     }
 
@@ -142,7 +144,9 @@ public class JettyAdapter {
 
     public Server runJetty(WebApplication application, OptionMap options) {
         Server server = createServer(options);
-        server.setHandler(new ProxyHandler(application));
+        ServletContextHandler contextHandler = new ServletContextHandler();
+        contextHandler.addServlet(new ServletHolder(new ProxyServlet(application)), "/*");
+        server.setHandler(contextHandler);
         try {
             server.setStopAtShutdown(true);
             server.setStopTimeout(3000);
