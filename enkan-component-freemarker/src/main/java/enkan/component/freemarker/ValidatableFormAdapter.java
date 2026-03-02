@@ -31,17 +31,14 @@ public class ValidatableFormAdapter extends BeanModel {
         };
     }
 
-    public TemplateModel get(String key)
-            throws
-            TemplateModelException {
+    public TemplateModel get(String key) throws TemplateModelException {
         TemplateModel model = super.get(key);
         if (model == null) {
-            switch(key) {
-                case "hasErrors":
-                    return hasErrors;
-                case "getErrors":
-                    return getErrors;
-            }
+            return switch (key) {
+                case "hasErrors" -> hasErrors;
+                case "getErrors" -> getErrors;
+                default -> null;
+            };
         }
         return model;
     }
