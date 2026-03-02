@@ -1,9 +1,7 @@
 package enkan.component.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.*;
 import enkan.component.BeansConverter;
+import enkan.exception.MisconfigurationException;
 import enkan.system.EnkanSystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,107 +9,189 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author kawasima
  */
 public class JacksonBeansTest {
     private EnkanSystem system;
+    private BeansConverter beansConverter;
 
     @BeforeEach
     public void setUp() {
         system = EnkanSystem.of("beans", new JacksonBeansConverter());
         system.start();
+        beansConverter = system.getComponent("beans");
     }
 
     @AfterEach
     public void tearDown() {
         system.stop();
     }
-    @Test
-    public void test() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addHandler(new DeserializationProblemHandler() {
-            @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
-                return true;
-            }
-        });
-        TestBean bean = new TestBean("ABC", "12", "Tokyo");
-        Person person = mapper.convertValue(bean, Person.class);
-        assertThat(person.getName()).isEqualTo("ABC");
-    }
+
+    // ---- copy: REPLACE_ALL ----
 
     @Test
-    public void mapFromHashMap() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addHandler(new DeserializationProblemHandler() {
-            @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
-                return true;
-            }
-        });
-        Map<String, Object> m = new HashMap<>();
-        m.put("name", "Jackson");
-        m.put("age", 10);
-        Person person = mapper.convertValue(m, Person.class);
-        assertThat(person.getName()).isEqualTo("Jackson");
-    }
-
-    @Test
-    public void testNull() {
-        BeansConverter beansConverter = system.getComponent("beans");
-
-        Object bean1 = new TestBean(null, "10", "TOKYO");
+    public void copyReplaceAllOverwritesAllFields() {
+        TestBean source = new TestBean("Alice", "30", "Tokyo");
         Person dest = new Person();
-        dest.name = "GGG";
+        dest.setName("OldName");
 
-        beansConverter.copy(bean1, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
-        assertThat(dest.getName()).isEqualTo("GGG");
+        beansConverter.copy(source, dest, BeansConverter.CopyOption.REPLACE_ALL);
+
+        assertThat(dest.getName()).isEqualTo("Alice");
     }
 
     @Test
-    public void idempotence() {
-        BeansConverter beansConverter = system.getComponent("beans");
-
-        Object bean1 = new TestBean(null, "10", "TOKYO");
+    public void copyDefaultIsReplaceAll() {
+        TestBean source = new TestBean(null, "10", "TOKYO");
         Person dest = new Person();
-        dest.name = "GGG";
-        beansConverter.copy(bean1, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
-        assertThat(dest.getName()).isEqualTo("GGG");
+        dest.setName("GGG");
 
-        beansConverter.copy(bean1, dest);
+        beansConverter.copy(source, dest);
+
         assertThat(dest.getName()).isNull();
     }
 
+    // ---- copy: REPLACE_NON_NULL ----
+
     @Test
-    public void createFromIllegalArgument() {
-        BeansConverter beansConverter = system.getComponent("beans");
-        Person person = new Person();
-        person.name = "GGG";
-        person.age = 10;
+    public void copyReplaceNonNullPreservesDestinationWhenSourceIsNull() {
+        TestBean source = new TestBean(null, "10", "TOKYO");
+        Person dest = new Person();
+        dest.setName("GGG");
 
-        assertThatThrownBy(() -> beansConverter.createFrom(person, null))
-                .isInstanceOf(IllegalArgumentException.class);
+        beansConverter.copy(source, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
 
-        assertThatThrownBy(() -> beansConverter.createFrom(person, String.class))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(dest.getName()).isEqualTo("GGG");
+    }
 
-        assertThatThrownBy(() -> beansConverter.createFrom(person, ArrayList.class))
-                .isInstanceOf(IllegalArgumentException.class);
+    @Test
+    public void copyReplaceNonNullOverwritesWhenSourceIsNotNull() {
+        TestBean source = new TestBean("NewName", "10", "TOKYO");
+        Person dest = new Person();
+        dest.setName("OldName");
 
-        assertThatThrownBy(() -> beansConverter.createFrom(person, BigDecimal.class))
-                .isInstanceOf(IllegalArgumentException.class);
+        beansConverter.copy(source, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
 
-        assertThatThrownBy(() -> beansConverter.createFrom(person, Object[].class))
+        assertThat(dest.getName()).isEqualTo("NewName");
+    }
+
+    @Test
+    public void copyReplaceNonNullIsIdempotentOnSecondCallWithReplaceAll() {
+        TestBean source = new TestBean(null, "10", "TOKYO");
+        Person dest = new Person();
+        dest.setName("GGG");
+
+        beansConverter.copy(source, dest, BeansConverter.CopyOption.REPLACE_NON_NULL);
+        assertThat(dest.getName()).isEqualTo("GGG");
+
+        beansConverter.copy(source, dest);
+        assertThat(dest.getName()).isNull();
+    }
+
+    // ---- copy: PRESERVE_NON_NULL ----
+
+    @Test
+    public void copyPreserveNonNullThrowsMisconfigurationException() {
+        TestBean source = new TestBean("Alice", "30", "Tokyo");
+        Person dest = new Person();
+
+        assertThatThrownBy(() -> beansConverter.copy(source, dest, BeansConverter.CopyOption.PRESERVE_NON_NULL))
+                .isInstanceOf(MisconfigurationException.class);
+    }
+
+    // ---- createFrom ----
+
+    @Test
+    public void createFromBeanToBean() {
+        TestBean source = new TestBean("Bob", "25", "Osaka");
+
+        Person person = beansConverter.createFrom(source, Person.class);
+
+        assertThat(person.getName()).isEqualTo("Bob");
+    }
+
+    @Test
+    public void createFromMapToBean() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", "Jackson");
+        map.put("age", 10);
+
+        Person person = beansConverter.createFrom(map, Person.class);
+
+        assertThat(person.getName()).isEqualTo("Jackson");
+        assertThat(person.getAge()).isEqualTo(10);
+    }
+
+    @Test
+    public void createFromIllegalArgumentWhenDestinationClassIsNull() {
+        Person source = new Person();
+        assertThatThrownBy(() -> beansConverter.createFrom(source, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    public void createFromIllegalArgumentForPrimitiveWrappers() {
+        Person source = new Person();
+        source.setName("GGG");
+        source.setAge(10);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(source, String.class))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(source, BigDecimal.class))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void createFromIllegalArgumentForCollectionAndArray() {
+        Person source = new Person();
+
+        assertThatThrownBy(() -> beansConverter.createFrom(source, ArrayList.class))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> beansConverter.createFrom(source, Object[].class))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    // ---- JavaTimeModule ----
+
+    @Test
+    public void javaTimeModuleSerializesLocalDateAsIsoString() {
+        DateBean source = new DateBean();
+        source.setBirthday(LocalDate.of(1990, 5, 15));
+
+        DateBean dest = new DateBean();
+        beansConverter.copy(source, dest, BeansConverter.CopyOption.REPLACE_ALL);
+
+        assertThat(dest.getBirthday()).isEqualTo(LocalDate.of(1990, 5, 15));
+    }
+
+    // ---- restart ----
+
+    @Test
+    public void componentWorksAfterRestart() {
+        system.stop();
+        system.start();
+        beansConverter = system.getComponent("beans");
+
+        TestBean source = new TestBean("Restart", "1", "X");
+        Person dest = new Person();
+        beansConverter.copy(source, dest);
+
+        assertThat(dest.getName()).isEqualTo("Restart");
+    }
+
+    // ---- inner test classes ----
 
     public static class TestBean implements Serializable {
         String name;
@@ -125,34 +205,12 @@ public class JacksonBeansTest {
             this.address = address;
         }
 
-        public String getName() {
-            return this.name;
-        }
-
-        public String getAge() {
-            return this.age;
-        }
-
-        public String getAddress() {
-            return this.address;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setAge(String age) {
-            this.age = age;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-
-        public String toString() {
-            return "JacksonBeansTest.TestBean(name=" + this.getName() + ", age=" + this.getAge() + ", address=" + this.getAddress() + ")";
-        }
+        public String getName() { return name; }
+        public String getAge() { return age; }
+        public String getAddress() { return address; }
+        public void setName(String name) { this.name = name; }
+        public void setAge(String age) { this.age = age; }
+        public void setAddress(String address) { this.address = address; }
     }
 
     public static class Person implements Serializable {
@@ -160,35 +218,20 @@ public class JacksonBeansTest {
         int age;
         List<String> telNumbers;
 
-        public Person() {
-        }
+        public Person() {}
 
-        public String getName() {
-            return this.name;
-        }
+        public String getName() { return name; }
+        public int getAge() { return age; }
+        public List<String> getTelNumbers() { return telNumbers; }
+        public void setName(String name) { this.name = name; }
+        public void setAge(int age) { this.age = age; }
+        public void setTelNumbers(List<String> telNumbers) { this.telNumbers = telNumbers; }
+    }
 
-        public int getAge() {
-            return this.age;
-        }
+    public static class DateBean implements Serializable {
+        private LocalDate birthday;
 
-        public List<String> getTelNumbers() {
-            return this.telNumbers;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-
-        public void setTelNumbers(List<String> telNumbers) {
-            this.telNumbers = telNumbers;
-        }
-
-        public String toString() {
-            return "JacksonBeansTest.Person(name=" + this.getName() + ", age=" + this.getAge() + ", telNumbers=" + this.getTelNumbers() + ")";
-        }
+        public LocalDate getBirthday() { return birthday; }
+        public void setBirthday(LocalDate birthday) { this.birthday = birthday; }
     }
 }

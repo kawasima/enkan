@@ -16,27 +16,24 @@ import java.io.IOException;
  */
 public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansConverter> {
     private ObjectMapper mapper;
+    private ObjectMapper nonNullMapper;
 
     @Override
     public void copy(Object source, Object destination, CopyOption copyOption) {
         try {
-            byte[] buf;
             switch (copyOption) {
-                case REPLACE_NON_NULL:
-                     buf = mapper
-                            .copy()
-                            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                            .writeValueAsBytes(source);
+                case REPLACE_NON_NULL -> {
+                    byte[] buf = nonNullMapper.writeValueAsBytes(source);
                     mapper.readerForUpdating(destination).readValue(buf);
-                    break;
-                case REPLACE_ALL:
-                    buf = mapper.writeValueAsBytes(source);
+                }
+                case REPLACE_ALL -> {
+                    byte[] buf = mapper.writeValueAsBytes(source);
                     mapper.readerForUpdating(destination).readValue(buf);
-                    break;
-                case PRESERVE_NON_NULL:
-                    throw new UnsupportedOperationException("PRESERVE_NON_NULL");
+                }
+                case PRESERVE_NON_NULL ->
+                    throw new MisconfigurationException("jackson.UNSUPPORTED_COPY_OPTION", "PRESERVE_NON_NULL",
+                            "Use REPLACE_NON_NULL or REPLACE_ALL instead.");
             }
-
         } catch (IOException e) {
             throw new MisconfigurationException("jackson.IO_ERROR");
         }
@@ -65,11 +62,15 @@ public class JacksonBeansConverter extends AbstractBeansConverter<JacksonBeansCo
                 component.mapper.configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
                 component.mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
                 component.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+                component.nonNullMapper = component.mapper.copy()
+                        .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
             }
 
             @Override
             public void stop(JacksonBeansConverter component) {
                 component.mapper = null;
+                component.nonNullMapper = null;
             }
         };
     }
