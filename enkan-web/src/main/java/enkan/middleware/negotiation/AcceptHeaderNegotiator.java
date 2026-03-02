@@ -73,21 +73,11 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     protected Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> createServerWeightFunc(Set<MediaType> allowedTypes) {
         return fragment -> {
             Optional<MediaType> matched = allowedTypes.stream()
-                    .map(mt -> {
-                        if (fragment.fragment.isCompatible(mt)) {
-                            return fragment.fragment;
-                        } else if(mt.isCompatible(fragment.fragment)) {
-                            return mt;
-                        } else {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
+                    .filter(mt -> fragment.fragment().isCompatible(mt))
                     .findFirst();
             return matched
-                    .map(mediaType -> new AcceptFragment<>(mediaType, 1.0))
-                    .orElse(fragment);
-
+                    .map(mediaType -> new AcceptFragment<>(mediaType, fragment.q()))
+                    .orElseGet(() -> new AcceptFragment<>(fragment.fragment(), 0.0));
         };
     }
 
@@ -143,7 +133,7 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         available = new HashSet<>(available);
         available.add("identity");
         return selectBest(available, encoding ->
-                accepts.getOrDefault("encoding",
+                accepts.getOrDefault(encoding,
                         accepts.get("*")))
                 .orElseGet(() -> {
                     if (! (accepts.getOrDefault("identity", 1.0) == 0.0

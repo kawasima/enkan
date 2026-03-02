@@ -7,6 +7,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.middleware.negotiation.AcceptHeaderNegotiator;
 import enkan.middleware.negotiation.ContentNegotiator;
+import enkan.collection.Headers;
 import enkan.util.MixinUtils;
 
 import jakarta.ws.rs.core.MediaType;
@@ -33,9 +34,10 @@ public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<Ht
 
     @Override
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
-        String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
+        Headers headers = request.getHeaders();
+        String accept = headers != null ? (String) headers.getOrDefault("Accept", "*/*") : "*/*";
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
-        String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");
+        String acceptLanguage = headers != null ? (String) headers.getOrDefault("Accept-Language", "*") : "*";
         String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedLanguages);
         Locale locale = Objects.equals(lang, "*")? null : some(lang, Locale::forLanguageTag).orElse(null);
 
