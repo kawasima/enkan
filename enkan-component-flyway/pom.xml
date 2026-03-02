@@ -25,11 +25,6 @@
             <version>${flyway.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
         </dependency>

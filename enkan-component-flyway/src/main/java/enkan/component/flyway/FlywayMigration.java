@@ -3,9 +3,10 @@ package enkan.component.flyway;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
-import enkan.exception.UnreachableException;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.nio.file.Files;
@@ -21,19 +22,24 @@ import java.util.Optional;
  * @author kawasima
  */
 public class FlywayMigration extends SystemComponent<FlywayMigration> {
+    private static final Logger LOG = LoggerFactory.getLogger(FlywayMigration.class);
+
     private String[] locations;
     private boolean cleanBeforeMigration = false;
+    /** The table name for Flyway's schema history. Defaults to "schema_version" (Flyway default: "flyway_schema_history"). */
     private String table = "schema_version";
     private Flyway flyway;
 
     private boolean isMigrationAvailable() {
         return Arrays.stream(flyway.getConfiguration().getLocations())
-                .anyMatch(l-> {
+                .anyMatch(l -> {
                     if (l.isClassPath()) {
                         return Thread.currentThread().getContextClassLoader().getResource(l.getPath()) != null;
-                    } else if (l.isFileSystem()){
+                    } else if (l.isFileSystem()) {
                         return Files.exists(Paths.get(l.getPath()));
-                    } else throw new UnreachableException();
+                    } else {
+                        return false;
+                    }
                 });
     }
 
@@ -54,8 +60,8 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
                 try (Connection conn = dataSource.getConnection()) {
                     Optional.ofNullable(conn.getSchema())
                             .ifPresent(configuration::schemas);
-                } catch(SQLException ignore) {
-
+                } catch (SQLException e) {
+                    LOG.debug("Failed to get schema from connection", e);
                 }
 
                 if (component.locations != null) {
@@ -63,6 +69,7 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
                 }
 
                 if (component.cleanBeforeMigration) {
+                    LOG.warn("cleanBeforeMigration is enabled. All data in the database will be deleted before migration.");
                     configuration.cleanDisabled(false);
                 }
                 component.flyway = configuration.load();
@@ -82,7 +89,7 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
         };
     }
 
-    public void setLocation(String[] locations) {
+    public void setLocations(String[] locations) {
         this.locations = locations;
     }
 
