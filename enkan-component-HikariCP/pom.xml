@@ -16,7 +16,7 @@
     <url>http://github.com/kawasima/enkan</url>
 
     <properties>
-        <hikaricp.version>6.3.3</hikaricp.version>
+        <hikaricp.version>7.0.2</hikaricp.version>
     </properties>
 
     <dependencies>
