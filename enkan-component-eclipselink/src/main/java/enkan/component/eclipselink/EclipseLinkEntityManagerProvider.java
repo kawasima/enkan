@@ -3,7 +3,6 @@ package enkan.component.eclipselink;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.jpa.EntityManagerProvider;
-import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
@@ -11,6 +10,7 @@ import org.eclipse.persistence.logging.slf4j.SLF4JLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
 import java.net.MalformedURLException;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 
 /**
  * The provider for entity manager by EclipseLink.
@@ -47,30 +48,29 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
                 SEPersistenceUnitInfo pu = new SEPersistenceUnitInfo();
                 pu.setPersistenceUnitName(getName());
                 pu.setClassLoader(Thread.currentThread().getContextClassLoader());
-                URL dummyPersistenceXmlUrl = getClass().getResource("/META-INF/persistence.xml");
-                if (dummyPersistenceXmlUrl == null) {
-                    throw new MisconfigurationException("eclipselink.PERSISTENCE_XML_NOT_FOUND");
-                }
-                String s = dummyPersistenceXmlUrl.toExternalForm();
-                URI rootUri = URI.create(s.substring(0, s.length() - "persistence.xml".length()));
+                URL persistenceXmlUrl = getClass().getResource("/META-INF/persistence.xml");
                 try {
-                    pu.setPersistenceUnitRootUrl(rootUri.toURL());
+                    if (persistenceXmlUrl != null) {
+                        String s = persistenceXmlUrl.toExternalForm();
+                        URI rootUri = URI.create(s.substring(0, s.length() - "persistence.xml".length()));
+                        pu.setPersistenceUnitRootUrl(rootUri.toURL());
+                    } else {
+                        URL rootUrl = Thread.currentThread().getContextClassLoader().getResource("");
+                        if (rootUrl != null) {
+                            pu.setPersistenceUnitRootUrl(rootUrl);
+                        }
+                    }
                 } catch (MalformedURLException e) {
                     throw new UnreachableException(e);
                 }
                 pu.setTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
                 pu.setNonJtaDataSource(getDataSource());
-                List<URL> jarFiles = managedClasses.stream()
-                        .map(cls -> cls.getResource("/"))
-                        .distinct()
-                        .collect(Collectors.toList());
-                pu.setJarFileUrls(jarFiles);
 
                 List<String> managedClassNames = managedClasses.stream()
                         .map(Class::getName)
                         .collect(Collectors.toList());
                 pu.setManagedClassNames(managedClassNames);
-                pu.setExcludeUnlistedClasses(false);
+                pu.setExcludeUnlistedClasses(true);
 
                 getJpaProperties().put(PersistenceUnitProperties.ECLIPSELINK_SE_PUINFO, pu);
                 getJpaProperties().put(PersistenceUnitProperties.SESSION_NAME, UUID.randomUUID().toString());
@@ -84,7 +84,10 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
 
             @Override
             public void stop(EclipseLinkEntityManagerProvider component) {
-
+                EntityManagerFactory emf = component.getEntityManagerFactory();
+                if (emf != null && emf.isOpen()) {
+                    emf.close();
+                }
             }
         };
     }
