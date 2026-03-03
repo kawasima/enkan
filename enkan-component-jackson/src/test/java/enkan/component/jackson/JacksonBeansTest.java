@@ -157,10 +157,10 @@ public class JacksonBeansTest {
         Person source = new Person();
 
         assertThatThrownBy(() -> beansConverter.createFrom(source, ArrayList.class))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(RuntimeException.class);
 
         assertThatThrownBy(() -> beansConverter.createFrom(source, Object[].class))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(RuntimeException.class);
     }
 
     // ---- JavaTimeModule ----

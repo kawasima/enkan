@@ -32,7 +32,7 @@
         <jakarta.transaction.version>2.0.1</jakarta.transaction.version>
         <jakarta.enterprise.version>3.0.1</jakarta.enterprise.version>
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.version>3.0.4</jackson.version>
         <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
         <jakarta.validation.version>3.1.1</jakarta.validation.version>
         <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
@@ -341,13 +341,8 @@
                 <version>7.0.2</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
