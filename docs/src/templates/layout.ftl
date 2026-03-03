@@ -32,7 +32,7 @@
               <a href="getting-started.html">Docs</a>
             </li>
             <li>
-              <a href="https://github.com/kawasima/enkan">GitHub</a>
+              <a href="https://github.com/enkan/enkan">GitHub</a>
             </li>
           </ul>
         </div>
