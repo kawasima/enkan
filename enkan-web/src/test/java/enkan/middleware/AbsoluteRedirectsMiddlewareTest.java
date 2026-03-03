@@ -18,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class AbsoluteRedirectsMiddlewareTest {
-    private AbsoluteRedirectsMiddleware<HttpResponse> middleware;
+    private AbsoluteRedirectsMiddleware middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
-        middleware = new AbsoluteRedirectsMiddleware<>();
+        middleware = new AbsoluteRedirectsMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")

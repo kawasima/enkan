@@ -9,7 +9,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
-import enkan.middleware.AbstractWebMiddleware;
+import enkan.middleware.WebMiddleware;
 import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 import kotowari.component.TemplateEngine;
@@ -30,7 +30,7 @@ import java.util.function.Function;
  * @author kawasima
  */
 @Middleware(name = "routing")
-public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class RoutingMiddleware implements WebMiddleware {
     @NotNull
     private Routes routes;
 
@@ -48,7 +48,7 @@ public class RoutingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         request = MixinUtils.mixin(request, Routable.class);
         Class<?> controllerClass;
 

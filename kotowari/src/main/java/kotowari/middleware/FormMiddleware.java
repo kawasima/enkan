@@ -6,7 +6,8 @@ import enkan.component.BeansConverter;
 import enkan.data.*;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import enkan.middleware.AbstractWebMiddleware;
+
+import enkan.middleware.WebMiddleware;
 import enkan.util.MixinUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.inject.ParameterInjector;
@@ -26,7 +27,7 @@ import java.util.List;
  * @author kawasima
  */
 @Middleware(name = "form", dependencies = {"params", "routing"})
-public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class FormMiddleware implements WebMiddleware {
     @Inject
     protected BeansConverter beans;
 
@@ -40,7 +41,7 @@ public class FormMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         Method method = ((Routable) request).getControllerMethod();
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {

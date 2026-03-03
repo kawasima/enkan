@@ -1,7 +1,7 @@
 package enkan.system;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,7 +18,7 @@ public class ReplResponse implements Serializable {
     private String err;
 
     public ReplResponse() {
-        status = new HashSet<>();
+        status = EnumSet.noneOf(ResponseStatus.class);
     }
 
     private ReplResponse(UUID id) {

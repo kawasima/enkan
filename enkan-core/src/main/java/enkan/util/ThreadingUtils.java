@@ -4,7 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents the utility class for threading functions.
@@ -13,12 +16,10 @@ import java.util.*;
  */
 public class ThreadingUtils {
     private static final Set<Class<? extends Exception>> DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS =
-            new HashSet<>() {{
-                add(URISyntaxException.class);
-                add(MalformedURLException.class);
-                add(UnsupportedEncodingException.class);
-                add(UnsupportedCharsetException.class);
-            }};
+            Set.of(URISyntaxException.class,
+                    MalformedURLException.class,
+                    UnsupportedEncodingException.class,
+                    UnsupportedCharsetException.class);
 
     @SuppressWarnings("unchecked")
     private static <X, Y> Optional<Y> doSome(X start, ThreadingFunction<?,?>... functions) {

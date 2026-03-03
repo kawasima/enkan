@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class ContentTypeMiddlewareTest {
-    private ContentTypeMiddleware<HttpResponse> middleware;
+    private ContentTypeMiddleware middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
-        middleware = new ContentTypeMiddleware<>();
+        middleware = new ContentTypeMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders, Headers.of("Host", "example.com"))
                 .set(HttpRequest::setScheme, "http")

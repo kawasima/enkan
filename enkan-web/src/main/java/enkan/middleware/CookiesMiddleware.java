@@ -21,7 +21,7 @@ import static enkan.util.ParsingUtils.*;
  * @author kawasima
  */
 @Middleware(name = "cookies")
-public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class CookiesMiddleware implements WebMiddleware {
     private static final Pattern RE_COOKIE_OCTET = Pattern.compile("[!#$%&'()*+\\-./0-9:<=>?@A-Z\\[\\]\\^_`a-z\\{\\|\\}~]");
     private static final Pattern RE_COOKIE_VALUE = Pattern.compile("\"" + RE_COOKIE_OCTET.pattern() +  "*\"|" + RE_COOKIE_OCTET.pattern() + "*");
     private static final Pattern RE_COOKIE = Pattern.compile("\\s*(" + RE_TOKEN + ")=(" + RE_COOKIE_VALUE.pattern() + ")\\s*[;,]?");
@@ -67,7 +67,7 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         cookiesRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
         if (response != null) {

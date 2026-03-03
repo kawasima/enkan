@@ -35,8 +35,7 @@ public class KotowariCommandRegister implements SystemCommandRegister {
                 app.getMiddlewareStack().stream()
                         .map(MiddlewareChain::getMiddleware)
                         .filter(middleware -> middleware instanceof RoutingMiddleware)
-                        .map(m -> ReplResponse.withOut(((RoutingMiddleware<HttpResponse>) m).getRoutes().toString()))
-                        .forEach(transport::send);
+                        .forEach(m -> transport.send(ReplResponse.withOut(((RoutingMiddleware) m).getRoutes().toString())));
                 transport.sendOut("", ReplResponse.ResponseStatus.DONE);
             } else {
                 transport.sendErr(String.format("Application %s not found.", appName));

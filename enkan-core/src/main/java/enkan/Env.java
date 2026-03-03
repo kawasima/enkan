@@ -17,12 +17,14 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 public class Env {
-    static final Map<String, String> envMap = new HashMap<>();
+    static final Map<String, String> envMap;
 
     static {
-        readEnvFile();
-        readSystemEnv();
-        readSystemProps();
+        Map<String, String> mutable = new HashMap<>();
+        readEnvFile(mutable);
+        readSystemEnv(mutable);
+        readSystemProps(mutable);
+        envMap = Collections.unmodifiableMap(mutable);
     }
 
     /**
@@ -38,14 +40,14 @@ public class Env {
     /**
      * Read environments from a file.
      */
-    private static void readEnvFile() {
+    private static void readEnvFile(Map<String, String> map) {
         Properties properties = new Properties();
         URL url = Thread.currentThread().getContextClassLoader().getResource("env.properties");
         if (url != null) {
             try (Reader reader=new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
                 properties.load(reader);
                 properties.stringPropertyNames()
-                        .forEach(k -> envMap.put(normalizeKey(k), properties.getProperty(k)));
+                        .forEach(k -> map.put(normalizeKey(k), properties.getProperty(k)));
             } catch (IOException e) {
                 throw new FalteringEnvironmentException(e);
             }
@@ -55,26 +57,26 @@ public class Env {
     /**
      * Read environments from system properties.
      */
-    private static void readSystemProps() {
+    private static void readSystemProps(Map<String, String> map) {
         System.getProperties().stringPropertyNames()
-                .forEach(k -> envMap.put(normalizeKey(k), System.getProperty(k)));
+                .forEach(k -> map.put(normalizeKey(k), System.getProperty(k)));
     }
 
     /**
      * Read environments from environment variables.
      */
-    private static void readSystemEnv() {
-        System.getenv().forEach((k, v) -> envMap.put(normalizeKey(k), v));
+    private static void readSystemEnv(Map<String, String> map) {
+        System.getenv().forEach((k, v) -> map.put(normalizeKey(k), v));
     }
 
     /**
-     * Get an environment variable
+     * Get an environment variable, or {@code null} if not set.
      *
      * @param name variable name
-     * @return value
+     * @return value, or {@code null} if the variable is not set
      */
     public static String get(String name) {
-        return getString(name, "");
+        return getString(name, null);
     }
 
     /**

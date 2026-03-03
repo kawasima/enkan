@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * @author kawasima
  */
 @Middleware(name = "normalization", dependencies = {"params"})
-public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class NormalizationMiddleware implements WebMiddleware {
     private final List<NormalizationSpec<Object>> normalizationSpecs;
 
     public NormalizationMiddleware() {
@@ -53,7 +53,7 @@ public class NormalizationMiddleware<NRES> extends AbstractWebMiddleware<HttpReq
      * @return the response object
      */
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         Parameters params = request.getParams();
         if (params != null) {
             params.keySet().forEach(key -> {

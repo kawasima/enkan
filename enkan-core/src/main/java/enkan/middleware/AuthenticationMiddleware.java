@@ -1,5 +1,6 @@
 package enkan.middleware;
 
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.PrincipalAvailable;
@@ -17,7 +18,7 @@ import java.util.Optional;
  * @author kawasima
  */
 @Middleware(name = "authentication")
-public class AuthenticationMiddleware<REQ, RES, T> implements enkan.Middleware<REQ, RES, REQ, RES> {
+public class AuthenticationMiddleware<REQ, RES, T> implements DecoratorMiddleware<REQ, RES> {
     private final List<AuthBackend<REQ, T>> backends;
 
     public AuthenticationMiddleware(List<AuthBackend<REQ, T>> backends) {

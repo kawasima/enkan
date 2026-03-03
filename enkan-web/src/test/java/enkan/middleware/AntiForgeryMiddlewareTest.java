@@ -15,11 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 class AntiForgeryMiddlewareTest {
-    private AntiForgeryMiddleware<HttpResponse> middleware;
+    private AntiForgeryMiddleware middleware;
 
     @BeforeEach
     void setup() {
-        middleware = new AntiForgeryMiddleware<>();
+        middleware = new AntiForgeryMiddleware();
     }
 
     @Test

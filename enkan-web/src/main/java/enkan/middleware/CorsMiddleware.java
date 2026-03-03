@@ -7,6 +7,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static enkan.util.BeanBuilder.*;
 import static enkan.util.HttpResponseUtils.*;
@@ -18,7 +19,9 @@ import static enkan.util.ThreadingUtils.*;
  * @author syobochim
  */
 @Middleware(name = "cors")
-public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class CorsMiddleware implements WebMiddleware {
+    private static final Logger LOG = Logger.getLogger(CorsMiddleware.class.getName());
+    private volatile boolean misconfigurationWarned = false;
     private Set<String> methods;
     private Set<String> origins;
     private Set<String> headers;
@@ -36,7 +39,12 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+        if (credentials && isAnyOriginAllowed() && !misconfigurationWarned) {
+            misconfigurationWarned = true;
+            LOG.warning("CorsMiddleware: credentials=true with origins=[\"*\"] is invalid per CORS spec. " +
+                    "Browsers will reject such responses. Set explicit allowed origins instead.");
+        }
         if (isCORSRequest(request)) {
             if (!isOriginAllowed(request) || methods.stream().noneMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);
@@ -75,7 +83,8 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
 
         if (isCORSRequest(request)) {
             if (origins != null && !origins.isEmpty()) {
-                header(response, "Access-Control-Allow-Origin", String.join(", ", origins));
+                String allowOrigin = isAnyOriginAllowed() ? "*" : String.join(", ", origins);
+                header(response, "Access-Control-Allow-Origin", allowOrigin);
             }
             if (credentials) {
                 header(response, "Access-Control-Allow-Credentials", "true");

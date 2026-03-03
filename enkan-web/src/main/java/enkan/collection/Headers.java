@@ -47,7 +47,7 @@ public class Headers extends Parameters {
     @Override
     public Set<String> keySet() {
         Set<String> keys = super.keySet();
-        Set<String> headerKeys = new HashSet<>(keys.size() + 10);
+        Set<String> headerKeys = new LinkedHashSet<>(keys.size() * 2);
         for (String key : keys) {
             headerKeys.add(Arrays.stream(key.split("-"))
                         .map(t -> {
@@ -60,7 +60,7 @@ public class Headers extends Parameters {
                         })
                         .collect(Collectors.joining("-")));
         }
-        return headerKeys;
+        return Collections.unmodifiableSet(headerKeys);
     }
 
 }

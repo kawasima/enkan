@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SessionMiddlewareTest {
     @Test
     void restoreSession() {
-        SessionMiddleware<?> middleware = new SessionMiddleware<>();
+        SessionMiddleware middleware = new SessionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
         request = MixinUtils.mixin(request, WebSessionAvailable.class);
@@ -46,7 +46,7 @@ class SessionMiddlewareTest {
 
     @Test
     void sessionIdNotSent() {
-        SessionMiddleware<?> middleware = new SessionMiddleware<>();
+        SessionMiddleware middleware = new SessionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
         request = MixinUtils.mixin(request, WebSessionAvailable.class);

@@ -21,7 +21,7 @@ import static enkan.util.ThreadingUtils.*;
  * @author kawasima
  */
 @Middleware(name = "contentNegotiation")
-public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ContentNegotiationMiddleware implements WebMiddleware {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
     private Set<String> allowedLanguages;
@@ -33,11 +33,11 @@ public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<Ht
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         Headers headers = request.getHeaders();
-        String accept = headers != null ? (String) headers.getOrDefault("Accept", "*/*") : "*/*";
+        String accept = headers != null ? Objects.toString(headers.getOrDefault("Accept", "*/*"), "*/*") : "*/*";
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
-        String acceptLanguage = headers != null ? (String) headers.getOrDefault("Accept-Language", "*") : "*";
+        String acceptLanguage = headers != null ? Objects.toString(headers.getOrDefault("Accept-Language", "*"), "*") : "*";
         String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedLanguages);
         Locale locale = Objects.equals(lang, "*")? null : some(lang, Locale::forLanguageTag).orElse(null);
 

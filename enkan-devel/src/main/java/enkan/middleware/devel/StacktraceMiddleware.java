@@ -7,7 +7,8 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
-import enkan.middleware.AbstractWebMiddleware;
+
+import enkan.middleware.WebMiddleware;
 import enkan.util.HttpResponseUtils;
 import net.unit8.moshas.MoshasEngine;
 import net.unit8.moshas.Snippet;
@@ -27,7 +28,7 @@ import static net.unit8.moshas.RenderUtils.text;
  * @author kawasima
  */
 @Middleware(name = "stacktrace")
-public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class StacktraceMiddleware implements WebMiddleware {
     private final MoshasEngine moshas = new MoshasEngine();
 
     private String primer;
@@ -176,7 +177,7 @@ public class StacktraceMiddleware<NRES> extends AbstractWebMiddleware<HttpReques
      * @param <NNRES> A response object
      */
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         try {
             return castToHttpResponse(chain.next(request));
         } catch (Throwable t) {

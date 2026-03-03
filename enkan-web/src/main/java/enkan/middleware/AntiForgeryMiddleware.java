@@ -11,6 +11,8 @@ import enkan.data.Session;
 import enkan.util.MixinUtils;
 import enkan.util.ThreadingUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,7 +26,7 @@ import static enkan.util.BeanBuilder.builder;
  * @author kawasima
  */
 @Middleware(name = "antiForgery", dependencies = {"session"})
-public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class AntiForgeryMiddleware implements WebMiddleware {
     private static final String TOKEN_KEY = AntiForgeryMiddleware.class.getName()
             + "/antiForgeryToken";
 
@@ -67,7 +69,10 @@ public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpReque
     private boolean isValidRequest(HttpRequest request) {
         Optional<String> readToken = defaultRequestToken(request);
         Optional<String> storedToken = sessionToken(request);
-        return readToken.isPresent() && storedToken.isPresent() && readToken.get().equals(storedToken.get());
+        if (readToken.isEmpty() || storedToken.isEmpty()) return false;
+        return MessageDigest.isEqual(
+                readToken.get().getBytes(StandardCharsets.UTF_8),
+                storedToken.get().getBytes(StandardCharsets.UTF_8));
     }
 
     private boolean isGetRequest(HttpRequest request) {
@@ -76,7 +81,7 @@ public class AntiForgeryMiddleware<NRES> extends AbstractWebMiddleware<HttpReque
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         String token = sessionToken(request).orElseGet(this::newToken);
         if (!isGetRequest(request) && !isValidRequest(request)) {
             return builder(HttpResponse.of("<h1>Invalid anti-forgery token</h1>"))

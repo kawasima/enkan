@@ -89,10 +89,10 @@ public class Multimap<K, V> implements Map<K, V> {
     }
 
     /**
-     * {@inheritDoc}
+     * Returns all values associated with the given key, or an empty list if the key is not present.
      */
     public List<V> getAll(K key) {
-        return hashMap.get(key);
+        return hashMap.getOrDefault(key, List.of());
     }
 
     /**

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class XssProtectionMiddlewareTest {
     @Test
     void addXssBlockHeader() {
-        XssProtectionMiddleware<HttpResponse> middleware = new XssProtectionMiddleware<>();
+        XssProtectionMiddleware middleware = new XssProtectionMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .build();
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,

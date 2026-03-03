@@ -62,8 +62,8 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
     }
 
     protected void writeTraceLog(Object reqOrRes, String middlewareName) {
-        if (reqOrRes instanceof Traceable) {
-            ((Traceable) reqOrRes).getTraceLog().write(middlewareName);
+        if (reqOrRes instanceof Traceable t) {
+            t.getTraceLog().write(middlewareName);
         }
     }
 
@@ -73,6 +73,10 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
      * @param req  {@inheritDoc}
      * @return     {@inheritDoc}
      */
+    // The unchecked casts below are safe when the predicate is false: in that
+    // case the middleware is skipped entirely and the request is passed through
+    // unchanged, so REQ == NREQ and RES == NRES at the call site.
+    @SuppressWarnings("unchecked")
     @Override
     public RES next(REQ req) {
         writeTraceLog(req, middlewareName);
@@ -81,7 +85,7 @@ public class DefaultMiddlewareChain<REQ, RES, NREQ, NRES> implements MiddlewareC
             RES res = middleware.handle(req, chain);
             writeTraceLog(res, middlewareName);
             return res;
-        } else if (chain != null){
+        } else if (chain != null) {
             NRES res = chain.next((NREQ) req);
             writeTraceLog(res, middlewareName);
             return (RES) res;

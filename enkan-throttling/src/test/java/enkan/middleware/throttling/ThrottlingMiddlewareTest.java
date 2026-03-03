@@ -30,7 +30,7 @@ public class ThrottlingMiddlewareTest {
                 new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
-        ThrottlingMiddleware<HttpResponse> middleware = builder(new ThrottlingMiddleware<HttpResponse>())
+        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
                 .set(ThrottlingMiddleware::setThrottles, throttles)
                 .build();
 
@@ -63,7 +63,7 @@ public class ThrottlingMiddlewareTest {
                 new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
         );
 
-        ThrottlingMiddleware<HttpResponse> middleware = builder(new ThrottlingMiddleware<HttpResponse>())
+        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
                 .set(ThrottlingMiddleware::setThrottles, throttles)
                 .build();
 

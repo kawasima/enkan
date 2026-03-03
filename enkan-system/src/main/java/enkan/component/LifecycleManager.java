@@ -6,6 +6,8 @@ package enkan.component;
  * @author kawasima
  */
 public class LifecycleManager {
+    private LifecycleManager() {}
+
     /**
      * Starts the component.
      *

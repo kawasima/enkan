@@ -14,7 +14,7 @@ import static enkan.util.HttpResponseUtils.getHeader;
  * @author kawasima
  */
 @Middleware(name = "defaultCharset")
-public class DefaultCharsetMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class DefaultCharsetMiddleware implements WebMiddleware {
     private String defaultCharset = "UTF-8";
 
     protected boolean isTextBasedContentType(String contentType) {
@@ -22,7 +22,7 @@ public class DefaultCharsetMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     protected boolean isContainsCharset(String contentType) {
-        return contentType != null && contentType.matches(";\\s*charset=[^;]*");
+        return contentType != null && contentType.toLowerCase(java.util.Locale.ROOT).contains("charset=");
     }
 
     protected void addCharset(HttpResponse response, String charset) {
@@ -34,7 +34,7 @@ public class DefaultCharsetMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (response != null) {
             addCharset(response, defaultCharset);

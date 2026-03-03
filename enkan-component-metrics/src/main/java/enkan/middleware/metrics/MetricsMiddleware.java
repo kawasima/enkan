@@ -1,7 +1,7 @@
 package enkan.middleware.metrics;
 
 import com.codahale.metrics.Timer;
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.component.metrics.MetricsComponent;
 
@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "metrics")
-public class MetricsMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+public class MetricsMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private MetricsComponent metrics;
 

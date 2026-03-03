@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 @Middleware(name = "nonJtaTransaction", dependencies = {"entityManager", "routing"})
-public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<REQ, RES, REQ, RES> {
+public class NonJtaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     private Transactional.TxType getTransactionType(Class<?> cls) {
         Transactional transactional = cls.getDeclaredAnnotation(Transactional.class);
         return transactional != null ? transactional.value() : null;

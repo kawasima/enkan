@@ -20,20 +20,22 @@ import static org.assertj.core.api.Assertions.entry;
  * @author kawasima
  */
 class NormalizationMiddlewareTest {
+    private static final WebMiddleware DUMMY_ENDPOINT = new WebMiddleware() {
+        @Override
+        public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+            return builder(HttpResponse.of("dummy"))
+                    .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                    .build();
+        }
+    };
+
     @Test
     void noNormalization() {
-        NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<>();
+        NormalizationMiddleware middleware = new NormalizationMiddleware();
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", "B", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
-                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
-                    @Override
-                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
-                        return builder(HttpResponse.of("dummy"))
-                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                                .build();
-                    }
-                });
+        MiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> chain =
+                new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", DUMMY_ENDPOINT);
         middleware.handle(request, chain);
         assertThat(request.getParams())
                 .containsExactly(entry("A", "B"),
@@ -42,20 +44,13 @@ class NormalizationMiddlewareTest {
 
     @Test
     void trimNormalization() {
-        NormalizationMiddleware<HttpResponse> middleware = new NormalizationMiddleware<HttpResponse>(
+        NormalizationMiddleware middleware = new NormalizationMiddleware(
                 normalization(Predicates.ANY, new TrimNormalizer())
         );
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", " B ", "C", 1));
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(Predicates.any(), "endpoint",
-                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
-                    @Override
-                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
-                        return builder(HttpResponse.of("dummy"))
-                                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
-                                .build();
-                    }
-                });
+        MiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse> chain =
+                new DefaultMiddlewareChain<>(Predicates.any(), "endpoint", DUMMY_ENDPOINT);
         middleware.handle(request, chain);
         assertThat(request.getParams())
                 .containsExactly(entry("A", "B"),

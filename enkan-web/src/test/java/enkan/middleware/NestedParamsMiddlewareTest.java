@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class NestedParamsMiddlewareTest {
-    NestedParamsMiddleware<HttpResponse> sut = new NestedParamsMiddleware<>();
+    NestedParamsMiddleware sut = new NestedParamsMiddleware();
 
     @Test
     void testParseNestedKeys() {

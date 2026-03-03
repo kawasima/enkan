@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,7 +50,7 @@ public class MixinUtils {
             }
         }
 
-    private static void getAllInterfaces(Class<?> clazz, final HashSet<Class<?>> interfacesFound) {
+    private static void getAllInterfaces(Class<?> clazz, final LinkedHashSet<Class<?>> interfacesFound) {
         while (clazz != null) {
             final Class<?>[] interfaces = clazz.getInterfaces();
             for (Class<?> i : interfaces) {
@@ -68,7 +67,7 @@ public class MixinUtils {
     static Class<?>[] getAllInterfaces(final Class<?> clazz) {
         if (clazz == null) return null;
 
-        final HashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
+        final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
         getAllInterfaces(clazz, interfacesFound);
 
         return interfacesFound.toArray(new Class<?>[0]);

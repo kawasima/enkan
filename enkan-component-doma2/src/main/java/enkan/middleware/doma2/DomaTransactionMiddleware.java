@@ -1,7 +1,7 @@
 package enkan.middleware.doma2;
 
 
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.component.doma2.DomaProviderUtils;
 import enkan.component.doma2.DomaProvider;
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "domaTransaction")
-public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private DomaProvider domaProvider;
 

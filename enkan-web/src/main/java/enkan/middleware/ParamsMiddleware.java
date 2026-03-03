@@ -19,7 +19,7 @@ import static enkan.util.HttpRequestUtils.isUrlEncodedForm;
  * @author kawasima
  */
 @Middleware(name = "params")
-public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ParamsMiddleware implements WebMiddleware {
     protected Parameters parseParams(String urlencodedParams, String encoding) {
         return formDecode(urlencodedParams, encoding);
     }
@@ -91,7 +91,7 @@ public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, N
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, NNREQ,NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         paramsRequest(httpRequest);
         return castToHttpResponse(next.next(httpRequest));
     }

@@ -62,12 +62,7 @@
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-repl-jshell</artifactId>
-            <version>${enkan.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-repl-pseudo</artifactId>
+            <artifactId>enkan-repl-server</artifactId>
             <version>${enkan.version}</version>
         </dependency>
         <dependency>

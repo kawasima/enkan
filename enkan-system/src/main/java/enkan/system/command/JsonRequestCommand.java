@@ -48,7 +48,7 @@ public class JsonRequestCommand implements SystemCommand {
         WebServerComponent<?> webServer = webServers.getFirst();
         URL url;
         try {
-            url = URI.create(webServer.isSsl() ? "https" : "http"
+            url = URI.create((webServer.isSsl() ? "https" : "http")
                     + "://" + webServer.getHost()
                     + ":" + webServer.getPort()
                     + pathAndQuery).toURL();

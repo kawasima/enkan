@@ -1,6 +1,6 @@
 package enkan.middleware;
 
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.data.HttpResponse;
 import enkan.data.TraceLog;
@@ -12,7 +12,7 @@ import enkan.util.MixinUtils;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "trace")
-public class TraceMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+public class TraceMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     private boolean enabled = true;
 
     @Override

@@ -19,7 +19,7 @@ import static enkan.util.HttpRequestUtils.requestUrl;
  * @author kawasima
  */
 @Middleware(name = "absoluteRedirect")
-public class AbsoluteRedirectsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class AbsoluteRedirectsMiddleware implements WebMiddleware {
     private static final Set<Integer> REDIRECT_STATUS = new HashSet<>(Arrays.asList(201, 301, 302, 303, 307));
 
     protected boolean isRedirectResponse(HttpResponse response) {
@@ -55,7 +55,7 @@ public class AbsoluteRedirectsMiddleware<NRES> extends AbstractWebMiddleware<Htt
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (isRedirectResponse(response)) {
             updateHeader(response, "location", request);

@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DefaultCharsetMiddlewareTest {
     @Test
     void test() {
-        DefaultCharsetMiddleware<HttpResponse> middleware = new DefaultCharsetMiddleware<>();
+        DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
         HttpResponse response = builder(HttpResponse.of("aaa"))
                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                 .build();
@@ -24,7 +24,7 @@ class DefaultCharsetMiddlewareTest {
 
     @Test
     void charset() {
-        DefaultCharsetMiddleware<HttpResponse> middleware = new DefaultCharsetMiddleware<>();
+        DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
         HttpResponse response = builder(HttpResponse.of("aaa"))
                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                 .build();

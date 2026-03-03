@@ -6,12 +6,13 @@ import enkan.collection.Headers;
 import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.middleware.WebMiddleware;
 import enkan.data.TraceLog;
 import enkan.data.Traceable;
 import enkan.endpoint.devel.TraceDetail;
 import enkan.endpoint.devel.TraceList;
 import enkan.endpoint.devel.TraceRouting;
-import enkan.middleware.AbstractWebMiddleware;
+
 import enkan.middleware.session.KeyValueStore;
 import enkan.middleware.session.MemoryStore;
 import enkan.util.MixinUtils;
@@ -28,7 +29,7 @@ import java.util.Objects;
  * @author kawasima
  */
 @Middleware(name = "traceWeb")
-public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class TraceWebMiddleware implements WebMiddleware {
     private final LinkedList<LogKey> idList;
     private final KeyValueStore store;
     private String mountPath = "/x-enkan/requests";
@@ -104,7 +105,7 @@ public class TraceWebMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         if (request.getUri().startsWith(mountPath + "/")) {
             return traceRouting.handle(request);
         } else {

@@ -18,6 +18,9 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import org.xnio.streams.ChannelInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,15 +38,16 @@ import java.security.*;
  * @author kawasima
  */
 public class UndertowAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(UndertowAdapter.class);
+
     private static final IoCallback callback = new IoCallback() {
         @Override
         public void onComplete(HttpServerExchange exchange, Sender sender) {
-
         }
 
         @Override
         public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
-
+            LOG.error("Failed to send response body", exception);
         }
     };
 
@@ -54,20 +58,20 @@ public class UndertowAdapter {
             }
             case String s -> sender.send(s);
             case InputStream inputStream -> {
-                ReadableByteChannel chan = Channels.newChannel(inputStream);
-
-                ByteBuffer buf = ByteBuffer.allocate(4096);
-                for (; ; ) {
-                    int size = chan.read(buf);
-                    if (size <= 0) break;
-                    buf.flip();
-                    sender.send(buf, callback);
-                    buf.clear();
+                try (ReadableByteChannel chan = Channels.newChannel(inputStream)) {
+                    ByteBuffer buf = ByteBuffer.allocate(4096);
+                    for (; ; ) {
+                        int size = chan.read(buf);
+                        if (size <= 0) break;
+                        buf.flip();
+                        sender.send(buf, callback);
+                        buf.clear();
+                    }
+                    sender.close(IoCallback.END_EXCHANGE);
                 }
-                sender.close(IoCallback.END_EXCHANGE);
             }
             case File file -> {
-                try (FileInputStream fis = new FileInputStream((File) body);
+                try (FileInputStream fis = new FileInputStream(file);
                      FileChannel chan = fis.getChannel()) {
                     ByteBuffer buf = ByteBuffer.allocate(4096);
                     for (; ; ) {
@@ -89,10 +93,10 @@ public class UndertowAdapter {
         HeaderMap map = exchange.getResponseHeaders();
         headers.keySet().forEach(headerName -> headers.getList(headerName)
                 .forEach(v -> {
-                    if (v instanceof String) {
-                        map.add(HttpString.tryFromString(headerName), (String) v);
-                    } else if (v instanceof Number) {
-                        map.add(HttpString.tryFromString(headerName), ((Number) v).longValue());
+                    switch (v) {
+                        case String s -> map.add(HttpString.tryFromString(headerName), s);
+                        case Number n -> map.add(HttpString.tryFromString(headerName), n.longValue());
+                        default -> { /* ignore unsupported header value types */ }
                     }
                 }));
     }
@@ -169,7 +173,7 @@ public class UndertowAdapter {
 
     private SSLContext createSslContext(OptionMap options) {
         try {
-            SSLContext context = SSLContext.getInstance("TLSv1.2");
+            SSLContext context = SSLContext.getInstance("TLS");
             KeyManager[] keyManagers = null;
             TrustManager[] trustManagers = null;
 

@@ -1,0 +1,129 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.unit8.enkan</groupId>
+        <artifactId>enkan-parent</artifactId>
+        <version>0.12.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>enkan-repl-client</artifactId>
+    <packaging>jar</packaging>
+
+    <name>enkan-repl-client</name>
+    <description>REPL CLI client for Enkan</description>
+
+    <properties>
+        <jline.version>3.30.6</jline.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <mainClass>enkan.system.repl.client.ReplClient</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputFile>${project.build.directory}/enkan-repl-client.jar</outputFile>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>enkan.system.repl.client.ReplClient</mainClass>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                            <resource>META-INF/misconfiguration.properties</resource>
+                        </transformer>
+                    </transformers>
+                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>make-executable</id>
+                        <phase>package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <!-- Write the shell stub that exec's itself as a jar -->
+                                <echo file="${project.build.directory}/stub.sh">#!/bin/sh
+SELF=$(cd "$(dirname "$0")" &amp;&amp; pwd)/$(basename "$0")
+# Resolve the real java binary, bypassing macOS JavaLaunching wrapper
+if [ -x "$JAVA_HOME/bin/java" ]; then
+  JAVA_CMD="$JAVA_HOME/bin/java"
+elif [ -x "$(/usr/libexec/java_home 2>/dev/null)/bin/java" ]; then
+  JAVA_CMD="$(/usr/libexec/java_home)/bin/java"
+else
+  JAVA_CMD="java"
+fi
+exec "$JAVA_CMD" --enable-native-access=ALL-UNNAMED ${JAVA_OPTS} -jar "$SELF" "$@"
+</echo>
+                                <!-- Concatenate stub + fat jar into a single executable file -->
+                                <concat destfile="${project.build.directory}/enkan-repl"
+                                        binary="true">
+                                    <fileset file="${project.build.directory}/stub.sh"/>
+                                    <fileset file="${project.build.directory}/enkan-repl-client.jar"/>
+                                </concat>
+                                <chmod file="${project.build.directory}/enkan-repl" perm="755"/>
+                                <delete file="${project.build.directory}/stub.sh"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-repl</artifactId>
+            <version>${enkan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>2.4.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

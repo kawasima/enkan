@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class ContentNegotiationMiddlewareTest {
-    private ContentNegotiationMiddleware<HttpResponse> middleware;
+    private ContentNegotiationMiddleware middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
-        middleware = new ContentNegotiationMiddleware<>();
+        middleware = new ContentNegotiationMiddleware();
     }
 
     @Test

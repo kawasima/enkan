@@ -49,8 +49,8 @@
         <module>enkan-web</module>
         <module>enkan-servlet</module>
         <module>enkan-repl</module>
-        <module>enkan-repl-pseudo</module>
-        <module>enkan-repl-jshell</module>
+        <module>enkan-repl-server</module>
+        <module>enkan-repl-client</module>
         <module>enkan-devel</module>
         <module>enkan-devel-gradle</module>
         <module>enkan-component-HikariCP</module>
@@ -238,7 +238,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>enkan-repl-pseudo</artifactId>
+                <artifactId>enkan-repl-server</artifactId>
+                <version>${enkan.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>enkan-repl-client</artifactId>
                 <version>${enkan.version}</version>
             </dependency>
             <dependency>

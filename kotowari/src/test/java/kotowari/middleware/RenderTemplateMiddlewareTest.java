@@ -24,7 +24,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.*;
 
 class RenderTemplateMiddlewareTest {
-    private RenderTemplateMiddleware<HttpResponse> sut;
+    private RenderTemplateMiddleware sut;
 
     private static final Function<List<?>, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
@@ -43,7 +43,7 @@ class RenderTemplateMiddlewareTest {
 
     @BeforeEach
     void setup() {
-        sut = new RenderTemplateMiddleware<>();
+        sut = new RenderTemplateMiddleware();
     }
 
     @Test

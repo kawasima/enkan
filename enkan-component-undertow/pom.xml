@@ -15,7 +15,7 @@
     <name>enkan-component-undertow</name>
 
     <properties>
-        <undertow.version>2.3.21.Final</undertow.version>
+        <undertow.version>2.3.23.Final</undertow.version>
     </properties>
 
     <dependencies>
@@ -23,6 +23,17 @@
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
             <version>${undertow.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.6.1.Final</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>

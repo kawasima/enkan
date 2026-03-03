@@ -13,11 +13,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SqlCommand implements SystemCommand {
-    private static final Set<String> DML_KEYWORDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    private static final Set<String> WRITE_KEYWORDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     static {
-        DML_KEYWORDS.addAll(Arrays.asList(
+        WRITE_KEYWORDS.addAll(Arrays.asList(
                 "INSERT", "UPDATE", "DELETE", "MERGE",
-                "CREATE", "DROP"));
+                "CREATE", "DROP", "TRUNCATE", "ALTER"));
     }
 
     @Override
@@ -28,7 +28,8 @@ public class SqlCommand implements SystemCommand {
             return true;
         }
 
-        boolean isDML = Arrays.stream(args).anyMatch(DML_KEYWORDS::contains);
+        String firstToken = sql.split("\\s+", 2)[0];
+        boolean isDML = WRITE_KEYWORDS.contains(firstToken);
         @SuppressWarnings("unchecked")
         List<DataSourceComponent<?>> components = (List<DataSourceComponent<?>>)(List<?>)system.getComponents(DataSourceComponent.class);
         if (components.isEmpty()) {

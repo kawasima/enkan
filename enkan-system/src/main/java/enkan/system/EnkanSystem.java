@@ -3,6 +3,7 @@ package enkan.system;
 import enkan.component.ComponentRelationship;
 import enkan.component.LifecycleManager;
 import enkan.component.SystemComponent;
+import enkan.exception.MisconfigurationException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,8 +29,14 @@ public class EnkanSystem {
      * @return enkan system
      */
     public static EnkanSystem of(Object... args) {
+        if (args.length % 2 != 0) {
+            throw new MisconfigurationException("core.INVALID_SYSTEM_ARGS", args.length);
+        }
         EnkanSystem system = new EnkanSystem();
         for(int i = 0; i < args.length; i += 2) {
+            if (!(args[i + 1] instanceof SystemComponent)) {
+                throw new MisconfigurationException("core.INVALID_COMPONENT", args[i], args[i + 1].getClass().getName());
+            }
             system.setComponent(args[i].toString(), (SystemComponent<?>) args[i + 1]);
         }
         return system;
@@ -81,7 +88,7 @@ public class EnkanSystem {
                 .stream()
                 .filter(componentType::isInstance)
                 .map(componentType::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -102,23 +109,31 @@ public class EnkanSystem {
     /**
      * Start all components
      */
-    @SuppressWarnings("unchecked")
-    public <T extends SystemComponent<T>> void start() {
+    public void start() {
         componentsOrder.stream()
                 .map(components::get)
-                .forEach(component -> LifecycleManager.start((T) component));
+                .forEach(EnkanSystem::startComponent);
     }
 
     /**
      * Stop all components
      */
-    @SuppressWarnings("unchecked")
-    public <T extends SystemComponent<T>> void stop() {
+    public void stop() {
         List<String> reverse = new ArrayList<>(componentsOrder);
         Collections.reverse(reverse);
         reverse.stream()
                 .map(components::get)
-                .forEach(component -> LifecycleManager.stop((T) component));
+                .forEach(EnkanSystem::stopComponent);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends SystemComponent<T>> void startComponent(SystemComponent<?> component) {
+        LifecycleManager.start((T) component);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends SystemComponent<T>> void stopComponent(SystemComponent<?> component) {
+        LifecycleManager.stop((T) component);
     }
 
     @Override
