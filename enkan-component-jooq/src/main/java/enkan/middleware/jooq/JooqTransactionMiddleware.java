@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
  * Controllers and downstream middlewares can retrieve it via
  * {@code request.getExtension("jooqDslContext")} to participate in the same transaction.</p>
  */
-@Middleware(name = "jooqTransaction")
+@Middleware(name = "jooqTransaction", dependencies = {"routing"})
 public class JooqTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private JooqProvider jooqProvider;

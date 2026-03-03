@@ -90,7 +90,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     }
 
     @SuppressWarnings("unchecked")
-    protected InputStream serialize(Object obj, MediaType mediaType) {
+    protected InputStream serialize(Object obj, MediaType mediaType) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
@@ -98,20 +98,23 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
             return new ByteArrayInputStream(new byte[0]);
         }
 
-        return bodyWriters.stream()
-                .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
-                .map(writer -> {
-                    try {
-                        ((MessageBodyWriter<Object>) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
-                        return baos.toByteArray();
-                    } catch (IOException e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .map(ByteArrayInputStream::new)
-                .findFirst()
-                .orElse(null);
+        try {
+            return bodyWriters.stream()
+                    .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
+                    .map(writer -> {
+                        try {
+                            ((MessageBodyWriter<Object>) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
+                            return baos.toByteArray();
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    })
+                    .map(ByteArrayInputStream::new)
+                    .findFirst()
+                    .orElse(null);
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
     }
 
     private void deserializeBody(Method method, HttpRequest request) throws IOException {
@@ -167,10 +170,14 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         try {
             handleRequest(request);
         } catch (IOException e) {
-            return builder(HttpResponse.of(serialize(Parameters.of("title",
-                    "bad request format"), responseType)))
-                    .set(HttpResponse::setStatus, 400)
-                    .build();
+            try {
+                return builder(HttpResponse.of(serialize(Parameters.of("title",
+                        "bad request format"), responseType)))
+                        .set(HttpResponse::setStatus, 400)
+                        .build();
+            } catch (IOException serializeEx) {
+                throw new UncheckedIOException(serializeEx);
+            }
         }
 
         NRES response = chain.next(request);
@@ -178,16 +185,20 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         if (response instanceof HttpResponse) {
             return (HttpResponse) response;
         } else {
-            InputStream in = serialize(extractBody(response), responseType);
-            if (in != null) {
-                return builder(HttpResponse.of(in))
-                        .set(HttpResponse::setHeaders, extractHeaders(response, responseType))
-                        .set(HttpResponse::setStatus, extractStatus(response))
-                        .build();
-            } else {
-                return builder(HttpResponse.of("Not acceptable"))
-                        .set(HttpResponse::setStatus, 406)
-                        .build();
+            try {
+                InputStream in = serialize(extractBody(response), responseType);
+                if (in != null) {
+                    return builder(HttpResponse.of(in))
+                            .set(HttpResponse::setHeaders, extractHeaders(response, responseType))
+                            .set(HttpResponse::setStatus, extractStatus(response))
+                            .build();
+                } else {
+                    return builder(HttpResponse.of("Not acceptable"))
+                            .set(HttpResponse::setStatus, 406)
+                            .build();
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
     }

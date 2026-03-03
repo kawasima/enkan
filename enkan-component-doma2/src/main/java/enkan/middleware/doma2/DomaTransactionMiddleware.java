@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  * This middleware requires {@link DomaProvider} to provide a {@link Config} object.
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "domaTransaction")
+@enkan.annotation.Middleware(name = "domaTransaction", dependencies = {"routing"})
 public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private DomaProvider domaProvider;
