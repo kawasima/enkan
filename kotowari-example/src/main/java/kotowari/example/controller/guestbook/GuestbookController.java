@@ -36,7 +36,7 @@ public class GuestbookController {
         return templateEngine.render("guestbook/list",
                 "guestbooks", guestbooks);
     }
-
+    
     @Transactional
     public HttpResponse post(Parameters params, UserPrincipal principal, Conversation conversation) {
         if (!conversation.isTransient()) conversation.end();

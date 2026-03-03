@@ -47,6 +47,13 @@ public class TransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ,
                             throw new MisconfigurationException("kotowari.TX_HEURISTIC_ROLLBACK", e.getMessage(), e);
                         } catch (RollbackException e) {
                             throw new MisconfigurationException("kotowari.TX_ROLLBACK", e.getMessage(), e);
+                        } catch (RuntimeException e) {
+                            try {
+                                tm.rollback();
+                            } catch (SystemException se) {
+                                throw new MisconfigurationException("kotowari.TX_UNEXPECTED_CONDITION", se.errorCode, se);
+                            }
+                            throw e;
                         }
                         break;
                     default:

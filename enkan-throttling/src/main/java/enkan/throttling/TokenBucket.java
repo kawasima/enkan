@@ -111,7 +111,6 @@ public class TokenBucket {
      */
     public synchronized void refill(long numTokens)
     {
-        long newTokens = Math.min(capacity, Math.max(0, numTokens));
-        size = Math.max(0, Math.min(size + newTokens, capacity));
+        size = Math.min(size + Math.max(0, numTokens), capacity);
     }
 }

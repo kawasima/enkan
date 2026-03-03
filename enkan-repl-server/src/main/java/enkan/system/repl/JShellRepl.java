@@ -38,7 +38,7 @@ public class JShellRepl implements Repl {
     private final ExecutorService threadPool;
     private final Map<String, SystemCommand> localCommands = new HashMap<>();
     private final Set<String> commandNames = new HashSet<>();
-    private final Map<String, Future<?>> backgroundTasks = new HashMap<>();
+    private final Map<String, Future<?>> backgroundTasks = new ConcurrentHashMap<>();
     private final CompletableFuture<Integer> replPort = new CompletableFuture<>();
 
     private JShellMessage executeStatement(String statement) {
@@ -135,6 +135,25 @@ public class JShellRepl implements Repl {
      * {@inheritDoc}
      */
     @Override
+    public void eval(String statement, Transport transport) {
+        JShellMessage msg = executeStatement(statement);
+        msg.errs.forEach(line -> transport.send(ReplResponse.withErr(line)));
+        msg.outs.forEach(line -> transport.send(ReplResponse.withOut(line)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerLocalCommand(String name, SystemCommand command) {
+        localCommands.put(name, command);
+        commandNames.add(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void registerCommand(String name, SystemCommand command) {
         try {
             String serializedCommand = JShellObjectTransferer.writeToBase64(command);
@@ -153,7 +172,18 @@ public class JShellRepl implements Repl {
      */
     @Override
     public void addBackgroundTask(String name, Runnable task) {
-
+        Future<?> current = getBackground(name);
+        if (current != null) {
+            return;
+        }
+        Future<?> future = threadPool.submit(() -> {
+            try {
+                task.run();
+            } finally {
+                backgroundTasks.remove(name);
+            }
+        });
+        backgroundTasks.put(name, future);
     }
 
     /**
@@ -173,7 +203,12 @@ public class JShellRepl implements Repl {
      */
     @Override
     public Future<?> getBackground(String name) {
-        return null;
+        Future<?> future = backgroundTasks.get(name);
+        if (future != null && (future.isCancelled() || future.isDone())) {
+            backgroundTasks.remove(name);
+            return null;
+        }
+        return future;
     }
 
     /**
@@ -279,6 +314,8 @@ public class JShellRepl implements Repl {
             LOG.error("REPL server error", e);
         } finally {
             LOG.info("Shutdown REPL server");
+            backgroundTasks.values().forEach(task -> task.cancel(true));
+            threadPool.shutdownNow();
             jshell.close();
             ctx.destroy();
         }

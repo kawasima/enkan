@@ -2,6 +2,7 @@ package enkan.system.devel;
 
 import enkan.exception.FalteringEnvironmentException;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -14,7 +15,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 /**
  * @author kawasima
  */
-public class ClassWatcher implements Runnable {
+public class ClassWatcher implements Runnable, Closeable {
     private final WatchService watchService;
     private final ConcurrentHashMap<WatchKey, Path> watchings = new ConcurrentHashMap<>();
     private final Runnable callback;
@@ -97,6 +98,10 @@ public class ClassWatcher implements Runnable {
                 if (watchings.isEmpty()) break;
             }
         }
+    }
 
+    @Override
+    public void close() throws IOException {
+        watchService.close();
     }
 }

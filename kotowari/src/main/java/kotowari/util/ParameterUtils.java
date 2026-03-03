@@ -21,6 +21,6 @@ public class ParameterUtils {
     }
 
     public static LinkedList<ParameterInjector<?>> getDefaultParameterInjectors() {
-        return defaultParameterInjectors;
+        return new LinkedList<>(defaultParameterInjectors);
     }
 }

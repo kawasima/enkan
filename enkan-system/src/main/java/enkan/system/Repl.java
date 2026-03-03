@@ -38,4 +38,22 @@ public interface Repl extends Runnable {
      * @return the port number
      */
     Integer getPort();
+
+    /**
+     * Evaluate a statement in the REPL's scripting environment and send the result to the transport.
+     *
+     * @param statement The statement to evaluate
+     * @param transport The transport to send output to
+     */
+    void eval(String statement, Transport transport);
+
+    /**
+     * Register a local command that executes outside the scripting environment.
+     * Unlike {@link #registerCommand}, local commands are not serialized and can
+     * hold references to objects in the host JVM (e.g., the Repl itself).
+     *
+     * @param name    The name of the command
+     * @param command A command object
+     */
+    void registerLocalCommand(String name, SystemCommand command);
 }

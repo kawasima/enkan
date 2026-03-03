@@ -15,6 +15,9 @@ import net.unit8.moshas.Snippet;
 import net.unit8.moshas.Template;
 import net.unit8.moshas.context.Context;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -29,6 +32,8 @@ import static net.unit8.moshas.RenderUtils.text;
  */
 @Middleware(name = "stacktrace")
 public class StacktraceMiddleware implements WebMiddleware {
+    private static final Logger LOG = LoggerFactory.getLogger(StacktraceMiddleware.class);
+
     private final MoshasEngine moshas = new MoshasEngine();
 
     private String primer;
@@ -149,7 +154,7 @@ public class StacktraceMiddleware implements WebMiddleware {
      */
     protected HttpResponse exResponse(HttpRequest request, Throwable ex) {
         String accept = request.getHeaders().get("accept");
-        if (accept != null && accept.matches("^text/javascript")) {
+        if (accept != null && accept.stripLeading().regionMatches(true, 0, "text/javascript", 0, "text/javascript".length())) {
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             return builder(HttpResponse.of(sw.toString()))
@@ -181,7 +186,7 @@ public class StacktraceMiddleware implements WebMiddleware {
         try {
             return castToHttpResponse(chain.next(request));
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            LOG.error("Unhandled exception", t);
             return exResponse(request, t);
         }
     }

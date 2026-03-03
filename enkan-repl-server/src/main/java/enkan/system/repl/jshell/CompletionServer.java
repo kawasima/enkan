@@ -35,7 +35,7 @@ public class CompletionServer implements Runnable {
 
             ZMsg reply = new ZMsg();
             reply.add(clientAddress.duplicate());
-            reply.add("");
+            reply.add(""); // delimiter
 
             String trimmedCommand = input.trim();
             if (trimmedCommand.startsWith("/")) {
@@ -43,19 +43,23 @@ public class CompletionServer implements Runnable {
                     Predicate<String> filter = trimmedCommand.equals("/") ?
                             n -> true : n -> n.startsWith(trimmedCommand.substring(1));
 
+                    anchor[0] = 0;
+                    reply.add(Integer.toString(anchor[0]));
                     commandNames.stream()
                             .filter(filter)
                             .forEach(s -> reply.add("/" + s));
-                    anchor[0] = 0;
                 }
             } else {
                 try {
-                    analysis.completionSuggestions(input, cursor, anchor).stream()
+                    java.util.List<String> suggestions = analysis.completionSuggestions(input, cursor, anchor)
+                            .stream()
                             .map(SourceCodeAnalysis.Suggestion::continuation)
-                            .forEach(reply::add);
-                    anchor[0] += cursor + 1;
+                            .toList();
+                    reply.add(Integer.toString(anchor[0] < 0 ? cursor : anchor[0]));
+                    suggestions.forEach(reply::add);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    reply.add(Integer.toString(cursor));
                 }
             }
             reply.send(socket, true);

@@ -123,7 +123,7 @@ public class RenderTemplateMiddleware implements WebMiddleware {
 
             if (exports.contains(USER_PRINCIPAL)) {
                 Stream.of(request)
-                        .filter(Objects::nonNull)
+                        .filter(PrincipalAvailable.class::isInstance)
                         .map(PrincipalAvailable.class::cast)
                         .findAny()
                         .ifPresent(principal -> tres.getContext()

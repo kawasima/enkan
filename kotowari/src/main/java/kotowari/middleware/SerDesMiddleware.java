@@ -102,10 +102,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         }
 
         return bodyWriters.stream()
-                .sorted((writer1, writer2) ->
-                        Boolean.compare(
-                                writer1.isWriteable(obj.getClass(), obj.getClass(), null, mediaType),
-                                writer2.isWriteable(obj.getClass(), obj.getClass(), null, mediaType)))
+                .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
                 .map(writer -> {
                     try {
                         ((MessageBodyWriter) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);

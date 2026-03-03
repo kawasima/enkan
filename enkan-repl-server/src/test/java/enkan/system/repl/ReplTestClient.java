@@ -89,6 +89,10 @@ public class ReplTestClient implements AutoCloseable {
                 throw new AssertionError("Timed out waiting for completion reply");
             }
             reply.pop(); // delimiter
+            if (reply.isEmpty()) {
+                return List.of();
+            }
+            reply.pop(); // anchor
             List<String> candidates = new ArrayList<>();
             while (!reply.isEmpty()) {
                 candidates.add(reply.popString());

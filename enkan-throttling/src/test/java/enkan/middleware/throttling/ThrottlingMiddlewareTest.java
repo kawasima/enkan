@@ -12,86 +12,107 @@ import enkan.throttling.Throttle;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static enkan.util.BeanBuilder.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThrottlingMiddlewareTest {
-    @Test
-    public void sameIP() throws InterruptedException {
-        List<Throttle> throttles = Collections.singletonList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
-        );
+    private static final MiddlewareChain<HttpRequest, HttpResponse, ?, ?> NEXT =
+            new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
+                    (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of("ok"));
 
-        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
+    private ThrottlingMiddleware middleware(List<Throttle> throttles) {
+        return builder(new ThrottlingMiddleware())
                 .set(ThrottlingMiddleware::setThrottles, throttles)
                 .build();
+    }
 
+    private DefaultHttpRequest requestFrom(String ip) {
         DefaultHttpRequest req = new DefaultHttpRequest();
-        req.setRemoteAddr("127.0.0.1");
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
-                (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
-        final AtomicInteger count200 = new AtomicInteger(0);
-        try (ScheduledExecutorService service = Executors.newScheduledThreadPool(3)) {
-            service.scheduleAtFixedRate(() -> {
-                HttpResponse res = middleware.handle(req, chain);
-                if (res.getStatus() == 200) {
-                    count200.addAndGet(1);
-                }
-            }, 0, 250, TimeUnit.MILLISECONDS);
-
-            service.schedule(service::shutdown, 4, TimeUnit.SECONDS);
-
-            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
-                service.shutdownNow();
-            }
-        }
-
-        assertThat(count200.get()).isGreaterThan(3);
+        req.setRemoteAddr(ip);
+        return req;
     }
 
     @Test
-    public void randomIP() throws InterruptedException {
-        List<Throttle> throttles = Collections.singletonList(
-                new Throttle("IP", new LimitRate(1, Duration.ofMillis(500L)), HttpRequest::getRemoteAddr)
-        );
+    void firstRequestIsAllowed() {
+        ThrottlingMiddleware middleware = middleware(List.of(
+                new Throttle("IP", new LimitRate(3, Duration.ofMinutes(1)), HttpRequest::getRemoteAddr)
+        ));
 
-        ThrottlingMiddleware middleware = builder(new ThrottlingMiddleware())
-                .set(ThrottlingMiddleware::setThrottles, throttles)
-                .build();
+        HttpResponse res = middleware.handle(requestFrom("10.0.0.1"), NEXT);
+        assertThat(res.getStatus()).isEqualTo(200);
+    }
 
-        DefaultHttpRequest req = new DefaultHttpRequest();
-        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
-                (Endpoint<HttpRequest, HttpResponse>) request -> HttpResponse.of(""));
+    @Test
+    void requestsWithinLimitAreAllowed() {
+        ThrottlingMiddleware middleware = middleware(List.of(
+                new Throttle("IP", new LimitRate(3, Duration.ofMinutes(1)), HttpRequest::getRemoteAddr)
+        ));
+        DefaultHttpRequest req = requestFrom("10.0.0.1");
 
-        Random random = new Random();
-        final AtomicInteger count429 = new AtomicInteger(0);
-        try (ScheduledExecutorService service = Executors.newScheduledThreadPool(3)) {
-            service.scheduleAtFixedRate(() -> {
-                req.setRemoteAddr(random.nextInt(1, 255)
-                        + "." + random.nextInt(1, 255)
-                        + "." + random.nextInt(1, 255)
-                        + "." + random.nextInt(1, 255)
-                );
-                HttpResponse res = middleware.handle(req, chain);
-                if (res.getStatus() == 429) {
-                    count429.addAndGet(1);
-                }
-            }, 0, 250, TimeUnit.MILLISECONDS);
+        // capacity=3: first 3 requests should pass
+        for (int i = 0; i < 3; i++) {
+            assertThat(middleware.handle(req, NEXT).getStatus())
+                    .as("request %d should be 200", i + 1)
+                    .isEqualTo(200);
+        }
+    }
 
-            service.schedule(service::shutdown, 3, TimeUnit.SECONDS);
-            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
-                service.shutdownNow();
-            }
+    @Test
+    void requestsExceedingLimitAreThrottled() {
+        ThrottlingMiddleware middleware = middleware(List.of(
+                new Throttle("IP", new LimitRate(3, Duration.ofMinutes(1)), HttpRequest::getRemoteAddr)
+        ));
+        DefaultHttpRequest req = requestFrom("10.0.0.1");
 
-            assertThat(count429.get()).isEqualTo(0);
+        // Exhaust the bucket
+        for (int i = 0; i < 3; i++) {
+            middleware.handle(req, NEXT);
+        }
+
+        // 4th request must be throttled
+        HttpResponse res = middleware.handle(req, NEXT);
+        assertThat(res.getStatus()).isEqualTo(429);
+    }
+
+    @Test
+    void differentClientsHaveIndependentBuckets() {
+        ThrottlingMiddleware middleware = middleware(List.of(
+                new Throttle("IP", new LimitRate(1, Duration.ofMinutes(1)), HttpRequest::getRemoteAddr)
+        ));
+
+        // Exhaust bucket for client A
+        middleware.handle(requestFrom("10.0.0.1"), NEXT);
+
+        // Client B should still be allowed
+        HttpResponse res = middleware.handle(requestFrom("10.0.0.2"), NEXT);
+        assertThat(res.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    void nullDiscriminatorIsAlwaysAllowed() {
+        ThrottlingMiddleware middleware = middleware(List.of(
+                // discriminator returns null when remoteAddr is null
+                new Throttle("IP", new LimitRate(1, Duration.ofMinutes(1)), HttpRequest::getRemoteAddr)
+        ));
+
+        DefaultHttpRequest req = new DefaultHttpRequest(); // remoteAddr = null
+
+        for (int i = 0; i < 5; i++) {
+            assertThat(middleware.handle(req, NEXT).getStatus())
+                    .as("null discriminator should always pass through")
+                    .isEqualTo(200);
+        }
+    }
+
+    @Test
+    void noThrottlesAlwaysPassThrough() {
+        ThrottlingMiddleware middleware = middleware(List.of());
+
+        for (int i = 0; i < 10; i++) {
+            assertThat(middleware.handle(requestFrom("10.0.0.1"), NEXT).getStatus())
+                    .isEqualTo(200);
         }
     }
 }

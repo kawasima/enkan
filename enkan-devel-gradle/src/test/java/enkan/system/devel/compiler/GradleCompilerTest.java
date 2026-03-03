@@ -30,14 +30,20 @@ public class GradleCompilerTest {
         );
     }
 
+    private GradleCompiler newCompiler() {
+        GradleCompiler compiler = new GradleCompiler();
+        compiler.setProjectDirectory("target/proj");
+        compiler.setGradleVersion("8.14.4"); // test project has no wrapper
+        return compiler;
+    }
+
     @Test
     public void success() throws IOException {
         FileUtils.copyFileToDirectory(
                 new File("src/test/resources/Hello.java"),
                 new File("target/proj/src/main/java")
         );
-        GradleCompiler compiler = new GradleCompiler();
-        compiler.setProjectDirectory("target/proj");
+        GradleCompiler compiler = newCompiler();
 
         List<ReplResponse> responses = new ArrayList<>();
         Transport t = new Transport() {
@@ -62,8 +68,7 @@ public class GradleCompilerTest {
                 new File("src/test/resources/HelloError.java"),
                 new File("target/proj/src/main/java")
         );
-        GradleCompiler compiler = new GradleCompiler();
-        compiler.setProjectDirectory("target/proj");
+        GradleCompiler compiler = newCompiler();
 
         List<ReplResponse> responses = new ArrayList<>();
         Transport t = new Transport() {

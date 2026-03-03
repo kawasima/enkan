@@ -62,9 +62,21 @@ public class RemoteCompleter implements Completer {
         }
 
         response.pop(); // delimiter
+        if (response.isEmpty()) {
+            return;
+        }
+
+        int anchor;
+        try {
+            anchor = Integer.parseInt(response.popString());
+        } catch (NumberFormatException e) {
+            return;
+        }
+
+        String prefix = buffer.substring(0, Math.min(anchor, buffer.length()));
         while (!response.isEmpty()) {
-            String suggestion = response.popString();
-            candidates.add(new Candidate(suggestion));
+            String continuation = response.popString();
+            candidates.add(new Candidate(prefix + continuation));
         }
     }
 }

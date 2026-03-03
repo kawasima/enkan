@@ -18,6 +18,8 @@ import enkan.middleware.session.MemoryStore;
 import enkan.util.MixinUtils;
 import net.unit8.moshas.MoshasEngine;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -29,12 +31,14 @@ import java.util.Objects;
  * @author kawasima
  */
 @Middleware(name = "traceWeb")
-public class TraceWebMiddleware implements WebMiddleware {
+public class TraceWebMiddleware implements WebMiddleware, Closeable {
     private final LinkedList<LogKey> idList;
     private final KeyValueStore store;
     private String mountPath = "/x-enkan/requests";
-    private final TraceRouting traceRouting;
-    private long storeSize = 100;
+    private TraceRouting traceRouting;
+    private final TraceList traceList;
+    private final TraceDetail traceDetail;
+    private int storeSize = 100;
 
     public static class ElapseTime {
         private Long inbound;
@@ -71,15 +75,25 @@ public class TraceWebMiddleware implements WebMiddleware {
         idList = new LinkedList<>();
 
         MoshasEngine moshas = new MoshasEngine();
-        TraceList traceList = new TraceList(moshas);
-        TraceDetail traceDetail = new TraceDetail(moshas);
+        traceList = new TraceList(moshas);
+        traceDetail = new TraceDetail(moshas);
 
+        traceRouting = buildTraceRouting(mountPath);
+    }
 
-        traceRouting = new TraceRouting(mountPath);
-        traceRouting.add("/", (req, os) -> traceList.render(os, "logs", idList));
-        traceRouting.add("/[a-z0-9\\-]+", (req, os) -> {
+    private TraceRouting buildTraceRouting(String basePath) {
+        TraceRouting routing = new TraceRouting(basePath);
+        routing.add("/", (req, os) -> {
+            synchronized (this) {
+                traceList.render(os, "logs", new LinkedList<>(idList));
+            }
+        });
+        routing.add("/[a-z0-9\\-]+", (req, os) -> {
             String id = req.getUri().substring(req.getUri().lastIndexOf("/") + 1);
             RequestLog requestLog = (RequestLog) store.read(id);
+            if (requestLog == null) {
+                throw new TraceRouting.RouteNotFoundException();
+            }
 
             LinkedList<ElapseTime> middlewareTraces = new LinkedList<>();
 
@@ -102,6 +116,7 @@ public class TraceWebMiddleware implements WebMiddleware {
                     "parameters", requestLog.parameters(),
                     "traces", middlewareTraces);
         });
+        return routing;
     }
 
     @Override
@@ -121,7 +136,6 @@ public class TraceWebMiddleware implements WebMiddleware {
                 store.write(requestTrace.getId(), new RequestLog(request.getHeaders(), request.getParams(),
                         requestTrace.getTraceLog(), response.getTraceLog()));
             }
-            idList.add(new LogKey(requestTrace.getId(), request.getRequestMethod(), request.getUri()));
 
             return response;
         }
@@ -129,6 +143,17 @@ public class TraceWebMiddleware implements WebMiddleware {
 
     public void setMountPath(String mountPath) {
         this.mountPath = mountPath;
+        this.traceRouting = buildTraceRouting(mountPath);
+    }
+
+    public void close() {
+        if (store instanceof Closeable closeable) {
+            try {
+                closeable.close();
+            } catch (IOException ignore) {
+                // Ignore exceptions during shutdown hook of development middleware.
+            }
+        }
     }
 
     public static class LogKey implements Serializable, Comparable<LogKey> {
@@ -185,7 +210,7 @@ public class TraceWebMiddleware implements WebMiddleware {
      *
      * @param storeSize the number of stored requests
      */
-    public void setStoreSize(long storeSize) {
+    public void setStoreSize(int storeSize) {
         this.storeSize = storeSize;
     }
 }

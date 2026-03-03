@@ -1,6 +1,5 @@
 package enkan.system.devel;
 
-import java.io.OutputStream;
 import java.io.Serializable;
 
 /**
@@ -10,12 +9,6 @@ import java.io.Serializable;
  */
 public class CompileResult implements Serializable {
     private Throwable executionException;
-    private OutputStream out;
-    private OutputStream err;
-
-    public CompileResult() {
-
-    }
 
     public Throwable getExecutionException() {
         return executionException;
@@ -23,13 +16,5 @@ public class CompileResult implements Serializable {
 
     public void setExecutionException(Throwable executionException) {
         this.executionException = executionException;
-    }
-
-    public OutputStream getOut() {
-        return out;
-    }
-
-    public OutputStream getErr() {
-        return err;
     }
 }
