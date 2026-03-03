@@ -17,7 +17,9 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -30,7 +32,7 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
     private String prefix = "templates/";
     private String suffix = ".html";
     private ClassLoader classLoader;
-    private String encoding = "UTF-8";
+    private Charset charset = Charset.forName("UTF-8");
 
     private Set<IDialect> dialects;
     private Set<ITemplateResolver> templateResolvers;
@@ -43,16 +45,13 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
 
     @Override
     public HttpResponse render(String name, Object... keyOrVals) {
+        if (thymeleafEngine == null) {
+            throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", "ThymeleafTemplateEngine", getClass().getSimpleName());
+        }
         TemplatedHttpResponse response = TemplatedHttpResponse.create(name, keyOrVals);
         response.setBody(new LazyRenderInputStream(() -> {
-            // FIXME set locale.
-            Context ctx = new Context(Locale.US, response.getContext());
-
-            try {
-                return new ByteArrayInputStream(thymeleafEngine.process(name, ctx).getBytes(encoding));
-            } catch (UnsupportedEncodingException e) {
-                throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
-            }
+            Context ctx = new Context(Locale.getDefault(), response.getContext());
+            return new ByteArrayInputStream(thymeleafEngine.process(name, ctx).getBytes(charset));
         }));
 
         HttpResponseUtils.contentType(response, "text/html");
@@ -108,14 +107,13 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
     }
 
     private ITemplateResolver createDefaultTemplateResolver() {
-        if (classLoader == null) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver(classLoader);
+        ClassLoader cl = (classLoader != null) ? classLoader
+                : Thread.currentThread().getContextClassLoader();
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver(cl);
         resolver.setTemplateMode(TemplateMode.HTML);
         resolver.setPrefix(prefix);
         resolver.setSuffix(suffix);
-        resolver.setCharacterEncoding(encoding);
+        resolver.setCharacterEncoding(charset.name());
         return resolver;
     }
 
@@ -148,6 +146,10 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
     }
 
     public void setEncoding(String encoding) {
-        this.encoding = encoding;
+        try {
+            this.charset = Charset.forName(encoding);
+        } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+            throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
+        }
     }
 }
