@@ -61,26 +61,28 @@ public class JettyAdapter {
         return config;
     }
 
-    private SslContextFactory createSslContextFactory(OptionMap options) {
+    private SslContextFactory.Server createSslContextFactory(OptionMap options) {
         final SslContextFactory.Server context = new SslContextFactory.Server();
         Object keystore = options.get("keystore");
-        if (keystore instanceof KeyStore) {
-            context.setKeyStore((KeyStore) keystore);
+        if (keystore instanceof KeyStore ks) {
+            context.setKeyStore(ks);
         } else {
-            throw new MisconfigurationException("");
+            throw new MisconfigurationException("web.SSL_KEYSTORE_REQUIRED");
         }
         context.setKeyStorePassword(options.getString("keystorePassword"));
 
         Object truststore = options.get("truststore");
-         if (truststore instanceof KeyStore) {
-            context.setTrustStore((KeyStore) truststore);
+        if (truststore instanceof KeyStore ts) {
+            context.setTrustStore(ts);
         }
         context.setTrustStorePassword(options.getString("truststorePassword"));
 
         String clientAuth = options.getString("clientAuth", "none");
         switch (clientAuth) {
-            case "need": context.setNeedClientAuth(true); break;
-            case "want": context.setWantClientAuth(true); break;
+            case "need" -> context.setNeedClientAuth(true);
+            case "want" -> context.setWantClientAuth(true);
+            case "none" -> { /* no-op */ }
+            default -> throw new MisconfigurationException("web.INVALID_CLIENT_AUTH", clientAuth);
         }
 
         return context;
@@ -94,8 +96,7 @@ public class JettyAdapter {
         config.addCustomizer(new SecureRequestCustomizer());
         HttpConnectionFactory httpFactory = new HttpConnectionFactory(config);
 
-        SslContextFactory.Server sslServer = new SslContextFactory.Server();
-        SslConnectionFactory sslFactory = new SslConnectionFactory(sslServer, "http/1.1");
+        SslConnectionFactory sslFactory = new SslConnectionFactory(createSslContextFactory(options), "http/1.1");
 
         ServerConnector connector = new ServerConnector(server, sslFactory, httpFactory);
         connector.setPort(sslPort);
@@ -113,15 +114,15 @@ public class JettyAdapter {
         return connector;
     }
 
-    private ThreadPool createThreadPool() {
-        QueuedThreadPool pool = new QueuedThreadPool(50);
-        pool.setMinThreads(8);
+    private ThreadPool createThreadPool(OptionMap options) {
+        QueuedThreadPool pool = new QueuedThreadPool(options.getInt("maxThreads", 50));
+        pool.setMinThreads(options.getInt("minThreads", 8));
         return pool;
     }
 
     @SuppressWarnings("unchecked")
     private Server createServer(OptionMap options) {
-        Server server = new Server(createThreadPool());
+        Server server = new Server(createThreadPool(options));
 
         BiFunction<Server, OptionMap, ServerConnector> serverConnectorFactory = (BiFunction<Server, OptionMap, ServerConnector>) options.get("serverConnectorFactory");
         if (serverConnectorFactory != null) {
@@ -157,10 +158,10 @@ public class JettyAdapter {
         } catch (Exception ex) {
             try {
                 server.stop();
-                throw new FalteringEnvironmentException(ex);
             } catch (Exception stopEx) {
-                throw new FalteringEnvironmentException(stopEx);
+                ex.addSuppressed(stopEx);
             }
+            throw new FalteringEnvironmentException(ex);
         }
         return server;
     }

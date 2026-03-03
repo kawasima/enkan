@@ -9,6 +9,7 @@ import enkan.component.WebServerComponent;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
+import enkan.exception.MisconfigurationException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 
@@ -32,7 +33,10 @@ public class JettyComponent extends WebServerComponent<JettyComponent> {
                     OptionMap options = buildOptionMap();
                     if (serverConnectorFactory != null) options.put("serverConnectorFactory", serverConnectorFactory);
                     options.put("join?", false);
-                    server = new JettyAdapter().runJetty((WebApplication) app.getApplication(), options);
+                    if (!(app.getApplication() instanceof WebApplication webApp)) {
+                        throw new MisconfigurationException("web.APPLICATION_NOT_WEB");
+                    }
+                    server = new JettyAdapter().runJetty(webApp, options);
                 }
             }
 
