@@ -2,6 +2,7 @@ package enkan.component.jpa;
 
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
+import enkan.exception.MisconfigurationException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -17,13 +18,18 @@ public abstract class EntityManagerProvider<T extends SystemComponent<T>> extend
     private Map<String, Object> jpaProperties = new HashMap<>();
 
     private EntityManagerFactory entityManagerFactory;
+
     public EntityManager createEntityManager() {
+        if (entityManagerFactory == null) {
+            throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", "EntityManagerFactory", getClass().getSimpleName());
+        }
         return entityManagerFactory.createEntityManager();
     }
 
     public void setName(String name) {
         this.name = name;
     }
+
     public void setJpaProperties(Map<String, Object> jpaProperties) {
         this.jpaProperties = jpaProperties;
     }
@@ -45,10 +51,20 @@ public abstract class EntityManagerProvider<T extends SystemComponent<T>> extend
     }
 
     protected DataSource getDataSource() {
+        if (dataSourceComponent == null) {
+            throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", "DataSourceComponent", getClass().getSimpleName());
+        }
         return dataSourceComponent.getDataSource();
     }
 
     protected void setDataSourceComponent(DataSourceComponent<?> dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
+    }
+
+    protected void closeEntityManagerFactory() {
+        if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
+            entityManagerFactory.close();
+        }
+        entityManagerFactory = null;
     }
 }

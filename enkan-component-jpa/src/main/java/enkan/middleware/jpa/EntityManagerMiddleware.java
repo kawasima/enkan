@@ -1,5 +1,6 @@
 package enkan.middleware.jpa;
 
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.component.jpa.EntityManagerProvider;

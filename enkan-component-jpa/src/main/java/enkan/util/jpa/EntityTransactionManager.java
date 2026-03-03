@@ -29,17 +29,4 @@ public class EntityTransactionManager {
         }
     }
 
-    public void requiresNew(EntityManager em, Runnable r) {
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        try {
-            r.run();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        }
-    }
 }
