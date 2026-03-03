@@ -7,7 +7,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * State object in conversation scope.
+ * A map-backed state container scoped to a long-running conversation.
+ *
+ * <p>While a {@link enkan.data.Session} spans the entire browser session,
+ * a {@code ConversationState} is tied to a single multi-step workflow
+ * (e.g. a wizard).  Multiple conversation states may coexist within one
+ * session, each identified by the ID of its owning
+ * {@link jakarta.enterprise.context.Conversation}.
+ *
+ * <p>Entries survive across requests that belong to the same conversation
+ * and are discarded when the conversation ends.
  *
  * @author kawasima
  */

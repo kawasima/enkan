@@ -14,8 +14,8 @@ title=Getting started | Enkan
 
 You can create an Enkan's blank project from maven archetype.  
 
-```language bash
-% mvn archetype:generate -DarchetypeGroupId=net.unit8.enkan -DarchetypeArtifactId=kotowari-archetype -DarchetypeVersion=0.11.0
+```language-bash
+% mvn archetype:generate -DarchetypeGroupId=net.unit8.enkan -DarchetypeArtifactId=kotowari-archetype -DarchetypeVersion=0.12.0-SNAPSHOT
 ```
 
 By default, following components is enabled.
@@ -36,7 +36,7 @@ By default, following components is enabled.
 If you execute the `/start` command, application will start.
 
 ```language-bash
-enkan> /start /
+enkan> /start
 ```
 
 ## Scaffolding

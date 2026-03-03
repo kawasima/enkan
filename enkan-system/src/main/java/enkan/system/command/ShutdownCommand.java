@@ -7,6 +7,8 @@ import enkan.system.Transport;
 import static enkan.system.ReplResponse.ResponseStatus.SHUTDOWN;
 
 public class ShutdownCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         system.stop();

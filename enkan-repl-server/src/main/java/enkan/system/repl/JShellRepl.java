@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.*;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -250,9 +249,8 @@ public class JShellRepl implements Repl {
 
     @Override
     public void run() {
-        ZContext ctx = new ZContext();
-
-        try (ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
+        try (ZContext ctx = new ZContext();
+             ZMQ.Socket server = ctx.createSocket(SocketType.ROUTER);
              ZMQ.Socket completerSock = ctx.createSocket(SocketType.ROUTER)) {
             int port = Env.getInt("repl.port", 0);
             String host = Env.getString("repl.host", "localhost");
@@ -317,21 +315,12 @@ public class JShellRepl implements Repl {
             backgroundTasks.values().forEach(task -> task.cancel(true));
             threadPool.shutdownNow();
             jshell.close();
-            ctx.destroy();
         }
 
     }
 
-    private static class JShellMessage implements Serializable {
+    private static class JShellMessage {
         private final List<String> outs = new ArrayList<>();
         private final List<String> errs = new ArrayList<>();
-
-        public List<String> getOuts() {
-            return outs;
-        }
-
-        public List<String> getErrs() {
-            return errs;
-        }
     }
 }

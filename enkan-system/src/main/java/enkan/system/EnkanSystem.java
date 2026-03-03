@@ -9,7 +9,26 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Enkan system.
+ * The top-level container that owns and orchestrates all system components.
+ *
+ * <p>An {@code EnkanSystem} is constructed via the static factory
+ * {@link #of(Object...)} which accepts interleaved name/component pairs:
+ *
+ * <pre>{@code
+ * EnkanSystem system = EnkanSystem.of(
+ *     "datasource", new HikariCPComponent(...),
+ *     "jpa",        new JpaProvider(...),
+ *     "app",        new ApplicationComponent(...)
+ * ).relationships(
+ *     ComponentRelationship.component("jpa").using("datasource"),
+ *     ComponentRelationship.component("app").using("jpa")
+ * );
+ * system.start();
+ * }</pre>
+ *
+ * <p>Components are started in declaration order (respecting the dependency
+ * order established by {@link #relationships}) and stopped in reverse order,
+ * ensuring a clean shutdown even when components depend on one another.
  *
  * @author kawasima
  */
@@ -42,6 +61,16 @@ public class EnkanSystem {
         return system;
     }
 
+    /**
+     * Registers a component under the given name.
+     *
+     * <p>Components are started and stopped in the order they are registered
+     * (subject to any ordering imposed by {@link #relationships}).
+     *
+     * @param <T>       the self-type of the component
+     * @param name      the unique name used to look up this component
+     * @param component the component instance to register
+     */
     public <T extends SystemComponent<T>> void setComponent(String name, SystemComponent<T> component) {
         components.put(name, component);
         componentsOrder.add(name);
@@ -67,6 +96,15 @@ public class EnkanSystem {
         return (T) components.get(name);
     }
 
+    /**
+     * Returns the component registered under {@code name}, cast to
+     * {@code componentType}, or {@code null} if no matching component exists.
+     *
+     * @param <T>           the expected component type
+     * @param name          the registered component name
+     * @param componentType the class of the expected component type
+     * @return the component, or {@code null}
+     */
     public <T extends SystemComponent<T>> T getComponent(String name, Class<? extends T> componentType) {
         return components.entrySet()
                 .stream()

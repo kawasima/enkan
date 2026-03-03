@@ -1,7 +1,12 @@
 package enkan.exception;
 
 /**
- * This exception is thrown when the exception is caused by a framework bug.
+ * Thrown when execution reaches a code path that the framework authors
+ * considered impossible.
+ *
+ * <p>Occurrences of this exception always indicate a bug in the framework
+ * itself.  They should be reported as issues so that the underlying
+ * invariant violation can be identified and fixed.
  *
  * @author kawasima
  */

@@ -19,6 +19,8 @@ import java.util.Optional;
  * @author kawasima
  */
 public class MiddlewareCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     private void list(Application<?, ?> app, Transport transport) {
         List<MiddlewareChain<?, ?, ?, ?>> chains = app.getMiddlewareStack();
         chains.forEach(chain -> transport.send(ReplResponse.withOut(chain.toString())));

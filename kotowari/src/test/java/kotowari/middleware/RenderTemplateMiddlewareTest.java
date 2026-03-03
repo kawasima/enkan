@@ -111,7 +111,7 @@ class RenderTemplateMiddlewareTest {
         ComponentInjector injector = new ComponentInjector(components);
         injector.inject(sut);
 
-        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain<>(Predicates.ANY, "null",
+        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse>(Predicates.any(), "null",
                 (Endpoint<HttpRequest, HttpResponse>) request1 -> templateEngine.render("template1")));
         assertThat(res.getBodyAsString()).isEqualTo("hello");
     }

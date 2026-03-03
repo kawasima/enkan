@@ -26,8 +26,8 @@ public class ConfigurationLoader extends ClassLoader {
         URL[] urls = getURLs(parent);
 
         dirs = Arrays.stream(urls)
-                .filter(this::isDirectory)
-                .filter(this::hasReloadDescriptor)
+                .filter(ConfigurationLoader::isDirectoryUrl)
+                .filter(ConfigurationLoader::hasReloadDescriptorUrl)
                 .map(url -> {
                     try {
                         return new File(url.toURI());
@@ -38,7 +38,7 @@ public class ConfigurationLoader extends ClassLoader {
                 .collect(Collectors.toList());
     }
 
-    private boolean hasReloadDescriptor(URL dir) {
+    private static boolean hasReloadDescriptorUrl(URL dir) {
         try {
             return Files.exists(new File(dir.toURI()).toPath().resolve("META-INF/reload.xml"));
         } catch (URISyntaxException e) {
@@ -69,12 +69,16 @@ public class ConfigurationLoader extends ClassLoader {
         return Files.exists(dir.toPath().resolve(path.replace('.', '/') + ".class"));
     }
 
-    protected boolean isDirectory(URL url) {
+    private static boolean isDirectoryUrl(URL url) {
         try {
             return url.getProtocol().equals("file") && new File(url.toURI()).isDirectory();
         } catch (URISyntaxException e) {
             return false;
         }
+    }
+
+    protected boolean isDirectory(URL url) {
+        return isDirectoryUrl(url);
     }
 
     protected boolean isTarget(String name) {

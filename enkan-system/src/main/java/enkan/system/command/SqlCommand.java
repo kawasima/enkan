@@ -7,12 +7,13 @@ import enkan.system.SystemCommand;
 import enkan.system.Transport;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SqlCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     private static final Set<String> WRITE_KEYWORDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     static {
         WRITE_KEYWORDS.addAll(Arrays.asList(
@@ -89,7 +90,7 @@ public class SqlCommand implements SystemCommand {
         return true;
     }
 
-    private record ColumnMeta(String name, int dispSize) implements Serializable {
+    private record ColumnMeta(String name, int dispSize) {
         @java.beans.ConstructorProperties({"name", "dispSize"})
         private ColumnMeta {
         }

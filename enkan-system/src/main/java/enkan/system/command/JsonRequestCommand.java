@@ -23,6 +23,8 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  * @author kawasima
  */
 public class JsonRequestCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */

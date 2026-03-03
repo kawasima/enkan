@@ -18,7 +18,8 @@ public class FlashInjector<T extends Serializable> implements ParameterInjector<
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Flash<T> getInjectObject(HttpRequest request) {
-        return request.getFlash();
+        return (Flash<T>) request.getFlash();
     }
 }

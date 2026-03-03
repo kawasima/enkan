@@ -6,6 +6,7 @@ import enkan.system.SystemCommand;
 import enkan.system.Transport;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The HelpCommand class provides a method to execute a help command.
@@ -14,10 +15,12 @@ import java.util.Set;
  * @author kawasima
  */
 public class HelpCommand implements SystemCommand {
-    private final Set<String> commands;
+    private static final long serialVersionUID = 1L;
+
+    private final TreeSet<String> commands;
 
     public HelpCommand(Set<String> commands) {
-        this.commands = commands;
+        this.commands = new TreeSet<>(commands);
     }
 
     @Override
