@@ -259,19 +259,6 @@ Jackson component provides a bean converter using Jackson ObjectMapper.
 </dependency>
 ```
 
-## S2UtilBeans
-
-S2UtilBeans component provides a bean converter using S2 Util Beans.
-
-### Usage
-
-```xml
-<dependency>
-  <groupId>net.unit8.enkan</groupId>
-  <artifactId>enkan-component-s2util-beans</artifactId>
-</dependency>
-```
-
 ## Metrics
 
 Metrics component provides the feature of collecting application metrics using Dropwizard Metrics.
