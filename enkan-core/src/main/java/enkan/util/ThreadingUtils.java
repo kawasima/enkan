@@ -30,16 +30,14 @@ public class ThreadingUtils {
         Object v = start;
         LinkedList<ThreadingFunction<?,?>> funcQueue = new LinkedList<>(Arrays.asList(functions));
         while(!funcQueue.isEmpty()) {
-            ThreadingFunction<?, ?> f = funcQueue.removeFirst();
+            ThreadingFunction<Object, ?> typedFunction = (ThreadingFunction<Object, ?>) funcQueue.removeFirst();
             try {
-                @SuppressWarnings("unchecked")
-                ThreadingFunction<Object, ?> typedFunction = (ThreadingFunction<Object, ?>) f;
                 v = typedFunction.apply(v);
             } catch (Exception e) {
                 if (DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS.contains(e.getClass())) {
                     throw new IllegalArgumentException(e);
-                } else if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
+                } else if (e instanceof RuntimeException re) {
+                    throw re;
                 } else {
                     throw new RuntimeException(e);
                 }

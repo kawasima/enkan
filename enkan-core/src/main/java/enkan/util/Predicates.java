@@ -10,20 +10,20 @@ import java.util.function.Predicate;
  * @author kawasima
  */
 public class Predicates {
-    public static final NonePredicate NONE = new NonePredicate<>();
-    public static final AnyPredicate ANY = new AnyPredicate<>();
+    public static final NonePredicate<?> NONE = new NonePredicate<>();
+    public static final AnyPredicate<?> ANY = new AnyPredicate<>();
 
     private Predicates() {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Predicate<? super T> any() {
-        return ANY;
+    public static <T> Predicate<T> any() {
+        return (AnyPredicate<T>) ANY;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Predicate<? super T> none() {
-        return NONE;
+    public static <T> Predicate<T> none() {
+        return (NonePredicate<T>) NONE;
     }
 
     @SafeVarargs

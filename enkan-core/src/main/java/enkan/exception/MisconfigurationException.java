@@ -1,8 +1,6 @@
 package enkan.exception;
 
 import enkan.util.MergeableResourceBundleControl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -14,7 +12,6 @@ import java.util.*;
  * @author kawasima
  */
 public class MisconfigurationException extends UnrecoverableException {
-    private static final Logger LOG = LoggerFactory.getLogger("enkan.misconfiguration");
     private final String problem;
     private final String solution;
 

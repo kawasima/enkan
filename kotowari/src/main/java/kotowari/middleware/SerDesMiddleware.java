@@ -46,9 +46,6 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     private final List<MessageBodyWriter<?>> bodyWriters = new ArrayList<>();
     private List<ParameterInjector<?>> parameterInjectors;
 
-    private static final MediaType APPLICATION_JSON_TYPE = MediaType.APPLICATION_JSON_TYPE;
-    private static final MediaType TEXT_PLAIN_TYPE = MediaType.TEXT_PLAIN_TYPE;
-
     @PostConstruct
     private void loadReaderAndWriter() {
         Map<String, SystemComponent<?>> components = new HashMap<>();
@@ -105,7 +102,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 .filter(writer -> writer.isWriteable(obj.getClass(), obj.getClass(), null, mediaType))
                 .map(writer -> {
                     try {
-                        ((MessageBodyWriter) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
+                        ((MessageBodyWriter<Object>) writer).writeTo(obj, obj.getClass(), obj.getClass(), null, mediaType, headers, baos);
                         return baos.toByteArray();
                     } catch (IOException e) {
                         return null;

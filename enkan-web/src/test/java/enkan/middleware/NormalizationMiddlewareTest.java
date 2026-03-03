@@ -45,7 +45,7 @@ class NormalizationMiddlewareTest {
     @Test
     void trimNormalization() {
         NormalizationMiddleware middleware = new NormalizationMiddleware(
-                normalization(Predicates.ANY, new TrimNormalizer())
+                normalization(Predicates.any(), new TrimNormalizer())
         );
         HttpRequest request = new DefaultHttpRequest();
         request.setParams(Parameters.of("A", " B ", "C", 1));

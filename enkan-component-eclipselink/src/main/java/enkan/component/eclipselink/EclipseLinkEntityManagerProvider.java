@@ -7,8 +7,6 @@ import enkan.exception.UnreachableException;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
 import org.eclipse.persistence.logging.slf4j.SLF4JLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -20,24 +18,41 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 /**
- * The provider for entity manager by EclipseLink.
+ * An {@link enkan.component.jpa.EntityManagerProvider} implementation backed by EclipseLink.
+ *
+ * <p>On startup, builds an {@link jakarta.persistence.EntityManagerFactory} from
+ * {@code persistence.xml} if present on the classpath, or falls back to the classpath root.
+ * Operates in {@code RESOURCE_LOCAL} transaction mode (no JTA), and bridges EclipseLink
+ * logging to SLF4J.</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * EclipseLinkEntityManagerProvider provider = BeanBuilder
+ *     .builder(new EclipseLinkEntityManagerProvider())
+ *     .set(EclipseLinkEntityManagerProvider::setName, "myPU")
+ *     .set(EclipseLinkEntityManagerProvider::registerClass, MyEntity.class)
+ *     .build();
+ * }</pre>
  *
  * @author kawasima
  */
 public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<EclipseLinkEntityManagerProvider> {
-    private static final Logger LOG = LoggerFactory.getLogger(EclipseLinkEntityManagerProvider.class);
-
-    /** Managed classes */
+    /** Entity classes to be managed by JPA. */
     private final List<Class<?>> managedClasses = new ArrayList<>();
 
+    /** SQL log level for EclipseLink. Defaults to {@code "FINE"}. */
     private String sqlLogLevel = "FINE";
 
     /**
-     * {@inheritDoc}
+     * Returns the lifecycle of this component.
+     *
+     * <p>On start, constructs a {@link SEPersistenceUnitInfo} and initializes the
+     * {@link EntityManagerFactory}. On stop, closes the {@link EntityManagerFactory}.</p>
+     *
+     * @return the lifecycle of this component
      */
     @Override
     protected ComponentLifecycle<EclipseLinkEntityManagerProvider> lifecycle() {
@@ -68,14 +83,14 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
 
                 List<String> managedClassNames = managedClasses.stream()
                         .map(Class::getName)
-                        .collect(Collectors.toList());
+                        .toList();
                 pu.setManagedClassNames(managedClassNames);
                 pu.setExcludeUnlistedClasses(true);
 
                 getJpaProperties().put(PersistenceUnitProperties.ECLIPSELINK_SE_PUINFO, pu);
                 getJpaProperties().put(PersistenceUnitProperties.SESSION_NAME, UUID.randomUUID().toString());
                 getJpaProperties().put(PersistenceUnitProperties.LOGGING_LEVEL + ".sql", sqlLogLevel);
-                // Bridge to SLF4j
+                // Bridge EclipseLink logging to SLF4J
                 getJpaProperties().put(PersistenceUnitProperties.LOGGING_LOGGER, SLF4JLogger.class.getName());
 
                 component.setEntityManagerFactory(Persistence
@@ -93,27 +108,32 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
     }
 
     /**
-     * Register a class managed by Eclipselink.
+     * Registers a single entity class to be managed by EclipseLink.
      *
-     * @param managedClass A class managed by Eclipselink
+     * @param managedClass the entity class to register
      */
     public void registerClass(Class<?> managedClass) {
         managedClasses.add(managedClass);
     }
 
     /**
-     * Register classes managed by Eclipselink.
+     * Registers multiple entity classes to be managed by EclipseLink.
      *
-     * @param classes classes managed by Eclipselink
+     * @param classes the entity classes to register
      */
     public void registerClasses(Class<?>... classes) {
         managedClasses.addAll(Arrays.asList(classes));
     }
 
     /**
-     * Set the logging level for executed SQLs.
+     * Sets the log level for SQL statements executed by EclipseLink.
      *
-     * @param sqlLogLevel the logging level
+     * <p>Corresponds to the {@code eclipselink.logging.level.sql} property.
+     * Accepted values are {@code OFF}, {@code SEVERE}, {@code WARNING}, {@code INFO},
+     * {@code CONFIG}, {@code FINE}, {@code FINER}, {@code FINEST}, and {@code ALL}.
+     * Defaults to {@code "FINE"}.</p>
+     *
+     * @param sqlLogLevel the SQL log level string
      */
     public void setSqlLogLevel(String sqlLogLevel) {
         this.sqlLogLevel = sqlLogLevel;

@@ -1,5 +1,6 @@
 package enkan.middleware;
 
+import enkan.collection.OptionMap;
 import enkan.data.*;
 import enkan.middleware.session.MemoryStore;
 import enkan.util.MixinUtils;
@@ -64,5 +65,37 @@ class SessionMiddlewareTest {
         });
         middleware.sessionRequest(request);
         assertThat(request.getSession()).isNull();
+    }
+
+    @Test
+    void populateAttrsAppliesConfiguredAttributes() {
+        SessionMiddleware middleware = new SessionMiddleware();
+        middleware.setCookieAttrs(OptionMap.of(
+                "domain", "example.com",
+                "path", "/app",
+                "secure", true,
+                "httpOnly", false));
+
+        Cookie cookie = Cookie.create("enkan-session", "value");
+        middleware.populateAttrs(cookie);
+
+        assertThat(cookie.getDomain()).isEqualTo("example.com");
+        assertThat(cookie.getPath()).isEqualTo("/app");
+        assertThat(cookie.isSecure()).isTrue();
+        assertThat(cookie.isHttpOnly()).isFalse();
+    }
+
+    @Test
+    void populateAttrsSkipsAbsentAttributes() {
+        SessionMiddleware middleware = new SessionMiddleware();
+        // Only "path" is set — "domain" and "secure" are absent.
+        middleware.setCookieAttrs(OptionMap.of("path", "/"));
+
+        Cookie cookie = Cookie.create("enkan-session", "value");
+        middleware.populateAttrs(cookie);
+
+        assertThat(cookie.getPath()).isEqualTo("/");
+        assertThat(cookie.getDomain()).isNull();
+        assertThat(cookie.isSecure()).isFalse();
     }
 }

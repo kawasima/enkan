@@ -1,37 +1,119 @@
 package enkan.middleware;
 
+import enkan.Endpoint;
+import enkan.MiddlewareChain;
+import enkan.chain.DefaultMiddlewareChain;
 import enkan.collection.Headers;
+import enkan.data.DefaultHttpRequest;
+import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.util.HttpResponseUtils;
+import enkan.predicate.AnyPredicate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static enkan.util.BeanBuilder.builder;
+import static enkan.util.HttpResponseUtils.getHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
 class DefaultCharsetMiddlewareTest {
-    @Test
-    void test() {
-        DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
-        HttpResponse response = builder(HttpResponse.of("aaa"))
-                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
-                .build();
-        String contentType = HttpResponseUtils.getHeader(response, "Content-Type");
-        assertThat(contentType).isNotNull();
+    private DefaultCharsetMiddleware middleware;
+
+    @BeforeEach
+    void setUp() {
+        middleware = new DefaultCharsetMiddleware();
+    }
+
+    private HttpResponse handleWith(HttpResponse downstreamResponse) {
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null,
+                (Endpoint<HttpRequest, HttpResponse>) req -> downstreamResponse);
+        return middleware.handle(new DefaultHttpRequest(), chain);
     }
 
     @Test
-    void charset() {
-        DefaultCharsetMiddleware middleware = new DefaultCharsetMiddleware();
-        HttpResponse response = builder(HttpResponse.of("aaa"))
+    void addsCharsetToTextHtml() {
+        HttpResponse response = builder(HttpResponse.of("body"))
                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html"))
                 .build();
-        middleware.addCharset(response, "UTF-8");
-        String contentType = HttpResponseUtils.getHeader(response, "Content-Type");
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
+    void addsCharsetToApplicationXml() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/xml"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
+    void doesNotOverwriteExistingCharset() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html; charset=ISO-8859-1"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
         assertThat(contentType)
-                .isNotNull()
-                .contains("UTF-8");
+                .contains("charset=ISO-8859-1")
+                .doesNotContain("charset=UTF-8");
+    }
+
+    @Test
+    void doesNotAddCharsetToApplicationJson() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/json"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).doesNotContain("charset");
+    }
+
+    @Test
+    void doesNothingWhenContentTypeAbsent() {
+        HttpResponse response = HttpResponse.of("body");
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).isNull();
+    }
+
+    @Test
+    void usesConfiguredDefaultCharset() {
+        middleware.setDefaultCharset("Shift_JIS");
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=Shift_JIS");
+    }
+
+    @Test
+    void returnsNullWhenDownstreamReturnsNull() {
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null,
+                (Endpoint<HttpRequest, HttpResponse>) req -> null);
+
+        HttpResponse result = middleware.handle(new DefaultHttpRequest(), chain);
+
+        assertThat(result).isNull();
     }
 }

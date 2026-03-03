@@ -15,19 +15,18 @@ import java.util.function.Predicate;
 /**
  * The middleware for normalizing parameter values.
  *
- * @param <NRES> the type of the response object
  * @author kawasima
  */
 @Middleware(name = "normalization", dependencies = {"params"})
 public class NormalizationMiddleware implements WebMiddleware {
-    private final List<NormalizationSpec<Object>> normalizationSpecs;
+    private final List<NormalizationSpec<?>> normalizationSpecs;
 
     public NormalizationMiddleware() {
         this.normalizationSpecs = new ArrayList<>();
     }
 
     @SafeVarargs
-    public NormalizationMiddleware(NormalizationSpec<Object> spec, NormalizationSpec<Object>... specs) {
+    public NormalizationMiddleware(NormalizationSpec<?> spec, NormalizationSpec<?>... specs) {
         this();
         normalizationSpecs.add(spec);
         normalizationSpecs.addAll(Arrays.asList(specs));
@@ -45,8 +44,13 @@ public class NormalizationMiddleware implements WebMiddleware {
         return new NormalizationSpec<>(predicate, normalizer);
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> Object applyNormalizer(NormalizationSpec<T> spec, Object value) {
+        return spec.normalizer().normalize((T) value);
+    }
+
     /**
-     * Adds a normalization specification.
+     * Normalizes request parameters and passes the request to the next middleware.
      *
      * @param request the request object
      * @param chain the middleware chain
@@ -62,7 +66,7 @@ public class NormalizationMiddleware implements WebMiddleware {
 
                 normalizationSpecs.forEach(c -> {
                     if (c.predicate().test(key) && c.normalizer().canNormalize(obj.getClass())) {
-                        params.replace(key, c.normalizer().normalize(obj));
+                        params.replace(key, applyNormalizer(c, obj));
                     }
                 });
             });
@@ -71,10 +75,10 @@ public class NormalizationMiddleware implements WebMiddleware {
     }
 
     /**
-         * A normalization specification.
-         *
-         * @param <T> the type of the value to be normalized
-         */
-        public record NormalizationSpec<T>(Predicate<String> predicate, Normalizer<T> normalizer) {
+     * A normalization specification.
+     *
+     * @param <T> the type of the value to be normalized
+     */
+    public record NormalizationSpec<T>(Predicate<String> predicate, Normalizer<T> normalizer) {
     }
 }

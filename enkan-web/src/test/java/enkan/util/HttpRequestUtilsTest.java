@@ -27,7 +27,7 @@ class HttpRequestUtilsTest {
 
     @Test
     void testMixin2() {
-        class TraceableReq extends DefaultHttpRequest implements Traceable {
+        class TraceableReq extends DefaultHttpRequest {
         }
         TraceableReq request = new TraceableReq();
         for (int i = 0; i < 1000000; i++) {
@@ -38,7 +38,7 @@ class HttpRequestUtilsTest {
 
     @Test
     void testMixin3() throws Exception {
-        class TraceableReq extends DefaultHttpRequest implements Traceable {
+        class TraceableReq extends DefaultHttpRequest {
         }
         TraceableReq request = new TraceableReq();
         Method m = TraceableReq.class.getMethod("setId", String.class);

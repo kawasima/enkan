@@ -4,7 +4,6 @@ import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 
 import java.io.*;
-import java.lang.reflect.Proxy;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -158,16 +157,14 @@ public class MemoryStore implements KeyValueStore, Closeable {
          */
         @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
-                throws ClassNotFoundException {
-
-            Class<?>[] cinterfaces = new Class[interfaces.length];
-            for (int i = 0; i < interfaces.length; i++)
-                cinterfaces[i] = classLoader.loadClass(interfaces[i]);
-
+                throws ClassNotFoundException, IOException {
+            Thread currentThread = Thread.currentThread();
+            ClassLoader original = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
             try {
-                return Proxy.getProxyClass(classLoader, cinterfaces);
-            } catch (IllegalArgumentException e) {
-                throw new ClassNotFoundException(null, e);
+                return super.resolveProxyClass(interfaces);
+            } finally {
+                currentThread.setContextClassLoader(original);
             }
         }
     }

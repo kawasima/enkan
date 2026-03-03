@@ -2,7 +2,6 @@ package enkan.middleware.devel;
 
 import enkan.collection.Headers;
 import enkan.data.DefaultHttpRequest;
-import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;

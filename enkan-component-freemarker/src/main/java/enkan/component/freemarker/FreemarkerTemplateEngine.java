@@ -22,7 +22,6 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -105,7 +104,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     @Override
     public Object createFunction(Function<List<?>, Object> func) {
         return (TemplateMethodModelEx) arguments ->
-                func.apply((List) arguments.stream().map(arg -> {
+                func.apply(((List<Object>) arguments).stream().map(arg -> {
                     if (arg instanceof BeanModel) {
                         return ((BeanModel) arg).getWrappedObject();
                     } else {

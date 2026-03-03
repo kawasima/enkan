@@ -1,6 +1,6 @@
 package kotowari.example.jaxrs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -25,7 +25,7 @@ public class JsonBodyWriter<T> implements MessageBodyWriter<T> {
 
     @Override
     public void writeTo(T o, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-        mapper.writerFor(mapper.constructType(genericType))
+        mapper.writerFor(mapper.getTypeFactory().constructType(genericType))
                 .writeValue(entityStream, o);
     }
 }

@@ -30,7 +30,7 @@ import java.util.Map;
  * @author kawasima
  */
 public interface HttpRequest
-        extends UriAvailable, SessionAvailable, FlashAvailable, PrincipalAvailable, ConversationAvailable, Traceable, Extendable {
+        extends UriAvailable, SessionAvailable, FlashAvailable, PrincipalAvailable, ConversationAvailable, Traceable {
     int getServerPort();
 
     void setServerPort(int serverPort);

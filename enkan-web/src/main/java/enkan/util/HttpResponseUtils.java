@@ -4,7 +4,6 @@ import enkan.collection.Headers;
 import enkan.collection.OptionMap;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
-import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 
 import java.io.File;
@@ -79,6 +78,7 @@ public class HttpResponseUtils {
      * @param <T>  the type of the header value
      * @return the header value
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getHeader(HttpResponse response, String name) {
         return (T) response.getHeaders().get(name);
     }
@@ -100,7 +100,7 @@ public class HttpResponseUtils {
      * @param response a response object
      * @param charset the name of the character set
      */
-    public static <T> void charset(HttpResponse response, String charset) {
+    public static void charset(HttpResponse response, String charset) {
         String type = getHeader(response, "Content-Type");
         if (type == null) {
             type = "text/plain";
@@ -140,6 +140,14 @@ public class HttpResponseUtils {
         return response;
     }
 
+    /**
+     * Sets the {@code Last-Modified} header on the response.
+     * Does nothing if {@code lastModified} is {@code null}.
+     *
+     * @param response     a response object
+     * @param lastModified the last-modified date
+     * @return the same response object
+     */
     public static HttpResponse lastModified(HttpResponse response, Date lastModified) {
         if (lastModified != null) {
             response.getHeaders().remove("Last-Modified");
@@ -152,6 +160,13 @@ public class HttpResponseUtils {
         return path.endsWith("/") ? path : path + "/";
     }
 
+    /**
+     * Returns {@code true} if the JAR entry pointed to by the connection is a directory.
+     *
+     * @param conn a JAR URL connection
+     * @return {@code true} if the entry is a directory
+     * @throws IOException if the JAR file cannot be opened
+     */
     public static boolean isJarDirectory(JarURLConnection conn) throws IOException {
         JarFile jarFile = conn.getJarFile();
         String entryName = conn.getEntryName();
@@ -159,17 +174,36 @@ public class HttpResponseUtils {
         return dirEntry != null && dirEntry.isDirectory();
     }
 
+    /**
+     * Returns the content length of the connection, or {@code null} if unknown.
+     *
+     * @param conn a URL connection
+     * @return content length in bytes, or {@code null}
+     */
     public static Long connectionContentLength(URLConnection conn) {
         long len = conn.getContentLengthLong();
         return len <= 0 ? null : len;
     }
 
+    /**
+     * Returns the last-modified date of the connection, or {@code null} if unavailable.
+     *
+     * @param conn a URL connection
+     * @return last-modified date, or {@code null}
+     */
     public static Date connectionLastModified(URLConnection conn) {
         long lastMod = conn.getLastModified();
         return lastMod > 0 ? new Date(lastMod) : null;
     }
 
-    public static ContentData resourceData(URL url) {
+    /**
+     * Returns the {@link ContentData} for the given URL, or {@code null} if the URL
+     * points to a directory or an unsupported protocol.
+     *
+     * @param url the resource URL
+     * @return content data, or {@code null}
+     */
+    public static ContentData<?> resourceData(URL url) {
         String protocol = url.getProtocol();
         if ("file".equals(protocol)) {
             try {
@@ -197,23 +231,32 @@ public class HttpResponseUtils {
         return null;
     }
 
+    /**
+     * Creates an HTTP response from the resource at the given URL.
+     *
+     * @param url the resource URL
+     * @return response, or {@code null} if the URL points to a directory
+     */
     public static HttpResponse urlResponse(URL url) {
-        ContentData data = resourceData(url);
+        ContentData<?> data = resourceData(url);
         if (data == null) return null;
 
-        HttpResponse response;
-        if (data instanceof FileContentData) {
-            response = HttpResponse.of(((FileContentData) data).getContent());
-        } else if (data instanceof StreamContentData) {
-            response = HttpResponse.of(((StreamContentData) data).getContent());
-        } else {
-            throw new MisconfigurationException("web.CLASSPATH", url.getProtocol(), url);
-        }
+        HttpResponse response = data.toHttpResponse();
         contentLength(response, data.getContentLength());
         lastModified(response, data.getLastModifiedDate());
         return response;
     }
 
+    /**
+     * Creates an HTTP response by loading a classpath resource.
+     * The resource path is resolved relative to the {@code root} option.
+     * If a {@code loader} option is provided it is used; otherwise the
+     * thread context class loader is used.
+     *
+     * @param path    the resource path
+     * @param options options map accepting {@code root} (String) and {@code loader} (ClassLoader)
+     * @return response, or {@code null} if the resource is not found
+     */
     public static HttpResponse resourceResponse(String path, OptionMap options) {
         String root = options.getString("root");
         path = (root != null ? root : "") + "/" + path;
@@ -227,6 +270,12 @@ public class HttpResponseUtils {
         return url != null ? urlResponse(url) : null;
     }
 
+    /**
+     * Returns {@code true} if the response body is empty (null or empty string).
+     *
+     * @param response a response object
+     * @return {@code true} if the body is empty
+     */
     public static boolean isEmptyBody(HttpResponse response) {
         Object body = response.getBody();
         return (body == null || (body instanceof String && ((String) body).isEmpty()));
@@ -243,7 +292,7 @@ public class HttpResponseUtils {
             this.lastModifiedDate = lastModifiedDate;
         }
 
-        public T getContent() {
+        protected T getContent() {
             return content;
         }
 
@@ -254,17 +303,29 @@ public class HttpResponseUtils {
         public Date getLastModifiedDate() {
             return lastModifiedDate;
         }
+
+        public abstract HttpResponse toHttpResponse();
     }
 
     private static class FileContentData extends ContentData<File> {
         public FileContentData(File content, Long contentLength, Date lastModifiedDate) {
             super(content, contentLength, lastModifiedDate);
         }
+
+        @Override
+        public HttpResponse toHttpResponse() {
+            return HttpResponse.of(getContent());
+        }
     }
 
     private static class StreamContentData extends ContentData<InputStream> {
         public StreamContentData(InputStream content, Long contentLength, Date lastModifiedDate) {
             super(content, contentLength, lastModifiedDate);
+        }
+
+        @Override
+        public HttpResponse toHttpResponse() {
+            return HttpResponse.of(getContent());
         }
     }
 

@@ -36,6 +36,13 @@ public class CookiesMiddleware implements WebMiddleware {
         return value.replaceAll("^\"|\"$", "");
     }
 
+    /**
+     * Parses the {@code Cookie} request header and returns a map of cookie name to
+     * {@link Cookie} objects.
+     *
+     * @param request the incoming HTTP request
+     * @return a map of parsed cookies; empty if the header is absent
+     */
     protected Map<String, Cookie> parseCookies(HttpRequest request) {
         String cookieHeader = request.getHeaders().get("cookie");
         Map<String, Cookie> cookies = new HashMap<>();
@@ -52,12 +59,22 @@ public class CookiesMiddleware implements WebMiddleware {
     }
 
 
+    /**
+     * Populates the request with parsed cookies if not already set.
+     *
+     * @param request the incoming HTTP request to populate
+     */
     protected void cookiesRequest(HttpRequest request) {
         if (request.getCookies() == null) {
             request.setCookies(parseCookies(request));
         }
     }
 
+    /**
+     * Serialises response cookies into {@code Set-Cookie} headers.
+     *
+     * @param response the outgoing HTTP response to write headers to
+     */
     protected void cookiesResponse(HttpResponse response) {
         Multimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {

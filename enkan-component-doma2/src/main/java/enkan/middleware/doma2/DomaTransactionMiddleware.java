@@ -3,7 +3,6 @@ package enkan.middleware.doma2;
 
 import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
-import enkan.component.doma2.DomaProviderUtils;
 import enkan.component.doma2.DomaProvider;
 import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
@@ -46,7 +45,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<
 
     @PostConstruct
     private void init() {
-        Config defaultConfig = DomaProviderUtils.getDefaultConfig(domaProvider);
+        Config defaultConfig = domaProvider.getDefaultConfig();
         DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
         if (ds instanceof EnkanLocalTransactionDataSource ltds) {
             tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
@@ -60,6 +59,9 @@ public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<
             Transactional.TxType type= getTransactionType(m);
 
             if (type != null) {
+                if (tm == null) {
+                    throw new MisconfigurationException("doma2.TX_MANAGER_NOT_AVAILABLE");
+                }
                 return switch (type) {
                     case REQUIRED -> tm.required(() ->
                             chain.next(req));

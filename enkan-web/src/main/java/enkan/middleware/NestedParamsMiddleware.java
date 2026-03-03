@@ -14,6 +14,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Middleware that converts flat, bracket-notation request parameters into
+ * nested {@link enkan.collection.Parameters} structures.
+ *
+ * <p>For example, the query string {@code user[name]=Alice&user[age]=30}
+ * is expanded to {@code {user: {name: "Alice", age: "30"}}}.
+ * Array notation ({@code items[]=a&items[]=b}) produces a list value.
+ *
+ * <p>This middleware requires the {@code params} middleware to have already
+ * populated {@link enkan.data.HttpRequest#getParams()}.
+ *
  * @author kawasima
  */
 @Middleware(name = "nestedParams", dependencies = {"params"})
@@ -87,7 +97,7 @@ public class NestedParamsMiddleware implements WebMiddleware {
             }
         } else {
             if (value instanceof List) {
-                List<?> values = (List) value;
+                List<?> values = (List<?>) value;
                 if (values.size() > 1) {
                     assocVector(map, key, value);
                 } else if (values.size() == 1) {
@@ -152,6 +162,15 @@ public class NestedParamsMiddleware implements WebMiddleware {
         }
     }
 
+    /**
+     * Transforms the flat request parameters into a nested structure using the
+     * supplied key parser and stores the result back on the request.
+     *
+     * @param request   the incoming HTTP request
+     * @param keyParser a function that splits a parameter name (e.g. {@code "user[name]"})
+     *                  into an array of nested keys (e.g. {@code ["user", "name"]})
+     * @return the same request with updated nested parameters
+     */
     public HttpRequest nestedParamsRequest(HttpRequest request, Function<String, String[]> keyParser) {
         Parameters params = request.getParams();
         Parameters nestedParams = Parameters.empty();

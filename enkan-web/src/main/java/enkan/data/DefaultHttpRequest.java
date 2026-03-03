@@ -227,12 +227,12 @@ public class DefaultHttpRequest implements HttpRequest {
         extensions.put(name, extension);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getExtension(String name) {
         if (extensions == null) {
             extensions = new HashMap<>();
         }
-        //noinspection unchecked
         return (T) extensions.get(name);
     }
 }

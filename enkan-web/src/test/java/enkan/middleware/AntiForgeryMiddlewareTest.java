@@ -2,7 +2,6 @@ package enkan.middleware;
 
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
 import enkan.data.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

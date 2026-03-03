@@ -1,16 +1,14 @@
 package enkan.data;
 
-import java.io.Serializable;
-
 /**
  * @author kawasima
  */
-public interface FlashAvailable<T extends Serializable> extends Extendable {
-    default Flash<T> getFlash() {
+public interface FlashAvailable extends Extendable {
+    default Flash<?> getFlash() {
         return getExtension("flash");
     }
 
-    default void setFlash(Flash<T> flash) {
+    default void setFlash(Flash<?> flash) {
         setExtension("flash", flash);
     }
 }

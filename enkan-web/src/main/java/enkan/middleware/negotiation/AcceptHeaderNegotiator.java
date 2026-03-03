@@ -60,16 +60,6 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
         return null;
     }
 
-    @Deprecated
-    public <S> AcceptFragment<S> parseAcceptFragment(String accept, Class<? extends S> acceptType) {
-        if (acceptType.equals(MediaType.class)) {
-            return (AcceptFragment<S>) parseMediaTypeAcceptFragment(accept);
-        } else if (acceptType.equals(String.class)) {
-            return (AcceptFragment<S>) parseStringAcceptFragment(accept);
-        }
-        return null;
-    }
-
     protected Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> createServerWeightFunc(Set<MediaType> allowedTypes) {
         return fragment -> {
             Optional<MediaType> matched = allowedTypes.stream()

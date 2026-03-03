@@ -16,6 +16,14 @@ import static enkan.util.HttpRequestUtils.characterEncoding;
 import static enkan.util.HttpRequestUtils.isUrlEncodedForm;
 
 /**
+ * Middleware that parses URL-encoded query string and form body parameters.
+ *
+ * <p>Query string parameters are always parsed and stored via
+ * {@link enkan.data.HttpRequest#setQueryParams}.  Form body parameters
+ * (i.e. {@code Content-Type: application/x-www-form-urlencoded}) are parsed
+ * and stored via {@link enkan.data.HttpRequest#setFormParams}.  Both are merged
+ * into {@link enkan.data.HttpRequest#setParams}.
+ *
  * @author kawasima
  */
 @Middleware(name = "params")
@@ -73,6 +81,14 @@ public class ParamsMiddleware implements WebMiddleware {
 
     }
 
+    /**
+     * Parses query string and form body parameters and populates the request.
+     *
+     * <p>Skips parsing if the respective parameters have already been set
+     * (e.g. by a previous middleware in the chain).
+     *
+     * @param request the incoming HTTP request to populate
+     */
     public void paramsRequest(HttpRequest request) {
         String encoding = characterEncoding(request);
         if (encoding == null) {

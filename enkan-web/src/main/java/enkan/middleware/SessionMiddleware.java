@@ -34,19 +34,19 @@ public class SessionMiddleware implements WebMiddleware {
     }
 
     protected void populateAttrs(Cookie cookie) {
-        if (cookieAttrs.containsValue("domain")) {
+        if (cookieAttrs.containsKey("domain")) {
             cookie.setDomain(cookieAttrs.getString("domain"));
         }
 
-        if (cookieAttrs.containsValue("path")) {
+        if (cookieAttrs.containsKey("path")) {
             cookie.setPath(cookieAttrs.getString("path"));
         }
 
-        if (cookieAttrs.containsValue("secure")) {
+        if (cookieAttrs.containsKey("secure")) {
             cookie.setSecure(cookieAttrs.getBoolean("secure"));
         }
 
-        if (cookieAttrs.containsValue("httpOnly")) {
+        if (cookieAttrs.containsKey("httpOnly")) {
             cookie.setHttpOnly(cookieAttrs.getBoolean("httpOnly"));
         }
     }

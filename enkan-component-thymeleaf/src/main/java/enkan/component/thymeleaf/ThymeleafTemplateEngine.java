@@ -19,6 +19,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.Locale;
@@ -32,7 +33,8 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
     private String prefix = "templates/";
     private String suffix = ".html";
     private ClassLoader classLoader;
-    private Charset charset = Charset.forName("UTF-8");
+    private Charset charset = StandardCharsets.UTF_8;
+    private Locale locale = Locale.getDefault();
 
     private Set<IDialect> dialects;
     private Set<ITemplateResolver> templateResolvers;
@@ -50,11 +52,11 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
         }
         TemplatedHttpResponse response = TemplatedHttpResponse.create(name, keyOrVals);
         response.setBody(new LazyRenderInputStream(() -> {
-            Context ctx = new Context(Locale.getDefault(), response.getContext());
+            Context ctx = new Context(locale, response.getContext());
             return new ByteArrayInputStream(thymeleafEngine.process(name, ctx).getBytes(charset));
         }));
 
-        HttpResponseUtils.contentType(response, "text/html");
+        HttpResponseUtils.contentType(response, "text/html; charset=" + charset.name());
         return response;
     }
 
@@ -100,7 +102,6 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
 
             @Override
             public void stop(ThymeleafTemplateEngine component) {
-                component.classLoader = null;
                 component.thymeleafEngine = null;
             }
         };
@@ -151,5 +152,9 @@ public class ThymeleafTemplateEngine extends TemplateEngine<ThymeleafTemplateEng
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
             throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
         }
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 }

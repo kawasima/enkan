@@ -4,6 +4,7 @@ import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,10 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
     private boolean isMigrationAvailable() {
         return Arrays.stream(flyway.getConfiguration().getLocations())
                 .anyMatch(l -> {
-                    if (l.isClassPath()) {
-                        return Thread.currentThread().getContextClassLoader().getResource(l.getPath()) != null;
-                    } else if (l.isFileSystem()) {
-                        return Files.exists(Paths.get(l.getPath()));
+                    if (CoreLocationPrefix.isClassPath(l)) {
+                        return Thread.currentThread().getContextClassLoader().getResource(l.getRootPath()) != null;
+                    } else if (CoreLocationPrefix.isFileSystem(l)) {
+                        return Files.exists(Paths.get(l.getRootPath()));
                     } else {
                         return false;
                     }

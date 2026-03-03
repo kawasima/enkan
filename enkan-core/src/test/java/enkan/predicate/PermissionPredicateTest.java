@@ -1,6 +1,5 @@
 package enkan.predicate;
 
-import enkan.data.Extendable;
 import enkan.data.PrincipalAvailable;
 import enkan.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author kawasima
  */
 public class PermissionPredicateTest {
-    static class PrincipalRequest implements PrincipalAvailable, Extendable {
+    static class PrincipalRequest implements PrincipalAvailable {
         private final Map<String, Object> extensions = new HashMap<>();
 
         @SuppressWarnings("unchecked")

@@ -4,14 +4,12 @@ import net.unit8.moshas.MoshasEngine;
 import net.unit8.moshas.Snippet;
 import net.unit8.moshas.Template;
 
-import java.io.Serializable;
-
 import static net.unit8.moshas.RenderUtils.text;
 
 /**
  * @author kawasima
  */
-public class TraceList extends MoshasPage implements Serializable {
+public class TraceList extends MoshasPage {
     private final Snippet traceListSnippet;
     private final Template traceListPage;
 

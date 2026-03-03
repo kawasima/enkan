@@ -62,16 +62,15 @@ public class ThymeleafTemplateEngineTest {
     @Test
     public void contentTypeIsSetToTextHtml() {
         HttpResponse response = engine.render("test1", "name", "kawasima", "message", "hello");
-        assertThat(response.getHeaders().get("content-type")).isEqualTo("text/html");
+        assertThat(response.getHeaders().get("content-type")).isEqualTo("text/html; charset=UTF-8");
     }
 
     // --------------------------------------------------------------- functions
 
-    @SuppressWarnings("unchecked")
     @Test
     public void customFunctionIsAppliedInTemplate() throws IOException {
         HttpResponse response = engine.render("test2", "func",
-                (Function<List, Object>) list -> list.stream()
+                (Function<List<?>, Object>) list -> list.stream()
                         .filter(Objects::nonNull)
                         .map(Object::toString)
                         .collect(Collectors.joining("&")));
