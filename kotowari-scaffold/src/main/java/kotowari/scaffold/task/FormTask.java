@@ -8,17 +8,14 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import kotowari.scaffold.model.EntityField;
-import kotowari.scaffold.util.BasePackageDetector;
 import net.unit8.amagicman.GenTask;
 import net.unit8.amagicman.PathResolver;
 import net.unit8.amagicman.util.CaseConverter;
 
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +26,6 @@ import static com.github.javaparser.ast.NodeList.nodeList;
  */
 public class FormTask implements GenTask {
     private final String destination;
-    @SuppressWarnings("FieldCanBeLocal")
     private final String pkgName;
     private final String tableName;
     private final List<EntityField> fields;
@@ -45,8 +41,7 @@ public class FormTask implements GenTask {
     @Override
     public void execute(PathResolver pathResolver) throws Exception {
         CompilationUnit cu = new CompilationUnit();
-        String basePackage = BasePackageDetector.detect();
-        cu.setPackageDeclaration(basePackage + "form");
+        cu.setPackageDeclaration(pkgName + "form");
 
         ClassOrInterfaceDeclaration formClass = new ClassOrInterfaceDeclaration(
                 nodeList(Modifier.publicModifier()), false, CaseConverter.pascalCase(tableName) + "Form");

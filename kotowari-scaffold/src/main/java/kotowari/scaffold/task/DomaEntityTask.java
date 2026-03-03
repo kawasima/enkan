@@ -1,6 +1,5 @@
 package kotowari.scaffold.task;
 
-import kotowari.scaffold.util.BasePackageDetector;
 import net.unit8.amagicman.GenTask;
 import net.unit8.amagicman.PathResolver;
 import org.apache.tools.ant.Project;
@@ -8,6 +7,7 @@ import org.seasar.doma.extension.gen.task.*;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -17,22 +17,25 @@ public class DomaEntityTask implements GenTask {
     private String destination;
     private DataSource datasource;
     private String tableName;
+    private final String pkgName;
 
-    public DomaEntityTask(String destination, String tableName, DataSource datasource) {
+    public DomaEntityTask(String pkgName, String destination, String tableName, DataSource datasource) {
+        this.pkgName = pkgName;
         this.destination = destination;
         this.tableName = tableName;
         this.datasource = datasource;
     }
 
     private String getURL() throws SQLException {
-        return datasource.getConnection().getMetaData().getURL();
+        try (Connection conn = datasource.getConnection()) {
+            return conn.getMetaData().getURL();
+        }
     }
 
     @Override
     public void execute(PathResolver pathResolver) throws Exception {
         final Project project = new Project();
         project.setBaseDir(pathResolver.project());
-        String basePackage = BasePackageDetector.detect();
         File destDir = pathResolver.destinationAsFile(destination);
 
         Gen genTask = new Gen() {
@@ -50,7 +53,7 @@ public class DomaEntityTask implements GenTask {
                 GenerationTypeAttribute generationType = new GenerationTypeAttribute();
                 generationType.setValue("identity");
                 entityConfig.setGenerationType(generationType);
-                entityConfig.setPackageName(basePackage + "entity");
+                entityConfig.setPackageName(pkgName + "entity");
                 return entityConfig;
             }
 
@@ -59,7 +62,7 @@ public class DomaEntityTask implements GenTask {
                 daoConfig = new DaoConfig();
                 daoConfig.setProject(getProject());
                 daoConfig.setDestDir(destDir);
-                daoConfig.setPackageName(basePackage + "dao");
+                daoConfig.setPackageName(pkgName + "dao");
                 return daoConfig;
             }
 

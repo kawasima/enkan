@@ -104,7 +104,7 @@ public class ScaffoldCommandRegister implements SystemCommandRegister {
         String pkgPath = convertToPathString(pkgName);
 
         return new Generator()
-                .writing("entity", g -> g.task(new DomaEntityTask("src/main/java", tableName, ds)))
+                .writing("entity", g -> g.task(new DomaEntityTask(pkgName, "src/main/java", tableName, ds)))
                 .writing("java", g -> {
                     String className = CaseConverter.pascalCase(tableName);
                     List<EntityField> fields = new ArrayList<>();

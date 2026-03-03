@@ -47,6 +47,30 @@ So all components are started and stopped safely.
 
 ### Relationships between components
 
+Components often depend on each other. For example, an application component needs a template engine and a database provider, and the database provider itself needs a datasource. You declare these relationships with `relationships()`:
+
+```language-java
+system.relationships(
+    component("http").using("app"),
+    component("app").using("template", "doma", "datasource"),
+    component("doma").using("datasource"),
+    component("flyway").using("datasource")
+);
+```
+
+`component("X").using("Y", "Z")` means: _X depends on Y and Z_.
+
+Enkan uses these declarations to do two things automatically:
+
+1. **Startup ordering** — dependencies are started before the components that use them. In the example above, `datasource` starts first, then `doma` and `flyway`, then `app`, then `http`.
+2. **Dependency injection** — each component's fields annotated with `@Inject` are populated with the declared dependencies before `start()` is called.
+
+If a declared dependency is not registered in the system, Enkan throws a `MisconfigurationException` at startup — not at request time.
+
+```
+core.COMPONENT_NOT_FOUND: Component 'datasource' not found (required by 'doma')
+```
+
 ### Inject components
 
 Components are injected to a field of another component and middlewares. 
