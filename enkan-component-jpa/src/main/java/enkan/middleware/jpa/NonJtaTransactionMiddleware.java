@@ -1,5 +1,6 @@
 package enkan.middleware.jpa;
 
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.Routable;
@@ -12,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 @Middleware(name = "nonJtaTransaction", dependencies = {"entityManager", "routing"})
-public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<REQ, RES, REQ, RES> {
+public class NonJtaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     private Transactional.TxType getTransactionType(Class<?> cls) {
         Transactional transactional = cls.getDeclaredAnnotation(Transactional.class);
         return transactional != null ? transactional.value() : null;
@@ -37,21 +38,26 @@ public class NonJtaTransactionMiddleware<REQ, RES> implements enkan.Middleware<R
                 type = Optional.ofNullable(getTransactionType(m)).orElse(type);
             }
             if (type != null) {
-                em.getTransaction().begin();
-                try {
-                    RES ret = chain.next(req);
-                    if (em.getTransaction().getRollbackOnly()) {
-                        em.getTransaction().rollback();
-                    } else {
-                        em.getTransaction().commit();
+                return switch (type) {
+                    case REQUIRED, REQUIRES_NEW -> {
+                        em.getTransaction().begin();
+                        try {
+                            RES ret = chain.next(req);
+                            if (em.getTransaction().getRollbackOnly()) {
+                                em.getTransaction().rollback();
+                            } else {
+                                em.getTransaction().commit();
+                            }
+                            yield ret;
+                        } catch (Throwable t) {
+                            if (em.getTransaction().isActive()) {
+                                em.getTransaction().rollback();
+                            }
+                            throw t;
+                        }
                     }
-                    return ret;
-                } catch (Throwable t) {
-                    if (em.getTransaction().isActive()) {
-                        em.getTransaction().rollback();
-                    }
-                    throw t;
-                }
+                    default -> throw new MisconfigurationException("jpa.UNSUPPORTED_TX_TYPE", type);
+                };
             }
         }
         return chain.next(req);

@@ -42,8 +42,7 @@ public class MetricsCommand implements SystemCommand {
     }
 
     private double convertDuration(double duration) {
-        return duration * (1.0 / TimeUnit.SECONDS.toNanos(1));
-
+        return duration / TimeUnit.SECONDS.toNanos(1);
     }
     private void printTimer(Transport t, Timer timer) {
         final Snapshot snapshot = timer.getSnapshot();
@@ -52,7 +51,7 @@ public class MetricsCommand implements SystemCommand {
         t.send(ReplResponse.withOut(
                 String.format(Locale.US, "         mean rate = %2.2f calls/sec", timer.getMeanRate())));
         t.send(ReplResponse.withOut(
-                String.format(Locale.US, "     1-minute rate = %2.2f calls/sec", timer.getMeanRate())));
+                String.format(Locale.US, "     1-minute rate = %2.2f calls/sec", timer.getOneMinuteRate())));
         t.send(ReplResponse.withOut(
                 String.format(Locale.US, "     5-minute rate = %2.2f calls/sec", timer.getFiveMinuteRate())));
         t.send(ReplResponse.withOut(
@@ -83,18 +82,25 @@ public class MetricsCommand implements SystemCommand {
 
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
-        findMetrics(system).ifPresent(metrics -> {
-            transport.send(ReplResponse.withOut("-- Active Requests ----------------------------------"));
-            printCounter(transport, Optional.ofNullable(metrics.getActiveRequests())
-                    .orElse(new Counter()));
-            transport.send(ReplResponse.withOut("-- Errors ------------------------------------"));
-            printMeter(transport, Optional.ofNullable(metrics.getErrors())
-                    .orElse(new Meter()));
-            transport.send(ReplResponse.withOut("-- Request Timer -----------------------------"));
-            printTimer(transport, Optional.ofNullable(metrics.getRequestTimer())
-                    .orElse(new Timer()));
+        Optional<MetricsComponent> found = findMetrics(system);
+        if (found.isEmpty()) {
+            transport.send(ReplResponse.withOut("MetricsComponent is not registered in the system."));
             transport.sendOut("", ReplResponse.ResponseStatus.DONE);
-        });
+            return true;
+        }
+        MetricsComponent metrics = found.get();
+        if (metrics.getActiveRequests() == null) {
+            transport.send(ReplResponse.withOut("MetricsComponent is not started."));
+            transport.sendOut("", ReplResponse.ResponseStatus.DONE);
+            return true;
+        }
+        transport.send(ReplResponse.withOut("-- Active Requests ----------------------------------"));
+        printCounter(transport, metrics.getActiveRequests());
+        transport.send(ReplResponse.withOut("-- Errors ------------------------------------"));
+        printMeter(transport, metrics.getErrors());
+        transport.send(ReplResponse.withOut("-- Request Timer -----------------------------"));
+        printTimer(transport, metrics.getRequestTimer());
+        transport.sendOut("", ReplResponse.ResponseStatus.DONE);
         return true;
     }
 }

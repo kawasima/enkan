@@ -2,7 +2,6 @@ package enkan.middleware;
 
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
 import enkan.data.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,11 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 class AntiForgeryMiddlewareTest {
-    private AntiForgeryMiddleware<HttpResponse> middleware;
+    private AntiForgeryMiddleware middleware;
 
     @BeforeEach
     void setup() {
-        middleware = new AntiForgeryMiddleware<>();
+        middleware = new AntiForgeryMiddleware();
     }
 
     @Test

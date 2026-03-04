@@ -4,7 +4,7 @@ package enkan.util;
  * @author kawasima
  */
 public class TestPrivate {
-    @SuppressWarnings("EmptyMethod")
+    @SuppressWarnings({"EmptyMethod", "unused"})
     private void forbidden() {
 
     }

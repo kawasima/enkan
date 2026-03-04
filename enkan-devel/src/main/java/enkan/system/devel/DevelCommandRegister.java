@@ -6,12 +6,10 @@ import enkan.system.devel.command.CompileCommand;
 import enkan.system.devel.compiler.MavenCompiler;
 import enkan.system.repl.SystemCommandRegister;
 
-import java.io.Serializable;
-
 /**
  * @author kawasima
  */
-public class DevelCommandRegister implements SystemCommandRegister, Serializable {
+public class DevelCommandRegister implements SystemCommandRegister {
     private Compiler compiler;
 
     public DevelCommandRegister() {
@@ -28,8 +26,8 @@ public class DevelCommandRegister implements SystemCommandRegister, Serializable
 
     @Override
     public void register(final Repl repl) {
-        repl.registerCommand("autoreset", new AutoResetCommand(repl));
-        repl.registerCommand("compile", new CompileCommand(compiler));
+        repl.registerLocalCommand("autoreset", new AutoResetCommand(repl));
+        repl.registerLocalCommand("compile", new CompileCommand(compiler));
     }
 
     public void setCompiler(Compiler compiler) {

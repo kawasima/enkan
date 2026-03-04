@@ -24,7 +24,7 @@ public class LoginController {
     private DomaProvider daoProvider;
 
     @Inject
-    private TemplateEngine templateEngine;
+    private TemplateEngine<?> templateEngine;
 
     public HttpResponse loginForm(Parameters params, Conversation conversation) {
         if (conversation.isTransient()) conversation.begin();

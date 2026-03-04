@@ -1,7 +1,7 @@
 package enkan.system;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,14 +11,16 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  * @author kawasima
  */
 public class ReplResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String id;
-    private final Set<ResponseStatus> status;
+    private final EnumSet<ResponseStatus> status;
     private String value;
     private String out;
     private String err;
 
     public ReplResponse() {
-        status = new HashSet<>();
+        status = EnumSet.noneOf(ResponseStatus.class);
     }
 
     private ReplResponse(UUID id) {

@@ -4,8 +4,9 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.middleware.AbstractWebMiddleware;
+
 import enkan.throttling.Throttle;
+import enkan.middleware.WebMiddleware;
 import enkan.util.HttpResponseUtils;
 
 import java.util.Collections;
@@ -17,11 +18,11 @@ import static enkan.util.BeanBuilder.builder;
  * @author kawasima
  */
 @Middleware(name = "throttling")
-public class ThrottlingMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ThrottlingMiddleware implements WebMiddleware {
     private List<Throttle> throttles = Collections.emptyList();
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         if (throttles.stream()
                 .anyMatch(throttle -> throttle.apply(request))) {
             return builder(HttpResponseUtils.response("Too Many Request"))

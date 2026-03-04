@@ -9,7 +9,9 @@ import java.util.*;
  * @author kawasima
  */
 public class Parameters implements Map<String, Object>, Serializable {
-    private final TreeMap<String, Object> params = new TreeMap<>();
+    private static final long serialVersionUID = 1L;
+
+    private final HashMap<String, Object> params = new HashMap<>();
     private boolean caseSensitive = true;
 
     protected Parameters() {
@@ -141,7 +143,7 @@ public class Parameters implements Map<String, Object>, Serializable {
             if (keys[idx] == null) return null;
 
             if (current instanceof List) {
-                List<?> list = (List) current;
+                List<?> list = (List<?>) current;
                 Integer i = keyToInt(keys[idx]);
                 if (i == null || i < 0 || i >= list.size()) return null;
 
@@ -165,12 +167,13 @@ public class Parameters implements Map<String, Object>, Serializable {
         return params.get(key.toString());
     }
 
+    @SuppressWarnings("unchecked")
     public <T> List<T> getList(Object key, Object... keys) {
         T value = (T) getIn(key, keys);
         if (value == null) {
             return new ArrayList<>();
         } else if (value instanceof List) {
-            return (List) value;
+            return (List<T>) value;
         } else {
             List<T> values = new ArrayList<>();
             values.add(value);
@@ -191,6 +194,7 @@ public class Parameters implements Map<String, Object>, Serializable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object put(String key, Object value) {
         if (!caseSensitive) {

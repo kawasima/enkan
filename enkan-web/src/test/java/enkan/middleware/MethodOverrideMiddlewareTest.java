@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MethodOverrideMiddlewareTest {
     @Test
     void defaultIsParameter_method() {
-        MethodOverrideMiddleware<HttpResponse> middleware = new MethodOverrideMiddleware<>();
+        MethodOverrideMiddleware middleware = new MethodOverrideMiddleware();
         HttpRequest request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setParams, Parameters.of("_method", "PUT"))
                 .build();
@@ -35,7 +35,7 @@ class MethodOverrideMiddlewareTest {
 
     @Test
     void overrideUsingByHeader() {
-        MethodOverrideMiddleware<HttpResponse> middleware = builder(new MethodOverrideMiddleware<HttpResponse>())
+        MethodOverrideMiddleware middleware = builder(new MethodOverrideMiddleware())
                 .set(MethodOverrideMiddleware::setGetterFunction, "X-Override-Method")
                 .build();
         HttpRequest request = builder(new DefaultHttpRequest())

@@ -14,9 +14,15 @@ import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import org.xnio.streams.ChannelInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -35,15 +41,16 @@ import java.security.*;
  * @author kawasima
  */
 public class UndertowAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(UndertowAdapter.class);
+
     private static final IoCallback callback = new IoCallback() {
         @Override
         public void onComplete(HttpServerExchange exchange, Sender sender) {
-
         }
 
         @Override
         public void onException(HttpServerExchange exchange, Sender sender, IOException exception) {
-
+            LOG.error("Failed to send response body", exception);
         }
     };
 
@@ -54,20 +61,20 @@ public class UndertowAdapter {
             }
             case String s -> sender.send(s);
             case InputStream inputStream -> {
-                ReadableByteChannel chan = Channels.newChannel(inputStream);
-
-                ByteBuffer buf = ByteBuffer.allocate(4096);
-                for (; ; ) {
-                    int size = chan.read(buf);
-                    if (size <= 0) break;
-                    buf.flip();
-                    sender.send(buf, callback);
-                    buf.clear();
+                try (ReadableByteChannel chan = Channels.newChannel(inputStream)) {
+                    ByteBuffer buf = ByteBuffer.allocate(4096);
+                    for (; ; ) {
+                        int size = chan.read(buf);
+                        if (size <= 0) break;
+                        buf.flip();
+                        sender.send(buf, callback);
+                        buf.clear();
+                    }
+                    sender.close(IoCallback.END_EXCHANGE);
                 }
-                sender.close(IoCallback.END_EXCHANGE);
             }
             case File file -> {
-                try (FileInputStream fis = new FileInputStream((File) body);
+                try (FileInputStream fis = new FileInputStream(file);
                      FileChannel chan = fis.getChannel()) {
                     ByteBuffer buf = ByteBuffer.allocate(4096);
                     for (; ; ) {
@@ -89,10 +96,10 @@ public class UndertowAdapter {
         HeaderMap map = exchange.getResponseHeaders();
         headers.keySet().forEach(headerName -> headers.getList(headerName)
                 .forEach(v -> {
-                    if (v instanceof String) {
-                        map.add(HttpString.tryFromString(headerName), (String) v);
-                    } else if (v instanceof Number) {
-                        map.add(HttpString.tryFromString(headerName), ((Number) v).longValue());
+                    switch (v) {
+                        case String s -> map.add(HttpString.tryFromString(headerName), s);
+                        case Number n -> map.add(HttpString.tryFromString(headerName), n.longValue());
+                        default -> { /* ignore unsupported header value types */ }
                     }
                 }));
     }
@@ -107,7 +114,7 @@ public class UndertowAdapter {
     public Undertow runUndertow(WebApplication application, OptionMap options) {
         Undertow.Builder builder = Undertow.builder();
 
-        builder.setHandler(new HttpHandler() {
+        HttpHandler appHandler = new HttpHandler() {
             @Override
             public void handleRequest(HttpServerExchange exchange) throws Exception {
                 if (exchange.isInIoThread()) {
@@ -148,7 +155,14 @@ public class UndertowAdapter {
                     exchange.endExchange();
                 }
             }
-        });
+        };
+
+        HttpHandler finalHandler = options.getBoolean("compress?", false)
+                ? new EncodingHandler(appHandler,
+                        new ContentEncodingRepository()
+                                .addEncodingHandler("gzip", new GzipEncodingProvider(), 50))
+                : appHandler;
+        builder.setHandler(finalHandler);
 
         setOptions(builder, options);
         if (options.getBoolean("http?", true)) {
@@ -169,7 +183,7 @@ public class UndertowAdapter {
 
     private SSLContext createSslContext(OptionMap options) {
         try {
-            SSLContext context = SSLContext.getInstance("TLSv1.2");
+            SSLContext context = SSLContext.getInstance("TLS");
             KeyManager[] keyManagers = null;
             TrustManager[] trustManagers = null;
 

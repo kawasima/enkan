@@ -26,12 +26,11 @@ public class MetricsComponent extends SystemComponent<MetricsComponent> {
     private Counter activeRequests;
     private Timer requestTimer;
 
-    private final JmxReporter reporter;
+    private JmxReporter reporter;
     private final MetricRegistry metricRegistry;
 
     public MetricsComponent() {
         metricRegistry = new MetricRegistry();
-        reporter = JmxReporter.forRegistry(metricRegistry).build();
     }
 
     @Override
@@ -43,11 +42,15 @@ public class MetricsComponent extends SystemComponent<MetricsComponent> {
                 component.errorsMeter = metricRegistry.meter(name(metricName, "errors"));
                 component.activeRequests = metricRegistry.counter(name(metricName, "activeRequests"));
                 component.requestTimer = metricRegistry.timer(name(metricName, "requestTimer"));
-                reporter.start();
+                component.reporter = JmxReporter.forRegistry(metricRegistry).build();
+                component.reporter.start();
             }
 
             @Override
             public void stop(MetricsComponent component) {
+                component.reporter.stop();
+                component.reporter = null;
+
                 SortedSet<String> names = Collections.unmodifiableSortedSet(metricRegistry.getNames());
                 names.forEach(metricRegistry::remove);
 
@@ -55,8 +58,6 @@ public class MetricsComponent extends SystemComponent<MetricsComponent> {
                 component.errorsMeter = null;
                 component.activeRequests = null;
                 component.requestTimer = null;
-
-                reporter.stop();
             }
         };
     }

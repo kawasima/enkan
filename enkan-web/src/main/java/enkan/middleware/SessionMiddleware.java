@@ -17,7 +17,7 @@ import static enkan.util.ThreadingUtils.some;
  * @author kawasima
  */
 @Middleware(name = "session", dependencies = {"cookies"})
-public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class SessionMiddleware implements WebMiddleware {
     @NotNull
     private String cookieName;
 
@@ -33,20 +33,20 @@ public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
                 "path", "/");
     }
 
-    protected void populteAttrs(Cookie cookie) {
-        if (cookieAttrs.containsValue("domain")) {
+    protected void populateAttrs(Cookie cookie) {
+        if (cookieAttrs.containsKey("domain")) {
             cookie.setDomain(cookieAttrs.getString("domain"));
         }
 
-        if (cookieAttrs.containsValue("path")) {
+        if (cookieAttrs.containsKey("path")) {
             cookie.setPath(cookieAttrs.getString("path"));
         }
 
-        if (cookieAttrs.containsValue("secure")) {
+        if (cookieAttrs.containsKey("secure")) {
             cookie.setSecure(cookieAttrs.getBoolean("secure"));
         }
 
-        if (cookieAttrs.containsValue("httpOnly")) {
+        if (cookieAttrs.containsKey("httpOnly")) {
             cookie.setHttpOnly(cookieAttrs.getBoolean("httpOnly"));
         }
     }
@@ -86,7 +86,7 @@ public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
                 }
             }
             Cookie cookie = Cookie.create(cookieName, newSessionKey != null ? newSessionKey : sessionKey);
-            populteAttrs(cookie);
+            populateAttrs(cookie);
             if (newSessionKey != null && !newSessionKey.equals(sessionKey)) {
                 response.getCookies().put(cookieName, cookie);
             }
@@ -94,7 +94,7 @@ public class SessionMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         request = MixinUtils.mixin(request, WebSessionAvailable.class);
         sessionRequest(request);
         HttpResponse response = castToHttpResponse(chain.next(request));

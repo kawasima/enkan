@@ -16,9 +16,10 @@ public class ReplResponseWriter implements WriteHandler {
     @Override
     public void write(Writer w, Object obj) throws IOException {
         if (obj instanceof ReplResponse replResponse) {
-            w.writeTag("ReplResponse", 3);
+            w.writeTag("ReplResponse", 4);
             w.writeString(replResponse.getOut());
             w.writeString(replResponse.getErr());
+            w.writeString(replResponse.getValue());
             w.writeObject(Collections.unmodifiableSet(replResponse.getStatus()));
         } else if (obj instanceof ResponseStatus status) {
             w.writeTag("ResponseStatus", 1);

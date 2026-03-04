@@ -67,6 +67,7 @@ public class ReflectionUtilsTest {
     }
 
     private static class InstantiationableClass {
+        @SuppressWarnings("unused")
         public InstantiationableClass(String name) {
 
         }
@@ -89,11 +90,13 @@ public class ReflectionUtilsTest {
     }
 
     private static class InvocationTarget {
+        @SuppressWarnings("unused")
         public void throwRuntimeException() {
             //noinspection ResultOfMethodCallIgnored
             Long.parseLong("ABC");
         }
 
+        @SuppressWarnings("unused")
         public void throwCheckedException() throws IOException {
             throw new IOException("I/O Exception");
         }

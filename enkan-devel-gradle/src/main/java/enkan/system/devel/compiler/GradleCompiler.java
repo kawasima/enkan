@@ -19,9 +19,10 @@ import java.util.concurrent.ExecutionException;
  * A compiler implementation that delegates to Gradle's compileJava task
  * via the Gradle Tooling API.
  *
- * <p>By default, the Tooling API downloads a Gradle distribution automatically.
- * You can override the Gradle version by calling {@link #setGradleVersion(String)}
- * or by setting the {@code GRADLE_HOME} environment variable to use a local installation.</p>
+ * <p>By default, the project's Gradle wrapper distribution is used
+ * ({@code useBuildDistribution()}). You can override this by setting
+ * the {@code GRADLE_HOME} environment variable to use a local installation,
+ * or by calling {@link #setGradleVersion(String)} to pin a specific version.</p>
  *
  * @author kawasima
  */
@@ -29,7 +30,7 @@ public class GradleCompiler implements Compiler {
     private static final Logger LOG = LoggerFactory.getLogger(GradleCompiler.class);
 
     private String projectDirectory = ".";
-    private String gradleVersion = "8.14.4";
+    private String gradleVersion = null;
 
     @Override
     public CompileResult execute(Transport t) {
@@ -39,8 +40,10 @@ public class GradleCompiler implements Compiler {
         String gradleHome = Env.getString("GRADLE_HOME", null);
         if (gradleHome != null && !gradleHome.isEmpty()) {
             connector.useInstallation(new File(gradleHome));
-        } else {
+        } else if (gradleVersion != null) {
             connector.useGradleVersion(gradleVersion);
+        } else {
+            connector.useBuildDistribution();
         }
 
         try (ProjectConnection connection = connector.connect()) {

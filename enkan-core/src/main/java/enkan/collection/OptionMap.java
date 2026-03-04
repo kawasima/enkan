@@ -62,7 +62,7 @@ public class OptionMap extends HashMap<String, Object> {
         if (value instanceof Number) {
             return ((Number) value).longValue();
         } else {
-            return Integer.parseInt(value.toString());
+            return Long.parseLong(value.toString());
         }
     }
 
@@ -93,7 +93,7 @@ public class OptionMap extends HashMap<String, Object> {
         } else if (value.getClass().isArray()) {
             valueList = Arrays.asList((Object[])value);
         } else if (Collection.class.isAssignableFrom(value.getClass())) {
-            valueList = new ArrayList<>((Collection) value);
+            valueList = new ArrayList<>((Collection<Object>) value);
         } else {
             valueList = new ArrayList<>(1);
             valueList.add(value);

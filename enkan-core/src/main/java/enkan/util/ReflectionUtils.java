@@ -3,32 +3,28 @@ package enkan.util;
 import enkan.exception.MisconfigurationException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author kawasima
  */
 public class ReflectionUtils {
+    /**
+     * Returns the classpath entries as a human-readable string.
+     *
+     * <p>Uses {@code java.class.path} system property so that this works on
+     * Java 9+ module-path class loaders, where the application class loader
+     * is no longer a {@code URLClassLoader}.
+     */
     public static String getClasspathString() {
-        ClassLoader cl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
-                .orElse(ClassLoader.getSystemClassLoader());
-
-        while (!(cl instanceof URLClassLoader)) {
-            cl = cl.getParent();
-            if (cl == null) return "Classpath is empty";
+        String classpath = System.getProperty("java.class.path");
+        if (classpath == null || classpath.isBlank()) {
+            return "Classpath is empty\n";
         }
-
-        return "  " + Stream.of(cl).map(URLClassLoader.class::cast)
-                .flatMap(c -> Arrays.stream(c.getURLs()))
-                .map(URL::getFile)
+        return "  " + Arrays.stream(classpath.split(System.getProperty("path.separator", ":")))
                 .collect(Collectors.joining("\n  "))
                 + "\n";
-
     }
 
     public static <T> T tryReflection(ReflectionRunnable<T> runnable) {

@@ -21,7 +21,7 @@ import static enkan.util.ParsingUtils.*;
  * @author kawasima
  */
 @Middleware(name = "cookies")
-public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class CookiesMiddleware implements WebMiddleware {
     private static final Pattern RE_COOKIE_OCTET = Pattern.compile("[!#$%&'()*+\\-./0-9:<=>?@A-Z\\[\\]\\^_`a-z\\{\\|\\}~]");
     private static final Pattern RE_COOKIE_VALUE = Pattern.compile("\"" + RE_COOKIE_OCTET.pattern() +  "*\"|" + RE_COOKIE_OCTET.pattern() + "*");
     private static final Pattern RE_COOKIE = Pattern.compile("\\s*(" + RE_TOKEN + ")=(" + RE_COOKIE_VALUE.pattern() + ")\\s*[;,]?");
@@ -36,6 +36,13 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
         return value.replaceAll("^\"|\"$", "");
     }
 
+    /**
+     * Parses the {@code Cookie} request header and returns a map of cookie name to
+     * {@link Cookie} objects.
+     *
+     * @param request the incoming HTTP request
+     * @return a map of parsed cookies; empty if the header is absent
+     */
     protected Map<String, Cookie> parseCookies(HttpRequest request) {
         String cookieHeader = request.getHeaders().get("cookie");
         Map<String, Cookie> cookies = new HashMap<>();
@@ -52,12 +59,22 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
 
+    /**
+     * Populates the request with parsed cookies if not already set.
+     *
+     * @param request the incoming HTTP request to populate
+     */
     protected void cookiesRequest(HttpRequest request) {
         if (request.getCookies() == null) {
             request.setCookies(parseCookies(request));
         }
     }
 
+    /**
+     * Serialises response cookies into {@code Set-Cookie} headers.
+     *
+     * @param response the outgoing HTTP response to write headers to
+     */
     protected void cookiesResponse(HttpResponse response) {
         Multimap<String, Cookie> cookieMap = response.getCookies();
         if (cookieMap != null) {
@@ -67,7 +84,7 @@ public class CookiesMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, 
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         cookiesRequest(request);
         HttpResponse response = castToHttpResponse(next.next(request));
         if (response != null) {

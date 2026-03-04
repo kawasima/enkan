@@ -6,7 +6,7 @@ import enkan.data.HttpResponse;
 import enkan.data.PrincipalAvailable;
 import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
-import enkan.middleware.AbstractWebMiddleware;
+import enkan.middleware.WebMiddleware;
 import enkan.security.UserPrincipal;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "template", dependencies = {"contentType"})
-public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class RenderTemplateMiddleware implements WebMiddleware {
     @Inject
     private HmacEncoder hmacEncoder;
 
@@ -110,7 +110,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         HttpResponse response = castToHttpResponse(chain.next(request));
         if (response instanceof TemplatedHttpResponse tres) {
             if (exports.contains(REQUEST)) {
@@ -123,7 +123,7 @@ public class RenderTemplateMiddleware<NRES> extends AbstractWebMiddleware<HttpRe
 
             if (exports.contains(USER_PRINCIPAL)) {
                 Stream.of(request)
-                        .filter(Objects::nonNull)
+                        .filter(PrincipalAvailable.class::isInstance)
                         .map(PrincipalAvailable.class::cast)
                         .findAny()
                         .ifPresent(principal -> tres.getContext()

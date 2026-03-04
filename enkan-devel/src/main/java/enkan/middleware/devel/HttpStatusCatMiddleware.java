@@ -4,7 +4,8 @@ import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
-import enkan.middleware.AbstractWebMiddleware;
+
+import enkan.middleware.WebMiddleware;
 import enkan.util.HttpResponseUtils;
 import net.unit8.moshas.MoshasEngine;
 import net.unit8.moshas.Template;
@@ -20,7 +21,7 @@ import static net.unit8.moshas.RenderUtils.*;
  * @author kawasima
  */
 @Middleware(name = "httpStatusCat", dependencies = {"contentType"})
-public class HttpStatusCatMiddleware extends AbstractWebMiddleware<HttpRequest, HttpResponse> {
+public class HttpStatusCatMiddleware implements WebMiddleware {
     private boolean moreCats;
 
     private final MoshasEngine moshas = new MoshasEngine();

@@ -20,12 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class CookiesMiddlewareTest {
-    private CookiesMiddleware<HttpResponse> middleware;
+    private CookiesMiddleware middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
-        middleware = new CookiesMiddleware<>();
+        middleware = new CookiesMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setHeaders,
                         Headers.of("Host", "example.com"))

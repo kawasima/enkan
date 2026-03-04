@@ -7,6 +7,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,10 +17,18 @@ import static enkan.util.HttpRequestUtils.characterEncoding;
 import static enkan.util.HttpRequestUtils.isUrlEncodedForm;
 
 /**
+ * Middleware that parses URL-encoded query string and form body parameters.
+ *
+ * <p>Query string parameters are always parsed and stored via
+ * {@link enkan.data.HttpRequest#setQueryParams}.  Form body parameters
+ * (i.e. {@code Content-Type: application/x-www-form-urlencoded}) are parsed
+ * and stored via {@link enkan.data.HttpRequest#setFormParams}.  Both are merged
+ * into {@link enkan.data.HttpRequest#setParams}.
+ *
  * @author kawasima
  */
 @Middleware(name = "params")
-public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ParamsMiddleware implements WebMiddleware {
     protected Parameters parseParams(String urlencodedParams, String encoding) {
         return formDecode(urlencodedParams, encoding);
     }
@@ -46,13 +55,9 @@ public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, N
     protected void parseFormParams(HttpRequest request, String encoding) {
         InputStream body = request.getBody();
         if (isUrlEncodedForm(request) && body != null) {
-            StringBuilder sb = new StringBuilder();
-            try (InputStreamReader reader = new InputStreamReader(body, encoding)) {
-                for(;;) {
-                    int c = reader.read();
-                    if (c < 0) break;
-                    sb.append((char) c);
-                }
+            String sb;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(body, encoding))) {
+                sb = reader.lines().collect(java.util.stream.Collectors.joining("\n"));
             } catch (IOException e) {
                 throw new FalteringEnvironmentException(e);
             }
@@ -73,6 +78,14 @@ public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, N
 
     }
 
+    /**
+     * Parses query string and form body parameters and populates the request.
+     *
+     * <p>Skips parsing if the respective parameters have already been set
+     * (e.g. by a previous middleware in the chain).
+     *
+     * @param request the incoming HTTP request to populate
+     */
     public void paramsRequest(HttpRequest request) {
         String encoding = characterEncoding(request);
         if (encoding == null) {
@@ -91,7 +104,7 @@ public class ParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, N
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, NRES, NNREQ,NNRES> next) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest httpRequest, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         paramsRequest(httpRequest);
         return castToHttpResponse(next.next(httpRequest));
     }

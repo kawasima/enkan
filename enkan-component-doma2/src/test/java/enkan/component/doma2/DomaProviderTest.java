@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DomaProviderTest {
     @Test
-    public void test() throws Exception {
+    public void rollbackPreventsDataPersistence() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:test;AUTOCOMMIT=FALSE;DB_CLOSE_DELAY=-1");
 
@@ -63,9 +63,9 @@ public class DomaProviderTest {
                 // ignore
             }
 
-            try (Connection conn = config.getDataSource().getConnection()) {
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT count(*) FROM books");
+            try (Connection conn = config.getDataSource().getConnection();
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT count(*) FROM books")) {
                 assertThat(rs.next()).isTrue();
                 assertThat(rs.getInt(1)).isEqualTo(0);
             }

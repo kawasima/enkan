@@ -3,6 +3,17 @@ package enkan.middleware.session;
 import java.io.Serializable;
 
 /**
+ * A simple key-value storage abstraction used by {@link enkan.middleware.SessionMiddleware}
+ * to persist session data.
+ *
+ * <p>Implementations must be thread-safe as session operations can occur
+ * concurrently across multiple requests.  The built-in implementation is
+ * {@link enkan.middleware.session.MemoryStore}; production deployments
+ * typically replace it with a Redis or database-backed store.
+ *
+ * <p>Session keys are opaque strings (typically random UUIDs).  The value
+ * written to the store is the serialized {@link enkan.data.Session} object.
+ *
  * @author kawasima
  */
 public interface KeyValueStore {

@@ -1,3 +1,8 @@
+type=page
+status=published
+title=Environments | Enkan
+~~~~~~
+
 # Environments
 
 Enkan is following up on the Twelve-factor app. Config is provided from the following:

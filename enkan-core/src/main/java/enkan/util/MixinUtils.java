@@ -6,14 +6,30 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static enkan.util.ReflectionUtils.tryReflection;
 
 /**
- * Mix-in Utilities.
+ * Utility class for dynamically augmenting objects with additional interfaces
+ * at runtime using JDK dynamic proxies.
+ *
+ * <p>Enkan middleware frequently needs to attach capabilities to a request
+ * object — for example, marking it as {@code EntityManageable} or
+ * {@code BodyDeserializable} — without knowing its concrete type at compile
+ * time.  {@code MixinUtils.mixin(target, Interface.class)} wraps {@code target}
+ * in a proxy that:
+ * <ol>
+ *   <li>Forwards calls declared by the original class to the original object.</li>
+ *   <li>Delegates calls declared by the newly added interface(s) to their
+ *       {@code default} implementations, which typically store/retrieve data
+ *       via the {@link enkan.data.Extendable} property bag.</li>
+ * </ol>
+ *
+ * <p>Subsequent calls to {@code mixin} on an already-proxied object reuse the
+ * same underlying instance and simply extend the proxy's interface set, so the
+ * cost of layering multiple interfaces is minimal.
  *
  * @author kawasima
  */
@@ -51,7 +67,7 @@ public class MixinUtils {
             }
         }
 
-    private static void getAllInterfaces(Class<?> clazz, final HashSet<Class<?>> interfacesFound) {
+    private static void getAllInterfaces(Class<?> clazz, final LinkedHashSet<Class<?>> interfacesFound) {
         while (clazz != null) {
             final Class<?>[] interfaces = clazz.getInterfaces();
             for (Class<?> i : interfaces) {
@@ -68,12 +84,27 @@ public class MixinUtils {
     static Class<?>[] getAllInterfaces(final Class<?> clazz) {
         if (clazz == null) return null;
 
-        final HashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
+        final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
         getAllInterfaces(clazz, interfacesFound);
 
         return interfacesFound.toArray(new Class<?>[0]);
     }
 
+    /**
+     * Returns a proxy that implements all interfaces currently implemented by
+     * {@code target} <em>plus</em> the supplied {@code interfaces}.
+     *
+     * <p>If {@code target} is already a mixin proxy the new interfaces are
+     * merged into the existing proxy rather than creating a nested proxy.
+     * If {@code target} already implements every requested interface, it is
+     * returned unchanged without creating a proxy.
+     *
+     * @param <T>        the type of the target object
+     * @param target     the object to augment; {@code null} is returned as-is
+     * @param interfaces one or more interfaces to add to the proxy
+     * @return a proxy implementing all original interfaces plus the requested
+     *         ones, or {@code target} itself if no new interfaces are needed
+     */
     @SuppressWarnings("unchecked")
     public static <T> T mixin(T target, Class<?>... interfaces) {
         if (target == null) return null;

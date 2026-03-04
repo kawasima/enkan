@@ -7,6 +7,8 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import static enkan.util.BeanBuilder.*;
 import static enkan.util.HttpResponseUtils.*;
@@ -18,7 +20,9 @@ import static enkan.util.ThreadingUtils.*;
  * @author syobochim
  */
 @Middleware(name = "cors")
-public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class CorsMiddleware implements WebMiddleware {
+    private static final Logger LOG = Logger.getLogger(CorsMiddleware.class.getName());
+    private final AtomicBoolean misconfigurationWarned = new AtomicBoolean(false);
     private Set<String> methods;
     private Set<String> origins;
     private Set<String> headers;
@@ -26,17 +30,21 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
     private boolean credentials;
 
     public CorsMiddleware() {
-        methods = new HashSet<>(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH", "HEAD", "OPTIONS"));
-        origins = new HashSet<>(Collections.singletonList("*"));
-        headers = new HashSet<>(Arrays.asList(
+        methods = Set.of("GET", "POST", "DELETE", "PUT", "PATCH", "HEAD", "OPTIONS");
+        origins = Set.of("*");
+        headers = Set.of(
                 "Origin", "Accept", "X-Requested-With", "Content-Type",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+                "Access-Control-Request-Method", "Access-Control-Request-Headers");
         maxage = 1800L;
         credentials = true;
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+        if (credentials && isAnyOriginAllowed() && misconfigurationWarned.compareAndSet(false, true)) {
+            LOG.warning("CorsMiddleware: credentials=true with origins=[\"*\"] is invalid per CORS spec. " +
+                    "Browsers will reject such responses. Set explicit allowed origins instead.");
+        }
         if (isCORSRequest(request)) {
             if (!isOriginAllowed(request) || methods.stream().noneMatch(x -> x.equalsIgnoreCase(request.getRequestMethod()))) {
                 return invalidCors(request);
@@ -75,7 +83,8 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
 
         if (isCORSRequest(request)) {
             if (origins != null && !origins.isEmpty()) {
-                header(response, "Access-Control-Allow-Origin", String.join(", ", origins));
+                String allowOrigin = isAnyOriginAllowed() ? "*" : String.join(", ", origins);
+                header(response, "Access-Control-Allow-Origin", allowOrigin);
             }
             if (credentials) {
                 header(response, "Access-Control-Allow-Credentials", "true");
@@ -125,7 +134,7 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
      * @param methods A set of allowed methods
      */
     public void setMethods(Set<String> methods) {
-        this.methods = methods;
+        this.methods = Set.copyOf(methods);
     }
 
     /**
@@ -134,7 +143,7 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
      * @param origins A set of allowed origins
      */
     public void setOrigins(Set<String> origins) {
-        this.origins = origins;
+        this.origins = Set.copyOf(origins);
     }
 
     /**
@@ -143,7 +152,7 @@ public class CorsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRE
      * @param headers A set of allowed headers
      */
     public void setHeaders(Set<String> headers) {
-        this.headers = headers;
+        this.headers = Set.copyOf(headers);
     }
 
     /**

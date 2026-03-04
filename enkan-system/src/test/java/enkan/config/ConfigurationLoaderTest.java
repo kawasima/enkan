@@ -18,9 +18,8 @@ public class ConfigurationLoaderTest {
     Path tempDir;
 
     @Test
-    public void testBasicLoading() throws Exception {
+    public void testBasicLoading() {
         ClassLoader cl = getClass().getClassLoader();
-        Class<?> test1MiddlewareClass = Class.forName("enkan.component.Test1Middleware", false, cl);
         ConfigurationLoader configurationLoader = new ConfigurationLoader(cl);
 
         // Verify the loader was created successfully
@@ -47,8 +46,7 @@ public class ConfigurationLoaderTest {
         isTargetMethod.setAccessible(true);
 
         // Test with an existing class
-        Boolean result = (Boolean) isTargetMethod.invoke(configurationLoader, "enkan.component.Test1Middleware");
-        // The result depends on your test environment setup
+        isTargetMethod.invoke(configurationLoader, "enkan.component.Test1Middleware");
     }
 
     @Test

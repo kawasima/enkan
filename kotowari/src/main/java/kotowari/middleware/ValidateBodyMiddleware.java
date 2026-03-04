@@ -21,11 +21,12 @@ import java.util.Set;
  */
 @enkan.annotation.Middleware(name = "validateBody")
 public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES, HttpRequest, RES> {
-    private final Validator validator;
+    private static final Validator VALIDATOR;
 
-    public ValidateBodyMiddleware() {
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
+    static {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            VALIDATOR = factory.getValidator();
+        }
     }
 
     protected Validatable getValidatable(HttpRequest request) {
@@ -43,7 +44,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
 
         Optional<Validatable> validatable = ThreadingUtils.some(getValidatable(request), form -> {
             Multimap<String, Object> errors = Multimap.empty();
-            Set<ConstraintViolation<Object>> violations = validator.validate(form);
+            Set<ConstraintViolation<Object>> violations = VALIDATOR.validate(form);
             for (ConstraintViolation<Object> violation : violations) {
                 errors.add(violation.getPropertyPath().toString(), violation.getMessage());
             }

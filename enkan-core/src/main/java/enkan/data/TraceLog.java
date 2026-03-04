@@ -8,6 +8,8 @@ import java.util.List;
  * @author kawasima
  */
 public class TraceLog implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final List<Entry> entries;
 
     public TraceLog() {
@@ -23,6 +25,8 @@ public class TraceLog implements Serializable {
     }
 
     public static class Entry implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private long timestamp;
         private String middleware;
 

@@ -20,14 +20,12 @@ public class ServletUtils {
     private static Headers getHeaders(HttpServletRequest servletRequest) {
         Headers headers = Headers.empty();
         Enumeration<String> names = servletRequest.getHeaderNames();
-        while(names.hasMoreElements()) {
+        while (names.hasMoreElements()) {
             String name = names.nextElement();
             Enumeration<String> valueEnumeration = servletRequest.getHeaders(name);
-            List<String> values = new ArrayList<>();
-            while(valueEnumeration.hasMoreElements()) {
-                values.add(valueEnumeration.nextElement());
+            while (valueEnumeration.hasMoreElements()) {
+                headers.put(name, valueEnumeration.nextElement());
             }
-            headers.put(name.toLowerCase(Locale.ENGLISH), String.join(",", values));
         }
         return headers;
     }
@@ -46,7 +44,7 @@ public class ServletUtils {
         request.setQueryString(servletRequest.getQueryString());
         request.setHeaders(getHeaders(servletRequest));
         request.setScheme(servletRequest.getScheme());
-        request.setRequestMethod(servletRequest.getMethod().toLowerCase(Locale.ENGLISH));
+        request.setRequestMethod(servletRequest.getMethod());
         request.setProtocol(servletRequest.getProtocol());
         request.setContentType(servletRequest.getContentType());
         request.setContentLength(getContentLength(servletRequest));
@@ -59,13 +57,15 @@ public class ServletUtils {
         headers.keySet().forEach(k -> {
             List<?> values = headers.getList(k);
             if (values == null) return;
-            values.forEach(v -> {
-                if (servletResponse.getHeaders(k).isEmpty()) {
+            boolean first = true;
+            for (Object v : values) {
+                if (first) {
                     servletResponse.setHeader(k, Objects.toString(v));
+                    first = false;
                 } else {
                     servletResponse.addHeader(k, Objects.toString(v));
                 }
-            });
+            }
         });
     }
 
@@ -75,9 +75,8 @@ public class ServletUtils {
                 // Do nothing
             }
             case String s -> {
-                try (PrintWriter writer = servletResponse.getWriter()) {
-                    writer.print((String) body);
-                }
+                PrintWriter writer = servletResponse.getWriter();
+                writer.print(s);
             }
             case InputStream input -> {
                 try (ServletOutputStream output = servletResponse.getOutputStream()) {
@@ -90,13 +89,12 @@ public class ServletUtils {
                 }
             }
             case File file -> {
-                try (InputStream in = new FileInputStream((File) body)) {
+                try (InputStream in = new FileInputStream(file)) {
                     setBody(servletResponse, in);
                 }
             }
             default -> throw new UnreachableException();
         }
-
     }
 
     public static void updateServletResponse(HttpServletResponse servletResponse, HttpResponse response) {
@@ -106,7 +104,7 @@ public class ServletUtils {
         setHeaders(servletResponse, response.getHeaders());
         try {
             setBody(servletResponse, response.getBody());
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             throw new FalteringEnvironmentException(ex);
         }
     }

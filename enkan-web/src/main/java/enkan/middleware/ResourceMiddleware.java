@@ -6,7 +6,6 @@ import enkan.collection.OptionMap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -19,14 +18,11 @@ import static enkan.util.HttpResponseUtils.resourceResponse;
  * @author kawasima
  */
 @Middleware(name = "resource")
-public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ResourceMiddleware implements WebMiddleware {
     private String rootPath = "public";
     private String uriPrefix = "assets/";
 
-    private static final Set<String> ACCEPTABLE_METHODS = new HashSet<>() {{
-        add("GET");
-        add("HEAD");
-    }};
+    private static final Set<String> ACCEPTABLE_METHODS = Set.of("GET", "HEAD");
 
     protected HttpResponse resourceRequest(HttpRequest request, String rootPath) {
         if (ACCEPTABLE_METHODS.contains(
@@ -44,7 +40,7 @@ public class ResourceMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest,
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         HttpResponse response = resourceRequest(request, rootPath);
         if (response == null) {
             response = castToHttpResponse(chain.next(request));

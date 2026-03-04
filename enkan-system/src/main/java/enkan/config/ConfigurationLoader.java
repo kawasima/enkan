@@ -6,10 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -25,22 +23,11 @@ public class ConfigurationLoader extends ClassLoader {
 
     public ConfigurationLoader(ClassLoader parent) {
         super(parent);
-        URL[] urls;
-        if (parent instanceof URLClassLoader ucl) {
-            urls = ucl.getURLs();
-        } else {
-            urls = getURLs();
-        }
+        URL[] urls = getURLs(parent);
 
         dirs = Arrays.stream(urls)
-                .filter(this::isDirectory)
-                .filter(d -> {
-                    try {
-                        return new URLClassLoader(new URL[]{ d }, null).getResource("META-INF/reload.xml") != null;
-                    } catch (NoClassDefFoundError e) {
-                        return false;
-                    }
-                })
+                .filter(ConfigurationLoader::isDirectoryUrl)
+                .filter(ConfigurationLoader::hasReloadDescriptorUrl)
                 .map(url -> {
                     try {
                         return new File(url.toURI());
@@ -51,19 +38,28 @@ public class ConfigurationLoader extends ClassLoader {
                 .collect(Collectors.toList());
     }
 
-    private URL[] getURLs() {
-        String cp = System.getProperty("java.class.path");
-        String[] elements = cp.split(File.pathSeparator);
-        if (elements.length == 0) {
-            elements = new String[]{""};
+    private static boolean hasReloadDescriptorUrl(URL dir) {
+        try {
+            return Files.exists(new File(dir.toURI()).toPath().resolve("META-INF/reload.xml"));
+        } catch (URISyntaxException e) {
+            return false;
         }
+    }
+
+    private URL[] getURLs(ClassLoader parent) {
+        if (parent instanceof java.net.URLClassLoader ucl) {
+            return ucl.getURLs();
+        }
+        String cp = System.getProperty("java.class.path", "");
+        String[] elements = cp.isEmpty() ? new String[]{""} : cp.split(File.pathSeparator);
         URL[] urls = new URL[elements.length];
         for (int i = 0; i < elements.length; i++) {
             try {
-                URL url = new File(elements[i]).toURI().toURL();
-                urls[i] = url;
-            } catch (MalformedURLException ignore) {
+                urls[i] = new File(elements[i]).toURI().toURL();
+            } catch (IllegalArgumentException ignore) {
                 // malformed file string or class path element does not exist
+            } catch (java.net.MalformedURLException ignore) {
+                // should not happen for File URIs
             }
         }
         return urls;
@@ -73,12 +69,16 @@ public class ConfigurationLoader extends ClassLoader {
         return Files.exists(dir.toPath().resolve(path.replace('.', '/') + ".class"));
     }
 
-    protected boolean isDirectory(URL url) {
+    private static boolean isDirectoryUrl(URL url) {
         try {
             return url.getProtocol().equals("file") && new File(url.toURI()).isDirectory();
         } catch (URISyntaxException e) {
             return false;
         }
+    }
+
+    protected boolean isDirectory(URL url) {
+        return isDirectoryUrl(url);
     }
 
     protected boolean isTarget(String name) {

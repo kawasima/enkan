@@ -1,7 +1,7 @@
 package enkan.middleware;
 
 import enkan.Endpoint;
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.exception.ServiceUnavailableException;
 
@@ -9,7 +9,7 @@ import enkan.exception.ServiceUnavailableException;
  * @author kawasima
  */
 @enkan.annotation.Middleware(name = "serviceUnavailable")
-public class ServiceUnavailableMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+public class ServiceUnavailableMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     private final Endpoint<REQ, RES> endpoint;
 
     public ServiceUnavailableMiddleware(Endpoint<REQ, RES> endpoint) {

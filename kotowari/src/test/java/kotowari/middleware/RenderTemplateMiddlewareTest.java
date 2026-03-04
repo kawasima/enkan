@@ -24,7 +24,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.*;
 
 class RenderTemplateMiddlewareTest {
-    private RenderTemplateMiddleware<HttpResponse> sut;
+    private RenderTemplateMiddleware sut;
 
     private static final Function<List<?>, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
@@ -43,7 +43,7 @@ class RenderTemplateMiddlewareTest {
 
     @BeforeEach
     void setup() {
-        sut = new RenderTemplateMiddleware<>();
+        sut = new RenderTemplateMiddleware();
     }
 
     @Test
@@ -111,7 +111,7 @@ class RenderTemplateMiddlewareTest {
         ComponentInjector injector = new ComponentInjector(components);
         injector.inject(sut);
 
-        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain<>(Predicates.ANY, "null",
+        final HttpResponse res = sut.handle(request, new DefaultMiddlewareChain<HttpRequest, HttpResponse, HttpRequest, HttpResponse>(Predicates.any(), "null",
                 (Endpoint<HttpRequest, HttpResponse>) request1 -> templateEngine.render("template1")));
         assertThat(res.getBodyAsString()).isEqualTo("hello");
     }

@@ -20,17 +20,28 @@ import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ThreadingUtils.some;
 
 /**
- * Creates/Restores and conversation.
+ * Middleware that creates or restores a long-running conversation.
+ *
+ * <p>A conversation is a server-side state store (backed by a {@link KeyValueStore})
+ * that spans multiple requests.  Each non-GET request must carry a signed
+ * conversation token (by default in the {@code __conversation-token} form
+ * parameter) whose HMAC signature is verified by an injected
+ * {@link enkan.component.builtin.HmacEncoder}.
+ *
+ * <p>The token format is {@code <id>$<hmac>$<expires>}, where {@code expires}
+ * is a Unix epoch millisecond timestamp ({@code -1} means no expiry).
  *
  * @author kawasima
  */
 @Middleware(name = "conversation")
-public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ConversationMiddleware implements WebMiddleware {
     private KeyValueStore store;
     private Function<HttpRequest, String> readTokenFunc;
 
     @Inject
     private HmacEncoder hmacEncoder;
+
+    private static final java.util.regex.Pattern TOKEN_SPLIT = java.util.regex.Pattern.compile("\\$");
 
     private static final Function<HttpRequest, String> DEFAULT_READ_TOKEN_FUNC = request ->
             some(request, HttpRequest::getFormParams,
@@ -51,7 +62,7 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
         if (token == null) {
             return new ConversationToken(null, "invalid", "0");
         }
-        String[] tokens = token.trim().split("\\$", 3);
+        String[] tokens = TOKEN_SPLIT.split(token.trim(), 3);
 
         // If token contains two '$' characters, it's invalid.
         if (tokens.length != 3) {
@@ -61,7 +72,7 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         ConversationToken token = parseToken(readTokenFunc.apply(request));
 
         if (!isGetRequest(request) && !token.isValid()) {
@@ -97,12 +108,6 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
         private final String hash;
         private long expires;
 
-        ConversationToken(String id, long expires) {
-            this.id = id;
-            this.hash = hmacEncoder.encodeToHex(id + "$" + expires);
-            this.expires = expires;
-        }
-
         ConversationToken(String id, String hash, String expires) {
             this.id = id;
             this.hash = hash;
@@ -115,7 +120,7 @@ public class ConversationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
 
         boolean isValid() {
             return id != null && Objects.equals(hash, hmacEncoder.encodeToHex(id + "$" + expires))
-                    && (expires < 0 || System.currentTimeMillis() > expires);
+                    && (expires < 0 || System.currentTimeMillis() < expires);
         }
 
         @Override

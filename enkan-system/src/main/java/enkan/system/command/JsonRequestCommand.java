@@ -23,6 +23,8 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
  * @author kawasima
  */
 public class JsonRequestCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     /**
      * {@inheritDoc}
      */
@@ -48,7 +50,7 @@ public class JsonRequestCommand implements SystemCommand {
         WebServerComponent<?> webServer = webServers.getFirst();
         URL url;
         try {
-            url = URI.create(webServer.isSsl() ? "https" : "http"
+            url = URI.create((webServer.isSsl() ? "https" : "http")
                     + "://" + webServer.getHost()
                     + ":" + webServer.getPort()
                     + pathAndQuery).toURL();

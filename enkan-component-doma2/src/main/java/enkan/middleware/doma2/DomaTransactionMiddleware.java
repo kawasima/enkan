@@ -1,9 +1,8 @@
 package enkan.middleware.doma2;
 
 
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
-import enkan.component.doma2.DomaProviderUtils;
 import enkan.component.doma2.DomaProvider;
 import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
@@ -26,8 +25,8 @@ import java.lang.reflect.Method;
  * This middleware requires {@link DomaProvider} to provide a {@link Config} object.
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "domaTransaction")
-public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+@enkan.annotation.Middleware(name = "domaTransaction", dependencies = {"routing"})
+public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private DomaProvider domaProvider;
 
@@ -46,7 +45,7 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
 
     @PostConstruct
     private void init() {
-        Config defaultConfig = DomaProviderUtils.getDefaultConfig(domaProvider);
+        Config defaultConfig = domaProvider.getDefaultConfig();
         DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
         if (ds instanceof EnkanLocalTransactionDataSource ltds) {
             tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
@@ -60,6 +59,9 @@ public class DomaTransactionMiddleware<REQ, RES> implements Middleware<REQ, RES,
             Transactional.TxType type= getTransactionType(m);
 
             if (type != null) {
+                if (tm == null) {
+                    throw new MisconfigurationException("doma2.TX_MANAGER_NOT_AVAILABLE");
+                }
                 return switch (type) {
                     case REQUIRED -> tm.required(() ->
                             chain.next(req));

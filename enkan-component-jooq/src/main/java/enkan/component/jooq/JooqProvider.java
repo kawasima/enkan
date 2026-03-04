@@ -3,25 +3,26 @@ package enkan.component.jooq;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.SystemComponent;
+import enkan.exception.MisconfigurationException;
 import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
-import enkan.exception.FalteringEnvironmentException;
-
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class JooqProvider extends SystemComponent<JooqProvider> {
     private DataSource dataSource;
+    private SQLDialect dialect = SQLDialect.DEFAULT;
 
     public DSLContext getDSLContext() {
-        try {
-            Connection connection = dataSource.getConnection();
-            return DSL.using(connection);
-        } catch (SQLException e) {
-            throw new FalteringEnvironmentException(e);
+        if (dataSource == null) {
+            throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", "DataSource", "JooqProvider");
         }
+        return DSL.using(dataSource, dialect);
+    }
+
+    public void setDialect(SQLDialect dialect) {
+        this.dialect = dialect;
     }
 
     @Override
@@ -35,7 +36,7 @@ public class JooqProvider extends SystemComponent<JooqProvider> {
 
             @Override
             public void stop(JooqProvider component) {
-
+                component.dataSource = null;
             }
         };
     }

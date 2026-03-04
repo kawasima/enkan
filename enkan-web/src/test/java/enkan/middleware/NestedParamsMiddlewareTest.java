@@ -3,7 +3,6 @@ package enkan.middleware;
 import enkan.collection.Parameters;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
-import enkan.data.HttpResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class NestedParamsMiddlewareTest {
-    NestedParamsMiddleware<HttpResponse> sut = new NestedParamsMiddleware<>();
+    NestedParamsMiddleware sut = new NestedParamsMiddleware();
 
     @Test
     void testParseNestedKeys() {

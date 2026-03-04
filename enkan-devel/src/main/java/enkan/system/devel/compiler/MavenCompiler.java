@@ -1,6 +1,7 @@
 package enkan.system.devel.compiler;
 
 import enkan.Env;
+import enkan.exception.MisconfigurationException;
 import enkan.system.ReplResponse;
 import enkan.system.Transport;
 import enkan.system.devel.CompileResult;
@@ -18,15 +19,16 @@ public class MavenCompiler implements Compiler {
 
     @Override
     public CompileResult execute(Transport t) {
-        final InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File("pom.xml"));
-        request.addArg("compile");
-        request.setBaseDirectory(new File(projectDirectory));
         final File mavenHome = new File(Env.getString("MAVEN_HOME",
                 Env.getString("M2_HOME", "/opt/maven")));
         if (!mavenHome.exists()) {
-            throw new IllegalStateException("MAVEN_HOME not set");
+            throw new MisconfigurationException("devel.MAVEN_HOME_NOT_SET");
         }
+
+        final InvocationRequest request = new DefaultInvocationRequest();
+        request.setPomFile(new File(projectDirectory, "pom.xml"));
+        request.addArg("compile");
+        request.setBaseDirectory(new File(projectDirectory));
         request.setMavenHome(mavenHome);
         request.setOutputHandler(line -> t.send(ReplResponse.withOut(line)));
         request.setErrorHandler(line -> t.send(ReplResponse.withErr(line)));
@@ -37,7 +39,12 @@ public class MavenCompiler implements Compiler {
         try {
             InvocationResult invocationResult = invoker.execute(request);
             CommandLineException clEx = invocationResult.getExecutionException();
-            result.setExecutionException(clEx);
+            if (clEx != null) {
+                result.setExecutionException(clEx);
+            } else if (invocationResult.getExitCode() != 0) {
+                result.setExecutionException(new IllegalStateException(
+                        "Maven compile failed with exit code " + invocationResult.getExitCode()));
+            }
         } catch (MavenInvocationException ex) {
             result.setExecutionException(ex);
         }

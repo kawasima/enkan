@@ -19,6 +19,8 @@ import java.util.Optional;
  * @author kawasima
  */
 public class MiddlewareCommand implements SystemCommand {
+    private static final long serialVersionUID = 1L;
+
     private void list(Application<?, ?> app, Transport transport) {
         List<MiddlewareChain<?, ?, ?, ?>> chains = app.getMiddlewareStack();
         chains.forEach(chain -> transport.send(ReplResponse.withOut(chain.toString())));
@@ -45,14 +47,17 @@ public class MiddlewareCommand implements SystemCommand {
 
 
         switch (args[1]) {
-            case "list":
+            case "list" -> {
                 list(app, transport);
                 transport.sendOut("", ReplResponse.ResponseStatus.DONE);
-                break;
-            case "predicate":
+            }
+            case "predicate" -> {
+                if (args.length < 3) {
+                    transport.sendOut("Usage: /middleware [app name] predicate [middleware name] [predicate name]");
+                    break;
+                }
                 String middlewareName = args[2];
-
-                Optional<MiddlewareChain<?,?, ?, ?>> middlewareChain = app.getMiddlewareStack().stream()
+                Optional<MiddlewareChain<?, ?, ?, ?>> middlewareChain = app.getMiddlewareStack().stream()
                         .filter(chain -> chain.getName().equals(middlewareName))
                         .findFirst();
 
@@ -60,23 +65,22 @@ public class MiddlewareCommand implements SystemCommand {
                     if (args.length > 3) {
                         String predicateName = args[3];
                         switch (predicateName) {
-                            case "ANY":
-                                middlewareChain.get().setPredicate(new AnyPredicate<>());
+                            case "ANY" -> middlewareChain.get().setPredicate(new AnyPredicate<>());
+                            case "NONE" -> middlewareChain.get().setPredicate(new NonePredicate<>());
+                            default -> {
+                                transport.sendErr(String.format(Locale.US, "Unknown predicate: %s. Use ANY or NONE.", predicateName));
                                 break;
-                            case "NONE":
-                                middlewareChain.get().setPredicate(new NonePredicate<>());
-                                break;
+                            }
                         }
                         transport.sendOut(String.format(Locale.US, "Middleware %s's predicate has changed to %s.", middlewareName, predicateName));
                     } else {
-                        transport.sendOut("Usage: /middleware [app name] predicate [middleware name] [predicate nme]");
+                        transport.sendOut("Usage: /middleware [app name] predicate [middleware name] [predicate name]");
                     }
                 } else {
                     transport.sendErr(String.format("Middleware %s not found.", middlewareName));
                 }
-                break;
-            default:
-                transport.sendErr("");
+            }
+            default -> transport.sendErr(String.format("Unknown subcommand: %s. Use list or predicate.", args[1]));
         }
 
         return true;

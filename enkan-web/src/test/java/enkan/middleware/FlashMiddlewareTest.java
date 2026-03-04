@@ -17,14 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author kawasima
  */
 class FlashMiddlewareTest {
-    private FlashMiddleware<HttpResponse> middleware;
+    private FlashMiddleware middleware;
     private HttpRequest request;
 
     @BeforeEach
     void setup() {
         Session session = new Session();
         session.put("_flash", new Flash<>("message"));
-        middleware = new FlashMiddleware<>();
+        middleware = new FlashMiddleware();
         request = builder(new DefaultHttpRequest())
                 .set(HttpRequest::setSession, session)
                 .build();

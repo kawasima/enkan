@@ -47,6 +47,7 @@ class UrlRewriterTest {
     }
 
     private static class FooController {
+        @SuppressWarnings("unused")
         public HttpResponse index(HttpRequest request) {
             return null;
         }

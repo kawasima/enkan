@@ -7,12 +7,30 @@ import java.io.InputStream;
 import java.util.Map;
 
 /**
- * Represents an HTTP response.
+ * Represents an incoming HTTP request.
+ *
+ * <p>This interface aggregates all per-request capabilities through its
+ * super-interfaces:
+ * <ul>
+ *   <li>{@link UriAvailable} — request URI and HTTP method</li>
+ *   <li>{@link SessionAvailable} — session access</li>
+ *   <li>{@link FlashAvailable} — flash message access</li>
+ *   <li>{@link PrincipalAvailable} — authenticated principal</li>
+ *   <li>{@link ConversationAvailable} — long-running conversation and its state</li>
+ *   <li>{@link Traceable} — distributed trace log</li>
+ *   <li>{@link Extendable} — arbitrary named extensions attached by middleware</li>
+ * </ul>
+ *
+ * <p>The default implementation is {@link DefaultHttpRequest}.  Middleware
+ * that needs to attach additional capabilities uses
+ * {@link enkan.util.MixinUtils#mixin} to return a proxy that also implements
+ * the desired extra interfaces (e.g. {@code BodyDeserializable},
+ * {@code EntityManageable}).
  *
  * @author kawasima
  */
 public interface HttpRequest
-        extends UriAvailable, SessionAvailable, FlashAvailable, PrincipalAvailable, ConversationAvailable, Traceable, Extendable {
+        extends UriAvailable, SessionAvailable, FlashAvailable, PrincipalAvailable, ConversationAvailable, Traceable {
     int getServerPort();
 
     void setServerPort(int serverPort);

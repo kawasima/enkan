@@ -1,9 +1,11 @@
 package kotowari.middleware;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import enkan.Endpoint;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
@@ -33,7 +35,9 @@ import static org.assertj.core.api.Assertions.*;
  * @author kawasima
  */
 public class SerDesMiddlewareTest {
-    final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
+    final JacksonJsonProvider jsonProvider = new JacksonJsonProvider(JsonMapper.builder().build());
+    final JacksonJsonProvider strictJsonProvider = new JacksonJsonProvider(
+            JsonMapper.builder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build());
 
     @Test
     public void test() throws IOException {
@@ -124,7 +128,7 @@ public class SerDesMiddlewareTest {
             return middleware.handle(request, chain);
         });
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonMapper.builder().build();
         Map<String, Object> res = mapper.readValue(resp.getBodyAsStream(), new TypeReference<>() {
         });
         assertThat(res).containsEntry("a", 1);
@@ -147,8 +151,8 @@ public class SerDesMiddlewareTest {
     public void raiseException() {
         assertThatThrownBy(() -> {
             SerDesMiddleware<Object> middleware = builder(new SerDesMiddleware<>())
-                    .set(SerDesMiddleware::setBodyReaders, jsonProvider)
-                    .set(SerDesMiddleware::setBodyWriters, jsonProvider)
+                    .set(SerDesMiddleware::setBodyReaders, strictJsonProvider)
+                    .set(SerDesMiddleware::setBodyWriters, strictJsonProvider)
                     .build();
 
             String body = "{\"a\":1, \"b\":\"ccb\", \"c\": \"This is an unknown property.\"}";

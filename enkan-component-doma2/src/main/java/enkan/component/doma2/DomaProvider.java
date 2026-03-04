@@ -20,52 +20,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import static enkan.util.ReflectionUtils.*;
 
 /**
- * Provides Doma2 configuration and DAO instances.
- * <p>
- * This component requires a {@link DataSourceComponent} to provide a {@link DataSource} object.
- * </p>
- * <p>
- * The configuration and DAO instances are created lazily, and are cached in the instance of this class.
- * </p>
- * <p>
- * The configuration is created with the given {@link Dialect}, {@link Naming}, and other settings.
- * </p>
- * <p>
- * The DAO instances are created with the given {@link DataSource} or the default configuration.
- * </p>
- * <p>
- * This component also provides a method to get the DAO instances.
- * </p>
- * <p>
- * Here is an example of how to use this component:
- * </p>
- * <pre>{@code
- * DomaProvider domaProvider = new DomaProvider();
- * DataSourceComponent dataSourceComponent = new DataSourceComponent();
- * dataSourceComponent.setDataSource(dataSource);
- * domaProvider.setDependency(dataSourceComponent);
- * domaProvider.setDialect(new H2Dialect());
- * domaProvider.setNaming(Naming.SNAKE_LOWER_CASE);
- * domaProvider.start();
+ * An enkan component that provides Doma2 {@link Config} and cached DAO instances.
  *
- * MyDao myDao = domaProvider.getDao(MyDao.class);
- * MyEntity entity = myDao.selectById(1);
+ * <p>Requires a {@link DataSourceComponent} dependency. When {@code useLocalTransaction} is
+ * {@code true} (default), the DataSource is automatically wrapped in an
+ * {@link EnkanLocalTransactionDataSource} to enable local transaction management.</p>
+ *
+ * <p>DAO instances are resolved by convention: given {@code com.example.FooDao}, the
+ * implementation class {@code com.example.impl.FooDaoImpl} is looked up. Instances are
+ * cached per DAO interface for the lifetime of the component.</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * EnkanSystem system = EnkanSystem.of(
+ *     "doma", BeanBuilder.builder(new DomaProvider())
+ *         .set(DomaProvider::setDialect, new H2Dialect())
+ *         .set(DomaProvider::setNaming, Naming.SNAKE_LOWER_CASE)
+ *         .build(),
+ *     "datasource", new HikariCPComponent(...)
+ * ).relationships(component("doma").using("datasource"));
+ * system.start();
+ *
+ * DomaProvider doma = system.getComponent("doma");
+ * MyDao myDao = doma.getDao(MyDao.class);
  * }</pre>
  *
- * <p>
- * In this example, {@code dataSource} is a {@link DataSource} object that is provided by the {@link DataSourceComponent}.
- * {@code MyDao} is a DAO interface that is annotated as a Doma2 DAO.
- * {@code MyEntity} is an entity class that is annotated as a Doma2 entity.
- * </p>
- * <p>
- * The {@code domaProvider} object is created and configured with the {@code dataSource} object and the Doma2 settings.
- * The {@code dataSourceComponent} object is created and configured with the {@code dataSource} object.
- * The {@code domaProvider} object is started, and then the {@code myDao} object is obtained by calling the {@code getDao} method.
- * The {@code myDao} object is used to execute a SQL query to get an entity object.
- * </p>
- * <p>
- * The {@code domaProvider} object is created and configured with the {@code dataSource} object and the Doma2 settings.
- * The {@code dataSourceComponent} object is created and configured with the
  * @author kawasima
  */
 public class DomaProvider extends SystemComponent<DomaProvider> {
@@ -173,7 +152,7 @@ public class DomaProvider extends SystemComponent<DomaProvider> {
         };
     }
 
-    protected Config getDefaultConfig() {
+    public Config getDefaultConfig() {
         return defaultConfig;
     }
 

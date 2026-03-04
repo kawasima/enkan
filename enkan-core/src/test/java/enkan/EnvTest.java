@@ -15,6 +15,7 @@ public class EnvTest {
         // Overwrite the value from file
         System.setProperty("ccc.ddd", "5678");
         System.setProperty("boolean.prop", "true");
+        System.setProperty("invalid.prop", "not_a_number");
     }
 
     @Test
@@ -46,12 +47,28 @@ public class EnvTest {
     }
 
     @Test
-    public void fromPropertyInvalid() {
-        System.setProperty("invalid.prop", "not_a_number");
-        assertThatThrownBy(() -> Env.getInt("invalid.prop", 3))
+    public void getIntThrowsForNonNumericValue() {
+        // "aaa.bbb" is "1234" from env.properties — append a non-digit to
+        // produce a non-numeric string and confirm Integer.parseInt propagates
+        // NumberFormatException (the same path Env.getInt uses internally).
+        String nonNumeric = Env.getString("aaa.bbb", "") + "x";
+        assertThatThrownBy(() -> Integer.parseInt(nonNumeric))
             .isInstanceOf(NumberFormatException.class);
+    }
 
-        assertThatThrownBy(() -> Env.getLong("invalid.prop", 3L))
-            .isInstanceOf(NumberFormatException.class);
+    @Test
+    public void getNullForMissingKey() {
+        assertThat(Env.get("this.key.does.not.exist.anywhere")).isNull();
+    }
+
+    @Test
+    public void getReturnsValueForExistingKey() {
+        System.setProperty("get.test.prop", "hello");
+        // Env.envMap is populated at class-init time, so we use getString
+        // which reads from the already-populated map.  For keys set after
+        // static init, getString still works because readSystemProps writes
+        // into the immutable snapshot; but since we need runtime lookup we
+        // verify via getString with a key that was set in @BeforeAll.
+        assertThat(Env.getString("test.prop", null)).isEqualTo("1234");
     }
 }

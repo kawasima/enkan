@@ -19,7 +19,7 @@ import static enkan.util.ReflectionUtils.tryReflection;
  * @author kawasima
  */
 public class LazyLoadMiddleware<REQ, RES, NREQ, NRES> implements Middleware<REQ, RES, NREQ, NRES> {
-    private Middleware<REQ, RES, NREQ, NRES> instance;
+    private volatile Middleware<REQ, RES, NREQ, NRES> instance;
     private final Lock initializingLock = new ReentrantLock();
     private final String middlewareClassName;
 
@@ -34,12 +34,16 @@ public class LazyLoadMiddleware<REQ, RES, NREQ, NRES> implements Middleware<REQ,
     @Override
     public <NNREQ, NNRES> RES handle(REQ request, MiddlewareChain<NREQ, NRES, NNREQ, NNRES> chain) {
         if (instance == null) {
+            initializingLock.lock();
             try {
-                initializingLock.lock();
-                instance = tryReflection(() -> {
-                    Class<Middleware<REQ, RES, NREQ, NRES>> middlewareClass = (Class<Middleware<REQ, RES, NREQ, NRES>>) Class.forName(middlewareClassName);
-                    return middlewareClass.getConstructor().newInstance();
-                });
+                // Re-check after acquiring the lock (double-checked locking).
+                // volatile guarantees the write in another thread is visible here.
+                if (instance == null) {
+                    instance = tryReflection(() -> {
+                        Class<Middleware<REQ, RES, NREQ, NRES>> middlewareClass = (Class<Middleware<REQ, RES, NREQ, NRES>>) Class.forName(middlewareClassName);
+                        return middlewareClass.getConstructor().newInstance();
+                    });
+                }
             } finally {
                 initializingLock.unlock();
             }

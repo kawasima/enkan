@@ -8,14 +8,17 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
 
 /**
  * @author kawasima
  */
 public class HmacEncoder extends SystemComponent<HmacEncoder> {
+    private static final Logger LOG = Logger.getLogger(HmacEncoder.class.getName());
+    private static final String DEFAULT_SECRET = "This is secret";
     private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
     private String algorithm = "HmacSHA256";
-    private String secret = "This is secret";
+    private String secret = DEFAULT_SECRET;
 
     private SecretKeySpec secretKeySpec;
 
@@ -47,7 +50,9 @@ public class HmacEncoder extends SystemComponent<HmacEncoder> {
         return new ComponentLifecycle<>() {
             @Override
             public void start(HmacEncoder component) {
-
+                if (DEFAULT_SECRET.equals(component.secret)) {
+                    LOG.warning("HmacEncoder is using the default secret. Set a strong secret before running in production.");
+                }
             }
 
             @Override

@@ -7,10 +7,13 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.middleware.negotiation.AcceptHeaderNegotiator;
 import enkan.middleware.negotiation.ContentNegotiator;
+import enkan.collection.Headers;
 import enkan.util.MixinUtils;
 
 import jakarta.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 import static enkan.util.ThreadingUtils.*;
 
@@ -20,22 +23,23 @@ import static enkan.util.ThreadingUtils.*;
  * @author kawasima
  */
 @Middleware(name = "contentNegotiation")
-public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class ContentNegotiationMiddleware implements WebMiddleware {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;
     private Set<String> allowedLanguages;
 
     public ContentNegotiationMiddleware() {
         negotiator = new AcceptHeaderNegotiator();
-        allowedTypes = new HashSet<>(Collections.singletonList("text/html"));
-        allowedLanguages = new HashSet<>(Collections.singletonList("*"));
+        allowedTypes = Set.of("text/html");
+        allowedLanguages = Set.of("*");
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
-        String accept = (String) request.getHeaders().getOrDefault("Accept", "*/*");
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+        Headers headers = request.getHeaders();
+        String accept = headers != null ? Objects.toString(headers.getOrDefault("Accept", "*/*"), "*/*") : "*/*";
         MediaType mediaType = negotiator.bestAllowedContentType(accept, allowedTypes);
-        String acceptLanguage = (String) request.getHeaders().getOrDefault("Accept-Language", "*");
+        String acceptLanguage = headers != null ? Objects.toString(headers.getOrDefault("Accept-Language", "*"), "*") : "*";
         String lang = negotiator.bestAllowedLanguage(acceptLanguage, allowedLanguages);
         Locale locale = Objects.equals(lang, "*")? null : some(lang, Locale::forLanguageTag).orElse(null);
 
@@ -50,10 +54,10 @@ public class ContentNegotiationMiddleware<NRES> extends AbstractWebMiddleware<Ht
     }
 
     public void setAllowedTypes(Set<String> allowedTypes) {
-        this.allowedTypes = allowedTypes;
+        this.allowedTypes = Set.copyOf(allowedTypes);
     }
 
     public void setAllowedLanguages(Set<String> allowedLanguages) {
-        this.allowedLanguages = allowedLanguages;
+        this.allowedLanguages = Set.copyOf(allowedLanguages);
     }
 }

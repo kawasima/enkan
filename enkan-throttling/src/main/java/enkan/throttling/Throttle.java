@@ -2,8 +2,9 @@ package enkan.throttling;
 
 import enkan.data.HttpRequest;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -11,43 +12,53 @@ import java.util.function.Function;
  * @author kawasima
  */
 public class Throttle {
+    private static final int DEFAULT_MAX_BUCKETS = 10_000;
+
     private final Function<HttpRequest, Object> discriminateFn;
     private final String name;
     private final LimitRate limitRate;
     private final Map<Object, TokenBucket> buckets;
 
-
     public Throttle(String name, LimitRate limitRate, Function<HttpRequest, Object> discriminateFn) {
+        this(name, limitRate, discriminateFn, DEFAULT_MAX_BUCKETS);
+    }
+
+    public Throttle(String name, LimitRate limitRate, Function<HttpRequest, Object> discriminateFn, int maxBuckets) {
         this.name = name;
         this.limitRate = limitRate;
         this.discriminateFn = discriminateFn;
-        this.buckets = new ConcurrentHashMap<>();
+        this.buckets = Collections.synchronizedMap(
+                new LinkedHashMap<>(maxBuckets, 0.75f, true) {
+                    @Override
+                    protected boolean removeEldestEntry(Map.Entry<Object, TokenBucket> eldest) {
+                        return size() > maxBuckets;
+                    }
+                }
+        );
     }
 
     public boolean apply(HttpRequest request) {
         Object discriminator = discriminateFn.apply(request);
         if (discriminator == null) return false;
 
-        TokenBucket bucket = buckets.computeIfAbsent(discriminator, key ->
-                new TokenBucket(limitRate.max(), limitRate.max(),
-                        new RefillStrategy(limitRate.max(), limitRate.duration()),
-                        () -> {
-                            boolean interrupted = false;
-                            try {
-                                TimeUnit.NANOSECONDS.sleep(1);
-                            } catch (InterruptedException e) {
-                                interrupted = true;
-                            } finally {
-                                if (interrupted) Thread.currentThread().interrupt();
-                            }
-                        })
-        );
-        if (bucket.tryConsume(1)) {
-            bucket.consume();
-            return false;
-        } else {
-            return true;
+        TokenBucket bucket;
+        synchronized (buckets) {
+            bucket = buckets.computeIfAbsent(discriminator, key ->
+                    new TokenBucket(limitRate.max(), limitRate.max(),
+                            new RefillStrategy(limitRate.max(), limitRate.duration()),
+                            () -> {
+                                boolean interrupted = false;
+                                try {
+                                    TimeUnit.NANOSECONDS.sleep(1);
+                                } catch (InterruptedException e) {
+                                    interrupted = true;
+                                } finally {
+                                    if (interrupted) Thread.currentThread().interrupt();
+                                }
+                            })
+            );
         }
+        return !bucket.tryConsume(1);
     }
 
     public String getName() {

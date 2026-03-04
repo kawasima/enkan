@@ -34,7 +34,7 @@ class CorsMiddlewareTest {
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
         // Exercise
-        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -65,7 +65,7 @@ class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -89,7 +89,7 @@ class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -117,7 +117,7 @@ class CorsMiddlewareTest {
                 builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
 
         // Exercise
-        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify
@@ -149,7 +149,7 @@ class CorsMiddlewareTest {
                         .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/html")).build());
 
         // Exercise
-        CorsMiddleware<HttpResponse> sut = new CorsMiddleware<>();
+        CorsMiddleware sut = new CorsMiddleware();
         HttpResponse result = sut.handle(request, chain);
 
         // Verify

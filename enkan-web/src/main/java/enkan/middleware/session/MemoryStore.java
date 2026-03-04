@@ -4,20 +4,58 @@ import enkan.exception.FalteringEnvironmentException;
 import enkan.exception.MisconfigurationException;
 
 import java.io.*;
-import java.lang.reflect.Proxy;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author kawasima
  */
-public class MemoryStore implements KeyValueStore {
-    private final ConcurrentHashMap<String, byte[]> sessionMap = new ConcurrentHashMap<>();
+public class MemoryStore implements KeyValueStore, Closeable {
+    private static final long DEFAULT_TTL_SECONDS = 1800L;
+    private static final long PURGE_INTERVAL_SECONDS = 60L;
+
+    private record Entry(byte[] data, long expiresAt) {}
+
+    private final ConcurrentHashMap<String, Entry> sessionMap = new ConcurrentHashMap<>();
+    private long ttlSeconds = DEFAULT_TTL_SECONDS;
+    private final ScheduledExecutorService purgeScheduler;
+
+    public MemoryStore() {
+        purgeScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "enkan-memory-store-purge");
+            t.setDaemon(true);
+            return t;
+        });
+        purgeScheduler.scheduleAtFixedRate(this::purgeExpired,
+                PURGE_INTERVAL_SECONDS, PURGE_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private void purgeExpired() {
+        long now = System.currentTimeMillis();
+        sessionMap.entrySet().removeIf(e -> now > e.getValue().expiresAt());
+    }
+
+    @Override
+    public void close() {
+        purgeScheduler.shutdown();
+    }
+
+    public void setTtlSeconds(long ttlSeconds) {
+        this.ttlSeconds = ttlSeconds;
+    }
 
     @Override
     public Serializable read(String key) {
-        byte[] buf = sessionMap.get(key);
-        if (buf == null) return null;
+        Entry entry = sessionMap.get(key);
+        if (entry == null) return null;
+        if (System.currentTimeMillis() > entry.expiresAt()) {
+            sessionMap.remove(key);
+            return null;
+        }
+        byte[] buf = entry.data();
 
         try (ByteArrayInputStream bais = new ByteArrayInputStream(buf);
              ObjectInputStream ois = new CustomObjectInputStream(bais, Thread.currentThread().getContextClassLoader())) {
@@ -38,7 +76,8 @@ public class MemoryStore implements KeyValueStore {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.writeObject(value);
-            sessionMap.put(key, baos.toByteArray());
+            long expiresAt = System.currentTimeMillis() + ttlSeconds * 1000L;
+            sessionMap.put(key, new Entry(baos.toByteArray(), expiresAt));
         } catch (IOException ex) {
             throw new FalteringEnvironmentException(ex);
         }
@@ -118,16 +157,14 @@ public class MemoryStore implements KeyValueStore {
          */
         @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
-                throws ClassNotFoundException {
-
-            Class<?>[] cinterfaces = new Class[interfaces.length];
-            for (int i = 0; i < interfaces.length; i++)
-                cinterfaces[i] = classLoader.loadClass(interfaces[i]);
-
+                throws ClassNotFoundException, IOException {
+            Thread currentThread = Thread.currentThread();
+            ClassLoader original = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
             try {
-                return Proxy.getProxyClass(classLoader, cinterfaces);
-            } catch (IllegalArgumentException e) {
-                throw new ClassNotFoundException(null, e);
+                return super.resolveProxyClass(interfaces);
+            } finally {
+                currentThread.setContextClassLoader(original);
             }
         }
     }

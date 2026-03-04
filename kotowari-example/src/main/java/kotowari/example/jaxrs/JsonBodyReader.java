@@ -1,6 +1,6 @@
 package kotowari.example.jaxrs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -25,7 +25,7 @@ public class JsonBodyReader<T> implements MessageBodyReader<T> {
 
     @Override
     public T readFrom(Class<T> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-        return mapper.readerFor(mapper.constructType(genericType))
+        return mapper.readerFor(mapper.getTypeFactory().constructType(genericType))
                 .readValue(entityStream);
     }
 }

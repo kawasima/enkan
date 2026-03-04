@@ -54,17 +54,24 @@ public class ComponentRelationship {
     }
 
     /**
-     * Sorts the components in a dependent component first.
+     * Sorts the components so that each dependent appears before the target.
+     * Iterates until the order is stable to handle transitive dependencies.
      *
      * @param componentsOrder the order between components
      */
     public void sort(LinkedList<String> componentsOrder) {
-        for (String dep : dependents) {
-            int targetIndex = index(componentsOrder, target);
-            int depIndex = index(componentsOrder, dep);
-            if (depIndex > targetIndex) {
-                componentsOrder.add(targetIndex, dep);
-                componentsOrder.remove(depIndex + 1);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (String dep : dependents) {
+                int targetIndex = index(componentsOrder, target);
+                int depIndex = index(componentsOrder, dep);
+                if (depIndex == -1 || targetIndex == -1) continue;
+                if (depIndex > targetIndex) {
+                    componentsOrder.add(targetIndex, dep);
+                    componentsOrder.remove(depIndex + 1);
+                    changed = true;
+                }
             }
         }
     }

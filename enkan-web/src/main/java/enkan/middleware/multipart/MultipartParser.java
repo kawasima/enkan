@@ -51,8 +51,6 @@ public class MultipartParser {
     private static final Pattern DISPPARM = Pattern.compile(String.format(";\\s*(?:%s|%s)\\s*", REGULAR_PARAMETER.pattern(), EXTENDED_PARAMETER.pattern()));
     private static final Pattern RFC2183 = Pattern.compile(String.format("^%s(%s)+$", CONDISP.pattern(), DISPPARM.pattern()), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-
-    private static final MultipartInfo EMPTY = new MultipartInfo(null, new ArrayList<>());
     private static final BiFunction<String, String, File> TEMPFILE_FACTORY = (filename, contentType) -> {
         int idx = filename.indexOf('.');
         String extName = (idx >= 0 && idx < filename.length() - 1) ? filename.substring(idx) : "";
@@ -85,6 +83,14 @@ public class MultipartParser {
         collector = new MultipartCollector(TEMPFILE_FACTORY);
     }
 
+    /**
+     * Feeds a chunk of bytes into the parser and advances the parse state.
+     *
+     * @param src the byte array containing the data to process
+     * @param len the number of bytes to read from {@code src}
+     * @throws IOException if the stream ends unexpectedly ({@link java.io.EOFException})
+     *                     or an I/O error occurs during parsing
+     */
     public void onRead(byte[] src, int len) throws IOException {
         if (len == 0) throw new EOFException();
         buf.put(src, 0, len);
@@ -92,6 +98,11 @@ public class MultipartParser {
         runParser();
     }
 
+    /**
+     * Returns the parsed multipart parameters after parsing is complete.
+     *
+     * @return a {@link Parameters} map containing all parsed form fields and file parts
+     */
     public Parameters result() {
         Parameters params = Parameters.empty();
         collector.stream()
@@ -99,6 +110,12 @@ public class MultipartParser {
         return params;
     }
 
+    /**
+     * Extracts the multipart boundary string from a Content-Type header value.
+     *
+     * @param contentType the value of the {@code Content-Type} header
+     * @return the boundary string, or {@code null} if not found or {@code contentType} is {@code null}
+     */
     public static String parseBoundary(String contentType) {
         if (contentType == null) return null;
         Matcher m = MULTIPART.matcher(contentType);
@@ -108,6 +125,21 @@ public class MultipartParser {
         return null;
     }
 
+    /**
+     * Parses a multipart request body and returns all parts as a parameter map.
+     *
+     * <p>If {@code contentLength} is {@code 0} or no boundary is found in
+     * {@code contentType}, an empty {@link Parameters} is returned immediately.
+     * A {@code bufferSize} of {@code 0} uses the default buffer size
+     * ({@value DEFAULT_BUFFER_SIZE} bytes).
+     *
+     * @param in            the request body input stream
+     * @param contentLength the value of the {@code Content-Length} header, or {@code null} if unknown
+     * @param contentType   the value of the {@code Content-Type} header
+     * @param bufferSize    the read buffer size in bytes; {@code 0} uses the default
+     * @return a {@link Parameters} map of all parsed multipart parts
+     * @throws IOException if an I/O error occurs while reading the stream
+     */
     public static Parameters parse(InputStream in, Long contentLength, String contentType, int bufferSize) throws IOException {
         if (contentLength != null && contentLength == 0) return Parameters.empty();
         String boundary = parseBoundary(contentType);

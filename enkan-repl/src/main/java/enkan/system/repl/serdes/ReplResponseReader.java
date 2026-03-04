@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * A fressian reader for ReplRepsponse.
+ * A fressian reader for ReplResponse.
  *
  * @author kawasima
  */
@@ -22,6 +22,7 @@ public class ReplResponseReader implements ReadHandler {
         ReplResponse response = new ReplResponse();
         response.setOut((String) r.readObject());
         response.setErr((String) r.readObject());
+        response.setValue((String) r.readObject());
         response.getStatus().addAll((Set<ReplResponse.ResponseStatus>) r.readObject());
         return response;
     }

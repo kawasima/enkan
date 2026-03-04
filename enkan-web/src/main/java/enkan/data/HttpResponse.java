@@ -7,7 +7,23 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * Represents an HTTP response.
+ * Represents an outgoing HTTP response.
+ *
+ * <p>A response carries a status code, headers, a body (string, stream, or
+ * file), and optional session/flash/conversation side-effects.
+ * The three static factory methods cover the most common body types:
+ *
+ * <pre>{@code
+ * HttpResponse.of("Hello, world!")            // plain text
+ * HttpResponse.of(inputStream)                // binary / streaming
+ * HttpResponse.of(new File("report.pdf"))     // file download
+ * }</pre>
+ *
+ * <p>Status defaults to {@code 200}.  Headers default to an empty
+ * {@link enkan.collection.Headers} instance.  Body accessors
+ * {@link #getBodyAsString()} and {@link #getBodyAsStream()} let
+ * downstream middleware consume the body in either form regardless of how
+ * it was set.
  *
  * @author kawasima
  */

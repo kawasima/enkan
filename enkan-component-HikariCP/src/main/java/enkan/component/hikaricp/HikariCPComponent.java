@@ -5,15 +5,20 @@ import com.zaxxer.hikari.HikariDataSource;
 import enkan.collection.OptionMap;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
+import enkan.component.HealthCheckable;
+import enkan.component.HealthStatus;
 import enkan.exception.MisconfigurationException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Enkan component for HikariCP.
+ *
  * @author kawasima
  */
-public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
+public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> implements HealthCheckable {
     private HikariConfig config;
     private HikariDataSource dataSource;
 
@@ -21,6 +26,26 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
         config = new HikariConfig();
     }
 
+    /**
+     * Creates a HikariCPComponent configured from the given options.
+     *
+     * <p>Supported option keys:
+     * <ul>
+     *   <li>{@code "uri"}         — JDBC URL (e.g. {@code "jdbc:h2:mem:test"})</li>
+     *   <li>{@code "username"}    — database user name</li>
+     *   <li>{@code "password"}    — database password</li>
+     *   <li>{@code "autoCommit?"} — whether auto-commit is enabled (boolean)</li>
+     *   <li>{@code "connTimeout"} — connection timeout in milliseconds (long)</li>
+     *   <li>{@code "idleTimeout"} — idle timeout in milliseconds (long)</li>
+     *   <li>{@code "maxLifetime"} — maximum connection lifetime in milliseconds (long)</li>
+     *   <li>{@code "maxPoolSize"} — maximum pool size (int)</li>
+     *   <li>{@code "minIdle"}     — minimum idle connections (int)</li>
+     *   <li>{@code "poolName"}    — pool name for JMX and logging</li>
+     *   <li>{@code "schema"}      — default schema</li>
+     * </ul>
+     *
+     * @param options configuration options
+     */
     public HikariCPComponent(OptionMap options) {
         this();
         if (options.containsKey("uri")) config.setJdbcUrl(options.getString("uri"));
@@ -42,18 +67,26 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
     }
 
     @Override
+    public HealthStatus health() {
+        if (dataSource == null || dataSource.isClosed()) return HealthStatus.DOWN;
+        try (Connection conn = dataSource.getConnection()) {
+            return conn.isValid(1) ? HealthStatus.UP : HealthStatus.DOWN;
+        } catch (SQLException e) {
+            return HealthStatus.DOWN;
+        }
+    }
+
+    @Override
     protected ComponentLifecycle<HikariCPComponent> lifecycle() {
         return new ComponentLifecycle<>() {
             @Override
             public void start(HikariCPComponent component) {
-                if (component.dataSource == null) {
-                    try {
-                        config.validate();
-                    } catch (IllegalArgumentException | IllegalStateException e) {
-                        throw new MisconfigurationException("hikariCP.CONFIGURATION", e.getMessage());
-                    }
-                    component.dataSource = new HikariDataSource(config);
+                try {
+                    config.validate();
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    throw new MisconfigurationException("hikariCP.CONFIGURATION", e.getMessage());
                 }
+                component.dataSource = new HikariDataSource(config);
             }
 
             @Override
@@ -66,6 +99,14 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
         };
     }
 
+    /**
+     * Replaces the HikariCP configuration with the given one.
+     *
+     * <p><strong>Note:</strong> calling this method overwrites any configuration
+     * previously set via the {@link #HikariCPComponent(OptionMap)} constructor.
+     *
+     * @param config HikariCP configuration
+     */
     public void setConfig(HikariConfig config) {
         this.config = config;
     }
@@ -77,6 +118,5 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
                 + "  \"username\": \"" + config.getUsername() + "\",\n"
                 + "  \"dependencies\": " + dependenciesToString()
                 + "\n}";
-
     }
 }

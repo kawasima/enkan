@@ -60,10 +60,12 @@ class EnkanSystemTest {
         @Inject
         Baz baz;
 
+        @SuppressWarnings("unused")
         public Bar getBar() {
             return bar;
         }
 
+        @SuppressWarnings("unused")
         public Baz getBaz() {
             return baz;
         }

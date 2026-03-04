@@ -26,17 +26,18 @@ public class KotowariCommandRegister implements SystemCommandRegister {
 
             String appName = args[0];
             SystemComponent<?> component = system.getComponent(appName);
-            if (component instanceof ApplicationComponent) {
-                Application<HttpRequest, HttpResponse> app = ((ApplicationComponent<HttpRequest, HttpResponse>) component).getApplication();
+            if (component instanceof ApplicationComponent<?, ?> appComponent) {
+                @SuppressWarnings("unchecked")
+                Application<HttpRequest, HttpResponse> app = (Application<HttpRequest, HttpResponse>) appComponent.getApplication();
                 if (app == null) {
                     transport.sendErr(String.format("Application %s is not running.", appName));
                     return true;
                 }
                 app.getMiddlewareStack().stream()
                         .map(MiddlewareChain::getMiddleware)
-                        .filter(middleware -> middleware instanceof RoutingMiddleware)
-                        .map(m -> ReplResponse.withOut(((RoutingMiddleware<HttpResponse>) m).getRoutes().toString()))
-                        .forEach(transport::send);
+                        .filter(RoutingMiddleware.class::isInstance)
+                        .map(RoutingMiddleware.class::cast)
+                        .forEach(m -> transport.send(ReplResponse.withOut(m.getRoutes().toString())));
                 transport.sendOut("", ReplResponse.ResponseStatus.DONE);
             } else {
                 transport.sendErr(String.format("Application %s not found.", appName));

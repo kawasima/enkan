@@ -7,12 +7,23 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Data that have the lifecycle between multiple requests.
- * This is not dependent on javax.servlet.HttpSession.
+ * A serializable session object that holds attributes across multiple requests.
+ *
+ * <p>Unlike {@code javax.servlet.HttpSession}, this class has no dependency on
+ * the Servlet API and can be used in any transport layer.
+ * Attributes are stored in a plain {@link java.util.HashMap} and the entire
+ * session is serialized to the session store by
+ * {@link enkan.middleware.SessionMiddleware}.
+ *
+ * <p>A freshly created {@code Session} is marked as {@link #isNew() new}.
+ * Once it has been persisted to the backing store, {@link #persist()} is called
+ * to clear that flag.
  *
  * @author kawasima
  */
 public class Session implements Map<String, Serializable>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     /** Holds the attributes of session **/
     private final Map<String, Serializable> attrs;
     private boolean isNew = true;
@@ -22,11 +33,21 @@ public class Session implements Map<String, Serializable>, Serializable {
     }
 
     /**
-     * Mark that persisted into the session store.
+     * Marks this session as having been persisted to the backing store.
+     *
+     * <p>After this call, {@link #isNew()} returns {@code false}.
      */
     public void persist() {
         isNew = false;
     }
+
+    /**
+     * Returns {@code true} if this session has not yet been persisted to the
+     * backing store since it was created.
+     *
+     * @return {@code true} for a newly created session; {@code false} after
+     *         {@link #persist()} has been called
+     */
     public boolean isNew() {
         return isNew;
     }

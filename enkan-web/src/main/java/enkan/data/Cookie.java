@@ -11,6 +11,8 @@ import static enkan.util.CodecUtils.formEncode;
  * @author kawasima
  */
 public class Cookie implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String name;
     private String value;
     private String domain;
@@ -19,6 +21,7 @@ public class Cookie implements Serializable {
     private Date expires;
     private boolean secure;
     private boolean httpOnly;
+    private String sameSite;
 
     public static Cookie create(String name, String value) {
         Cookie cookie = new Cookie();
@@ -91,6 +94,14 @@ public class Cookie implements Serializable {
         this.httpOnly = httpOnly;
     }
 
+    public String getSameSite() {
+        return sameSite;
+    }
+
+    public void setSameSite(String sameSite) {
+        this.sameSite = sameSite;
+    }
+
     public String toHttpString() {
         StringBuilder sb = new StringBuilder();
         sb.append(formEncode(getName())).append("=").append(formEncode(getValue()));
@@ -111,6 +122,9 @@ public class Cookie implements Serializable {
         }
         if (isSecure()) {
             sb.append(";secure");
+        }
+        if (getSameSite() != null) {
+            sb.append(";samesite=").append(getSameSite());
         }
         return sb.toString();
     }

@@ -2,7 +2,6 @@ package enkan.security.backend;
 
 import enkan.data.HttpRequest;
 import enkan.security.AuthBackend;
-import enkan.util.ThreadingUtils;
 
 import java.security.Principal;
 
@@ -13,8 +12,14 @@ public class TokenBackend implements AuthBackend<HttpRequest, String> {
     private String tokenName = "Token";
 
     protected String parseAuthorizationHeader(HttpRequest request, String tokenName) {
-        return ThreadingUtils.some(request.getHeaders().get("Authorization"),
-                auth -> auth.replace("^" + tokenName + " (.+)$", "$1")).orElse(null);
+        Object authHeader = request.getHeaders().get("Authorization");
+        if (authHeader == null) return null;
+        String auth = authHeader.toString();
+        String prefix = tokenName + " ";
+        if (auth.regionMatches(true, 0, prefix, 0, prefix.length())) {
+            return auth.substring(prefix.length()).trim();
+        }
+        return null;
     }
 
     @Override

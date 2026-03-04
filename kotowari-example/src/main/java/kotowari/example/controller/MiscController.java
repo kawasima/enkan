@@ -36,7 +36,6 @@ public class MiscController {
         if (session != null) {
             count = (Integer) session.get("count");
             count++;
-            LoginPrincipal principal = (LoginPrincipal) session.get("principal");
         } else {
             session = new Session();
             session.put("principal", new LoginPrincipal("test"));

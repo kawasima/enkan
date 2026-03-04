@@ -22,6 +22,12 @@ public class TraceRouting {
     private final String baseUri;
     private final List<Route> routes = new ArrayList<>();
 
+    public static class RouteNotFoundException extends RuntimeException {
+        public RouteNotFoundException() {
+            super("Requested trace log was not found");
+        }
+    }
+
     public TraceRouting(String baseUri) {
         this.baseUri = baseUri;
     }
@@ -36,11 +42,19 @@ public class TraceRouting {
                 .findFirst();
         if (found.isPresent()) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            found.get().action.accept(request, baos);
-            return builder(HttpResponse.of(new ByteArrayInputStream(baos.toByteArray())))
-                    .set(HttpResponse::setHeaders,
-                            Headers.of("Content-Type", "text/html"))
-                    .build();
+            try {
+                found.get().action.accept(request, baos);
+                return builder(HttpResponse.of(new ByteArrayInputStream(baos.toByteArray())))
+                        .set(HttpResponse::setHeaders,
+                                Headers.of("Content-Type", "text/html"))
+                        .build();
+            } catch (RouteNotFoundException ex) {
+                return builder(HttpResponse.of("Not Found"))
+                        .set(HttpResponse::setHeaders,
+                                Headers.of("Content-Type", "text/html"))
+                        .set(HttpResponse::setStatus, 404)
+                        .build();
+            }
         } else {
             return builder(HttpResponse.of("Not Found"))
                     .set(HttpResponse::setHeaders,

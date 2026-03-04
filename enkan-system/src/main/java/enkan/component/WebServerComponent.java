@@ -103,7 +103,7 @@ public abstract class WebServerComponent<T extends WebServerComponent<T>> extend
             } catch (NoSuchAlgorithmException e) {
                 throw new UnreachableException(e);
             } catch (IOException e) {
-                throw new MisconfigurationException("core.CANT_READ_KEYSTORE_FILE", truststoreFile, e);
+                throw new MisconfigurationException("core.CANT_READ_KEYSTORE_FILE", keystoreFile, e);
             }
         }
         return keystore;
@@ -174,11 +174,11 @@ public abstract class WebServerComponent<T extends WebServerComponent<T>> extend
 
         KeyStore keystore = getKeystore();
         if (keystore != null) options.put("keystore", keystore);
-        options.put("keystorePassword", keystorePassword);
+        if (keystorePassword != null) options.put("keystorePassword", keystorePassword);
 
         KeyStore truststore = getTruststore();
         if (truststore != null) options.put("truststore", truststore);
-        options.put("truststorePassword", truststorePassword);
+        if (truststorePassword != null) options.put("truststorePassword", truststorePassword);
 
         return options;
     }

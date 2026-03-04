@@ -4,7 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents the utility class for threading functions.
@@ -13,12 +16,10 @@ import java.util.*;
  */
 public class ThreadingUtils {
     private static final Set<Class<? extends Exception>> DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS =
-            new HashSet<>() {{
-                add(URISyntaxException.class);
-                add(MalformedURLException.class);
-                add(UnsupportedEncodingException.class);
-                add(UnsupportedCharsetException.class);
-            }};
+            Set.of(URISyntaxException.class,
+                    MalformedURLException.class,
+                    UnsupportedEncodingException.class,
+                    UnsupportedCharsetException.class);
 
     @SuppressWarnings("unchecked")
     private static <X, Y> Optional<Y> doSome(X start, ThreadingFunction<?,?>... functions) {
@@ -29,16 +30,14 @@ public class ThreadingUtils {
         Object v = start;
         LinkedList<ThreadingFunction<?,?>> funcQueue = new LinkedList<>(Arrays.asList(functions));
         while(!funcQueue.isEmpty()) {
-            ThreadingFunction<?, ?> f = funcQueue.removeFirst();
+            ThreadingFunction<Object, ?> typedFunction = (ThreadingFunction<Object, ?>) funcQueue.removeFirst();
             try {
-                @SuppressWarnings("unchecked")
-                ThreadingFunction<Object, ?> typedFunction = (ThreadingFunction<Object, ?>) f;
                 v = typedFunction.apply(v);
             } catch (Exception e) {
                 if (DEFAULT_ILLEGAL_ARGUMENT_EXCEPTIONS.contains(e.getClass())) {
                     throw new IllegalArgumentException(e);
-                } else if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
+                } else if (e instanceof RuntimeException re) {
+                    throw re;
                 } else {
                     throw new RuntimeException(e);
                 }

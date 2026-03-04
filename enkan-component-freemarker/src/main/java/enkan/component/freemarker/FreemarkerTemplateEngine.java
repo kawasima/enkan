@@ -10,7 +10,6 @@ import freemarker.cache.TemplateLoader;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.core.OutputFormat;
 import freemarker.ext.beans.BeanModel;
-import freemarker.ext.beans.StringModel;
 import freemarker.template.*;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
@@ -20,6 +19,9 @@ import kotowari.io.LazyRenderInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -35,7 +37,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     private String prefix = "templates";
     private String suffix = ".ftl";
     private ClassLoader classLoader;
-    private String encoding = "UTF-8";
+    private Charset encoding = StandardCharsets.UTF_8;
     private TemplateLoader templateLoader;
 
     private OutputFormat outputFormat = HTMLOutputFormat.INSTANCE;
@@ -48,7 +50,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
         TemplatedHttpResponse response = TemplatedHttpResponse.create(name, keyOrVals);
         response.setBody(new LazyRenderInputStream(() -> {
             try {
-                Template template = config.getTemplate(name + suffix, encoding);
+                Template template = config.getTemplate(name + suffix, encoding.name());
                 StringWriter writer = new StringWriter();
                 template.process(response.getContext(), writer);
                 return new ByteArrayInputStream(writer.toString().getBytes(encoding));
@@ -72,13 +74,12 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
         return new ComponentLifecycle<>() {
             @Override
             public void start(FreemarkerTemplateEngine component) {
-                if (classLoader == null) {
-                    classLoader = Thread.currentThread().getContextClassLoader();
-                }
-                config = new Configuration(new Version(2,3,34));
-                config.setTemplateLoader(createTemplateLoader());
+                ClassLoader effectiveLoader = (classLoader != null) ? classLoader
+                        : Thread.currentThread().getContextClassLoader();
+                config = new Configuration(Configuration.VERSION_2_3_34);
+                config.setTemplateLoader(createTemplateLoader(effectiveLoader));
                 config.setOutputFormat(outputFormat);
-                config.setObjectWrapper(new DefaultObjectWrapper(new Version(2,3,34)) {
+                config.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_34) {
                     @Override
                     protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
                         if (obj instanceof Validatable) {
@@ -92,7 +93,6 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
             @Override
             public void stop(FreemarkerTemplateEngine component) {
                 config = null;
-                classLoader = null;
             }
         };
     }
@@ -104,31 +104,29 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     @Override
     public Object createFunction(Function<List<?>, Object> func) {
         return (TemplateMethodModelEx) arguments ->
-                func.apply((List)arguments.stream().map(arg -> {
+                func.apply(((List<Object>) arguments).stream().map(arg -> {
                     if (arg instanceof BeanModel) {
-                        return ((StringModel) arg).getWrappedObject();
+                        return ((BeanModel) arg).getWrappedObject();
                     } else {
                         return arg;
                     }
                 }).collect(Collectors.toList()));
     }
 
-    private TemplateLoader createTemplateLoader() {
-        TemplateLoader classTemplateLoader = new ClassTemplateLoader(classLoader, prefix);
-        if (templateLoader != null) {
-            if (templateLoader instanceof MultiTemplateLoader mtl) {
-                TemplateLoader[] loaders = new TemplateLoader[mtl.getTemplateLoaderCount() + 1];
-                for(int i=0; i < mtl.getTemplateLoaderCount(); i++) {
-                    loaders[i] = mtl.getTemplateLoader(i);
-                }
-                loaders[mtl.getTemplateLoaderCount() + 1] = classTemplateLoader;
-                return new MultiTemplateLoader(loaders);
-
-            } else {
-                return new MultiTemplateLoader(new TemplateLoader[]{templateLoader, classTemplateLoader});
-            }
-        } else {
+    private TemplateLoader createTemplateLoader(ClassLoader effectiveLoader) {
+        TemplateLoader classTemplateLoader = new ClassTemplateLoader(effectiveLoader, prefix);
+        if (templateLoader == null) {
             return classTemplateLoader;
+        }
+        if (templateLoader instanceof MultiTemplateLoader mtl) {
+            List<TemplateLoader> loaders = new ArrayList<>();
+            for (int i = 0; i < mtl.getTemplateLoaderCount(); i++) {
+                loaders.add(mtl.getTemplateLoader(i));
+            }
+            loaders.add(classTemplateLoader);
+            return new MultiTemplateLoader(loaders.toArray(new TemplateLoader[0]));
+        } else {
+            return new MultiTemplateLoader(new TemplateLoader[]{templateLoader, classTemplateLoader});
         }
     }
 
@@ -158,7 +156,21 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
         this.suffix = suffix;
     }
 
+    /**
+     * Set the character encoding for template rendering.
+     *
+     * @param encoding charset name (e.g. "UTF-8")
+     */
     public void setEncoding(String encoding) {
-        this.encoding = encoding;
+        this.encoding = Charset.forName(encoding);
+    }
+
+    /**
+     * Set the ClassLoader used to load templates from the classpath.
+     *
+     * @param classLoader class loader
+     */
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 }

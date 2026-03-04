@@ -1,6 +1,6 @@
 package kotowari.middleware;
 
-import enkan.MiddlewareChain;
+import enkan.Endpoint;
 import enkan.chain.DefaultMiddlewareChain;
 import enkan.collection.Headers;
 import enkan.collection.Parameters;
@@ -9,7 +9,6 @@ import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.Routable;
-import enkan.middleware.AbstractWebMiddleware;
 import enkan.middleware.NestedParamsMiddleware;
 import enkan.middleware.ParamsMiddleware;
 import enkan.util.MixinUtils;
@@ -67,8 +66,8 @@ public class FormMiddlewareTest {
         request.setRequestMethod("GET");
         request.setQueryString(qs);
 
-        new ParamsMiddleware<>().paramsRequest(request);
-        new NestedParamsMiddleware<>().nestedParamsRequest(request, parseNestedKeys);
+        new ParamsMiddleware().paramsRequest(request);
+        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
         return request.getParams();
     }
@@ -86,22 +85,17 @@ public class FormMiddlewareTest {
                 "&itemArray[][name]=item4&itemArray[][name]=item5");
         request = MixinUtils.mixin(request, BodyDeserializable.class);
 
-        new ParamsMiddleware<>().paramsRequest(request);
-        new NestedParamsMiddleware<>().nestedParamsRequest(request, parseNestedKeys);
+        new ParamsMiddleware().paramsRequest(request);
+        new NestedParamsMiddleware().nestedParamsRequest(request, parseNestedKeys);
 
-        FormMiddleware<HttpResponse> formMiddleware = new FormMiddleware<>();
+        FormMiddleware formMiddleware = new FormMiddleware();
         formMiddleware.setParameterInjectors(ParameterUtils.getDefaultParameterInjectors());
         formMiddleware.beans = beans;
         request = MixinUtils.mixin(request, Routable.class);
         Method method = tryReflection(() -> TestController.class.getMethod("index", NestedForm.class));
         ((Routable) request).setControllerMethod(method);
         formMiddleware.handle(request, new DefaultMiddlewareChain<>(Predicates.none(), "dummy",
-                new AbstractWebMiddleware<HttpRequest, HttpResponse>() {
-                    @Override
-                    public <NNREQ, NNRES> HttpResponse handle(HttpRequest r, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
-                        return null;
-                    }
-                }));
+                (Endpoint<HttpRequest, HttpResponse>) r -> null));
 
         NestedForm form = ((BodyDeserializable) request).getDeserializedBody();
         assertThat(form.getIntVal()).isEqualTo(123);

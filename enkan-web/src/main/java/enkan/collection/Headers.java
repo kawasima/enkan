@@ -1,6 +1,8 @@
 package enkan.collection;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,6 +13,23 @@ public class Headers extends Parameters {
     private static final Map<String, String> KEYWORDS = Stream.of("CSP", "ATT", "WAP", "IP", "HTTP", "CPU", "DNT", "SSL", "UA", "TE", "WWW", "XSS", "MD5")
             .collect(Collectors.toMap(k -> k, k -> k));
 
+    private static final Pattern HYPHEN = Pattern.compile("-");
+    private static final ConcurrentHashMap<String, String> CAPITALIZE_CACHE = new ConcurrentHashMap<>();
+
+    private static String capitalizeHeaderName(String key) {
+        return CAPITALIZE_CACHE.computeIfAbsent(key, k ->
+            Arrays.stream(HYPHEN.split(k))
+                .map(t -> {
+                    if (t.length() < 2) {
+                        return t.toUpperCase(Locale.US);
+                    } else {
+                        return Optional.ofNullable(KEYWORDS.get(t.toUpperCase(Locale.US)))
+                                .orElseGet(() -> Character.toUpperCase(t.charAt(0)) + t.substring(1));
+                    }
+                })
+                .collect(Collectors.joining("-"))
+        );
+    }
 
     protected Headers() {
         setCaseSensitive(false);
@@ -47,20 +66,11 @@ public class Headers extends Parameters {
     @Override
     public Set<String> keySet() {
         Set<String> keys = super.keySet();
-        Set<String> headerKeys = new HashSet<>(keys.size() + 10);
+        Set<String> headerKeys = new LinkedHashSet<>(keys.size() * 2);
         for (String key : keys) {
-            headerKeys.add(Arrays.stream(key.split("-"))
-                        .map(t -> {
-                            if (t.length() < 2) {
-                                return t.toUpperCase(Locale.US);
-                            } else {
-                                return Optional.ofNullable(KEYWORDS.get(t.toUpperCase(Locale.US)))
-                                        .orElseGet(() -> Character.toUpperCase(t.charAt(0)) + t.substring(1));
-                            }
-                        })
-                        .collect(Collectors.joining("-")));
+            headerKeys.add(capitalizeHeaderName(key));
         }
-        return headerKeys;
+        return Collections.unmodifiableSet(headerKeys);
     }
 
 }

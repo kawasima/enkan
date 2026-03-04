@@ -60,4 +60,34 @@ public class MavenCompilerTest {
         CompileResult result = compiler.execute(t);
         assertThat(result.getExecutionException()).isNull();
     }
+
+    @Test
+    public void compileError() throws IOException {
+        FileUtils.copyFileToDirectory(
+                new File("src/test/resources/HelloError.java"),
+                new File("target/proj/src/main/java")
+        );
+
+        MavenCompiler compiler = new MavenCompiler();
+        compiler.setProjectDirectory("target/proj");
+
+        Transport t = new Transport() {
+            @Override
+            public void send(ReplResponse response) {
+            }
+
+            @Override
+            public String recv(long timeout) {
+                return null;
+            }
+        };
+
+        assumeTrue(() -> {
+            final File mavenHome = new File(Env.getString("MAVEN_HOME",
+                    Env.getString("M2_HOME", "/opt/maven")));
+            return mavenHome.exists();
+        });
+        CompileResult result = compiler.execute(t);
+        assertThat(result.getExecutionException()).isNotNull();
+    }
 }

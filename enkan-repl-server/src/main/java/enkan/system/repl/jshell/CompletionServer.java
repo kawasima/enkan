@@ -1,0 +1,68 @@
+package enkan.system.repl.jshell;
+
+import jdk.jshell.SourceCodeAnalysis;
+import org.zeromq.ZFrame;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMsg;
+
+import java.util.Set;
+import java.util.function.Predicate;
+
+/**
+ * A server that provides completion suggestions for the JShell REPL.
+ * @author kawasima
+ */
+public class CompletionServer implements Runnable {
+    private final ZMQ.Socket socket;
+    private final SourceCodeAnalysis analysis;
+    private final Set<String> commandNames;
+
+    public CompletionServer(ZMQ.Socket socket, SourceCodeAnalysis analysis, Set<String> commandNames) {
+        this.socket = socket;
+        this.analysis = analysis;
+        this.commandNames = commandNames;
+    }
+
+    @Override
+    public void run() {
+        while(!Thread.currentThread().isInterrupted()) {
+            ZMsg msg = ZMsg.recvMsg(socket);
+            ZFrame clientAddress = msg.pop();
+            msg.pop(); // delimiter
+            String input = msg.popString();
+            int cursor = Integer.parseInt(msg.popString());
+            int[] anchor = {-1};
+
+            ZMsg reply = new ZMsg();
+            reply.add(clientAddress.duplicate());
+            reply.add(""); // delimiter
+
+            String trimmedCommand = input.trim();
+            if (trimmedCommand.startsWith("/")) {
+                if (!trimmedCommand.contains(" ")) {
+                    Predicate<String> filter = trimmedCommand.equals("/") ?
+                            n -> true : n -> n.startsWith(trimmedCommand.substring(1));
+
+                    anchor[0] = 0;
+                    reply.add(Integer.toString(anchor[0]));
+                    commandNames.stream()
+                            .filter(filter)
+                            .forEach(s -> reply.add("/" + s));
+                }
+            } else {
+                try {
+                    java.util.List<String> suggestions = analysis.completionSuggestions(input, cursor, anchor)
+                            .stream()
+                            .map(SourceCodeAnalysis.Suggestion::continuation)
+                            .toList();
+                    reply.add(Integer.toString(anchor[0] < 0 ? cursor : anchor[0]));
+                    suggestions.forEach(reply::add);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    reply.add(Integer.toString(cursor));
+                }
+            }
+            reply.send(socket, true);
+        }
+    }
+}

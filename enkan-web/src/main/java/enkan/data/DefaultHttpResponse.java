@@ -84,8 +84,8 @@ public class DefaultHttpResponse implements HttpResponse {
         } else if (bodyString != null) {
             return new ByteArrayInputStream(bodyString.getBytes(StandardCharsets.UTF_8));
         } else if (bodyFile != null) {
-            try (InputStream in = new FileInputStream(bodyFile)) {
-                return in;
+            try {
+                return new FileInputStream(bodyFile);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -163,9 +163,9 @@ public class DefaultHttpResponse implements HttpResponse {
         this.session = session;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getExtension(String name) {
-        //noinspection unchecked
         return (T) extensions.get(name);
     }
 

@@ -1,6 +1,6 @@
 package kotowari.middleware;
 
-import enkan.Middleware;
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.component.TransactionComponent;
 import enkan.data.Routable;
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 /**
  * @author kawasima
  */
-public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ, RES> {
+public class TransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private TransactionComponent transactionComponent;
 
@@ -47,6 +47,13 @@ public class TransactionMiddleware<REQ, RES> implements Middleware<REQ, RES, REQ
                             throw new MisconfigurationException("kotowari.TX_HEURISTIC_ROLLBACK", e.getMessage(), e);
                         } catch (RollbackException e) {
                             throw new MisconfigurationException("kotowari.TX_ROLLBACK", e.getMessage(), e);
+                        } catch (RuntimeException e) {
+                            try {
+                                tm.rollback();
+                            } catch (SystemException se) {
+                                throw new MisconfigurationException("kotowari.TX_UNEXPECTED_CONDITION", se.errorCode, se);
+                            }
+                            throw e;
                         }
                         break;
                     default:

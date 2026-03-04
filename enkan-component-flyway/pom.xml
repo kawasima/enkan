@@ -6,7 +6,7 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.11.0</version>
+        <version>0.12.0</version>
     </parent>
 
     <artifactId>enkan-component-flyway</artifactId>
@@ -15,7 +15,7 @@
     <name>enkan-component-flyway</name>
 
     <properties>
-        <flyway.version>11.20.3</flyway.version>
+        <flyway.version>12.0.3</flyway.version>
     </properties>
 
     <dependencies>
@@ -23,11 +23,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>

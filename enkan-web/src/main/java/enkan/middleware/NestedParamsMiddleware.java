@@ -14,10 +14,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Middleware that converts flat, bracket-notation request parameters into
+ * nested {@link enkan.collection.Parameters} structures.
+ *
+ * <p>For example, the query string {@code user[name]=Alice&user[age]=30}
+ * is expanded to {@code {user: {name: "Alice", age: "30"}}}.
+ * Array notation ({@code items[]=a&items[]=b}) produces a list value.
+ *
+ * <p>This middleware requires the {@code params} middleware to have already
+ * populated {@link enkan.data.HttpRequest#getParams()}.
+ *
  * @author kawasima
  */
 @Middleware(name = "nestedParams", dependencies = {"params"})
-public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequest, NRES> {
+public class NestedParamsMiddleware implements WebMiddleware {
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?\\])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)\\]");
     protected final Function<String, String[]> parseNestedKeys = (paramName) -> {
@@ -63,17 +73,16 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
      * @param value  a Object associated with the key
      * @return a Parameters contains the given key and value
      */
-    @SuppressWarnings("unchecked")
     protected Parameters assocConj(Parameters map, String key, Object value) {
         Object cur = map.getRawType(key);
         if (cur != null) {
-            if (cur instanceof List) {
-                if (value instanceof List) {
-                    // cur is instance of List
-                    ((List<Object>) cur).addAll((List<?>) value);
+            if (cur instanceof List<?> curList) {
+                @SuppressWarnings("unchecked")
+                List<Object> curTyped = (List<Object>) curList;
+                if (value instanceof List<?> valueList) {
+                    curTyped.addAll(valueList);
                 } else {
-                    // cur is instance of List
-                    ((List<Object>) cur).add(value);
+                    curTyped.add(value);
                 }
             } else {
                 List<Object> values = new ArrayList<>();
@@ -87,7 +96,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
             }
         } else {
             if (value instanceof List) {
-                List<?> values = (List) value;
+                List<?> values = (List<?>) value;
                 if (values.size() > 1) {
                     assocVector(map, key, value);
                 } else if (values.size() == 1) {
@@ -139,8 +148,8 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
                     return map;
                 } else {
                     // Map
-                    Parameters submap = (Parameters) map.getRawType(keys[0]);
-                    if (submap == null) submap = Parameters.empty();
+                    Object existing = map.getRawType(keys[0]);
+                    Parameters submap = existing instanceof Parameters p ? p : Parameters.empty();
                     map.put(keys[0], assocNested(submap, ks, values));
                     return map;
                 }
@@ -152,6 +161,15 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
         }
     }
 
+    /**
+     * Transforms the flat request parameters into a nested structure using the
+     * supplied key parser and stores the result back on the request.
+     *
+     * @param request   the incoming HTTP request
+     * @param keyParser a function that splits a parameter name (e.g. {@code "user[name]"})
+     *                  into an array of nested keys (e.g. {@code ["user", "name"]})
+     * @return the same request with updated nested parameters
+     */
     public HttpRequest nestedParamsRequest(HttpRequest request, Function<String, String[]> keyParser) {
         Parameters params = request.getParams();
         Parameters nestedParams = Parameters.empty();
@@ -162,7 +180,7 @@ public class NestedParamsMiddleware<NRES> extends AbstractWebMiddleware<HttpRequ
     }
 
     @Override
-    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, NRES, NNREQ, NNRES> chain) {
+    public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         return castToHttpResponse(chain.next(nestedParamsRequest(request, parseNestedKeys)));
     }
 }

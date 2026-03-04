@@ -18,6 +18,14 @@ import java.util.stream.Collectors;
  */
 public class BeanBuilder<X> {
     private static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
+
+    static {
+        // ValidatorFactory is Closeable; close it when the JVM shuts down to
+        // release resources (connection pools, etc.) held by the provider.
+        Runtime.getRuntime().addShutdownHook(new Thread(DEFAULT_VALIDATOR_FACTORY::close,
+                "BeanBuilder-ValidatorFactory-shutdown"));
+    }
+
     private final X x;
     private final ValidatorFactory validatorFactory;
 

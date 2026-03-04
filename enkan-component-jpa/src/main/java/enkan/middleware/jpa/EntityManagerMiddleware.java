@@ -1,5 +1,6 @@
 package enkan.middleware.jpa;
 
+import enkan.DecoratorMiddleware;
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.component.jpa.EntityManagerProvider;
@@ -10,7 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 @Middleware(name = "entityManager")
-public class EntityManagerMiddleware<REQ, RES> implements enkan.Middleware<REQ, RES, REQ, RES> {
+public class EntityManagerMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private EntityManagerProvider<?> entityManagerProvider;
 
