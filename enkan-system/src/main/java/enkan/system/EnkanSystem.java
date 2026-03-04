@@ -86,6 +86,18 @@ public class EnkanSystem {
     }
 
     /**
+     * Returns an unmodifiable view of the name-to-component map,
+     * preserving the registration order.
+     *
+     * @return map of component name to component instance
+     */
+    public Map<String, SystemComponent<?>> getComponentMap() {
+        Map<String, SystemComponent<?>> ordered = new LinkedHashMap<>();
+        componentsOrder.forEach(name -> ordered.put(name, components.get(name)));
+        return Collections.unmodifiableMap(ordered);
+    }
+
+    /**
      * Get a component by its name.
      *
      * @param name component name

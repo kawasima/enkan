@@ -83,6 +83,7 @@ public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest
 
         // Enkan
         app.use(new DefaultCharsetMiddleware());
+        app.use(new SecurityHeadersMiddleware());
         app.use(new MetricsMiddleware<>());
         app.use(none(), new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.StacktraceMiddleware"));

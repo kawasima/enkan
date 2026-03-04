@@ -5,6 +5,8 @@ import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.component.ApplicationComponent;
 import enkan.component.ComponentLifecycle;
+import enkan.component.HealthCheckable;
+import enkan.component.HealthStatus;
 import enkan.component.WebServerComponent;
 import enkan.exception.MisconfigurationException;
 import io.undertow.Undertow;
@@ -12,7 +14,7 @@ import io.undertow.Undertow;
 /**
  * @author kawasima
  */
-public class UndertowComponent extends WebServerComponent<UndertowComponent> {
+public class UndertowComponent extends WebServerComponent<UndertowComponent> implements HealthCheckable {
     private Undertow server;
 
     @Override
@@ -39,6 +41,11 @@ public class UndertowComponent extends WebServerComponent<UndertowComponent> {
                 }
             }
         };
+    }
+
+    @Override
+    public HealthStatus health() {
+        return server != null ? HealthStatus.UP : HealthStatus.DOWN;
     }
 
     @Override

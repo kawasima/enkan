@@ -5,6 +5,8 @@ import enkan.application.WebApplication;
 import enkan.collection.OptionMap;
 import enkan.component.ApplicationComponent;
 import enkan.component.ComponentLifecycle;
+import enkan.component.HealthCheckable;
+import enkan.component.HealthStatus;
 import enkan.component.WebServerComponent;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
@@ -18,7 +20,7 @@ import java.util.function.BiFunction;
 /**
  * @author kawasima
  */
-public class JettyComponent extends WebServerComponent<JettyComponent> {
+public class JettyComponent extends WebServerComponent<JettyComponent> implements HealthCheckable {
     private Server server;
     private BiFunction<Server, OptionMap, Connector> serverConnectorFactory;
 
@@ -55,6 +57,11 @@ public class JettyComponent extends WebServerComponent<JettyComponent> {
 
             }
         };
+    }
+
+    @Override
+    public HealthStatus health() {
+        return (server != null && server.isRunning()) ? HealthStatus.UP : HealthStatus.DOWN;
     }
 
     /**

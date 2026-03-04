@@ -14,6 +14,9 @@ import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import org.xnio.streams.ChannelInputStream;
@@ -111,7 +114,7 @@ public class UndertowAdapter {
     public Undertow runUndertow(WebApplication application, OptionMap options) {
         Undertow.Builder builder = Undertow.builder();
 
-        builder.setHandler(new HttpHandler() {
+        HttpHandler appHandler = new HttpHandler() {
             @Override
             public void handleRequest(HttpServerExchange exchange) throws Exception {
                 if (exchange.isInIoThread()) {
@@ -152,7 +155,14 @@ public class UndertowAdapter {
                     exchange.endExchange();
                 }
             }
-        });
+        };
+
+        HttpHandler finalHandler = options.getBoolean("compress?", false)
+                ? new EncodingHandler(appHandler,
+                        new ContentEncodingRepository()
+                                .addEncodingHandler("gzip", new GzipEncodingProvider(), 50))
+                : appHandler;
+        builder.setHandler(finalHandler);
 
         setOptions(builder, options);
         if (options.getBoolean("http?", true)) {

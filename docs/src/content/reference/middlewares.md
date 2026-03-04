@@ -99,16 +99,6 @@ Adds the `Content-Type` header if the response does not contains a `Content-Type
 app.use(new ContentTypeMiddleware());
 ```
 
-### ContentTypeOptions
-
-Adds the `X-Content-Type-Options` for protecting a XSS attack. 
-
-#### Usage
-
-```language-java
-app.use(new ContentTypeOptionsMiddleware());
-```
-
 ### Conversation
 
 Creates a conversation and save states related with its conversation to the conversation store.
@@ -147,16 +137,6 @@ Serializes and deserializes a flash value.
 
 ```language-java
 app.use(new FlashMiddleware());
-```
-
-### FrameOptions
-
-Adds the `X-Frame-Options` header to a response for a click jacking attack.
-
-#### Usage
-
-```language-java
-app.use(new FrameOptionsMiddleware());
 ```
 
 ### IdleSessionTimeout
@@ -265,15 +245,50 @@ Adds the response header for tracing using middlewares.
 app.use(new TraceMiddleware());
 ```
 
-### XssProtection
+### SecurityHeaders
 
-Adds `X-XSS-Protection` header to the response.
+Applies a suite of security-related HTTP response headers in a single middleware (similar to [Helmet.js](https://helmetjs.github.io/) for Express).
+
+All headers are enabled by default with safe values. Pass `null` to any setter to disable a specific header.
+
+#### Default headers
+
+| Header | Default value |
+|:---|:---|
+| `Content-Security-Policy` | `default-src 'self'` |
+| `Strict-Transport-Security` | `max-age=15552000; includeSubDomains` |
+| `X-Content-Type-Options` | `nosniff` |
+| `X-Frame-Options` | `SAMEORIGIN` |
+| `X-XSS-Protection` | `0` (disabled — use CSP instead) |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Cross-Origin-Opener-Policy` | `same-origin` |
+| `Cross-Origin-Resource-Policy` | `same-origin` |
 
 #### Usage
 
 ```language-java
-app.use(new XssProtectionMiddleware());
+// All defaults
+app.use(new SecurityHeadersMiddleware());
+
+// Custom CSP, disable HSTS for local development
+SecurityHeadersMiddleware sec = new SecurityHeadersMiddleware();
+sec.setContentSecurityPolicy("default-src 'self'; img-src *");
+sec.setStrictTransportSecurity(null); // disable
+app.use(sec);
 ```
+
+#### Properties
+
+| Name | Description |
+|:---|:---|
+| `contentSecurityPolicy` | `Content-Security-Policy` value. `null` disables the header. |
+| `strictTransportSecurity` | `Strict-Transport-Security` value. `null` disables the header. |
+| `contentTypeOptions` | `X-Content-Type-Options` value. Default: `nosniff`. |
+| `frameOptions` | `X-Frame-Options` value. Default: `SAMEORIGIN`. |
+| `xssProtection` | `X-XSS-Protection` value. Default: `0`. |
+| `referrerPolicy` | `Referrer-Policy` value. |
+| `crossOriginOpenerPolicy` | `Cross-Origin-Opener-Policy` value. |
+| `crossOriginResourcePolicy` | `Cross-Origin-Resource-Policy` value. |
 
 ## Kotowari
 

@@ -9,6 +9,8 @@ import enkan.exception.MisconfigurationException;
 import enkan.util.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.compression.gzip.GzipCompression;
+import org.eclipse.jetty.compression.server.CompressionHandler;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.*;
@@ -147,7 +149,16 @@ public class JettyAdapter {
         Server server = createServer(options);
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.addServlet(new ServletHolder(new ProxyServlet(application)), "/*");
-        server.setHandler(contextHandler);
+
+        if (options.getBoolean("compress?", false)) {
+            GzipCompression gzip = new GzipCompression();
+            gzip.setMinCompressSize(options.getInt("compressMinSize", 1024));
+            CompressionHandler compressionHandler = new CompressionHandler(contextHandler);
+            compressionHandler.putCompression(gzip);
+            server.setHandler(compressionHandler);
+        } else {
+            server.setHandler(contextHandler);
+        }
         try {
             server.setStopAtShutdown(true);
             server.setStopTimeout(3000);

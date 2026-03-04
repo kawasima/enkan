@@ -5,16 +5,20 @@ import com.zaxxer.hikari.HikariDataSource;
 import enkan.collection.OptionMap;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
+import enkan.component.HealthCheckable;
+import enkan.component.HealthStatus;
 import enkan.exception.MisconfigurationException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Enkan component for HikariCP.
  *
  * @author kawasima
  */
-public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
+public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> implements HealthCheckable {
     private HikariConfig config;
     private HikariDataSource dataSource;
 
@@ -60,6 +64,16 @@ public class HikariCPComponent extends DataSourceComponent<HikariCPComponent> {
     @Override
     public DataSource getDataSource() {
         return dataSource;
+    }
+
+    @Override
+    public HealthStatus health() {
+        if (dataSource == null || dataSource.isClosed()) return HealthStatus.DOWN;
+        try (Connection conn = dataSource.getConnection()) {
+            return conn.isValid(1) ? HealthStatus.UP : HealthStatus.DOWN;
+        } catch (SQLException e) {
+            return HealthStatus.DOWN;
+        }
     }
 
     @Override
