@@ -94,7 +94,7 @@ Add the following dependency to your pom.xml:
 <dependency>
   <groupId>net.unit8.enkan</groupId>
   <artifactId>enkan-web</artifactId>
-  <version>0.12.0-SNAPSHOT</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -104,7 +104,7 @@ Or generate a blank project from the Maven archetype:
 mvn archetype:generate \
   -DarchetypeGroupId=net.unit8.enkan \
   -DarchetypeArtifactId=kotowari-archetype \
-  -DarchetypeVersion=0.12.0-SNAPSHOT
+  -DarchetypeVersion=0.12.0
 ```
 
 ## Manual
