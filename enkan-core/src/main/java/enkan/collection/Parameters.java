@@ -11,7 +11,7 @@ import java.util.*;
 public class Parameters implements Map<String, Object>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final TreeMap<String, Object> params = new TreeMap<>();
+    private final HashMap<String, Object> params = new HashMap<>();
     private boolean caseSensitive = true;
 
     protected Parameters() {

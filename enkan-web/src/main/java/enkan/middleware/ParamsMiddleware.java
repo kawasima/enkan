@@ -7,6 +7,7 @@ import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.FalteringEnvironmentException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,13 +55,9 @@ public class ParamsMiddleware implements WebMiddleware {
     protected void parseFormParams(HttpRequest request, String encoding) {
         InputStream body = request.getBody();
         if (isUrlEncodedForm(request) && body != null) {
-            StringBuilder sb = new StringBuilder();
-            try (InputStreamReader reader = new InputStreamReader(body, encoding)) {
-                for(;;) {
-                    int c = reader.read();
-                    if (c < 0) break;
-                    sb.append((char) c);
-                }
+            String sb;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(body, encoding))) {
+                sb = reader.lines().collect(java.util.stream.Collectors.joining("\n"));
             } catch (IOException e) {
                 throw new FalteringEnvironmentException(e);
             }

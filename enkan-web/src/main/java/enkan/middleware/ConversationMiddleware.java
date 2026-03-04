@@ -41,6 +41,8 @@ public class ConversationMiddleware implements WebMiddleware {
     @Inject
     private HmacEncoder hmacEncoder;
 
+    private static final java.util.regex.Pattern TOKEN_SPLIT = java.util.regex.Pattern.compile("\\$");
+
     private static final Function<HttpRequest, String> DEFAULT_READ_TOKEN_FUNC = request ->
             some(request, HttpRequest::getFormParams,
                     p -> p.get("__conversation-token"),
@@ -60,7 +62,7 @@ public class ConversationMiddleware implements WebMiddleware {
         if (token == null) {
             return new ConversationToken(null, "invalid", "0");
         }
-        String[] tokens = token.trim().split("\\$", 3);
+        String[] tokens = TOKEN_SPLIT.split(token.trim(), 3);
 
         // If token contains two '$' characters, it's invalid.
         if (tokens.length != 3) {
