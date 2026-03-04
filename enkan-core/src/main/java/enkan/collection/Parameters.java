@@ -9,6 +9,8 @@ import java.util.*;
  * @author kawasima
  */
 public class Parameters implements Map<String, Object>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final TreeMap<String, Object> params = new TreeMap<>();
     private boolean caseSensitive = true;
 

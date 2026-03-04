@@ -83,7 +83,7 @@ public class AbsoluteRedirectsMiddleware implements WebMiddleware {
         } else {
             try {
                 return URI.create(requestUrl(request)).resolve(location).toURL().toString();
-            } catch (MalformedURLException e) {
+            } catch (MalformedURLException | IllegalArgumentException e) {
                 throw new IllegalArgumentException(
                         String.format("wrong location %s or request url %s.", location, requestUrl(request)), e);
             }

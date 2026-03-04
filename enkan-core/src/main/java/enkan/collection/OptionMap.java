@@ -62,7 +62,7 @@ public class OptionMap extends HashMap<String, Object> {
         if (value instanceof Number) {
             return ((Number) value).longValue();
         } else {
-            return Integer.parseInt(value.toString());
+            return Long.parseLong(value.toString());
         }
     }
 

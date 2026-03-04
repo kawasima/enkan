@@ -138,6 +138,8 @@ public class CodecUtils {
             return URLDecoder.decode(encoded, encoding);
         } catch (UnsupportedEncodingException e) {
             return null;
+        } catch (IllegalArgumentException e) {
+            return encoded;
         }
     }
 

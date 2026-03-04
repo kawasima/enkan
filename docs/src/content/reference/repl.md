@@ -60,33 +60,6 @@ Registered by `KotowariCommandRegister`. Available when using the Kotowari web f
 
 Show the routing table for the specified application component.
 
-## Scaffold Commands
-
-Registered by `ScaffoldCommandRegister`. Requires the `kotowari-scaffold` dependency.
-
-### /generate table TABLE_NAME (column definitions)
-
-Generate a Flyway migration script for creating a database table.
-
-```
-enkan> /generate table PRODUCT (id identity primary key, name varchar(255))
-```
-
-### /generate crud TABLE_NAME
-
-Generate a CRUD controller, DAO, entity, and templates for the specified table.
-
-```
-enkan> /generate crud PRODUCT
-```
-
-After generating, compile and reset to make the new routes available:
-
-```
-enkan> /compile
-enkan> /reset
-```
-
 ## Metrics Commands
 
 Registered by `MetricsCommandRegister`. Requires the `enkan-component-metrics` dependency.

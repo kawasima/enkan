@@ -11,6 +11,8 @@ import static enkan.util.CodecUtils.formEncode;
  * @author kawasima
  */
 public class Cookie implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String name;
     private String value;
     private String domain;

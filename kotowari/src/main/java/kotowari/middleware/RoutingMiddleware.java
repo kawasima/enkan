@@ -87,6 +87,7 @@ public class RoutingMiddleware implements WebMiddleware {
         }
 
         HttpResponse response = castToHttpResponse(next.next(request));
+        if (response == null) return null;
         Headers headers = response.getHeaders();
         ThreadingUtils.some(headers.getRawType("Location"),
                 loc -> {

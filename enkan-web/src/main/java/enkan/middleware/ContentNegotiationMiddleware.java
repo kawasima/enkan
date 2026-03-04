@@ -11,7 +11,9 @@ import enkan.collection.Headers;
 import enkan.util.MixinUtils;
 
 import jakarta.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 import static enkan.util.ThreadingUtils.*;
 
@@ -28,8 +30,8 @@ public class ContentNegotiationMiddleware implements WebMiddleware {
 
     public ContentNegotiationMiddleware() {
         negotiator = new AcceptHeaderNegotiator();
-        allowedTypes = new HashSet<>(Collections.singletonList("text/html"));
-        allowedLanguages = new HashSet<>(Collections.singletonList("*"));
+        allowedTypes = Set.of("text/html");
+        allowedLanguages = Set.of("*");
     }
 
     @Override
@@ -52,10 +54,10 @@ public class ContentNegotiationMiddleware implements WebMiddleware {
     }
 
     public void setAllowedTypes(Set<String> allowedTypes) {
-        this.allowedTypes = allowedTypes;
+        this.allowedTypes = Set.copyOf(allowedTypes);
     }
 
     public void setAllowedLanguages(Set<String> allowedLanguages) {
-        this.allowedLanguages = allowedLanguages;
+        this.allowedLanguages = Set.copyOf(allowedLanguages);
     }
 }

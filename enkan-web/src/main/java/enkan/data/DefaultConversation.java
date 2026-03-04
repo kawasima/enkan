@@ -66,7 +66,7 @@ public class DefaultConversation implements Conversation {
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hashCode(getId());
     }
 
     @Override

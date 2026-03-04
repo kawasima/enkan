@@ -40,7 +40,13 @@ public class IdleSessionTimeoutMiddleware implements WebMiddleware {
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         Optional<Long> endTime = some(request.getSession(),
                 session -> session.get(SESSION_KEY),
-                obj -> Long.parseLong(Objects.toString(obj)));
+                obj -> {
+                    try {
+                        return Long.parseLong(Objects.toString(obj));
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                });
 
         if (endTime.isPresent() && endTime.get() < currentTime()) {
             return builder(timeoutEndpoint.handle(request))

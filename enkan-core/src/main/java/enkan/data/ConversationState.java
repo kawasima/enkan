@@ -21,6 +21,8 @@ import java.util.Set;
  * @author kawasima
  */
 public class ConversationState implements Map<String, Object>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Map<String, Object> attrs = new HashMap<>();
 
     /**

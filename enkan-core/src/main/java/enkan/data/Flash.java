@@ -15,6 +15,7 @@ import java.io.Serializable;
  * @author kawasima
  */
 public record Flash<T extends Serializable>(T value) implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Returns the payload stored in this flash.

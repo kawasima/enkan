@@ -22,6 +22,8 @@ import java.util.Set;
  * @author kawasima
  */
 public class Session implements Map<String, Serializable>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     /** Holds the attributes of session **/
     private final Map<String, Serializable> attrs;
     private boolean isNew = true;

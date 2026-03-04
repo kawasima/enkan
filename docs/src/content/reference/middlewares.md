@@ -22,7 +22,7 @@ AuthenticationMiddleware enables to authenticate a request using some backends.
 #### Usage
 
 ```language-java
-app.use(new AuthenticateMiddleware(backends));
+app.use(new AuthenticationMiddleware(backends));
 ```
 
 ### ServiceUnavailable
@@ -355,7 +355,8 @@ Manages database transactions around controller invocation.
 #### Usage
 
 ```language-java
-app.use(new DomaTransactionMiddleware());
+// requires enkan-component-doma2 dependency
+app.use(new DomaTransactionMiddleware<>(config));
 ```
 
 ### ValidateBody
