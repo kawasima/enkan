@@ -24,7 +24,11 @@ public class DefaultHttpResponse implements HttpResponse {
     private InputStream bodyStream;
     private File bodyFile;
 
-    private final Map<String, Object> extensions;
+    private Map<String, Object> extensions;
+
+    protected DefaultHttpResponse() {
+        this(0, Headers.empty());
+    }
 
     protected DefaultHttpResponse(int status, Headers headers) {
         this.status = status;

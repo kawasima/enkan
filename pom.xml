@@ -41,6 +41,7 @@
         <slf4j.version>2.0.17</slf4j.version>
         <junit.version>5.14.3</junit.version>
         <assertj.version>3.27.7</assertj.version>
+        <bytebuddy.version>1.17.5</bytebuddy.version>
     </properties>
 
     <modules>
@@ -351,6 +352,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
                 <version>1.15.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${bytebuddy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

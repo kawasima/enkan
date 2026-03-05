@@ -36,6 +36,10 @@
             <groupId>jakarta.transaction</groupId>
             <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+        </dependency>
         <!-- For test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
