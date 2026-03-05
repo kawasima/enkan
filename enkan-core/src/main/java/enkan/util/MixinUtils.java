@@ -1,5 +1,9 @@
 package enkan.util;
 
+import java.lang.classfile.ClassFile;
+import java.lang.constant.ClassDesc;
+import java.lang.constant.ConstantDescs;
+import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -7,10 +11,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import static enkan.util.ReflectionUtils.tryReflection;
@@ -228,48 +234,90 @@ public class MixinUtils {
         return Arrays.asList(key);
     }
 
+    /** Counter for generating unique class names. */
+    private static final AtomicLong classCounter = new AtomicLong();
+
     /**
-     * Creates a factory that produces pre-mixed proxy instances implementing
-     * all the given interfaces. The proxy class and constructor are resolved
-     * once; each call to {@code Supplier.get()} only allocates the proxy
-     * instance and its InvocationHandler.
+     * Creates a factory that produces instances of a runtime-generated subclass
+     * that extends the concrete class of {@code template} and implements all
+     * the given mixin interfaces.
      *
-     * <p>The returned proxies wrap a fresh instance of the same concrete class
-     * as {@code template} (obtained via its no-arg constructor).
+     * <p>The subclass is generated once using the Class-File API (JEP 484).
+     * Since all mixin interfaces use {@code default} methods delegating to
+     * {@link enkan.data.Extendable#getExtension}/{@link enkan.data.Extendable#setExtension},
+     * no method body generation is needed — normal Java inheritance resolves
+     * everything. Each call to {@code Supplier.get()} allocates only the
+     * subclass instance itself (single {@code new} — no Proxy, no
+     * InvocationHandler).
      *
-     * @param template   a sample object used to resolve the concrete class and
-     *                   its interfaces; not retained after this call
+     * @param template   a sample object used to resolve the concrete class;
+     *                   not retained after this call
      * @param interfaces the mixin interfaces to add
      * @param <T>        the type of the target object
      * @return a supplier that produces pre-mixed instances
      */
     @SuppressWarnings("unchecked")
     public static <T> Supplier<T> createFactory(T template, Class<?>... interfaces) {
-        // Perform one mixin to warm all caches (Proxy class, constructor, MethodHandles)
-        mixin(template, interfaces);
+        Class<?> superClass = template.getClass();
 
-        // Resolve the cached constructor
-        Class<?>[] currentInterfaces = getAllInterfaces(template.getClass());
-        List<Class<?>> cacheKey = buildCacheKey(template.getClass(), currentInterfaces, interfaces);
-        MethodHandle ctor = proxyCtorCache.get(cacheKey);
-        Class<?>[] classes = interfaceArrayCache.get(cacheKey);
-
-        // Resolve no-arg constructor of the concrete class for stamping new originals
-        Constructor<T> origCtor;
-        try {
-            origCtor = (Constructor<T>) template.getClass().getDeclaredConstructor();
-            origCtor.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No no-arg constructor on " + template.getClass().getName(), e);
+        // Collect only interfaces not already implemented by superClass
+        List<ClassDesc> newIfaceDescs = new ArrayList<>();
+        for (Class<?> iface : interfaces) {
+            if (!iface.isAssignableFrom(superClass)) {
+                newIfaceDescs.add(ClassDesc.ofDescriptor(iface.descriptorString()));
+            }
         }
 
-        return () -> {
+        if (newIfaceDescs.isEmpty()) {
+            // All interfaces already present — just return the no-arg constructor
             try {
-                T fresh = origCtor.newInstance();
-                return (T) ctor.invoke(new MixinProxyHandler<>(fresh, classes));
-            } catch (Throwable e) {
-                throw new RuntimeException("Failed to create pre-mixed instance", e);
+                Constructor<T> ctor = (Constructor<T>) superClass.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                return () -> {
+                    try { return ctor.newInstance(); }
+                    catch (ReflectiveOperationException e) {
+                        throw new RuntimeException("Failed to create instance", e);
+                    }
+                };
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("No no-arg constructor on " + superClass.getName(), e);
             }
-        };
+        }
+
+        ClassDesc superDesc = ClassDesc.ofDescriptor(superClass.descriptorString());
+        long id = classCounter.incrementAndGet();
+        ClassDesc genDesc = ClassDesc.of(superClass.getName() + "$Mixin" + id);
+
+        byte[] bytes = ClassFile.of().build(genDesc, cb -> {
+            cb.withSuperclass(superDesc);
+            cb.withInterfaceSymbols(newIfaceDescs);
+            cb.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_SUPER);
+            // no-arg constructor calling super()
+            cb.withMethodBody("<init>", MethodTypeDesc.of(ConstantDescs.CD_void),
+                    ClassFile.ACC_PUBLIC, code -> {
+                        code.aload(0);
+                        code.invokespecial(superDesc, "<init>",
+                                MethodTypeDesc.of(ConstantDescs.CD_void));
+                        code.return_();
+                    });
+        });
+
+        try {
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
+                    superClass, MethodHandles.lookup());
+            Class<?> generated = lookup.defineClass(bytes);
+            Constructor<T> ctor = (Constructor<T>) generated.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            return () -> {
+                try { return ctor.newInstance(); }
+                catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Failed to create pre-mixed instance", e);
+                }
+            };
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Cannot access " + superClass.getName() + " for class generation", e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Generated class missing no-arg constructor", e);
+        }
     }
 }
