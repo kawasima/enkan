@@ -3,12 +3,15 @@ package enkan.middleware;
 import enkan.collection.Parameters;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
+import enkan.exception.MisconfigurationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author kawasima
@@ -50,6 +53,20 @@ class NestedParamsMiddlewareTest {
                 new ArrayList<String>(){{ add("baz"); add("bay"); }});
         assertThat(params.getIn("foo", "bar", 1))
                 .isEqualTo("bay");
+    }
+
+    @Test
+    void deepNestingThrowsMisconfigurationException() {
+        // Build keys with 34 nesting levels (exceeds MAX_NESTING_DEPTH=32)
+        String[] keys = new String[34];
+        for (int i = 0; i < keys.length; i++) {
+            keys[i] = "k" + i;
+        }
+        Parameters params = Parameters.empty();
+        List<String> values = new ArrayList<>(List.of("value"));
+
+        assertThatThrownBy(() -> sut.assocNested(params, keys, values))
+                .isInstanceOf(MisconfigurationException.class);
     }
 
     @Test
