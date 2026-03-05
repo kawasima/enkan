@@ -114,17 +114,25 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
      * Build a {@link ControllerInvoker} for the given method using
      * {@link LambdaMetafactory} with a fixed-arity functional interface.
      *
-     * <p>For methods with 0–7 parameters, a typed {@code InvokerN} interface
-     * is used so the generated class emits direct {@code invokevirtual}
-     * bytecode that the JIT can inline. For 8+ parameters, falls back to
-     * {@link MethodHandle} with {@code asSpreader}.
+     * <p>For methods with 0–7 parameters whose declaring class shares the
+     * same {@link ClassLoader} as this middleware, a typed {@code InvokerN}
+     * interface is used so the generated class emits direct
+     * {@code invokevirtual} bytecode that the JIT can inline.
+     *
+     * <p>When ClassLoaders differ (e.g. hot-reload via {@code ConfigurationLoader}),
+     * or for methods with 8+ parameters, falls back to {@link MethodHandle}
+     * with {@code asSpreader}.
      *
      * @param method the controller method to build an invoker for
      * @return a fast invoker
      */
     private ControllerInvoker buildInvoker(Method method) {
         int paramCount = method.getParameterCount();
-        if (paramCount < INVOKER_CLASSES.length) {
+        ClassLoader controllerCL = method.getDeclaringClass().getClassLoader();
+        ClassLoader middlewareCL = ControllerInvokerMiddleware.class.getClassLoader();
+        boolean sameClassLoader = Objects.equals(controllerCL, middlewareCL);
+
+        if (paramCount < INVOKER_CLASSES.length && sameClassLoader) {
             try {
                 return buildLambdaInvoker(method, paramCount);
             } catch (Throwable e) {
@@ -133,6 +141,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 return buildMethodHandleFallback(method);
             }
         } else {
+            if (!sameClassLoader) {
+                LOG.log(Level.FINE,
+                        () -> "ClassLoader mismatch for " + method + "; using MethodHandle fallback");
+            }
             return buildMethodHandleFallback(method);
         }
     }
@@ -140,20 +152,23 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
     /**
      * Generate a {@link ControllerInvoker} via {@link LambdaMetafactory}
      * using a fixed-arity {@code InvokerN} interface.
+     *
+     * <p>This method is only called when the controller's ClassLoader matches
+     * the middleware's ClassLoader, so using concrete types in
+     * {@code instantiatedType} is safe and enables the JIT to emit direct
+     * {@code invokevirtual}/{@code checkcast} bytecode.
      */
     private ControllerInvoker buildLambdaInvoker(Method method, int paramCount) throws Throwable {
-        // Use privateLookupIn for the controller's class loader context.
-        // This is critical when controllers are loaded by a different ClassLoader
-        // (e.g., ConfigurationLoader for hot-reload) than this middleware.
         MethodHandles.Lookup controllerLookup = MethodHandles.privateLookupIn(
                 method.getDeclaringClass(), MethodHandles.lookup());
         MethodHandle handle = controllerLookup.unreflect(method);
 
         Class<?> invokerClass = INVOKER_CLASSES[paramCount];
-        // Both erased and instantiated types are all-Object to avoid ClassLoader
-        // mismatch: the generated class casts arguments at invocation time using
-        // the controller's ClassLoader, not the app ClassLoader.
         MethodType erasedType = MethodType.genericMethodType(1 + paramCount);
+        // Concrete types enable direct invokevirtual + checkcast in the
+        // generated class.  Safe because buildInvoker() only calls this path
+        // when ClassLoaders match.
+        MethodType instantiatedType = handle.type();
 
         // Use MethodHandles.lookup() (this class context) for metafactory so it
         // can see the private InvokerN interfaces.
@@ -164,7 +179,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
                 MethodType.methodType(invokerClass),
                 erasedType,            // erased SAM signature
                 handle,                // direct MethodHandle
-                erasedType             // instantiated = erased (all Object)
+                instantiatedType       // concrete types → direct invokevirtual
         );
 
         // Extract the typed invoker and wrap in a ControllerInvoker that spreads Object[]
