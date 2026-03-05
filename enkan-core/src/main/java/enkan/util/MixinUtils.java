@@ -34,7 +34,10 @@ import static enkan.util.ReflectionUtils.tryReflection;
  * @author kawasima
  */
 public class MixinUtils {
+    /** Cache for default-method handles (unreflectSpecial). */
     private static final ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
+    /** Cache for original-object delegation handles (unreflect). */
+    private static final ConcurrentHashMap<Method, MethodHandle> delegateHandleCache = new ConcurrentHashMap<>();
 
     private static MethodHandle lookupSpecial(Method m) {
         Class<?> declaringClass = m.getDeclaringClass();
@@ -44,8 +47,20 @@ public class MixinUtils {
         });
     }
 
+    private static MethodHandle lookupDelegate(Method m) {
+        return tryReflection(() -> {
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
+                    m.getDeclaringClass(), MethodHandles.lookup());
+            return lookup.unreflect(m);
+        });
+    }
+
     static MethodHandle getMethodHandle(Method method) {
         return  methodHandleCache.computeIfAbsent(method, MixinUtils::lookupSpecial);
+    }
+
+    static MethodHandle getDelegateHandle(Method method) {
+        return delegateHandleCache.computeIfAbsent(method, MixinUtils::lookupDelegate);
     }
 
     record MixinProxyHandler<T>(T original, Class<?>[] proxyInterfaces) implements InvocationHandler {
@@ -57,7 +72,15 @@ public class MixinUtils {
                     if (method.getName().equals("equals") && args.length == 1) {
                         return args[0] == proxy;
                     } else {
-                        return method.invoke(original, args);
+                        MethodHandle mh = getDelegateHandle(method);
+                        if (args == null || args.length == 0) {
+                            return mh.invoke(original);
+                        } else {
+                            Object[] fullArgs = new Object[args.length + 1];
+                            fullArgs[0] = original;
+                            System.arraycopy(args, 0, fullArgs, 1, args.length);
+                            return mh.invokeWithArguments(fullArgs);
+                        }
                     }
                 } else {
                     return getMethodHandle(method)
