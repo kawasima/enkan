@@ -49,9 +49,16 @@ public class MixinUtils {
 
     private static MethodHandle lookupDelegate(Method m) {
         return tryReflection(() -> {
-            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
-                    m.getDeclaringClass(), MethodHandles.lookup());
-            return lookup.unreflect(m);
+            // Use publicLookup first — works for public methods including those on
+            // JDK types (e.g. java.lang.Object#hashCode) where privateLookupIn
+            // would fail because java.base is not open for private access.
+            try {
+                return MethodHandles.publicLookup().unreflect(m);
+            } catch (IllegalAccessException e) {
+                MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
+                        m.getDeclaringClass(), MethodHandles.lookup());
+                return lookup.unreflect(m);
+            }
         });
     }
 
