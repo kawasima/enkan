@@ -5,6 +5,7 @@ import enkan.annotation.Middleware;
 import enkan.collection.Parameters;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.regex.Pattern;
  */
 @Middleware(name = "nestedParams", dependencies = {"params"})
 public class NestedParamsMiddleware implements WebMiddleware {
+    private static final int MAX_NESTING_DEPTH = 32;
     private static final Pattern RE_NESTED_NAME = Pattern.compile("^(?s)(.*?)((?:\\[.*?\\])*)$");
     private static final Pattern RE_NESTED_TOKEN = Pattern.compile("\\[(.*?)\\]");
     protected final Function<String, String[]> parseNestedKeys = (paramName) -> {
@@ -109,6 +111,13 @@ public class NestedParamsMiddleware implements WebMiddleware {
     }
 
     protected Object assocNested(Parameters map, String[] keys, List<String> values) {
+        return assocNested(map, keys, values, 0);
+    }
+
+    private Object assocNested(Parameters map, String[] keys, List<String> values, int depth) {
+        if (depth > MAX_NESTING_DEPTH) {
+            throw new MisconfigurationException("web.NESTING_TOO_DEEP", MAX_NESTING_DEPTH);
+        }
         if (keys.length > 0) {
             String[] ks = new String[keys.length - 1];
 
@@ -133,7 +142,7 @@ public class NestedParamsMiddleware implements WebMiddleware {
                         if (js.length > 0) {
                             nestedList.set(i,
                                     assocNested((Parameters) Optional.ofNullable(nestedList.get(i)).orElse(Parameters.empty())
-                                            , js, vs));
+                                            , js, vs, depth + 1));
                         } else {
                             nestedList.set(i, vs.getFirst());
                         }
@@ -149,7 +158,7 @@ public class NestedParamsMiddleware implements WebMiddleware {
                     // Map
                     Object existing = map.getRawType(keys[0]);
                     Parameters submap = existing instanceof Parameters p ? p : Parameters.empty();
-                    map.put(keys[0], assocNested(submap, ks, values));
+                    map.put(keys[0], assocNested(submap, ks, values, depth + 1));
                     return map;
                 }
             } else {
