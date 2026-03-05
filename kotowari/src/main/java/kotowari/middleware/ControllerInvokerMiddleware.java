@@ -73,13 +73,6 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         return arguments;
     }
 
-    private Object inject(Object controller) {
-        if (componentInjector != null) {
-            componentInjector.inject(controller);
-        }
-        return controller;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<Void, Void, NNREQ, NNRES> next) {
@@ -88,7 +81,8 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
 
             Object controller = controllerCache.computeIfAbsent(controllerClass, c ->
-                    tryReflection(() -> inject(c.getConstructor().newInstance())));
+                    componentInjector != null ? componentInjector.newInstance(c)
+                            : tryReflection(() -> c.getConstructor().newInstance()));
 
             return (RES) tryReflection(() -> {
                 Object[] arguments = createArguments(request);

@@ -46,6 +46,34 @@ public class ComponentInjectorTest {
     }
 
     @Test
+    public void constructorInjection() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        ConstructorInjectionTarget target = injector.newInstance(ConstructorInjectionTarget.class);
+        assertThat(target.tc.getId()).isEqualTo("A");
+    }
+
+    @Test
+    public void namedConstructorInjection() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+        componentMap.put("myNameIsB", new TestComponent("B"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        NamedConstructorInjectionTarget target = injector.newInstance(NamedConstructorInjectionTarget.class);
+        assertThat(target.tc.getId()).isEqualTo("B");
+    }
+
+    @Test
+    public void fallbackToFieldInjectionWhenNoInjectConstructor() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        NoInjectConstructorTarget target = injector.newInstance(NoInjectConstructorTarget.class);
+        assertThat(target.tc.getId()).isEqualTo("A");
+    }
+
+    @Test
     public void wrongNamedInject() {
         componentMap.put("myNameIsAAA", new TestComponent("A"));
         componentMap.put("MyNameIsB", new TestComponent("B"));
@@ -69,6 +97,33 @@ public class ComponentInjectorTest {
         @Inject
         @Named("myNameIsB")
         TestComponent tc;
+    }
+
+    // --- Constructor injection targets ---
+
+    private static class ConstructorInjectionTarget {
+        final TestComponent tc;
+
+        @Inject
+        ConstructorInjectionTarget(TestComponent tc) {
+            this.tc = tc;
+        }
+    }
+
+    private static class NamedConstructorInjectionTarget {
+        final TestComponent tc;
+
+        @Inject
+        NamedConstructorInjectionTarget(@Named("myNameIsB") TestComponent tc) {
+            this.tc = tc;
+        }
+    }
+
+    private static class NoInjectConstructorTarget {
+        @Inject
+        TestComponent tc;
+
+        public NoInjectConstructorTarget() {}
     }
 
     private static class TestComponent extends SystemComponent<TestComponent> {
