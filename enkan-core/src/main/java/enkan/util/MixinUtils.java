@@ -1,7 +1,5 @@
 package enkan.util;
 
-import enkan.data.Extendable;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -168,26 +166,7 @@ public class MixinUtils {
             return target;
         }
 
-        // ByteBuddy path: for Extendable targets, generate a concrete subclass
-        // instead of a JDK dynamic proxy. All mixin interfaces use default methods
-        // that delegate to getExtension()/setExtension(), so the generated subclass
-        // inherits everything via normal Java inheritance — zero method body generation.
-        if (target instanceof Extendable) {
-            Class<?>[] currentInterfaces;
-            if (target instanceof MixinGenerated) {
-                // Already a ByteBuddy mixin — accumulate interfaces from the generated class
-                currentInterfaces = getAllInterfaces(targetClass);
-            } else {
-                currentInterfaces = getAllInterfaces(targetClass);
-            }
-            Class<?>[] allIfaces = mergeInterfaces(currentInterfaces, interfaces);
-            Class<?> generated = MixinClassGenerator.getOrCreateClass(
-                    target instanceof MixinGenerated ? targetClass.getSuperclass() : targetClass,
-                    allIfaces);
-            return MixinClassGenerator.copyInto(generated, target);
-        }
-
-        // Fallback: JDK proxy path for non-Extendable types
+        // Extract the original object and its current proxy interfaces
         Class<?>[] currentInterfaces;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
@@ -197,11 +176,14 @@ public class MixinUtils {
             currentInterfaces = getAllInterfaces(targetClass);
         }
 
+        // Build cache key: [originalClass, currentInterfaces..., newInterfaces...]
+        // Use List for proper equals/hashCode
         List<Class<?>> cacheKey = buildCacheKey(target.getClass(), currentInterfaces, interfaces);
         Class<?>[] classes = interfaceArrayCache.computeIfAbsent(cacheKey, k -> {
             Class<?>[] merged = new Class[currentInterfaces.length + interfaces.length];
             System.arraycopy(currentInterfaces, 0, merged, 0, currentInterfaces.length);
             System.arraycopy(interfaces, 0, merged, currentInterfaces.length, interfaces.length);
+            // Pre-warm MethodHandle cache for new default methods
             for (Class<?> iface : interfaces) {
                 for (Method m : iface.getMethods()) {
                     if (m.isDefault()) {
@@ -216,13 +198,6 @@ public class MixinUtils {
         return (T) Proxy.newProxyInstance(cl,
                 classes,
                 new MixinProxyHandler<>(target, classes));
-    }
-
-    private static Class<?>[] mergeInterfaces(Class<?>[] current, Class<?>[] added) {
-        Class<?>[] merged = new Class[current.length + added.length];
-        System.arraycopy(current, 0, merged, 0, current.length);
-        System.arraycopy(added, 0, merged, current.length, added.length);
-        return merged;
     }
 
     private static List<Class<?>> buildCacheKey(Class<?> originalClass,

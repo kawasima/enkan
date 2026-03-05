@@ -130,4 +130,4 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 | IMP-030 | AcceptHeaderNegotiator parses Accept header per request | MEDIUM | Done |
 | IMP-031 | HttpResponseUtils.charset() compiles regex per call | LOW | Done |
 | IMP-032 | MixinUtils getAllInterfaces/interface array not cached | MEDIUM | Done |
-| IMP-033 | Compile-time mixin resolution via bytecode generation | HIGH | Done |
+| IMP-033 | Compile-time mixin resolution via bytecode generation | HIGH | Proposed |
