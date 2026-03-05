@@ -142,29 +142,30 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
      * using a fixed-arity {@code InvokerN} interface.
      */
     private ControllerInvoker buildLambdaInvoker(Method method, int paramCount) throws Throwable {
-        // Use privateLookupIn for the controller's class loader context.
-        // This is critical when controllers are loaded by a different ClassLoader
-        // (e.g., ConfigurationLoader for hot-reload) than this middleware.
-        MethodHandles.Lookup controllerLookup = MethodHandles.privateLookupIn(
-                method.getDeclaringClass(), MethodHandles.lookup());
-        MethodHandle handle = controllerLookup.unreflect(method);
+        // Use MethodHandles.lookup() — contextualized to this class, which can
+        // see the private InvokerN interfaces AND access public controller methods.
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        MethodHandle handle = lookup.unreflect(method);
+
+        // handle type: (DeclClass, P0, P1, ...) -> ReturnType  (direct, un-adapted)
+        // LambdaMetafactory requires a direct handle; asType() would make it
+        // non-direct and cause "cannot be cracked" errors.
+        // Instead, let metafactory handle the type adaptation via the erased
+        // SAM signature (all Object) vs the instantiated signature (actual types).
 
         Class<?> invokerClass = INVOKER_CLASSES[paramCount];
-        // Both erased and instantiated types are all-Object to avoid ClassLoader
-        // mismatch: the generated class casts arguments at invocation time using
-        // the controller's ClassLoader, not the app ClassLoader.
+        // erased: (Object, Object, ...) -> Object
         MethodType erasedType = MethodType.genericMethodType(1 + paramCount);
+        // instantiated: actual method signature with receiver
+        MethodType instantiatedType = handle.type();
 
-        // Use MethodHandles.lookup() (this class context) for metafactory so it
-        // can see the private InvokerN interfaces.
-        MethodHandles.Lookup factoryLookup = MethodHandles.lookup();
         CallSite callSite = LambdaMetafactory.metafactory(
-                factoryLookup,
+                lookup,
                 "invoke",
                 MethodType.methodType(invokerClass),
                 erasedType,            // erased SAM signature
                 handle,                // direct MethodHandle
-                erasedType             // instantiated = erased (all Object)
+                instantiatedType       // instantiated SAM signature (actual types)
         );
 
         // Extract the typed invoker and wrap in a ControllerInvoker that spreads Object[]
