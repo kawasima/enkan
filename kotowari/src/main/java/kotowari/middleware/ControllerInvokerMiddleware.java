@@ -33,6 +33,7 @@ import static enkan.util.ReflectionUtils.*;
 @enkan.annotation.Middleware(name = "controllerInvoker", dependencies = "params")
 public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES, Void, Void> {
     private final Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
+    private final Map<Method, ParameterInjector<?>[]> injectorCache = new ConcurrentHashMap<>();
     private final ComponentInjector componentInjector;
     private static final ParameterInjector<?> BODY_SERIALIZABLE_INJECTOR = new BodySerializableInjector<>();
     private List<ParameterInjector<?>> parameterInjectors;
@@ -48,6 +49,19 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         }
     }
 
+    private ParameterInjector<?>[] resolveInjectors(Method method) {
+        Parameter[] parameters = method.getParameters();
+        ParameterInjector<?>[] injectors = new ParameterInjector<?>[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            Class<?> type = parameters[i].getType();
+            injectors[i] = parameterInjectors.stream()
+                    .filter(injector -> injector.isApplicable(type, null))
+                    .findFirst()
+                    .orElse(BODY_SERIALIZABLE_INJECTOR);
+        }
+        return injectors;
+    }
+
     /**
      * Create arguments for controller method.
      *
@@ -56,19 +70,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
      */
     protected Object[] createArguments(HttpRequest request) {
         Method method = ((Routable) request).getControllerMethod();
-        Object[] arguments = new Object[method.getParameterCount()];
-
-        int i = 0;
-        for (Parameter parameter : method.getParameters()) {
-            Class<?> type = parameter.getType();
-            final int parameterIndex = i;
-            ParameterInjector<?> parameterInjector = parameterInjectors.stream()
-                    .filter(injector -> injector.isApplicable(type, request))
-                    .findAny()
-                    .orElse(BODY_SERIALIZABLE_INJECTOR);
-
-            arguments[parameterIndex] = parameterInjector.getInjectObject(request);
-            i++;
+        ParameterInjector<?>[] injectors = injectorCache.computeIfAbsent(method, this::resolveInjectors);
+        Object[] arguments = new Object[injectors.length];
+        for (int i = 0; i < injectors.length; i++) {
+            arguments[i] = injectors[i].getInjectObject(request);
         }
         return arguments;
     }
