@@ -2,6 +2,7 @@ package enkan.util;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -39,27 +40,42 @@ public class MixinUtils {
     /** Cache for original-object delegation handles (unreflect). */
     private static final ConcurrentHashMap<Method, MethodHandle> delegateHandleCache = new ConcurrentHashMap<>();
 
+    /**
+     * Build a MethodHandle for a default method, normalized to
+     * {@code (Object, Object[]) -> Object} via asSpreader.
+     */
     private static MethodHandle lookupSpecial(Method m) {
         Class<?> declaringClass = m.getDeclaringClass();
-        return tryReflection(() -> {
+        MethodHandle mh = tryReflection(() -> {
             MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup());
             return lookup.unreflectSpecial(m, declaringClass);
         });
+        int paramCount = m.getParameterCount();
+        return mh.asType(MethodType.genericMethodType(1 + paramCount))
+                  .asSpreader(Object[].class, paramCount);
     }
 
+    /**
+     * Build a MethodHandle for delegating to the original object, normalized
+     * to the shape {@code (Object, Object[]) -> Object} via asSpreader so
+     * the hot path avoids per-call array allocation.
+     */
     private static MethodHandle lookupDelegate(Method m) {
-        return tryReflection(() -> {
-            // Use publicLookup first — works for public methods including those on
-            // JDK types (e.g. java.lang.Object#hashCode) where privateLookupIn
-            // would fail because java.base is not open for private access.
-            try {
-                return MethodHandles.publicLookup().unreflect(m);
-            } catch (IllegalAccessException e) {
+        MethodHandle mh;
+        try {
+            mh = MethodHandles.publicLookup().unreflect(m);
+        } catch (IllegalAccessException e) {
+            mh = tryReflection(() -> {
                 MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
                         m.getDeclaringClass(), MethodHandles.lookup());
                 return lookup.unreflect(m);
-            }
-        });
+            });
+        }
+        // Normalize to (Object, Object[]) -> Object so invoke() at call
+        // site needs no array copy.
+        int paramCount = m.getParameterCount();
+        return mh.asType(MethodType.genericMethodType(1 + paramCount))
+                  .asSpreader(Object[].class, paramCount);
     }
 
     static MethodHandle getMethodHandle(Method method) {
@@ -79,20 +95,14 @@ public class MixinUtils {
                     if (method.getName().equals("equals") && args.length == 1) {
                         return args[0] == proxy;
                     } else {
-                        MethodHandle mh = getDelegateHandle(method);
-                        if (args == null || args.length == 0) {
-                            return mh.invoke(original);
-                        } else {
-                            Object[] fullArgs = new Object[args.length + 1];
-                            fullArgs[0] = original;
-                            System.arraycopy(args, 0, fullArgs, 1, args.length);
-                            return mh.invokeWithArguments(fullArgs);
-                        }
+                        // Handle is pre-shaped to (Object, Object[]) via asSpreader
+                        return getDelegateHandle(method)
+                                .invoke(original, args != null ? args : new Object[0]);
                     }
                 } else {
+                    // Handle is pre-shaped to (Object, Object[]) via asSpreader
                     return getMethodHandle(method)
-                            .bindTo(proxy)
-                            .invokeWithArguments(args);
+                            .invoke(proxy, args != null ? args : new Object[0]);
                 }
             }
         }
