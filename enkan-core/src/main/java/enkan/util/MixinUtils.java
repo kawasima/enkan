@@ -6,7 +6,6 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -151,7 +150,14 @@ public class MixinUtils {
 
         // When request is
         final Class<?> targetClass = target.getClass();
-        if (Arrays.stream(interfaces).allMatch(i -> i.isAssignableFrom(targetClass))) {
+        boolean allPresent = true;
+        for (Class<?> iface : interfaces) {
+            if (!iface.isAssignableFrom(targetClass)) {
+                allPresent = false;
+                break;
+            }
+        }
+        if (allPresent) {
             return target;
         }
 
@@ -170,10 +176,13 @@ public class MixinUtils {
             System.arraycopy(targetInterfaces, 0, classes, 0, targetInterfaces.length);
             addedIndex = targetInterfaces.length;
         }
-        Arrays.asList(interfaces).forEach(i ->
-                Arrays.stream(i.getMethods())
-                        .filter(Method::isDefault)
-                        .forEach(MixinUtils::getMethodHandle));
+        for (Class<?> iface : interfaces) {
+            for (Method m : iface.getMethods()) {
+                if (m.isDefault()) {
+                    getMethodHandle(m);
+                }
+            }
+        }
 
 
         System.arraycopy(interfaces, 0, classes, addedIndex, interfaces.length);

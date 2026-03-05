@@ -180,6 +180,9 @@ public class NestedParamsMiddleware implements WebMiddleware {
      */
     public HttpRequest nestedParamsRequest(HttpRequest request, Function<String, String[]> keyParser) {
         Parameters params = request.getParams();
+        if (params == null || params.isEmpty()) {
+            return request;
+        }
         Parameters nestedParams = Parameters.empty();
 
         params.keySet().forEach(key -> assocNested(nestedParams, keyParser.apply(key), params.getList(key)));

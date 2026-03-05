@@ -124,3 +124,6 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 | IMP-024 | Cacheable injector mapping + LambdaMetafactory | LOW | Done |
 | IMP-025 | Missing test coverage for parameter injection | HIGH | Done |
 | IMP-026 | MixinUtils Proxy uses Method.invoke() on hot path | MEDIUM | Done |
+| IMP-027 | MixinUtils.mixin() uses Stream on hot path | LOW | Done |
+| IMP-028 | CookiesMiddleware allocates HashMap when no cookies | LOW | Done |
+| IMP-029 | NestedParamsMiddleware processes empty params | LOW | Done |

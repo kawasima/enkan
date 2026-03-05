@@ -45,16 +45,16 @@ public class CookiesMiddleware implements WebMiddleware {
      */
     protected Map<String, Cookie> parseCookies(HttpRequest request) {
         String cookieHeader = request.getHeaders().get("cookie");
-        Map<String, Cookie> cookies = new HashMap<>();
-
-        if (cookieHeader != null) {
-            Matcher m = RE_COOKIE.matcher(cookieHeader);
-            while (m.find()) {
-                Cookie cookie = Cookie.create(m.group(1), formDecodeStr(stripQuotes(m.group(2))));
-                cookies.put(m.group(1), cookie);
-            }
+        if (cookieHeader == null) {
+            return Map.of();
         }
 
+        Map<String, Cookie> cookies = new HashMap<>();
+        Matcher m = RE_COOKIE.matcher(cookieHeader);
+        while (m.find()) {
+            Cookie cookie = Cookie.create(m.group(1), formDecodeStr(stripQuotes(m.group(2))));
+            cookies.put(m.group(1), cookie);
+        }
         return cookies;
     }
 
