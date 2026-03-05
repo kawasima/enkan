@@ -49,6 +49,15 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         }
     }
 
+    /**
+     * Resolve injectors for each parameter of the given method by type only.
+     *
+     * <p>All built-in {@link ParameterInjector#isApplicable} implementations
+     * determine applicability solely from the parameter type, so passing
+     * {@code null} for the request is safe.  Custom injectors that rely on
+     * request state at applicability-check time are not supported by this
+     * caching strategy and must be handled separately.
+     */
     private ParameterInjector<?>[] resolveInjectors(Method method) {
         Parameter[] parameters = method.getParameters();
         ParameterInjector<?>[] injectors = new ParameterInjector<?>[parameters.length];
