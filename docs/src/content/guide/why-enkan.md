@@ -139,6 +139,44 @@ with a clear message — not a `NullPointerException` at request time.
 `TraceMiddleware` records timestamps at each layer. The accumulated trace is written to the
 `X-Enkan-Trace` response header, giving you a per-request flamegraph without external tooling.
 
+### REPL-Driven Development with Domain Objects
+
+Enkan's REPL is not just for server control — it is a powerful tool for **understanding and validating business logic interactively**.
+
+Because Enkan enforces clean architecture, domain objects have no dependencies on framework layers (no `@Entity`, no `@Component`, no servlet API imports). This means you can instantiate and manipulate them directly in the REPL:
+
+```
+enkan> var order = new Order("customer-123", List.of(
+           new OrderItem("SKU-001", 3),
+           new OrderItem("SKU-042", 1)));
+enkan> order.totalAmount()
+$2 ==> 4800
+
+enkan> order.applyDiscount(DiscountPolicy.LOYALTY)
+enkan> order.totalAmount()
+$4 ==> 4320
+```
+
+This brings Clojure-style REPL-driven development to Java:
+
+- **Explore domain logic** — test business rules without writing a test class or starting the HTTP server. Verify edge cases by constructing objects with different states.
+- **Validate understanding** — new team members can learn the domain model by interacting with real objects, not just reading code. "What happens when an order has zero items?" — just try it.
+- **Prototype with live data** — since the REPL runs inside the same JVM as the application, you can access live components (database, cache) and query real data through your domain layer:
+
+```
+enkan> var ds = system.getComponent("datasource")
+enkan> var dao = new CustomerDao(ds)
+enkan> var customer = dao.findById(42L)
+enkan> customer.creditLimit()
+$3 ==> 500000
+
+enkan> var eligibility = LoanEligibility.evaluate(customer)
+enkan> eligibility.reason()
+$5 ==> "Approved: credit score above threshold"
+```
+
+In Spring Boot, domain objects often carry JPA annotations or depend on injected services, making standalone instantiation impractical. In Enkan, the separation is structural — domain objects are always plain Java, always testable, and always REPL-friendly.
+
 ---
 
 ## Ease of Operation
@@ -172,7 +210,7 @@ or inspect internal state without redeployment.
 | Classpath scanning | None | Extensive | Build-time | None |
 | Middleware type safety | Compile-time (generics) | Runtime (Filter chain) | Runtime | Runtime |
 | Component lifecycle | Explicit graph | `@Bean` + `@Autowired` | CDI / `@ApplicationScoped` | Verticle |
-| REPL / live inspection | Built-in | Actuator (HTTP) | Dev UI | – |
+| REPL / live inspection | Built-in (JShell, domain objects) | Actuator (HTTP only) | Dev UI (browser only) | – |
 | Reactive / async | Opt-in | WebFlux opt-in | Reactive opt-in | Core feature |
 | Target scale | Small–medium apps | All scales | Cloud-native | High-concurrency |
 
