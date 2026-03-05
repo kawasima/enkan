@@ -1,5 +1,7 @@
 package enkan.collection;
 
+import enkan.exception.MisconfigurationException;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -52,7 +54,7 @@ public class Parameters implements Map<String, Object>, Serializable {
 
     public static Parameters of(Object... init) {
         if (init.length % 2 != 0) {
-            throw new enkan.exception.MisconfigurationException("core.MISSING_KEY_VALUE_PAIR");
+            throw new MisconfigurationException("core.MISSING_KEY_VALUE_PAIR");
         }
         Parameters params = Parameters.empty();
         for(int i = 0; i < init.length; i += 2) {
