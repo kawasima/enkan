@@ -156,6 +156,7 @@ public class ComponentInjectorTest {
         }
     }
 
+    @SuppressWarnings("unused") // instantiated via reflection in ComponentInjector.newInstance()
     private static class NoInjectConstructorTarget {
         @Inject
         TestComponent tc;
@@ -163,6 +164,7 @@ public class ComponentInjectorTest {
         public NoInjectConstructorTarget() {}
     }
 
+    @SuppressWarnings("unused") // instantiated via reflection in ComponentInjector.newInstance()
     private static class ImplicitConstructorTarget {
         final TestComponent tc;
 
@@ -183,6 +185,7 @@ public class ComponentInjectorTest {
     }
 
     private static class MultipleInjectConstructorTarget {
+        @SuppressWarnings("unused") // assigned by constructor; class exists only to test error detection
         final TestComponent tc;
 
         @Inject
