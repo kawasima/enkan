@@ -174,8 +174,14 @@ public class ComponentInjector {
             if (named != null) {
                 SystemComponent<?> component = components.get(named.value());
                 if (component == null) {
-                    throw new MisconfigurationException("core.INJECT_WRONG_NAMED_COMPONENT",
-                            named.value(), suggestName(type, named.value()));
+                    Optional<String> suggestion = suggestName(type, named.value());
+                    if (suggestion.isPresent()) {
+                        throw new MisconfigurationException("core.INJECT_WRONG_NAMED_COMPONENT",
+                                named.value(), suggestion.get());
+                    } else {
+                        throw new MisconfigurationException("core.INJECT_MISSING_COMPONENT",
+                                type.getName(), constructor.getDeclaringClass().getName());
+                    }
                 }
                 if (!type.isAssignableFrom(component.getClass())) {
                     throw new MisconfigurationException("core.INJECT_WRONG_TYPE_COMPONENT",
@@ -194,11 +200,10 @@ public class ComponentInjector {
         return args;
     }
 
-    private String suggestName(Class<?> type, String wrongName) {
+    private Optional<String> suggestName(Class<?> type, String wrongName) {
         return components.entrySet().stream()
                 .filter(c -> type.isAssignableFrom(c.getValue().getClass()))
                 .map(Map.Entry::getKey)
-                .min(Comparator.comparing(n -> levenshteinDistance(n, wrongName)))
-                .orElse("(no matching component)");
+                .min(Comparator.comparing(n -> levenshteinDistance(n, wrongName)));
     }
 }
