@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static enkan.util.ReflectionUtils.*;
 
@@ -37,6 +39,7 @@ import static enkan.util.ReflectionUtils.*;
  */
 @enkan.annotation.Middleware(name = "controllerInvoker", dependencies = "params")
 public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest, RES, Void, Void> {
+    private static final Logger LOG = Logger.getLogger(ControllerInvokerMiddleware.class.getName());
     private final Map<Class<?>, Object> controllerCache = new ConcurrentHashMap<>();
     private final Map<Method, MethodInvocation> methodCache = new ConcurrentHashMap<>();
     private final ComponentInjector componentInjector;
@@ -125,6 +128,8 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
             try {
                 return buildLambdaInvoker(method, paramCount);
             } catch (Throwable e) {
+                LOG.log(Level.WARNING, e,
+                        () -> "LambdaMetafactory failed for " + method + "; falling back to MethodHandle");
                 return buildMethodHandleFallback(method);
             }
         } else {
@@ -137,26 +142,30 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
      * using a fixed-arity {@code InvokerN} interface.
      */
     private ControllerInvoker buildLambdaInvoker(Method method, int paramCount) throws Throwable {
-        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
-                method.getDeclaringClass(), MethodHandles.lookup());
+        // Use MethodHandles.lookup() — contextualized to this class, which can
+        // see the private InvokerN interfaces AND access public controller methods.
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
         MethodHandle handle = lookup.unreflect(method);
 
-        // Original handle: (DeclClass, P0, P1, ...) -> ReturnType
-        // Normalize to:    (Object, Object, ...) -> Object
-        MethodHandle generic = handle.asType(MethodType.genericMethodType(1 + paramCount));
+        // handle type: (DeclClass, P0, P1, ...) -> ReturnType  (direct, un-adapted)
+        // LambdaMetafactory requires a direct handle; asType() would make it
+        // non-direct and cause "cannot be cracked" errors.
+        // Instead, let metafactory handle the type adaptation via the erased
+        // SAM signature (all Object) vs the instantiated signature (actual types).
 
-        // Target functional interface: InvokerN
         Class<?> invokerClass = INVOKER_CLASSES[paramCount];
-        // invokerMethodType: (Object, Object, ..., Object) -> Object  with 1+paramCount args
-        MethodType invokerMethodType = MethodType.genericMethodType(1 + paramCount);
+        // erased: (Object, Object, ...) -> Object
+        MethodType erasedType = MethodType.genericMethodType(1 + paramCount);
+        // instantiated: actual method signature with receiver
+        MethodType instantiatedType = handle.type();
 
         CallSite callSite = LambdaMetafactory.metafactory(
                 lookup,
                 "invoke",
                 MethodType.methodType(invokerClass),
-                invokerMethodType,     // erased SAM signature
-                generic,               // direct MethodHandle (no asSpreader!)
-                invokerMethodType      // instantiated SAM signature
+                erasedType,            // erased SAM signature
+                handle,                // direct MethodHandle
+                instantiatedType       // instantiated SAM signature (actual types)
         );
 
         // Extract the typed invoker and wrap in a ControllerInvoker that spreads Object[]
