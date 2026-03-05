@@ -92,6 +92,64 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 
 ---
 
+## Parameter Injection
+
+---
+
+### IMP-018: BodySerializableInjector matches any type when body is null (HIGH)
+
+`isApplicable()` returns `true` for any type when `getDeserializedBody()` is null. This means any unknown controller parameter type silently receives null via the fallback injector, hiding misconfiguration errors.
+
+**File**: `kotowari/src/main/java/kotowari/inject/parameter/BodySerializableInjector.java`
+
+---
+
+### IMP-019: Parameters.putAll bypasses case-insensitive key normalization (MEDIUM)
+
+`putAll()` delegates directly to the inner HashMap, skipping the `toLowerCase` normalization applied by `put()`. When `caseSensitive=false`, merged keys may not match existing entries.
+
+**File**: `enkan-core/src/main/java/enkan/collection/Parameters.java`
+
+---
+
+### IMP-020: Parameters.put auto-converts to List, violating Map contract (MEDIUM)
+
+Calling `put(key, value)` twice with the same key creates a List instead of replacing the value. This violates the `Map.put` contract and causes unexpected behavior when `putAll` is used to merge query and form params.
+
+**File**: `enkan-core/src/main/java/enkan/collection/Parameters.java`
+
+---
+
+### IMP-021: Parameters.get always returns String via toString() (MEDIUM)
+
+`get()` calls `val.toString()` on any stored value. For nested Parameters or Lists, this returns representation strings like `{foo=bar}` instead of the actual object. The return type is `String` but the `Map<String, Object>` contract expects `Object`.
+
+**File**: `enkan-core/src/main/java/enkan/collection/Parameters.java`
+
+---
+
+### IMP-022: Parameters.of(Object...) has no bounds check (LOW)
+
+Passing an odd number of arguments causes `ArrayIndexOutOfBoundsException`. Should throw `MisconfigurationException` with a clear message (the key `core.MISSING_KEY_VALUE_PAIR` already exists).
+
+**File**: `enkan-core/src/main/java/enkan/collection/Parameters.java`
+
+---
+
+### IMP-023: NestedParamsMiddleware has no depth limit (MEDIUM)
+
+`assocNested` uses recursion with no depth limit. A crafted parameter name like `a[b][c][d]...[z]` with hundreds of nesting levels can cause `StackOverflowError`.
+
+**File**: `enkan-web/src/main/java/enkan/middleware/NestedParamsMiddleware.java`
+
+---
+
+### IMP-025: Missing test coverage for parameter injection pipeline (HIGH)
+
+No tests exist for `ParamsMiddleware` or `BodySerializableInjector`. `NestedParamsMiddleware` has 3 test cases with no edge-case coverage. `Parameters` has 1 test case.
+
+---
+
 ## Legend
 
 | Priority | Description |
@@ -114,3 +172,13 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 | IMP-013 | Introduce Sealed Classes | MEDIUM | Proposed |
 | IMP-014 | Convert to Records | MEDIUM | Done |
 | IMP-016 | Unify `Stream.toList()` | LOW | Done |
+| IMP-017 | findAny → findFirst in ControllerInvokerMiddleware | HIGH | Done |
+| IMP-018 | BodySerializableInjector matches any type when body null | HIGH | Proposed |
+| IMP-019 | Parameters.putAll bypasses case normalization | MEDIUM | Proposed |
+| IMP-020 | Parameters.put auto-List violates Map contract | MEDIUM | Proposed |
+| IMP-021 | Parameters.get always returns String | MEDIUM | Proposed |
+| IMP-022 | Parameters.of(Object...) no bounds check | LOW | Proposed |
+| IMP-023 | NestedParamsMiddleware no depth limit | MEDIUM | Proposed |
+| IMP-024 | Cacheable injector mapping + LambdaMetafactory | LOW | Done |
+| IMP-025 | Missing test coverage for parameter injection | HIGH | Partial |
+| IMP-026 | MixinUtils Proxy uses Method.invoke() on hot path | MEDIUM | Done |
