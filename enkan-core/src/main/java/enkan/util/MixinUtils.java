@@ -6,7 +6,9 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static enkan.util.ReflectionUtils.tryReflection;
@@ -38,6 +40,10 @@ public class MixinUtils {
     private static final ConcurrentHashMap<Method, MethodHandle> methodHandleCache = new ConcurrentHashMap<>();
     /** Cache for original-object delegation handles (unreflect). */
     private static final ConcurrentHashMap<Method, MethodHandle> delegateHandleCache = new ConcurrentHashMap<>();
+    /** Cache: (originalClass, mixinInterfaces) → merged interface array for Proxy. */
+    private static final ConcurrentHashMap<List<Class<?>>, Class<?>[]> interfaceArrayCache = new ConcurrentHashMap<>();
+    /** Cache: class → all implemented interfaces (avoids repeated class hierarchy traversal). */
+    private static final ConcurrentHashMap<Class<?>, Class<?>[]> allInterfacesCache = new ConcurrentHashMap<>();
 
     /**
      * Build a MethodHandle for a default method, normalized to
@@ -122,11 +128,11 @@ public class MixinUtils {
 
     static Class<?>[] getAllInterfaces(final Class<?> clazz) {
         if (clazz == null) return null;
-
-        final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
-        getAllInterfaces(clazz, interfacesFound);
-
-        return interfacesFound.toArray(new Class<?>[0]);
+        return allInterfacesCache.computeIfAbsent(clazz, c -> {
+            final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
+            getAllInterfaces(c, interfacesFound);
+            return interfacesFound.toArray(new Class<?>[0]);
+        });
     }
 
     /**
@@ -148,7 +154,6 @@ public class MixinUtils {
     public static <T> T mixin(T target, Class<?>... interfaces) {
         if (target == null) return null;
 
-        // When request is
         final Class<?> targetClass = target.getClass();
         boolean allPresent = true;
         for (Class<?> iface : interfaces) {
@@ -161,36 +166,47 @@ public class MixinUtils {
             return target;
         }
 
-        Class<?>[] classes;
-        int addedIndex;
+        // Extract the original object and its current proxy interfaces
+        Class<?>[] currentInterfaces;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
             target = handler.original();
-            Class<?>[] originalInterfaces = handler.proxyInterfaces();
-            classes = new Class[originalInterfaces.length + interfaces.length];
-            System.arraycopy(originalInterfaces, 0, classes, 0, originalInterfaces.length);
-            addedIndex = originalInterfaces.length;
+            currentInterfaces = handler.proxyInterfaces();
         } else {
-            Class<?>[] targetInterfaces = getAllInterfaces(targetClass);
-            classes = new Class[targetInterfaces.length + interfaces.length];
-            System.arraycopy(targetInterfaces, 0, classes, 0, targetInterfaces.length);
-            addedIndex = targetInterfaces.length;
+            currentInterfaces = getAllInterfaces(targetClass);
         }
-        for (Class<?> iface : interfaces) {
-            for (Method m : iface.getMethods()) {
-                if (m.isDefault()) {
-                    getMethodHandle(m);
+
+        // Build cache key: [originalClass, currentInterfaces..., newInterfaces...]
+        // Use List for proper equals/hashCode
+        List<Class<?>> cacheKey = buildCacheKey(target.getClass(), currentInterfaces, interfaces);
+        Class<?>[] classes = interfaceArrayCache.computeIfAbsent(cacheKey, k -> {
+            Class<?>[] merged = new Class[currentInterfaces.length + interfaces.length];
+            System.arraycopy(currentInterfaces, 0, merged, 0, currentInterfaces.length);
+            System.arraycopy(interfaces, 0, merged, currentInterfaces.length, interfaces.length);
+            // Pre-warm MethodHandle cache for new default methods
+            for (Class<?> iface : interfaces) {
+                for (Method m : iface.getMethods()) {
+                    if (m.isDefault()) {
+                        getMethodHandle(m);
+                    }
                 }
             }
-        }
-
-
-        System.arraycopy(interfaces, 0, classes, addedIndex, interfaces.length);
+            return merged;
+        });
 
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return (T) Proxy.newProxyInstance(cl,
                 classes,
                 new MixinProxyHandler<>(target, classes));
+    }
 
+    private static List<Class<?>> buildCacheKey(Class<?> originalClass,
+                                                 Class<?>[] currentInterfaces,
+                                                 Class<?>[] newInterfaces) {
+        Class<?>[] key = new Class<?>[1 + currentInterfaces.length + newInterfaces.length];
+        key[0] = originalClass;
+        System.arraycopy(currentInterfaces, 0, key, 1, currentInterfaces.length);
+        System.arraycopy(newInterfaces, 0, key, 1 + currentInterfaces.length, newInterfaces.length);
+        return Arrays.asList(key);
     }
 }

@@ -5,6 +5,7 @@ import enkan.util.CodecUtils;
 import jakarta.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +20,11 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
     private static final Pattern ACCEPT_FRAGMENT_PARAM_RE = Pattern.compile("([^()<>@,;:\"/\\[\\]?={} 	]+)=([^()<>@,;:\"/\\[\\]?={} 	]+|\"[^\"]*\")$");
     private static final Pattern ACCEPTS_DELIMITER = Pattern.compile("[\\s\\n\\r]*,[\\s\\n\\r]*");
     private static final Pattern ACCEPT_DELIMITER = Pattern.compile("[\\s\\n\\r]*;[\\s\\n\\r]*");
+
+    /** Cache: (acceptHeader + "|" + allowedTypes) → resolved MediaType */
+    private final ConcurrentHashMap<String, Optional<MediaType>> contentTypeCache = new ConcurrentHashMap<>();
+    /** Cache: (acceptHeader + "|" + available) → resolved language */
+    private final ConcurrentHashMap<String, Optional<String>> languageCache = new ConcurrentHashMap<>();
 
     private double clamp(double min, double max, double val) {
         return Math.max(Math.min(max, val), min);
@@ -82,16 +88,18 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
 
     @Override
     public MediaType bestAllowedContentType(String acceptsHeader, Set<String> allowedTypes) {
-        Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
-                .map(CodecUtils::parseMediaType)
-                .collect(Collectors.toSet()));
-        return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(this::parseMediaTypeAcceptFragment)
-                .filter(Objects::nonNull)
-                .map(serverWeightFunc)
-                .max(Comparator.comparing(AcceptFragment::q))
-                .map(af -> af.fragment)
-                .orElse(null);
+        String cacheKey = acceptsHeader + "|" + allowedTypes;
+        return contentTypeCache.computeIfAbsent(cacheKey, k -> {
+            Function<AcceptFragment<MediaType>, AcceptFragment<MediaType>> serverWeightFunc = createServerWeightFunc(allowedTypes.stream()
+                    .map(CodecUtils::parseMediaType)
+                    .collect(Collectors.toSet()));
+            return Arrays.stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                    .map(this::parseMediaTypeAcceptFragment)
+                    .filter(Objects::nonNull)
+                    .map(serverWeightFunc)
+                    .max(Comparator.comparing(AcceptFragment::q))
+                    .map(af -> af.fragment);
+        }).orElse(null);
     }
 
     @Override
@@ -138,23 +146,26 @@ public class AcceptHeaderNegotiator implements ContentNegotiator {
 
     @Override
     public String bestAllowedLanguage(String acceptsHeader, Set<String> available) {
-        Map<String, Double> accepts = Arrays
-                .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
-                .map(this::parseStringAcceptFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(
-                        AcceptFragment::fragment,
-                        AcceptFragment::q));
-        Function<String, Double> score = langtag -> {
-            for (String x = langtag;  x != null; x = x.substring(0, x.lastIndexOf('-'))) {
-                Double q = accepts.get(x);
-                if (q != null) return q;
-                if (!x.contains("-")) break;
-            }
-            return Objects.equals(langtag, "*") ? 0.01 : 0;
-        };
+        String cacheKey = acceptsHeader + "|" + available;
+        return languageCache.computeIfAbsent(cacheKey, k -> {
+            Map<String, Double> accepts = Arrays
+                    .stream(ACCEPTS_DELIMITER.split(acceptsHeader))
+                    .map(this::parseStringAcceptFragment)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(
+                            AcceptFragment::fragment,
+                            AcceptFragment::q));
+            Function<String, Double> score = langtag -> {
+                for (String x = langtag; x != null; x = x.substring(0, x.lastIndexOf('-'))) {
+                    Double q = accepts.get(x);
+                    if (q != null) return q;
+                    if (!x.contains("-")) break;
+                }
+                return Objects.equals(langtag, "*") ? 0.01 : 0;
+            };
 
-        return selectBest(available, score).orElse(null);
+            return selectBest(available, score);
+        }).orElse(null);
     }
 
 

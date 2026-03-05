@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import static enkan.util.BeanBuilder.*;
@@ -26,6 +27,7 @@ import static enkan.util.BeanBuilder.*;
  * @author kawasima
  */
 public class HttpResponseUtils {
+    private static final Pattern RE_CHARSET = Pattern.compile(";\\s*charset=[^;]*");
     public enum RedirectStatusCode {
         MOVED_PERMANENTLY(301),
         FOUND(302),
@@ -105,7 +107,7 @@ public class HttpResponseUtils {
         if (type == null) {
             type = "text/plain";
         }
-        String newType = type.replaceAll(";\\s*charset=[^;]*", "") + "; charset=" + charset;
+        String newType = RE_CHARSET.matcher(type).replaceAll("") + "; charset=" + charset;
         response.getHeaders().remove("Content-Type");
         header(response, "Content-Type", newType);
     }
