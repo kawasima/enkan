@@ -83,8 +83,8 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
     @SuppressWarnings("unchecked")
     @Override
     public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<Void, Void, NNREQ, NNRES> next) {
-        if (request instanceof Routable) {
-            Method controllerMethod = ((Routable) request).getControllerMethod();
+        if (request instanceof Routable routable) {
+            Method controllerMethod = routable.getControllerMethod();
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
 
             Object controller = controllerCache.computeIfAbsent(controllerClass, c ->

@@ -65,8 +65,8 @@ public class SessionMiddleware implements WebMiddleware {
 
     protected void sessionResponse(HttpResponse response, HttpRequest request) {
         String sessionKey = null;
-        if (request instanceof WebSessionAvailable) {
-            sessionKey = ((WebSessionAvailable) request).getSessionKey();
+        if (request instanceof WebSessionAvailable wsa) {
+            sessionKey = wsa.getSessionKey();
         }
         if (response instanceof WebSessionAvailable) {
             Session session = response.getSession();

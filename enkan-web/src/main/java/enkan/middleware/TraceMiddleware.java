@@ -21,12 +21,11 @@ public class TraceMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> 
             req = MixinUtils.mixin(req, Traceable.class);
         }
         RES res = chain.next(req);
-        if (enabled && req instanceof Traceable){
-            TraceLog log = ((Traceable) req).getTraceLog();
-            log.getEntries().stream()
-                    .filter(entry -> res instanceof HttpResponse)
-                    .forEach(entry -> ((HttpResponse) res).getHeaders().put("X-Enkan-Trace",
-                            entry.getTimestamp() + ":" + entry.getMiddleware()));
+        if (enabled && req instanceof Traceable t && res instanceof HttpResponse httpRes) {
+            TraceLog log = t.getTraceLog();
+            log.getEntries()
+                    .forEach(entry -> httpRes.getHeaders().put("X-Enkan-Trace",
+                            entry.timestamp() + ":" + entry.middleware()));
         }
 
         return res;

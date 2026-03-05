@@ -92,8 +92,8 @@ public class Route {
     @SuppressWarnings("unchecked")
     public OptionMap recognize(HttpRequest request) {
         Set<MediaType> produces = (Set<MediaType>) conditions.get("produces");
-        if (produces != null && request instanceof ContentNegotiable) {
-            MediaType produceType = ((ContentNegotiable) request).getMediaType();
+        if (produces != null && request instanceof ContentNegotiable cn) {
+            MediaType produceType = cn.getMediaType();
             if (produces.stream().noneMatch(produceType::isCompatible)) {
                 return null;
             }
@@ -214,8 +214,8 @@ public class Route {
         boolean matched = true;
         for(String key : constraints.keySet()) {
             Object req = constraints.get(key);
-            if (req instanceof Pattern) {
-                matched &= (hash.containsKey(key) && ((Pattern)req).matcher(options.getString(key)).matches());
+            if (req instanceof Pattern p) {
+                matched &= (hash.containsKey(key) && p.matcher(options.getString(key)).matches());
             } else {
                 matched &= hash.getString(key).equals(constraints.getString(key));
             }

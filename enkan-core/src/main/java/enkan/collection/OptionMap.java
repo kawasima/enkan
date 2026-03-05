@@ -44,8 +44,8 @@ public class OptionMap extends HashMap<String, Object> {
         Object value = get(key);
         if (value == null) return defaultValue;
 
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+        if (value instanceof Number n) {
+            return n.intValue();
         } else {
             return Integer.parseInt(value.toString());
         }
@@ -59,8 +59,8 @@ public class OptionMap extends HashMap<String, Object> {
         Object value = get(key);
         if (value == null) return defaultValue;
 
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
+        if (value instanceof Number n) {
+            return n.longValue();
         } else {
             return Long.parseLong(value.toString());
         }
@@ -74,8 +74,8 @@ public class OptionMap extends HashMap<String, Object> {
         Object value = get(key);
         if (value == null) return defaultValue;
 
-        if (value instanceof Boolean) {
-            return (Boolean) value;
+        if (value instanceof Boolean b) {
+            return b;
         } else {
             return getInt(key) != 0;
         }

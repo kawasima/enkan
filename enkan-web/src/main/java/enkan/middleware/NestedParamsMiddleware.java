@@ -87,16 +87,15 @@ public class NestedParamsMiddleware implements WebMiddleware {
             } else {
                 List<Object> values = new ArrayList<>();
                 values.add(cur);
-                if (value instanceof List) {
-                    values.addAll((List<?>) value);
+                if (value instanceof List<?> valueList) {
+                    values.addAll(valueList);
                 } else {
                     values.add(value);
                 }
                 map.put(key, values);
             }
         } else {
-            if (value instanceof List) {
-                List<?> values = (List<?>) value;
+            if (value instanceof List<?> values) {
                 if (values.size() > 1) {
                     assocVector(map, key, value);
                 } else if (values.size() == 1) {

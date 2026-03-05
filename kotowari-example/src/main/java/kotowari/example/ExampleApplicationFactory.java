@@ -14,6 +14,7 @@ import enkan.endpoint.ResourceEndpoint;
 import enkan.middleware.*;
 import enkan.middleware.doma2.DomaTransactionMiddleware;
 import enkan.middleware.metrics.MetricsMiddleware;
+import enkan.middleware.opentelemetry.TracingMiddleware;
 import enkan.middleware.session.MemoryStore;
 import enkan.predicate.PathPredicate;
 import enkan.security.backend.SessionBackend;
@@ -83,8 +84,12 @@ public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest
 
         // Enkan
         app.use(new DefaultCharsetMiddleware());
-        app.use(new SecurityHeadersMiddleware());
+        app.use(builder(new SecurityHeadersMiddleware())
+                .set(SecurityHeadersMiddleware::setContentSecurityPolicy,
+                        "default-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' ws://localhost:*")
+                .build());
         app.use(new MetricsMiddleware<>());
+        app.use(new TracingMiddleware());
         app.use(none(), new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.StacktraceMiddleware"));
         app.use(envIn("development"), new LazyLoadMiddleware<>("enkan.middleware.devel.TraceWebMiddleware"));
@@ -110,6 +115,8 @@ public class ExampleApplicationFactory implements ApplicationFactory<HttpRequest
                                 HttpResponseUtils.RedirectStatusCode.TEMPORARY_REDIRECT));
         app.use(new ContentNegotiationMiddleware());
         // Kotowari
+        app.use(PathPredicate.ANY("^/x-enkan/repl/.*"),
+                new LazyLoadMiddleware<>("enkan.endpoint.devel.ReplConsoleEndpoint"));
         app.use(new ResourceMiddleware());
         app.use(new RenderTemplateMiddleware());
         app.use(new RoutingMiddleware(routes));

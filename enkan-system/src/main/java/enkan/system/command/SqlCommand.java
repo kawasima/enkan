@@ -22,6 +22,16 @@ public class SqlCommand implements SystemCommand {
     }
 
     @Override
+    public String shortDescription() {
+        return "Execute SQL statements";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "Execute SQL against the datasource.\nDML statements (INSERT, UPDATE, DELETE, etc.) are auto-committed.\nSELECT results are displayed in table format.\nUsage: /sql <statement>";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         String sql = String.join(" ", args).trim();
         if (sql.isEmpty()) {

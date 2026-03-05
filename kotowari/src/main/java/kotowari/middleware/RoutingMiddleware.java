@@ -91,13 +91,13 @@ public class RoutingMiddleware implements WebMiddleware {
         Headers headers = response.getHeaders();
         ThreadingUtils.some(headers.getRawType("Location"),
                 loc -> {
-                    if (loc instanceof RoutingGenerationContext) {
-                        headers.replace("Location", routes.generate(((RoutingGenerationContext) loc).options()));
+                    if (loc instanceof RoutingGenerationContext rgc) {
+                        headers.replace("Location", routes.generate(rgc.options()));
                         return headers;
                     }
                     return null;
                 });
-        if (response instanceof TemplatedHttpResponse) {
+        if (response instanceof TemplatedHttpResponse templatedResponse) {
             Function<List<?>, Object> urlForFunction = arguments -> {
                 if (arguments.isEmpty()) {
                     return "/";
@@ -113,7 +113,7 @@ public class RoutingMiddleware implements WebMiddleware {
                     }
                 }
             };
-            ((TemplatedHttpResponse) response).getContext().put("urlFor", templateEngine.createFunction(urlForFunction));
+            templatedResponse.getContext().put("urlFor", templateEngine.createFunction(urlForFunction));
         }
 
         return response;

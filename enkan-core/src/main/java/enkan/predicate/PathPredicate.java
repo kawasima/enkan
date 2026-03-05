@@ -7,30 +7,22 @@ import java.util.regex.Pattern;
 /**
  * @author kawasima
  */
-public class PathPredicate<REQ extends UriAvailable> implements PrintablePredicate<REQ> {
-    private final String method;
-    private final Pattern pathPattern;
-
-    protected PathPredicate(String method, String patternString) {
-        this.method = method;
-        pathPattern = Pattern.compile(patternString);
-    }
-
+public record PathPredicate<REQ extends UriAvailable>(String method, Pattern pathPattern) implements PrintablePredicate<REQ> {
     public static <REQ extends UriAvailable> PathPredicate<REQ> GET(String path) {
-        return new PathPredicate<>("GET", path);
+        return new PathPredicate<>("GET", Pattern.compile(path));
     }
     public static <REQ extends UriAvailable> PathPredicate<REQ> POST(String path) {
-        return new PathPredicate<>("POST", path);
+        return new PathPredicate<>("POST", Pattern.compile(path));
     }
     public static <REQ extends UriAvailable> PathPredicate<REQ> PUT(String path) {
-        return new PathPredicate<>("PUT", path);
+        return new PathPredicate<>("PUT", Pattern.compile(path));
     }
     public static <REQ extends UriAvailable> PathPredicate<REQ> DELETE(String path) {
-        return new PathPredicate<>("DELETE", path);
+        return new PathPredicate<>("DELETE", Pattern.compile(path));
     }
 
     public static <REQ extends UriAvailable> PathPredicate<REQ> ANY(String path) {
-        return new PathPredicate<>("ANY", path);
+        return new PathPredicate<>("ANY", Pattern.compile(path));
     }
 
     @Override

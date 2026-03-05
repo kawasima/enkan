@@ -75,9 +75,7 @@ public class GradleCompiler implements Compiler {
             if (err.size() > 0) {
                 t.send(ReplResponse.withErr(err.toString()));
             }
-            CompileResult result = new CompileResult();
-            result.setExecutionException(gce);
-            return result;
+            return new CompileResult(gce);
         } catch (InterruptedException | ExecutionException e) {
             throw new FalteringEnvironmentException(e);
         }

@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 public class AutoResetCommand implements SystemCommand {
     private final transient Repl repl;
@@ -20,7 +21,28 @@ public class AutoResetCommand implements SystemCommand {
     }
 
     @Override
+    public String shortDescription() {
+        return "Watch class changes and auto-reset";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "Watch for class file changes and automatically restart the system.\nUsage:\n  /autoreset       - Start watching\n  /autoreset stop  - Stop watching";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
+        if (args.length > 0 && "stop".equalsIgnoreCase(args[0])) {
+            Future<?> watcher = repl.getBackground("classWatcher");
+            if (watcher == null) {
+                transport.sendOut("Autoreset is not running.");
+            } else {
+                watcher.cancel(true);
+                transport.sendOut("Stopped autoreset.");
+            }
+            return true;
+        }
+
         if (repl.getBackground("classWatcher") != null) {
             transport.sendOut("Autoreset is already running.");
             return true;

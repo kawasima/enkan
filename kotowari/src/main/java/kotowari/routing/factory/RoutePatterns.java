@@ -101,15 +101,7 @@ public class RoutePatterns {
         return routeCompiler.apply(routeList);
     }
 
-    public static class PatternsContext {
-        private final String prefix;
-        private final RoutePatterns patterns;
-
-        public PatternsContext(String prefix, RoutePatterns routes) {
-            this.prefix = prefix;
-            this.patterns = routes;
-        }
-
+    public record PatternsContext(String prefix, RoutePatterns patterns) {
         public void addRoute(Route route) {
             patterns.addRoute_(route);
         }
@@ -122,6 +114,5 @@ public class RoutePatterns {
         public Route build(String path, OptionMap options) {
             return patterns.getBuilder().build(joinPaths(path), options);
         }
-
     }
 }

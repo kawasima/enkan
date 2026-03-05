@@ -10,6 +10,11 @@ public class ShutdownCommand implements SystemCommand {
     private static final long serialVersionUID = 1L;
 
     @Override
+    public String shortDescription() {
+        return "Shutdown the REPL server";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         system.stop();
         transport.sendOut("Shutdown server", SHUTDOWN);

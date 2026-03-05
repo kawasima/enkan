@@ -11,7 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A reloadable classloader.
@@ -35,7 +34,7 @@ public class ConfigurationLoader extends ClassLoader {
                         throw new UnreachableException(e);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static boolean hasReloadDescriptorUrl(URL dir) {

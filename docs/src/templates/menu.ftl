@@ -16,6 +16,11 @@
       </a>
     </li>
     <li class="sidebar-brand">
+      <a href="${content.rootpath}guide/spring-boot-comparison.html">
+        Spring Boot Comparison
+      </a>
+    </li>
+    <li class="sidebar-brand">
       <a href="${content.rootpath}guide/enkan-system.html">
         Enkan system
       </a>

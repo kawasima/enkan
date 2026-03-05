@@ -7,6 +7,7 @@ import enkan.system.repl.serdes.ReplResponseWriter;
 import enkan.system.repl.serdes.ResponseStatusReader;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -42,6 +43,8 @@ public class ReplClient {
         private final LineReader reader;
         private final Fressian fressian;
         private final AtomicBoolean isAvailable = new AtomicBoolean(true);
+        private final AtomicBoolean pendingExit = new AtomicBoolean(false);
+        private final AtomicBoolean serverDisconnected = new AtomicBoolean(false);
 
         public ConsoleHandler(LineReader reader) {
             this.reader = reader;
@@ -69,22 +72,24 @@ public class ReplClient {
             monitorSocket.connect(monitorAddress);
             ZThread.fork(ctx, (args, c, pipe) -> {
                 int retryCnt = 0;
-                boolean active = true;
-                while(active) {
-                    ZEvent event = ZEvent.recv(monitorSocket, ZMQ.DONTWAIT);
-                    if (event == null || monitorSocket.errno() == ZError.ETERM) {
-                        break;
+                while (!Thread.currentThread().isInterrupted()) {
+                    // Blocking recv — waits until an event arrives or context is terminated
+                    ZEvent event = ZEvent.recv(monitorSocket);
+                    if (event == null) {
+                        if (monitorSocket.errno() == ZError.ETERM) break;
+                        continue;
                     }
                     ZMonitor.Event eventType = event.getEvent();
                     if (eventType == ZMonitor.Event.DISCONNECTED || eventType == ZMonitor.Event.CLOSED) {
-                        close();
-                        active = false;
+                        serverDisconnected.set(true);
                         isSocketClosed.compareAndSet(false, true);
+                        close();
+                        break;
                     } else if (eventType == ZMonitor.Event.CONNECT_RETRIED) {
                         if (retryCnt++ > 3) {
                             System.err.println("Connection failed");
-                            active = false;
                             isSocketClosed.compareAndSet(false, true);
+                            break;
                         }
                     }
                 }
@@ -98,8 +103,10 @@ public class ReplClient {
             ZMsg completerMsg = null;
             while (!Thread.currentThread().isInterrupted()) {
                 if (isSocketClosed.get()) {
-                    socket.close();
-                    socket = null;
+                    if (socket != null) {
+                        socket.close();
+                        socket = null;
+                    }
                     monitorSocket.close();
                     poller.close();
                     return;
@@ -160,7 +167,9 @@ public class ReplClient {
         public void run() {
             while(isAvailable.get()) {
                 try {
-                    String line = reader.readLine("enkan> ");
+                    String prompt = pendingExit.get() ? "(Press Ctrl+C again to exit) enkan> " : "enkan> ";
+                    String line = reader.readLine(prompt);
+                    pendingExit.set(false);
                     if (line == null) continue;
                     line = line.trim();
                     if (line.startsWith("/connect ")) {
@@ -188,13 +197,29 @@ public class ReplClient {
                         } else {
                             reader.getHistory().save();
                             this.socket.send(line);
-                            String serverInstruction = rendererSock.recvStr();
-                            if (Objects.equals(serverInstruction, "shutdown")) {
+                            String serverInstruction = null;
+                            while (isAvailable.get() && serverInstruction == null) {
+                                serverInstruction = rendererSock.recvStr(500);
+                            }
+                            if (Objects.equals(serverInstruction, "shutdown") || !isAvailable.get()) {
                                 close();
                                 break;
                             }
                         }
                     }
+                } catch (UserInterruptException e) {
+                    if (serverDisconnected.get()) {
+                        reader.getTerminal().writer().println("Server disconnected.");
+                        reader.getTerminal().writer().flush();
+                        return;
+                    }
+                    if (pendingExit.get()) {
+                        close();
+                        return;
+                    }
+                    pendingExit.set(true);
+                    reader.getTerminal().writer().println("(Press Ctrl+C again to exit, or press Enter to continue)");
+                    reader.getTerminal().writer().flush();
                 } catch (ZMQException e) {
                     if (e.getErrorCode() == ZError.ETERM) {
                         break;
@@ -210,6 +235,11 @@ public class ReplClient {
 
         public void close() {
             isAvailable.set(false);
+            // Wake up readLine() if it is blocking
+            try {
+                reader.getTerminal().raise(Terminal.Signal.INT);
+            } catch (Exception ignore) {
+            }
 
             if (completerSock != null) {
                 try {
@@ -242,14 +272,8 @@ public class ReplClient {
         try {
             Terminal terminal = TerminalBuilder.builder()
                     .system(true)
-                    .signalHandler(Terminal.SignalHandler.SIG_DFL)
                     .encoding(Charset.defaultCharset())
                     .build();
-
-            terminal.handle(Terminal.Signal.INT, signal -> {
-                close();
-                System.exit(0);
-            });
 
             DefaultParser parser = new DefaultParser();
             parser.setEscapeChars(null);
@@ -280,14 +304,8 @@ public class ReplClient {
         try {
             Terminal terminal = TerminalBuilder.builder()
                     .system(true)
-                    .signalHandler(Terminal.SignalHandler.SIG_DFL)
                     .encoding(Charset.defaultCharset())
                     .build();
-
-            terminal.handle(Terminal.Signal.INT, signal -> {
-                close();
-                System.exit(0);
-            });
 
             DefaultParser parser = new DefaultParser();
             parser.setEscapeChars(null);
@@ -333,6 +351,12 @@ public class ReplClient {
     public static void main(String[] args) {
         final ReplClient client = new ReplClient();
         Runtime.getRuntime().addShutdownHook(new Thread(client::close));
-        client.start();
+        if (args.length == 1 && args[0].matches("\\d+")) {
+            client.start(Integer.parseInt(args[0]));
+        } else if (args.length == 2 && args[1].matches("\\d+")) {
+            client.start(args[0], Integer.parseInt(args[1]));
+        } else {
+            client.start();
+        }
     }
 }

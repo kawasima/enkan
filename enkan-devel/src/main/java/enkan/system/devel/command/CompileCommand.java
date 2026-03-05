@@ -28,7 +28,7 @@ public class CompileCommand implements SystemCommand {
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         final CompileResult result = compiler.execute(transport);
-        Throwable exception = result.getExecutionException();
+        Throwable exception = result.executionException();
         if (exception == null) {
             transport.sendOut("Finished compiling.");
         } else {

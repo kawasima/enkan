@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 /**
  * Template engine component using by Freemarker.
@@ -82,8 +82,8 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
                 config.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_34) {
                     @Override
                     protected TemplateModel handleUnknownType(final Object obj) throws TemplateModelException {
-                        if (obj instanceof Validatable) {
-                            return new ValidatableFormAdapter((Validatable) obj, this);
+                        if (obj instanceof Validatable v) {
+                            return new ValidatableFormAdapter(v, this);
                         }
                         return super.handleUnknownType(obj);
                     }
@@ -105,12 +105,12 @@ public class FreemarkerTemplateEngine extends TemplateEngine<FreemarkerTemplateE
     public Object createFunction(Function<List<?>, Object> func) {
         return (TemplateMethodModelEx) arguments ->
                 func.apply(((List<Object>) arguments).stream().map(arg -> {
-                    if (arg instanceof BeanModel) {
-                        return ((BeanModel) arg).getWrappedObject();
+                    if (arg instanceof BeanModel bm) {
+                        return bm.getWrappedObject();
                     } else {
                         return arg;
                     }
-                }).collect(Collectors.toList()));
+                }).toList());
     }
 
     private TemplateLoader createTemplateLoader(ClassLoader effectiveLoader) {

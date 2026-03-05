@@ -165,7 +165,7 @@ public class Multimap<K, V> implements Map<K, V> {
         return hashMap.values()
                 .stream()
                 .map(vs -> (vs != null && !vs.isEmpty()) ? vs.getFirst() : null)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

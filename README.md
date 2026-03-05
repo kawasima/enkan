@@ -94,7 +94,7 @@ Add the following dependency to your pom.xml:
 <dependency>
   <groupId>net.unit8.enkan</groupId>
   <artifactId>enkan-web</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0-SNAPSHOT</version>
 </dependency>
 ```
 

@@ -29,8 +29,8 @@ public interface Traceable extends Extendable {
             setExtension("traceLog", extension);
         }
 
-        if (extension instanceof TraceLog) {
-            return (TraceLog) extension;
+        if (extension instanceof TraceLog traceLog) {
+            return traceLog;
         } else {
             throw new MisconfigurationException("core.EXTENSION_MISMATCH", extension, "TraceLog");
         }

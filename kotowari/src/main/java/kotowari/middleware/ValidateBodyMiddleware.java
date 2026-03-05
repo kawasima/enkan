@@ -30,10 +30,10 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
     }
 
     protected Validatable getValidatable(HttpRequest request) {
-        if (request instanceof BodyDeserializable) {
-            Object body = ((BodyDeserializable) request).getDeserializedBody();
-            if (body instanceof Validatable) {
-                return (Validatable) body;
+        if (request instanceof BodyDeserializable bd) {
+            Object body = bd.getDeserializedBody();
+            if (body instanceof Validatable v) {
+                return v;
             }
         }
         return null;
@@ -53,10 +53,10 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
         });
 
         RES response = chain.next(request);
-        if (response instanceof HttpResponse
+        if (response instanceof HttpResponse httpResponse
                 && validatable.isPresent()
                 && validatable.get().hasErrors()) {
-            ((HttpResponse) response).setStatus(400);
+            httpResponse.setStatus(400);
         }
         return response;
     }

@@ -35,20 +35,19 @@ public class MavenCompiler implements Compiler {
 
         final Invoker invoker = new DefaultInvoker();
 
-        CompileResult result = new CompileResult();
         try {
             InvocationResult invocationResult = invoker.execute(request);
             CommandLineException clEx = invocationResult.getExecutionException();
             if (clEx != null) {
-                result.setExecutionException(clEx);
+                return CompileResult.failure(clEx);
             } else if (invocationResult.getExitCode() != 0) {
-                result.setExecutionException(new IllegalStateException(
+                return CompileResult.failure(new IllegalStateException(
                         "Maven compile failed with exit code " + invocationResult.getExitCode()));
             }
         } catch (MavenInvocationException ex) {
-            result.setExecutionException(ex);
+            return CompileResult.failure(ex);
         }
-        return result;
+        return CompileResult.success();
     }
 
     public void setProjectDirectory(String projectDirectory) {

@@ -12,8 +12,8 @@ public class BodySerializableInjector<T> implements ParameterInjector<T> {
 
     @Override
     public boolean isApplicable(Class<?> type, HttpRequest request) {
-        if (request instanceof BodyDeserializable) {
-            Object bodyObj = ((BodyDeserializable) request).getDeserializedBody();
+        if (request instanceof BodyDeserializable bd) {
+            Object bodyObj = bd.getDeserializedBody();
             return bodyObj == null || type.isAssignableFrom(bodyObj.getClass());
         }
         return false;

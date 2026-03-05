@@ -9,13 +9,7 @@ import java.util.stream.Stream;
 /**
  * @author kawasima
  */
-public class PermissionPredicate<REQ extends PrincipalAvailable> implements PrintablePredicate<REQ> {
-    private final String permission;
-
-    public PermissionPredicate(String permission) {
-        this.permission = permission;
-    }
-
+public record PermissionPredicate<REQ extends PrincipalAvailable>(String permission) implements PrintablePredicate<REQ> {
     @Override
     public boolean test(REQ req) {
         return Stream.of(req)

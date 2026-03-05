@@ -13,6 +13,16 @@ public class StartCommand implements SystemCommand {
     private static final long serialVersionUID = 1L;
 
     @Override
+    public String shortDescription() {
+        return "Start the system";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "Start the system. Optionally pass a path to open in browser.\nUsage: /start [path]";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         system.start();
         transport.sendOut("Started server");

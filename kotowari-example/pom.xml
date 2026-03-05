@@ -6,13 +6,17 @@
     <parent>
         <groupId>net.unit8.enkan</groupId>
         <artifactId>enkan-parent</artifactId>
-        <version>0.12.0</version>
+        <version>0.13.0-SNAPSHOT</version>
     </parent>
     <artifactId>kotowari-example</artifactId>
     <packaging>jar</packaging>
 
     <name>kotowari-example</name>
     <description>An example of Kotowari application</description>
+
+    <properties>
+        <debug.port>5005</debug.port>
+    </properties>
 
     <build>
         <plugins>
@@ -111,6 +115,16 @@
             <version>${enkan.version}</version>
         </dependency>
         <dependency>
+            <groupId>net.unit8.enkan</groupId>
+            <artifactId>enkan-component-opentelemetry</artifactId>
+            <version>${enkan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <version>1.59.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.4.240</version>
@@ -152,7 +166,14 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-                            <mainClass>kotowari.example.DevMain</mainClass>
+                            <executable>${java.home}/bin/java</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${debug.port}</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>kotowari.example.DevMain</argument>
+                            </arguments>
                         </configuration>
                     </plugin>
                     <plugin>

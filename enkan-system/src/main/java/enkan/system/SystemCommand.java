@@ -17,4 +17,23 @@ public interface SystemCommand extends Serializable {
      * @return true if the command will terminate the REPL, otherwise false.
      */
     boolean execute(EnkanSystem system, Transport transport, String... args);
+
+    /**
+     * A short one-line description shown in the command list.
+     *
+     * @return short description
+     */
+    default String shortDescription() {
+        return "";
+    }
+
+    /**
+     * A detailed description shown by {@code /help <command>}.
+     * Defaults to {@link #shortDescription()}.
+     *
+     * @return detailed description
+     */
+    default String detailedDescription() {
+        return shortDescription();
+    }
 }

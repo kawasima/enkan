@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>enkan REPL</title>
+    <link rel="stylesheet" href="xterm.css"/>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; background: #2d2d30; }
+        #terminal { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="terminal"></div>
+    <script src="xterm.js"></script>
+    <script src="addon-fit.js"></script>
+    <script>
+        (function() {
+            var WS_PORT = new URLSearchParams(location.search).get('port') || 3001;
+            var PROMPT = 'enkan> ';
+            var inputBuffer = '';
+            var history = [], historyIndex = -1, savedInput = '';
+            var waitingForResponse = false;
+
+            var term = new Terminal({
+                cursorBlink: true,
+                fontSize: 14,
+                scrollback: 5000,
+                fontFamily: "'Menlo', 'Consolas', 'DejaVu Sans Mono', monospace",
+                theme: { background: '#2d2d30', foreground: '#d4d4d4', cursor: '#aeafad', red: '#f48771' }
+            });
+            var fitAddon = new FitAddon.FitAddon();
+            term.loadAddon(fitAddon);
+            term.open(document.getElementById('terminal'));
+            fitAddon.fit();
+            window.addEventListener('resize', function() { fitAddon.fit(); });
+
+            term.onData(function(data) {
+                if (waitingForResponse) return;
+                for (var i = 0; i < data.length; i++) {
+                    var rest = data.substring(i);
+                    if (rest.startsWith('\x1b[A')) { historyUp(); i += 2; continue; }
+                    if (rest.startsWith('\x1b[B')) { historyDown(); i += 2; continue; }
+                    if (rest.startsWith('\x1b[C') || rest.startsWith('\x1b[D')) { i += 2; continue; }
+                    var ch = data.charCodeAt(i);
+                    if (ch === 13) {
+                        term.write('\r\n');
+                        var cmd = inputBuffer; inputBuffer = '';
+                        if (cmd.trim()) { history.push(cmd); historyIndex = history.length; sendCommand(cmd); }
+                        else { showPrompt(); }
+                    } else if (ch === 127 || ch === 8) {
+                        if (inputBuffer.length > 0) { inputBuffer = inputBuffer.slice(0, -1); term.write('\b \b'); }
+                    } else if (ch === 3) { inputBuffer = ''; term.write('^C\r\n'); showPrompt(); }
+                    else if (ch >= 32) { inputBuffer += data.charAt(i); term.write(data.charAt(i)); }
+                }
+            });
+
+            function historyUp() {
+                if (!history.length) return;
+                if (historyIndex === history.length) savedInput = inputBuffer;
+                if (historyIndex > 0) { historyIndex--; replaceInput(history[historyIndex]); }
+            }
+            function historyDown() {
+                if (historyIndex < history.length) { historyIndex++; replaceInput(historyIndex === history.length ? savedInput : history[historyIndex]); }
+            }
+            function replaceInput(s) {
+                for (var i = 0; i < inputBuffer.length; i++) term.write('\b \b');
+                inputBuffer = s; term.write(inputBuffer);
+            }
+            function showPrompt() { waitingForResponse = false; term.write(PROMPT); }
+
+            var ws = new WebSocket('ws://localhost:' + WS_PORT + '/repl');
+            ws.onopen = function() { term.writeln('Connected to enkan REPL on port ' + WS_PORT); showPrompt(); };
+            ws.onclose = function() { term.writeln('\r\n\x1b[31mDisconnected\x1b[0m'); };
+            ws.onmessage = function(e) {
+                var msg = JSON.parse(e.data);
+                if (msg.out) term.writeln(msg.out);
+                if (msg.err) term.writeln('\x1b[31m' + msg.err + '\x1b[0m');
+                if (msg.status && msg.status.indexOf('DONE') !== -1) showPrompt();
+            };
+            ws.onerror = function() { term.writeln('\x1b[31mConnection error\x1b[0m'); };
+
+            function sendCommand(cmd) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) { term.writeln('\x1b[31mNot connected\x1b[0m'); showPrompt(); return; }
+                waitingForResponse = true; ws.send(cmd);
+            }
+        })();
+    </script>
+</body>
+</html>

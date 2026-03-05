@@ -8,9 +8,7 @@ import static kotowari.scope.ExportableScope.*;
 /**
  * @author kawasima
  */
-public class ExportSetting {
-    private final Map<ExportableScope, String> exports;
-
+public record ExportSetting(Map<ExportableScope, String> exports) {
     public static final ExportSetting DEFAULT_EXPORTS = ExportSetting.of(
             REQUEST, "request",
             SESSION, "session",
@@ -20,16 +18,12 @@ public class ExportSetting {
             CONVERSATION_STATE, "conversationState"
     );
 
-    private ExportSetting() {
-        exports = new HashMap<>();
-    }
-
     public static ExportSetting of(Object... keyOrVals) {
-        ExportSetting setting = new ExportSetting();
+        Map<ExportableScope, String> map = new HashMap<>();
         for (int i=0; i<keyOrVals.length; i += 2) {
-            setting.exports.put((ExportableScope) keyOrVals[i], (String) keyOrVals[i+1]);
+            map.put((ExportableScope) keyOrVals[i], (String) keyOrVals[i+1]);
         }
-        return setting;
+        return new ExportSetting(Map.copyOf(map));
     }
 
     public String getExportName(ExportableScope scope) {

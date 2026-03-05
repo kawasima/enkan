@@ -10,15 +10,7 @@ import java.util.*;
  *
  * @author kawasima
  */
-public class ComponentRelationship {
-    private final String target;
-    private final List<String> dependents;
-
-    private ComponentRelationship(String target, List<String> dependents) {
-        this.target = target;
-        this.dependents = dependents;
-    }
-
+public record ComponentRelationship(String target, List<String> dependents) {
     /**
      * Create a ComponentRelationshipBuilder.
      *

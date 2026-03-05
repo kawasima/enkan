@@ -182,8 +182,8 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
         NRES response = chain.next(request);
 
-        if (response instanceof HttpResponse) {
-            return (HttpResponse) response;
+        if (response instanceof HttpResponse httpResponse) {
+            return httpResponse;
         } else {
             try {
                 InputStream in = serialize(extractBody(response), responseType);
@@ -216,8 +216,8 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     }
 
     private Object extractBody(NRES response) {
-        if (response instanceof HasBody) {
-            return ((HasBody) response).getBody();
+        if (response instanceof HasBody hasBody) {
+            return hasBody.getBody();
         } else {
             return response;
         }
@@ -225,8 +225,8 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
 
     private Headers extractHeaders(NRES response, MediaType responseType) {
         Headers headers;
-        if (response instanceof HasHeaders) {
-            headers = ((HasHeaders) response).getHeaders();
+        if (response instanceof HasHeaders hasHeaders) {
+            headers = hasHeaders.getHeaders();
         } else {
             headers = Headers.empty();
         }
@@ -235,8 +235,8 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
     }
 
     private int extractStatus(NRES response) {
-        if (response instanceof HasStatus) {
-            return ((HasStatus) response).getStatus();
+        if (response instanceof HasStatus hasStatus) {
+            return hasStatus.getStatus();
         } else {
             return 200;
         }

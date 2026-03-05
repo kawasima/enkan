@@ -1,0 +1,86 @@
+#enkan-repl-toggle {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 10000;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #2d2d30;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#enkan-repl-toggle:hover {
+    background: #333;
+}
+
+#enkan-repl-panel {
+    position: fixed;
+    bottom: 64px;
+    right: 16px;
+    z-index: 10000;
+    width: 720px;
+    height: 320px;
+    background: #2d2d30;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#enkan-repl-panel.open {
+    display: flex;
+}
+
+#enkan-repl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    background: #2d2d2d;
+    color: #ccc;
+    font-family: monospace;
+    font-size: 12px;
+    user-select: none;
+    cursor: move;
+}
+
+#enkan-repl-header .title {
+    font-weight: bold;
+}
+
+#enkan-repl-header .close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+#enkan-repl-header .close-btn:hover {
+    color: #fff;
+}
+
+#enkan-repl-terminal {
+    flex: 1;
+    padding: 4px;
+    overflow: hidden;
+}
+
+#enkan-repl-terminal .xterm {
+    height: 100%;
+}
+
+#enkan-repl-terminal .xterm-viewport {
+    overflow-y: auto !important;
+}

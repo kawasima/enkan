@@ -1,5 +1,9 @@
 # enkan Project
 
+## Language
+
+- All code, comments, commit messages, documentation, and IMPROVEMENTS.md entries MUST be written in **English**.
+
 ## Overview
 
 enkan is a middleware-chain-based web framework for Java 21.

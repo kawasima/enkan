@@ -56,4 +56,19 @@ public interface Repl extends Runnable {
      * @param command A command object
      */
     void registerLocalCommand(String name, SystemCommand command);
+
+    /**
+     * Execute a REPL command string (e.g. "/start", "/help routes").
+     * Output is sent to the server-side console.
+     *
+     * @param command the command string to execute
+     */
+    void execute(String command);
+
+    /**
+     * Add a transport provider that will be started when the REPL runs.
+     *
+     * @param provider the transport provider to add
+     */
+    void addTransportProvider(enkan.system.repl.TransportProvider provider);
 }

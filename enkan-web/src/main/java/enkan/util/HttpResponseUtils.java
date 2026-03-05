@@ -278,7 +278,7 @@ public class HttpResponseUtils {
      */
     public static boolean isEmptyBody(HttpResponse response) {
         Object body = response.getBody();
-        return (body == null || (body instanceof String && ((String) body).isEmpty()));
+        return (body == null || (body instanceof String s && s.isEmpty()));
     }
 
     private static abstract class ContentData<T> implements Serializable {

@@ -27,6 +27,16 @@ public class MiddlewareCommand implements SystemCommand {
     }
 
     @Override
+    public String shortDescription() {
+        return "Manage middleware";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "List or configure middleware in an application.\nUsage:\n  /middleware <app> list\n  /middleware <app> predicate <middleware> ANY|NONE";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         if (args == null || args.length < 2) {
             transport.sendOut("middleware [appName] [list/predicate]");

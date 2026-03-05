@@ -25,9 +25,16 @@ import static enkan.system.ReplResponse.ResponseStatus.*;
 public class JsonRequestCommand implements SystemCommand {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String shortDescription() {
+        return "Send JSON HTTP request";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "Send an HTTP request to the local web server.\nUsage: /jsonRequest <method> <path> [json body]";
+    }
+
     @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         if (args.length < 2) {

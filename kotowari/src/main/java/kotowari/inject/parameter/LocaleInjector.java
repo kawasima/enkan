@@ -19,8 +19,8 @@ public class LocaleInjector implements ParameterInjector<Locale> {
 
     @Override
     public Locale getInjectObject(HttpRequest request) {
-        if (request instanceof ContentNegotiable) {
-            return ((ContentNegotiable) request).getLocale();
+        if (request instanceof ContentNegotiable cn) {
+            return cn.getLocale();
         }
         return null;
     }

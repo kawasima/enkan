@@ -40,7 +40,7 @@ public class MultipartParamsMiddleware implements WebMiddleware {
         multipartParams.keySet().stream()
                 .filter(k -> {
                     Object v = multipartParams.getIn(k);
-                    return v instanceof Parameters && ((Parameters) v).getIn("tempfile") instanceof File;
+                    return v instanceof Parameters p && p.getIn("tempfile") instanceof File;
                 })
                 .forEach(k -> {
                     Optional<Path> tempFile = ThreadingUtils.some((File) multipartParams.getIn(k, "tempfile"),

@@ -112,9 +112,9 @@ public class CodecUtils {
             case Map<?, ?> m -> {
                 return m.entrySet().stream()
                         .map(e -> {
-                            if (e.getValue() instanceof Collection) {
+                            if (e.getValue() instanceof Collection<?> coll) {
                                 String encodedKey = formEncode(e.getKey());
-                                return ((Collection<?>) e.getValue()).stream()
+                                return coll.stream()
                                         .map(v -> encodedKey + "=" + formEncode(v))
                                         .collect(Collectors.joining("&"));
                             } else {

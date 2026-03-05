@@ -51,8 +51,8 @@ public class RenderTemplateMiddleware implements WebMiddleware {
         if (arguments.size() == 2) {
             Object principal = arguments.get(0);
             String permission = Objects.toString(arguments.get(1));
-            if (principal instanceof UserPrincipal) {
-                return ((UserPrincipal) principal).hasPermission(permission);
+            if (principal instanceof UserPrincipal up) {
+                return up.hasPermission(permission);
             } else {
                 throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasPermission");
             }
@@ -64,10 +64,10 @@ public class RenderTemplateMiddleware implements WebMiddleware {
     private static final Function<List<?>, Object> HAS_ANY_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.getFirst();
-            if (principal instanceof UserPrincipal) {
+            if (principal instanceof UserPrincipal up) {
                 return arguments.subList(1, arguments.size())
                         .stream()
-                        .anyMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
+                        .anyMatch(p -> up.hasPermission(Objects.toString(p)));
             } else {
                 throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasAnyPermission");
             }
@@ -79,10 +79,10 @@ public class RenderTemplateMiddleware implements WebMiddleware {
     private static final Function<List<?>, Object> HAS_ALL_PERMISSIONS = arguments -> {
         if (arguments.size() >= 2) {
             Object principal = arguments.getFirst();
-            if (principal instanceof UserPrincipal) {
+            if (principal instanceof UserPrincipal up) {
                 return arguments.subList(1, arguments.size())
                         .stream()
-                        .allMatch(p -> ((UserPrincipal) principal).hasPermission(Objects.toString(p)));
+                        .allMatch(p -> up.hasPermission(Objects.toString(p)));
             } else {
                 throw new MisconfigurationException("kotowari.HAS_PERMISSION_FIRST_ARG", "hasAllPermission");
             }

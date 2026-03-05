@@ -100,15 +100,15 @@ public class TraceWebMiddleware implements WebMiddleware, Closeable {
             long t = 0;
             for (TraceLog.Entry e : requestLog.inboundLog().getEntries()) {
                 if (!middlewareTraces.isEmpty()) {
-                    middlewareTraces.getLast().setInboundElapse(e.getTimestamp() - t);
+                    middlewareTraces.getLast().setInboundElapse(e.timestamp() - t);
                 }
-                t = e.getTimestamp();
-                middlewareTraces.add(new ElapseTime(e.getMiddleware()));
+                t = e.timestamp();
+                middlewareTraces.add(new ElapseTime(e.middleware()));
             }
             int idx = middlewareTraces.size();
             for (TraceLog.Entry e : requestLog.outboundLog().getEntries()) {
-                middlewareTraces.get(--idx).setOutboundElapse(e.getTimestamp() - t);
-                t = e.getTimestamp();
+                middlewareTraces.get(--idx).setOutboundElapse(e.timestamp() - t);
+                t = e.timestamp();
             }
 
             traceDetail.render(os,
@@ -192,7 +192,7 @@ public class TraceWebMiddleware implements WebMiddleware, Closeable {
 
         @Override
         public boolean equals(Object another) {
-            return another instanceof LogKey && Objects.equals(this.id, ((LogKey) another).getId());
+            return another instanceof LogKey lk && Objects.equals(this.id, lk.getId());
         }
 
         @Override

@@ -51,8 +51,8 @@ public class UrlRewriter {
                             Object value = options.get(pair[0]);
                             if (value == null) {
                                 options.put(pair[0], pair[1]);
-                            } else if (value instanceof List) {
-                                ((List<String>) value).add(pair[1]);
+                            } else if (value instanceof List<?> list) {
+                                ((List<String>) list).add(pair[1]);
                             } else {
                                 List<String> values = new ArrayList<>();
                                 values.add(value.toString());

@@ -5,7 +5,7 @@
 
     <groupId>net.unit8.enkan</groupId>
     <artifactId>enkan-parent</artifactId>
-    <version>0.12.0</version>
+    <version>0.13.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>enkan-parent</name>
@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
 
-        <enkan.version>0.12.0</enkan.version>
+        <enkan.version>0.13.0-SNAPSHOT</enkan.version>
         <maven.version>3.6.3</maven.version>
 
         <!-- Maven Plugin-->
@@ -65,6 +65,7 @@
         <module>enkan-component-eclipselink</module>
         <module>enkan-component-jackson</module>
         <module>enkan-component-metrics</module>
+        <module>enkan-component-opentelemetry</module>
         <module>kotowari</module>
         <module>kotowari-jpa</module>
         <module>enkan-throttling</module>

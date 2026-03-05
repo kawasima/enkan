@@ -24,31 +24,6 @@ public class TraceLog implements Serializable {
         return entries;
     }
 
-    public static class Entry implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        private long timestamp;
-        private String middleware;
-
-        public Entry(long timestamp, String middleware) {
-            this.timestamp = timestamp;
-            this.middleware = middleware;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-
-        public String getMiddleware() {
-            return middleware;
-        }
-
-        public void setMiddleware(String middleware) {
-            this.middleware = middleware;
-        }
+    public record Entry(long timestamp, String middleware) implements Serializable {
     }
 }

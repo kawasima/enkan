@@ -162,10 +162,10 @@ public class StacktraceMiddleware implements WebMiddleware {
                     .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/javascript"))
                     .build();
         } else {
-            if (ex instanceof UnreachableException) {
-                return htmlUnreachableExResponse((UnreachableException) ex);
-            } else if (ex instanceof MisconfigurationException) {
-                return htmlMisconfigExResponse((MisconfigurationException) ex, request);
+            if (ex instanceof UnreachableException ue) {
+                return htmlUnreachableExResponse(ue);
+            } else if (ex instanceof MisconfigurationException me) {
+                return htmlMisconfigExResponse(me, request);
             } else {
                 return htmlExResponse(ex);
             }

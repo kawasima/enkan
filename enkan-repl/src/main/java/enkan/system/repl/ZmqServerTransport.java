@@ -37,17 +37,21 @@ public class ZmqServerTransport implements Transport {
 
     @Override
     public void send(ReplResponse response) {
-        ZMsg msg = new ZMsg();
-        msg.add(clientAddress.duplicate());
-        msg.add(fressian.write(response));
-        msg.send(socket, true);
+        synchronized (socket) {
+            ZMsg msg = new ZMsg();
+            msg.add(clientAddress.duplicate());
+            msg.add(fressian.write(response));
+            msg.send(socket, true);
+        }
     }
 
     @Override
     public String recv(long timeout) {
-        ZMsg msg = ZMsg.recvMsg(socket);
-        clientAddress = msg.pop();
-        return msg.popString();
+        synchronized (socket) {
+            ZMsg msg = ZMsg.recvMsg(socket);
+            clientAddress = msg.pop();
+            return msg.popString();
+        }
     }
 
     public void close() {

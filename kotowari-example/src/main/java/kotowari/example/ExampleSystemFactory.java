@@ -10,7 +10,14 @@ import enkan.component.freemarker.FreemarkerTemplateEngine;
 import enkan.component.hikaricp.HikariCPComponent;
 import enkan.component.jackson.JacksonBeansConverter;
 import enkan.component.metrics.MetricsComponent;
+import enkan.component.opentelemetry.OpenTelemetryComponent;
 import enkan.component.undertow.UndertowComponent;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
 import org.seasar.doma.jdbc.Naming;
@@ -35,6 +42,14 @@ public class ExampleSystemFactory implements EnkanSystemFactory {
                 "flyway", new FlywayMigration(),
                 "template", new FreemarkerTemplateEngine(),
                 "metrics", new MetricsComponent(),
+                "opentelemetry", new OpenTelemetryComponent(
+                        OpenTelemetrySdk.builder()
+                                .setTracerProvider(SdkTracerProvider.builder()
+                                        .setResource(Resource.create(Attributes.of(
+                                                AttributeKey.stringKey("service.name"), "kotowari-example")))
+                                        .addSpanProcessor(SimpleSpanProcessor.create(new Slf4jSpanExporter()))
+                                        .build())
+                                .buildAndRegisterGlobal()),
                 "datasource", new HikariCPComponent(OptionMap.of("uri", "jdbc:h2:mem:test")),
                 "app", new ApplicationComponent<>("kotowari.example.ExampleApplicationFactory"),
                 "http", builder(new UndertowComponent())
@@ -46,7 +61,7 @@ public class ExampleSystemFactory implements EnkanSystemFactory {
                         .build()
         ).relationships(
                 component("http").using("app"),
-                component("app").using("datasource", "template", "doma", "jackson", "metrics", "hmac"),
+                component("app").using("datasource", "template", "doma", "jackson", "metrics", "opentelemetry", "hmac"),
                 component("doma").using("datasource", "flyway"),
                 component("flyway").using("datasource")
         );

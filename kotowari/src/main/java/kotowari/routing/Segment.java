@@ -89,10 +89,6 @@ public abstract class Segment {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public abstract String regexpChunk();
     public boolean isOptional() {
         return isOptional;

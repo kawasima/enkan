@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Update reactor version, README.md, and examples/*/pom.xml to the specified version.
+# Usage: ./scripts/update-version.sh <version>
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <version>" >&2
+  exit 1
+fi
+
+VERSION="$1"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+README_FILE="$ROOT_DIR/README.md"
+
+# 1. Update reactor version via Maven
+echo "Running mvn versions:set -DnewVersion=$VERSION ..."
+mvn -f "$ROOT_DIR/pom.xml" versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+mvn -f docs/pom.xml versions:update-parent -DparentVersion=0.13.0-SNAPSHOT -DskipResolution=true -DgenerateBackupPoms=false
+
+echo "Reactor version updated -> $VERSION"
+
+# 2. Update <version> in README.md directly
+sed -i '' "s|<version>[^<]*</version>|<version>$VERSION</version>|g" "$README_FILE"
+echo "README.md updated -> $VERSION"
+
+# 3. Update <enkan.version>
+sed -i '' "s|<enkan\.version>[^<]*</enkan\.version>|<enkan.version>$VERSION</enkan.version>|g" "$ROOT_DIR/pom.xml"
+echo "enkan.version updated -> $VERSION"

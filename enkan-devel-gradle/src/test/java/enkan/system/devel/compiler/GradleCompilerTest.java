@@ -59,7 +59,7 @@ public class GradleCompilerTest {
         };
 
         CompileResult result = compiler.execute(t);
-        assertThat(result.getExecutionException()).isNull();
+        assertThat(result.executionException()).isNull();
     }
 
     @Test
@@ -84,6 +84,6 @@ public class GradleCompilerTest {
         };
 
         CompileResult result = compiler.execute(t);
-        assertThat(result.getExecutionException()).isNotNull();
+        assertThat(result.executionException()).isNotNull();
     }
 }

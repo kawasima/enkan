@@ -81,6 +81,16 @@ public class MetricsCommand implements SystemCommand {
     }
 
     @Override
+    public String shortDescription() {
+        return "Show application metrics";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return "Display metrics (active requests, errors, request timer).\nRequires MetricsComponent to be registered and started.\nUsage: /metrics";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         Optional<MetricsComponent> found = findMetrics(system);
         if (found.isEmpty()) {

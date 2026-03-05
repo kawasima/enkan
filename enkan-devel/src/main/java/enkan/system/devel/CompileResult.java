@@ -7,14 +7,12 @@ import java.io.Serializable;
  *
  * @author kawasima
  */
-public class CompileResult implements Serializable {
-    private Throwable executionException;
-
-    public Throwable getExecutionException() {
-        return executionException;
+public record CompileResult(Throwable executionException) implements Serializable {
+    public static CompileResult success() {
+        return new CompileResult(null);
     }
 
-    public void setExecutionException(Throwable executionException) {
-        this.executionException = executionException;
+    public static CompileResult failure(Throwable exception) {
+        return new CompileResult(exception);
     }
 }

@@ -8,6 +8,11 @@ public class StopCommand implements SystemCommand {
     private static final long serialVersionUID = 1L;
 
     @Override
+    public String shortDescription() {
+        return "Stop the system";
+    }
+
+    @Override
     public boolean execute(EnkanSystem system, Transport transport, String... args) {
         system.stop();
         transport.sendOut("Stopped server");
