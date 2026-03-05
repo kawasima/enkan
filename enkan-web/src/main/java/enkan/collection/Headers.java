@@ -2,6 +2,7 @@ package enkan.collection;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,8 +32,14 @@ public class Headers extends Parameters {
         );
     }
 
+    private transient Set<String> cachedKeySet;
+
     protected Headers() {
         setCaseSensitive(false);
+    }
+
+    private void invalidateKeySetCache() {
+        cachedKeySet = null;
     }
 
     public static Headers empty() {
@@ -64,13 +71,62 @@ public class Headers extends Parameters {
     }
 
     @Override
+    public Object put(String key, Object value) {
+        invalidateKeySetCache();
+        return super.put(key, value);
+    }
+
+    @Override
+    public Object remove(Object key) {
+        invalidateKeySetCache();
+        return super.remove(key);
+    }
+
+    @Override
+    public Object replace(String key, Object value) {
+        invalidateKeySetCache();
+        return super.replace(key, value);
+    }
+
+    @Override
+    public void clear() {
+        invalidateKeySetCache();
+        super.clear();
+    }
+
+    /**
+     * Iterates over all header entries, passing the capitalized header name
+     * and raw value to the consumer. Avoids the double-lookup overhead of
+     * {@code keySet()} + {@code getList()}.
+     */
+    public void forEachHeader(BiConsumer<String, Object> consumer) {
+        for (Entry<String, Object> entry : super.entrySet()) {
+            String capitalizedName = capitalizeHeaderName(entry.getKey());
+            Object value = entry.getValue();
+            if (value instanceof List<?> list) {
+                for (Object v : list) {
+                    consumer.accept(capitalizedName, v);
+                }
+            } else {
+                consumer.accept(capitalizedName, value);
+            }
+        }
+    }
+
+    @Override
     public Set<String> keySet() {
+        Set<String> cached = cachedKeySet;
+        if (cached != null) {
+            return cached;
+        }
         Set<String> keys = super.keySet();
         Set<String> headerKeys = new LinkedHashSet<>(keys.size() * 2);
         for (String key : keys) {
             headerKeys.add(capitalizeHeaderName(key));
         }
-        return Collections.unmodifiableSet(headerKeys);
+        cached = Collections.unmodifiableSet(headerKeys);
+        cachedKeySet = cached;
+        return cached;
     }
 
 }

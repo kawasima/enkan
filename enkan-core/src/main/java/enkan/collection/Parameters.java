@@ -23,6 +23,30 @@ public class Parameters implements Map<String, Object>, Serializable {
     protected void setCaseSensitive(boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
     }
+
+    /**
+     * Fast ASCII-only lowercase for HTTP header names and parameter keys.
+     * Avoids Locale-aware String.toLowerCase() overhead. Returns the same
+     * String instance if it is already lowercase.
+     */
+    static String asciiLowerCase(String s) {
+        for (int i = 0, len = s.length(); i < len; i++) {
+            char c = s.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                // Found uppercase — build lowered string from here
+                char[] chars = s.toCharArray();
+                chars[i] = (char) (c + 32);
+                for (int j = i + 1; j < len; j++) {
+                    char cj = chars[j];
+                    if (cj >= 'A' && cj <= 'Z') {
+                        chars[j] = (char) (cj + 32);
+                    }
+                }
+                return new String(chars);
+            }
+        }
+        return s; // already lowercase
+    }
     public static Parameters empty() {
         return new Parameters();
     }
@@ -89,7 +113,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     @Override
     public boolean containsKey(Object key) {
         if (!caseSensitive && key instanceof String s) {
-            key = s.toLowerCase(Locale.US);
+            key = asciiLowerCase(s);
         }
         return params.containsKey(key);
     }
@@ -112,7 +136,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     @Override
     public String get(Object key) {
         if (!caseSensitive && key instanceof String s) {
-            key = s.toLowerCase(Locale.US);
+            key = asciiLowerCase(s);
         }
         Object val = params.get(key);
         if (val == null) return null;
@@ -165,7 +189,7 @@ public class Parameters implements Map<String, Object>, Serializable {
 
     public Object getRawType(Object key) {
         if (!caseSensitive && key instanceof String s) {
-            key = s.toLowerCase(Locale.US);
+            key = asciiLowerCase(s);
         }
 
         return params.get(key.toString());
@@ -202,7 +226,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     @Override
     public Object put(String key, Object value) {
         if (!caseSensitive) {
-            key = key.toLowerCase(Locale.US);
+            key = asciiLowerCase(key);
         }
         Object v = params.get(key);
         if (v == null) {
@@ -221,7 +245,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     @Override
     public Object remove(Object key) {
         if (!caseSensitive) {
-            key = key.toString().toLowerCase(Locale.US);
+            key = asciiLowerCase(key.toString());
         }
         return params.remove(key);
     }
@@ -234,7 +258,7 @@ public class Parameters implements Map<String, Object>, Serializable {
     @Override
     public Object replace(String key, Object value) {
         if (!caseSensitive) {
-            key = key.toLowerCase(Locale.US);
+            key = asciiLowerCase(key);
         }
         return params.replace(key, value);
     }

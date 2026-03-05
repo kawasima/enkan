@@ -93,14 +93,13 @@ public class UndertowAdapter {
 
     private void setResponseHeaders(Headers headers, HttpServerExchange exchange) {
         HeaderMap map = exchange.getResponseHeaders();
-        headers.keySet().forEach(headerName -> headers.getList(headerName)
-                .forEach(v -> {
-                    switch (v) {
-                        case String s -> map.add(HttpString.tryFromString(headerName), s);
-                        case Number n -> map.add(HttpString.tryFromString(headerName), n.longValue());
-                        default -> { /* ignore unsupported header value types */ }
-                    }
-                }));
+        headers.forEachHeader((headerName, v) -> {
+            switch (v) {
+                case String s -> map.add(HttpString.tryFromString(headerName), s);
+                case Number n -> map.add(HttpString.tryFromString(headerName), n.longValue());
+                default -> { /* ignore unsupported header value types */ }
+            }
+        });
     }
 
     private void setOptions(Undertow.Builder builder, OptionMap options) {

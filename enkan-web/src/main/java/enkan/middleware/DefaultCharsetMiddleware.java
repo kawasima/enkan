@@ -22,7 +22,14 @@ public class DefaultCharsetMiddleware implements WebMiddleware {
     }
 
     protected boolean isContainsCharset(String contentType) {
-        return contentType != null && contentType.toLowerCase(java.util.Locale.ROOT).contains("charset=");
+        if (contentType == null) return false;
+        int len = contentType.length();
+        for (int i = 0, end = len - 8; i <= end; i++) {
+            if (contentType.regionMatches(true, i, "charset=", 0, 8)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void addCharset(HttpResponse response, String charset) {
