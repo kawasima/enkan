@@ -74,6 +74,43 @@ public class ComponentInjectorTest {
     }
 
     @Test
+    public void implicitConstructorInjectionWithoutAnnotation() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        ImplicitConstructorTarget target = injector.newInstance(ImplicitConstructorTarget.class);
+        assertThat(target.tc.getId()).isEqualTo("A");
+    }
+
+    @Test
+    public void constructorInjectionAlsoInjectsFields() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+        componentMap.put("myNameIsB", new TestComponent("B"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        MixedInjectionTarget target = injector.newInstance(MixedInjectionTarget.class);
+        assertThat(target.constructorComponent.getId()).isEqualTo("A");
+        assertThat(target.fieldComponent.getId()).isNotNull();
+    }
+
+    @Test
+    public void multipleInjectConstructorsThrows() {
+        componentMap.put("myNameIsA", new TestComponent("A"));
+
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        assertThatThrownBy(() -> injector.newInstance(MultipleInjectConstructorTarget.class))
+                .isInstanceOf(MisconfigurationException.class);
+    }
+
+    @Test
+    public void missingComponentThrows() {
+        // No components registered
+        ComponentInjector injector = new ComponentInjector(componentMap);
+        assertThatThrownBy(() -> injector.newInstance(ConstructorInjectionTarget.class))
+                .isInstanceOf(MisconfigurationException.class);
+    }
+
+    @Test
     public void wrongNamedInject() {
         componentMap.put("myNameIsAAA", new TestComponent("A"));
         componentMap.put("MyNameIsB", new TestComponent("B"));
@@ -124,6 +161,39 @@ public class ComponentInjectorTest {
         TestComponent tc;
 
         public NoInjectConstructorTarget() {}
+    }
+
+    private static class ImplicitConstructorTarget {
+        final TestComponent tc;
+
+        ImplicitConstructorTarget(TestComponent tc) {
+            this.tc = tc;
+        }
+    }
+
+    private static class MixedInjectionTarget {
+        final TestComponent constructorComponent;
+        @Inject
+        TestComponent fieldComponent;
+
+        @Inject
+        MixedInjectionTarget(TestComponent constructorComponent) {
+            this.constructorComponent = constructorComponent;
+        }
+    }
+
+    private static class MultipleInjectConstructorTarget {
+        final TestComponent tc;
+
+        @Inject
+        MultipleInjectConstructorTarget(TestComponent tc) {
+            this.tc = tc;
+        }
+
+        @Inject
+        MultipleInjectConstructorTarget(TestComponent tc, String dummy) {
+            this.tc = tc;
+        }
     }
 
     private static class TestComponent extends SystemComponent<TestComponent> {

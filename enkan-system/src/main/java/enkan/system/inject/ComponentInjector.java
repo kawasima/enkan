@@ -100,34 +100,69 @@ public class ComponentInjector {
     /**
      * Create a new instance of the given class using constructor injection if available.
      *
-     * <p>If the class has a constructor annotated with {@code @Inject}, its parameters
-     * are resolved by type from the registered components. Otherwise, the default
-     * constructor is used and field injection is applied.
+     * <p>Constructor selection strategy (similar to Spring):
+     * <ol>
+     *   <li>If a constructor is annotated with {@code @Inject}, use it.</li>
+     *   <li>If there is exactly one constructor with parameters, use it (implicit constructor injection).</li>
+     *   <li>Otherwise, use the default constructor and apply field injection.</li>
+     * </ol>
+     *
+     * <p>When constructor injection is used, {@code @Inject} fields are also injected
+     * and {@code @PostConstruct} methods are called.
      *
      * @param clazz the class to instantiate
      * @param <T>   the type of the class
      * @return a new instance with dependencies injected
      */
-    @SuppressWarnings("unchecked")
     public <T> T newInstance(Class<T> clazz) {
-        Constructor<T> injectConstructor = findInjectConstructor(clazz);
-        if (injectConstructor != null) {
-            Object[] args = resolveConstructorArgs(injectConstructor);
-            T instance = tryReflection(() -> injectConstructor.newInstance(args));
-            postConstruct(instance);
-            return instance;
+        Constructor<T> constructor = findInjectionConstructor(clazz);
+        if (constructor != null) {
+            constructor.setAccessible(true);
+            Object[] args = resolveConstructorArgs(constructor);
+            T instance = tryReflection(() -> constructor.newInstance(args));
+            return inject(instance);
         }
         // Fallback: default constructor + field injection
         T instance = tryReflection(() -> clazz.getConstructor().newInstance());
         return inject(instance);
     }
 
+    /**
+     * Find the constructor to use for injection.
+     *
+     * <ol>
+     *   <li>If exactly one constructor has {@code @Inject}, use it.</li>
+     *   <li>If multiple constructors have {@code @Inject}, throw an error.</li>
+     *   <li>If no {@code @Inject} constructor exists but exactly one constructor
+     *       with parameters exists, use it (implicit injection, like Spring).</li>
+     *   <li>Otherwise, return {@code null} (use default constructor).</li>
+     * </ol>
+     */
     @SuppressWarnings("unchecked")
-    private <T> Constructor<T> findInjectConstructor(Class<T> clazz) {
-        return (Constructor<T>) Arrays.stream(clazz.getDeclaredConstructors())
+    private <T> Constructor<T> findInjectionConstructor(Class<T> clazz) {
+        Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+
+        Constructor<?>[] injectConstructors = Arrays.stream(allConstructors)
                 .filter(c -> c.getAnnotation(Inject.class) != null)
-                .findFirst()
-                .orElse(null);
+                .toArray(Constructor<?>[]::new);
+
+        if (injectConstructors.length == 1) {
+            return (Constructor<T>) injectConstructors[0];
+        }
+        if (injectConstructors.length > 1) {
+            throw new MisconfigurationException("core.MULTIPLE_INJECT_CONSTRUCTORS", clazz.getName());
+        }
+
+        // No @Inject constructor — check for implicit single-constructor injection
+        Constructor<?>[] paramConstructors = Arrays.stream(allConstructors)
+                .filter(c -> c.getParameterCount() > 0)
+                .toArray(Constructor<?>[]::new);
+
+        if (paramConstructors.length == 1) {
+            return (Constructor<T>) paramConstructors[0];
+        }
+
+        return null;
     }
 
     private Object[] resolveConstructorArgs(Constructor<?> constructor) {
@@ -138,17 +173,22 @@ public class ComponentInjector {
             Named named = params[i].getAnnotation(Named.class);
             if (named != null) {
                 SystemComponent<?> component = components.get(named.value());
-                if (component != null && type.isAssignableFrom(component.getClass())) {
-                    args[i] = component;
-                } else {
+                if (component == null) {
                     throw new MisconfigurationException("core.INJECT_WRONG_NAMED_COMPONENT",
                             named.value(), suggestName(type, named.value()));
                 }
+                if (!type.isAssignableFrom(component.getClass())) {
+                    throw new MisconfigurationException("core.INJECT_WRONG_TYPE_COMPONENT",
+                            named.value(), type);
+                }
+                args[i] = component;
             } else {
                 args[i] = components.values().stream()
                         .filter(component -> type.isAssignableFrom(component.getClass()))
                         .findFirst()
-                        .orElse(null);
+                        .orElseThrow(() -> new MisconfigurationException(
+                                "core.INJECT_MISSING_COMPONENT", type.getName(),
+                                constructor.getDeclaringClass().getName()));
             }
         }
         return args;
