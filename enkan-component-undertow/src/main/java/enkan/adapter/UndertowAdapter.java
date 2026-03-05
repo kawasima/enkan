@@ -3,7 +3,6 @@ package enkan.adapter;
 import enkan.application.WebApplication;
 import enkan.collection.Headers;
 import enkan.collection.OptionMap;
-import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.exception.MisconfigurationException;
@@ -121,7 +120,7 @@ public class UndertowAdapter {
                     exchange.dispatch(this);
                     return;
                 }
-                HttpRequest request = new DefaultHttpRequest();
+                HttpRequest request = application.createRequest();
                 request.setRequestMethod(exchange.getRequestMethod().toString());
                 request.setUri(exchange.getRequestURI());
                 request.setProtocol(exchange.getProtocol().toString());

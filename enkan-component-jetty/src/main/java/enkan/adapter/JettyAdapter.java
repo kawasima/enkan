@@ -42,7 +42,7 @@ public class JettyAdapter {
         @Override
         protected void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
                 throws ServletException, IOException {
-            HttpRequest request = ServletUtils.buildRequest(servletRequest);
+            HttpRequest request = ServletUtils.buildRequest(servletRequest, application::createRequest);
             try {
                 HttpResponse response = application.handle(request);
                 ServletUtils.updateServletResponse(servletResponse, response);

@@ -29,7 +29,7 @@ import java.util.function.Function;
 /**
  * @author kawasima
  */
-@Middleware(name = "routing")
+@Middleware(name = "routing", mixins = Routable.class)
 public class RoutingMiddleware implements WebMiddleware {
     @NotNull
     private Routes routes;

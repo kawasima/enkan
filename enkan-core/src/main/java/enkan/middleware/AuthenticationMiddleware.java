@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author kawasima
  */
-@Middleware(name = "authentication")
+@Middleware(name = "authentication", mixins = PrincipalAvailable.class)
 public class AuthenticationMiddleware<REQ, RES, T> implements DecoratorMiddleware<REQ, RES> {
     private static final Logger LOG = Logger.getLogger(AuthenticationMiddleware.class.getName());
     private final List<AuthBackend<REQ, T>> backends;

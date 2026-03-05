@@ -10,7 +10,7 @@ import enkan.util.MixinUtils;
  *
  * @author kawasima
  */
-@Middleware(name = "flash", dependencies = {"session"})
+@Middleware(name = "flash", dependencies = {"session"}, mixins = FlashAvailable.class)
 public class FlashMiddleware implements WebMiddleware {
     private String flashKey = "_flash";
 

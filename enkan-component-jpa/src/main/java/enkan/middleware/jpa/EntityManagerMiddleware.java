@@ -10,7 +10,7 @@ import enkan.util.MixinUtils;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-@Middleware(name = "entityManager")
+@Middleware(name = "entityManager", mixins = EntityManageable.class)
 public class EntityManagerMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private EntityManagerProvider<?> entityManagerProvider;

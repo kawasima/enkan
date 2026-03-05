@@ -11,7 +11,7 @@ import enkan.util.MixinUtils;
  * Adds trace log to the response.
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "trace")
+@enkan.annotation.Middleware(name = "trace", mixins = Traceable.class)
 public class TraceMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     private boolean enabled = true;
 

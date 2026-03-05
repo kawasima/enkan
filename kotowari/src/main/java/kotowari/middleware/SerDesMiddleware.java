@@ -37,7 +37,7 @@ import static enkan.util.ThreadingUtils.some;
  *
  * @author kawasima
  */
-@enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation", "routing"})
+@enkan.annotation.Middleware(name = "serDes", dependencies = {"contentNegotiation", "routing"}, mixins = BodyDeserializable.class)
 public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpResponse, HttpRequest, NRES> {
     @Inject
     protected BeansConverter beans;

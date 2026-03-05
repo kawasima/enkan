@@ -22,7 +22,7 @@ import static enkan.util.ThreadingUtils.*;
  *
  * @author kawasima
  */
-@Middleware(name = "contentNegotiation")
+@Middleware(name = "contentNegotiation", mixins = ContentNegotiable.class)
 public class ContentNegotiationMiddleware implements WebMiddleware {
     private ContentNegotiator negotiator;
     private Set<String> allowedTypes;

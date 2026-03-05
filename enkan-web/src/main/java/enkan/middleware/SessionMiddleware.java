@@ -16,7 +16,7 @@ import static enkan.util.ThreadingUtils.some;
  * The middleware for session management.
  * @author kawasima
  */
-@Middleware(name = "session", dependencies = {"cookies"})
+@Middleware(name = "session", dependencies = {"cookies"}, mixins = WebSessionAvailable.class)
 public class SessionMiddleware implements WebMiddleware {
     @NotNull
     private String cookieName;

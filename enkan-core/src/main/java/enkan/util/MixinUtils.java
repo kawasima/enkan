@@ -3,6 +3,7 @@ package enkan.util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import static enkan.util.ReflectionUtils.tryReflection;
 
@@ -44,6 +46,8 @@ public class MixinUtils {
     private static final ConcurrentHashMap<List<Class<?>>, Class<?>[]> interfaceArrayCache = new ConcurrentHashMap<>();
     /** Cache: class → all implemented interfaces (avoids repeated class hierarchy traversal). */
     private static final ConcurrentHashMap<Class<?>, Class<?>[]> allInterfacesCache = new ConcurrentHashMap<>();
+    /** Cache: interface array cache key → Proxy constructor MethodHandle (avoids Proxy.getProxyClass + getConstructor per call). */
+    private static final ConcurrentHashMap<List<Class<?>>, MethodHandle> proxyCtorCache = new ConcurrentHashMap<>();
 
     /**
      * Build a MethodHandle for a default method, normalized to
@@ -167,18 +171,20 @@ public class MixinUtils {
         }
 
         // Extract the original object and its current proxy interfaces
+        T original;
         Class<?>[] currentInterfaces;
         if (Proxy.isProxyClass(targetClass)) {
             MixinProxyHandler<T> handler = ((MixinProxyHandler<T>) Proxy.getInvocationHandler(target));
-            target = handler.original();
+            original = handler.original();
             currentInterfaces = handler.proxyInterfaces();
         } else {
+            original = target;
             currentInterfaces = getAllInterfaces(targetClass);
         }
 
         // Build cache key: [originalClass, currentInterfaces..., newInterfaces...]
         // Use List for proper equals/hashCode
-        List<Class<?>> cacheKey = buildCacheKey(target.getClass(), currentInterfaces, interfaces);
+        List<Class<?>> cacheKey = buildCacheKey(original.getClass(), currentInterfaces, interfaces);
         Class<?>[] classes = interfaceArrayCache.computeIfAbsent(cacheKey, k -> {
             Class<?>[] merged = new Class[currentInterfaces.length + interfaces.length];
             System.arraycopy(currentInterfaces, 0, merged, 0, currentInterfaces.length);
@@ -194,10 +200,22 @@ public class MixinUtils {
             return merged;
         });
 
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        return (T) Proxy.newProxyInstance(cl,
-                classes,
-                new MixinProxyHandler<>(target, classes));
+        MethodHandle ctor = proxyCtorCache.computeIfAbsent(cacheKey, k -> {
+            try {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                Constructor<?> cons = Proxy.getProxyClass(cl, classes)
+                        .getConstructor(InvocationHandler.class);
+                return MethodHandles.lookup().unreflectConstructor(cons)
+                        .asType(MethodType.methodType(Object.class, InvocationHandler.class));
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Failed to create proxy constructor handle", e);
+            }
+        });
+        try {
+            return (T) ctor.invoke(new MixinProxyHandler<>(original, classes));
+        } catch (Throwable e) {
+            throw new RuntimeException("Failed to create mixin proxy", e);
+        }
     }
 
     private static List<Class<?>> buildCacheKey(Class<?> originalClass,
@@ -208,5 +226,50 @@ public class MixinUtils {
         System.arraycopy(currentInterfaces, 0, key, 1, currentInterfaces.length);
         System.arraycopy(newInterfaces, 0, key, 1 + currentInterfaces.length, newInterfaces.length);
         return Arrays.asList(key);
+    }
+
+    /**
+     * Creates a factory that produces pre-mixed proxy instances implementing
+     * all the given interfaces. The proxy class and constructor are resolved
+     * once; each call to {@code Supplier.get()} only allocates the proxy
+     * instance and its InvocationHandler.
+     *
+     * <p>The returned proxies wrap a fresh instance of the same concrete class
+     * as {@code template} (obtained via its no-arg constructor).
+     *
+     * @param template   a sample object used to resolve the concrete class and
+     *                   its interfaces; not retained after this call
+     * @param interfaces the mixin interfaces to add
+     * @param <T>        the type of the target object
+     * @return a supplier that produces pre-mixed instances
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Supplier<T> createFactory(T template, Class<?>... interfaces) {
+        // Perform one mixin to warm all caches (Proxy class, constructor, MethodHandles)
+        mixin(template, interfaces);
+
+        // Resolve the cached constructor
+        Class<?>[] currentInterfaces = getAllInterfaces(template.getClass());
+        List<Class<?>> cacheKey = buildCacheKey(template.getClass(), currentInterfaces, interfaces);
+        MethodHandle ctor = proxyCtorCache.get(cacheKey);
+        Class<?>[] classes = interfaceArrayCache.get(cacheKey);
+
+        // Resolve no-arg constructor of the concrete class for stamping new originals
+        Constructor<T> origCtor;
+        try {
+            origCtor = (Constructor<T>) template.getClass().getDeclaredConstructor();
+            origCtor.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("No no-arg constructor on " + template.getClass().getName(), e);
+        }
+
+        return () -> {
+            try {
+                T fresh = origCtor.newInstance();
+                return (T) ctor.invoke(new MixinProxyHandler<>(fresh, classes));
+            } catch (Throwable e) {
+                throw new RuntimeException("Failed to create pre-mixed instance", e);
+            }
+        };
     }
 }

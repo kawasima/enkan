@@ -24,4 +24,16 @@ public @interface Middleware {
      * @return dependencies
      */
     String[] dependencies() default "";
+
+    /**
+     * Interfaces that this middleware mixes into the request or response
+     * via {@link enkan.util.MixinUtils#mixin}.
+     *
+     * <p>Declaring these allows the framework to pre-create request/response
+     * objects that already implement all required interfaces, eliminating
+     * per-request proxy creation.
+     *
+     * @return mixin interfaces
+     */
+    Class<?>[] mixins() default {};
 }

@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author kawasima
  */
-@Middleware(name = "form", dependencies = {"params", "routing"})
+@Middleware(name = "form", dependencies = {"params", "routing"}, mixins = BodyDeserializable.class)
 public class FormMiddleware implements WebMiddleware {
     @Inject
     protected BeansConverter beans;

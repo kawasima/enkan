@@ -30,7 +30,7 @@ import java.util.Objects;
  *
  * @author kawasima
  */
-@Middleware(name = "traceWeb")
+@Middleware(name = "traceWeb", mixins = Traceable.class)
 public class TraceWebMiddleware implements WebMiddleware, Closeable {
     private final LinkedList<LogKey> idList;
     private final KeyValueStore store;

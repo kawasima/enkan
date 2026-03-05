@@ -25,7 +25,7 @@ import static enkan.util.BeanBuilder.builder;
  *
  * @author kawasima
  */
-@Middleware(name = "antiForgery", dependencies = {"session"})
+@Middleware(name = "antiForgery", dependencies = {"session"}, mixins = ForgeryDetectable.class)
 public class AntiForgeryMiddleware implements WebMiddleware {
     private static final String TOKEN_KEY = AntiForgeryMiddleware.class.getName()
             + "/antiForgeryToken";

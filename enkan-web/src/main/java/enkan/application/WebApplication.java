@@ -4,15 +4,20 @@ import enkan.Application;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
+import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
 import enkan.data.UriAvailable;
 import enkan.predicate.PathPredicate;
+import enkan.util.MixinUtils;
 import enkan.util.Predicates;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * An application handles HttpRequest/HttpResponse.
@@ -21,6 +26,7 @@ import java.util.function.Predicate;
  */
 public class WebApplication implements Application<HttpRequest, HttpResponse> {
     private final LinkedList<MiddlewareChain<?, ?, ?, ?>> middlewareStack = new LinkedList<>();
+    private volatile Supplier<HttpRequest> requestFactory;
 
     public <REQ extends UriAvailable, RES, NREQ, NRES> void get(String path, Middleware<REQ, RES, NREQ, NRES> middleware) {
         use(PathPredicate.GET(path), middleware);
@@ -43,6 +49,7 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
             middlewareStack.getLast().setNext(cast(chain));
         }
         middlewareStack.addLast(chain);
+        requestFactory = null; // invalidate cached factory
     }
 
     @Override
@@ -53,6 +60,42 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
                 return chain.next(req1);
             }
         }).setNext(cast(middlewareStack.getFirst())).next(req);
+    }
+
+    /**
+     * Creates an HttpRequest that already implements all mixin interfaces
+     * declared by the registered middlewares, eliminating per-request proxy
+     * creation in the middleware chain.
+     *
+     * @return a pre-mixed HttpRequest instance
+     */
+    public HttpRequest createRequest() {
+        Supplier<HttpRequest> factory = this.requestFactory;
+        if (factory == null) {
+            factory = buildRequestFactory();
+            this.requestFactory = factory;
+        }
+        return factory.get();
+    }
+
+    private Supplier<HttpRequest> buildRequestFactory() {
+        Set<Class<?>> mixinSet = new LinkedHashSet<>();
+        for (MiddlewareChain<?, ?, ?, ?> chain : middlewareStack) {
+            enkan.annotation.Middleware anno = chain.getMiddleware().getClass()
+                    .getAnnotation(enkan.annotation.Middleware.class);
+            if (anno != null) {
+                for (Class<?> mixin : anno.mixins()) {
+                    mixinSet.add(mixin);
+                }
+            }
+        }
+
+        if (mixinSet.isEmpty()) {
+            return DefaultHttpRequest::new;
+        }
+
+        Class<?>[] mixins = mixinSet.toArray(new Class<?>[0]);
+        return MixinUtils.createFactory(new DefaultHttpRequest(), mixins);
     }
 
     @Override

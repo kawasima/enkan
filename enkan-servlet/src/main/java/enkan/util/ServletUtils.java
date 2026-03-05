@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author kawasima
@@ -36,7 +37,12 @@ public class ServletUtils {
     }
 
     public static HttpRequest buildRequest(HttpServletRequest servletRequest) throws IOException {
-        HttpRequest request = new DefaultHttpRequest();
+        return buildRequest(servletRequest, DefaultHttpRequest::new);
+    }
+
+    public static HttpRequest buildRequest(HttpServletRequest servletRequest,
+                                           Supplier<HttpRequest> requestFactory) throws IOException {
+        HttpRequest request = requestFactory.get();
         request.setServerPort(servletRequest.getServerPort());
         request.setServerName(servletRequest.getServerName());
         request.setRemoteAddr(servletRequest.getRemoteAddr());
