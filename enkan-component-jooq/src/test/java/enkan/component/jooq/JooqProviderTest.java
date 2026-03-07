@@ -62,6 +62,14 @@ class JooqProviderTest {
     }
 
     @Test
+    void dslContextIsSameInstance() {
+        JooqProvider jooq = system.getComponent("jooq", JooqProvider.class);
+        DSLContext first = jooq.getDSLContext();
+        DSLContext second = jooq.getDSLContext();
+        assertThat(first).isSameAs(second);
+    }
+
+    @Test
     void insertAndSelectWork() {
         DSLContext ctx = system.getComponent("jooq", JooqProvider.class).getDSLContext();
 
@@ -185,7 +193,6 @@ class JooqProviderTest {
                         .columns(field("id"), field("name"), field("email"))
                         .values(1, "Alice", "alice@example.com")
                         .execute();
-                // 同一 id で重複インサート → 例外 → ロールバック
                 tx.insertInto(table("users"))
                         .columns(field("id"), field("name"), field("email"))
                         .values(1, "Duplicate", "dup@example.com")

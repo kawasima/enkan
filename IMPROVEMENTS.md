@@ -92,6 +92,66 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 
 ---
 
+### IMP-034: Move Runtime `mixin()` Hot Paths to `createFactory()` Pre-Mixed Instances (HIGH)
+
+Reduce runtime `Proxy` creation in request/response hot paths by preferring `MixinUtils.createFactory(...)` where mixins are statically known.
+
+**Rationale**:  
+`MixinUtils.mixin(...)` is still used widely in middleware execution paths. Even with caching, dynamic proxy invocation adds overhead and complexity.  
+Java 25 baseline allows us to lean on the Class-File API path (`createFactory`) and shift work to startup time.
+
+**Scope**:
+
+- Audit middleware paths that repeatedly call `MixinUtils.mixin(...)`.
+- Introduce startup-time factory assembly where mixins are predictable.
+- Keep `mixin(...)` as fallback for fully dynamic cases.
+
+**Proposed direction**:
+
+- Expand the existing `WebApplication#createRequest()` factory strategy to other predictable object creation points.
+- Define a clear rule:
+  - Static mixin set -> `createFactory(...)`
+  - Runtime-dependent mixin set -> `mixin(...)`
+
+**Acceptance criteria**:
+
+- No behavioral regression in middleware capability injection.
+- Existing tests pass without semantic changes.
+- Benchmark demonstrates reduced allocation/call overhead in request processing.
+
+---
+
+### IMP-035: Replace Long-Lived Static Mixin Caches with `ClassValue`-Based Caches (MEDIUM)
+
+Refactor `MixinUtils` cache design to reduce classloader retention risk and simplify cache lifecycle management.
+
+**Rationale**:  
+`MixinUtils` currently relies on multiple process-wide static `ConcurrentHashMap` caches keyed by `Class<?>`, `Method`, and interface lists.  
+In development/reload scenarios, this pattern can retain metadata longer than intended.
+
+**Scope**:
+
+- Evaluate each current cache in `MixinUtils`:
+  - interface discovery cache
+  - proxy constructor cache
+  - method-handle caches
+- Migrate class-scoped caches to `ClassValue` where appropriate.
+- Keep CHM only for keys that are not naturally class-scoped.
+
+**Proposed direction**:
+
+- Introduce `ClassValue` for per-class interface metadata.
+- Rework cache keying so that classloader boundaries are handled naturally.
+- Document cache policy in `MixinUtils` JavaDoc.
+
+**Acceptance criteria**:
+
+- Functional parity with current `mixin(...)` and `createFactory(...)` behavior.
+- No regression in current micro/benchmark numbers.
+- Cache implementation is simpler to reason about for reload scenarios.
+
+---
+
 ## Legend
 
 | Priority | Description |
@@ -105,29 +165,10 @@ Seal the exception hierarchy to enable exhaustiveness checks in switch expressio
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
 | IMP-004 | PermissionsPolicyMiddleware | LOW | Proposed |
-| IMP-007 | CacheControlMiddleware | MEDIUM | Done |
 | IMP-008 | JWT Auth Backend | MEDIUM | Proposed |
-| IMP-009 | OpenTelemetry Tracing Integration | MEDIUM | Done |
 | IMP-010 | Structured Logging Support | LOW | Proposed |
-| IMP-011 | Unify Pattern Matching instanceof | HIGH | Done |
 | IMP-012 | Unify Switch Expressions / Pattern Switch | HIGH | Proposed |
 | IMP-013 | Introduce Sealed Classes | MEDIUM | Proposed |
-| IMP-014 | Convert to Records | MEDIUM | Done |
-| IMP-016 | Unify `Stream.toList()` | LOW | Done |
-| IMP-017 | findAny → findFirst in ControllerInvokerMiddleware | HIGH | Done |
-| IMP-018 | BodySerializableInjector matches any type when body null | HIGH | Done |
-| IMP-019 | Parameters.putAll bypasses case normalization | MEDIUM | Done |
-| IMP-020 | Parameters.put auto-List violates Map contract | MEDIUM | Won't Fix (by design) |
-| IMP-021 | Parameters.get always returns String | MEDIUM | Won't Fix (by design) |
-| IMP-022 | Parameters.of(Object...) no bounds check | LOW | Done |
-| IMP-023 | NestedParamsMiddleware no depth limit | MEDIUM | Done |
-| IMP-024 | Cacheable injector mapping + LambdaMetafactory | LOW | Done |
-| IMP-025 | Missing test coverage for parameter injection | HIGH | Done |
-| IMP-026 | MixinUtils Proxy uses Method.invoke() on hot path | MEDIUM | Done |
-| IMP-027 | MixinUtils.mixin() uses Stream on hot path | LOW | Done |
-| IMP-028 | CookiesMiddleware allocates HashMap when no cookies | LOW | Done |
-| IMP-029 | NestedParamsMiddleware processes empty params | LOW | Done |
-| IMP-030 | AcceptHeaderNegotiator parses Accept header per request | MEDIUM | Done |
-| IMP-031 | HttpResponseUtils.charset() compiles regex per call | LOW | Done |
-| IMP-032 | MixinUtils getAllInterfaces/interface array not cached | MEDIUM | Done |
 | IMP-033 | Compile-time mixin resolution via bytecode generation | HIGH | Proposed |
+| IMP-034 | Move runtime mixin hot paths to createFactory pre-mixed instances | HIGH | Proposed |
+| IMP-035 | Replace long-lived static mixin caches with ClassValue-based caches | MEDIUM | Proposed |

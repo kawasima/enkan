@@ -13,7 +13,7 @@ public class FlashInjector<T extends Serializable> implements ParameterInjector<
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return Flash.class.isAssignableFrom(type);
     }
 

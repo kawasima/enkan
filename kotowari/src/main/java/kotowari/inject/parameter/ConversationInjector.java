@@ -12,7 +12,7 @@ public class ConversationInjector implements ParameterInjector<Conversation> {
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return Conversation.class.isAssignableFrom(type);
     }
 

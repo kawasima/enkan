@@ -11,7 +11,7 @@ public class SessionInjector implements ParameterInjector<Session> {
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return Session.class.isAssignableFrom(type);
     }
 

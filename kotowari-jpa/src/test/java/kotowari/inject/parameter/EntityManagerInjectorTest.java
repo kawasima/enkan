@@ -21,15 +21,13 @@ class EntityManagerInjectorTest {
 
     @Test
     void isApplicableForEntityManagerType() {
-        HttpRequest request = new DefaultHttpRequest();
-        assertThat(injector.isApplicable(EntityManager.class, request)).isTrue();
+        assertThat(injector.isApplicable(EntityManager.class)).isTrue();
     }
 
     @Test
     void isNotApplicableForOtherTypes() {
-        HttpRequest request = new DefaultHttpRequest();
-        assertThat(injector.isApplicable(String.class, request)).isFalse();
-        assertThat(injector.isApplicable(Object.class, request)).isFalse();
+        assertThat(injector.isApplicable(String.class)).isFalse();
+        assertThat(injector.isApplicable(Object.class)).isFalse();
     }
 
     @Test

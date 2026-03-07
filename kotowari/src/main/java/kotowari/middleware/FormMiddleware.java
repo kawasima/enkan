@@ -46,8 +46,7 @@ public class FormMiddleware implements WebMiddleware {
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();
-            final HttpRequest req = request;
-            if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
+            if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type)))
                 continue;
 
             BodyDeserializable bodyDeserializable = (BodyDeserializable) request;

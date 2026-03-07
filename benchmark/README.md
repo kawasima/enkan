@@ -4,9 +4,10 @@ HTTP throughput and latency comparison between Enkan (Undertow) and Spring Boot 
 
 ## Prerequisites
 
-- Java 21+
+- Java 25+
 - Maven 3.9+
 - [Vegeta](https://github.com/tsenart/vegeta) (`brew install vegeta`)
+- [async-profiler](https://github.com/async-profiler/async-profiler) (`brew install async-profiler`) — optional, for CPU profiling
 
 ## Quick Start
 
@@ -64,6 +65,66 @@ Both applications register equivalent processing layers:
 - The first 5 seconds of each run serve as JVM warmup (separate warmup phase at lower rate precedes the actual benchmark).
 - Undertow and Tomcat have different default thread pool sizes. For production-grade comparison, tune both to the same thread count.
 - Results include the full network round-trip on localhost. For micro-benchmarking specific layers, use JMH instead.
+
+## Profiling with async-profiler
+
+[async-profiler](https://github.com/async-profiler/async-profiler) can be used to identify CPU bottlenecks. On macOS, dynamic attach is restricted by the sandbox, so use the `-agentpath` JVM option at startup.
+
+### Setup
+
+```sh
+brew install async-profiler
+```
+
+The shared library is typically at `/opt/homebrew/lib/libasyncProfiler.dylib`.
+
+### CPU Flamegraph
+
+Start the Enkan app with async-profiler attached, producing an HTML flamegraph:
+
+```sh
+java -agentpath:/opt/homebrew/lib/libasyncProfiler.dylib=start,event=cpu,interval=200us,file=results/enkan-cpu.html \
+    -jar enkan-app/target/enkan-benchmark-app-1.0-SNAPSHOT.jar
+```
+
+Run the benchmark load against it, then stop the app with `Ctrl+C`. The flamegraph is written to `results/enkan-cpu.html`.
+
+### Flat Profile (Top Methods)
+
+To get a flat text profile sorted by sample count:
+
+```sh
+java -agentpath:/opt/homebrew/lib/libasyncProfiler.dylib=start,event=cpu,interval=200us,flat=200,file=results/enkan-flat.txt \
+    -jar enkan-app/target/enkan-benchmark-app-1.0-SNAPSHOT.jar
+```
+
+### Wall-Clock Profiling
+
+Wall-clock mode captures time spent waiting (I/O, locks, thread dispatch), not just CPU time:
+
+```sh
+java -agentpath:/opt/homebrew/lib/libasyncProfiler.dylib=start,event=wall,interval=200us,file=results/enkan-wall.html \
+    -jar enkan-app/target/enkan-benchmark-app-1.0-SNAPSHOT.jar
+```
+
+### Dumping Results Mid-Run
+
+If you want to capture a profile snapshot without stopping the app, send `SIGUSR2`:
+
+```sh
+kill -USR2 <pid>
+```
+
+This flushes the current profile data to the output file.
+
+### JFR Output
+
+For analysis in JDK Mission Control or IntelliJ:
+
+```sh
+java -agentpath:/opt/homebrew/lib/libasyncProfiler.dylib=start,event=cpu,interval=200us,file=results/enkan-cpu.jfr \
+    -jar enkan-app/target/enkan-benchmark-app-1.0-SNAPSHOT.jar
+```
 
 ## Results
 

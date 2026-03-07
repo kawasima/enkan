@@ -11,7 +11,7 @@ public class ParametersInjector implements ParameterInjector<Parameters> {
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return Parameters.class.isAssignableFrom(type);
     }
 

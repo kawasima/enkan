@@ -12,7 +12,7 @@ public class PrincipalInjector implements ParameterInjector<Principal> {
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return Principal.class.isAssignableFrom(type);
     }
 

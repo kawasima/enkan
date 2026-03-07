@@ -10,7 +10,7 @@ public class HttpRequestInjector implements ParameterInjector<HttpRequest> {
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return HttpRequest.class.isAssignableFrom(type);
     }
 

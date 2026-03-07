@@ -11,14 +11,14 @@ import org.jooq.impl.DSL;
 import javax.sql.DataSource;
 
 public class JooqProvider extends SystemComponent<JooqProvider> {
-    private DataSource dataSource;
+    private DSLContext dsl;
     private SQLDialect dialect = SQLDialect.DEFAULT;
 
     public DSLContext getDSLContext() {
-        if (dataSource == null) {
+        if (dsl == null) {
             throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", "DataSource", "JooqProvider");
         }
-        return DSL.using(dataSource, dialect);
+        return dsl;
     }
 
     public void setDialect(SQLDialect dialect) {
@@ -31,12 +31,13 @@ public class JooqProvider extends SystemComponent<JooqProvider> {
             @Override
             public void start(JooqProvider component) {
                 DataSourceComponent<?> dataSourceComponent = component.getDependency(DataSourceComponent.class);
-                component.dataSource = dataSourceComponent.getDataSource();
+                DataSource dataSource = dataSourceComponent.getDataSource();
+                component.dsl = DSL.using(dataSource, component.dialect);
             }
 
             @Override
             public void stop(JooqProvider component) {
-                component.dataSource = null;
+                component.dsl = null;
             }
         };
     }

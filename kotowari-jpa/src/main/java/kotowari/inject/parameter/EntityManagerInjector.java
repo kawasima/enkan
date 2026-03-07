@@ -25,7 +25,7 @@ public class EntityManagerInjector implements ParameterInjector<EntityManager> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return EntityManager.class.isAssignableFrom(type);
     }
 

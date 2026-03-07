@@ -14,29 +14,32 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * Middleware for jOOQ transaction management.
  *
  * <p>Wraps the downstream handler in a jOOQ transaction when the matched
- * controller method is annotated with {@link Transactional}.
+ * controller class or method is annotated with {@link Transactional}.
  * The transaction is committed on normal return and rolled back on any exception.</p>
  *
- * <p>Supported transaction types:</p>
- * <ul>
- *   <li>{@link Transactional.TxType#REQUIRED} – joins or starts a transaction</li>
- *   <li>{@link Transactional.TxType#REQUIRES_NEW} – always starts a new nested transaction</li>
- * </ul>
+ * <p>Annotation lookup order (method-level overrides class-level):
+ * <ol>
+ *   <li>The controller <strong>class</strong> annotation (if present)</li>
+ *   <li>The controller <strong>method</strong> annotation (if present and the method is known)</li>
+ * </ol>
  *
- * <p>If the controller method has no {@link Transactional} annotation the request
- * passes through without any transaction wrapper.</p>
+ * <p>Only {@link Transactional.TxType#REQUIRED} is supported.
+ * Other transaction types will throw {@link MisconfigurationException}.
+ * jOOQ nested transactions use savepoints, which do not provide the isolation
+ * semantics of {@code REQUIRES_NEW} (separate physical transaction), so
+ * claiming support would be misleading.</p>
  *
  * <p>When a transaction is active, a transaction-scoped {@link DSLContext} is stored
- * in the request's {@link Extendable} extensions under the key {@code "jooqDslContext"}.
- * Controllers and downstream middlewares can retrieve it via
- * {@code request.getExtension("jooqDslContext")} to participate in the same transaction.</p>
+ * in the request's {@link Extendable} extensions under the key {@code "jooqDslContext"},
+ * replacing any non-transactional DSLContext set by {@link JooqDslContextMiddleware}.</p>
  */
-@Middleware(name = "jooqTransaction", dependencies = {"routing"})
+@Middleware(name = "jooqTransaction", dependencies = {"jooqDslContext", "routing"})
 public class JooqTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private JooqProvider jooqProvider;
@@ -44,8 +47,13 @@ public class JooqTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<
     private DSLContext dsl;
 
     @PostConstruct
-    private void init() {
+    void init() {
         dsl = jooqProvider.getDSLContext();
+    }
+
+    private Transactional.TxType getTransactionType(Class<?> cls) {
+        Transactional tx = cls.getDeclaredAnnotation(Transactional.class);
+        return tx != null ? tx.value() : null;
     }
 
     private Transactional.TxType getTransactionType(Method m) {
@@ -56,18 +64,17 @@ public class JooqTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<
     @Override
     public <NNREQ, NNRES> RES handle(REQ req, MiddlewareChain<REQ, RES, NNREQ, NNRES> chain) {
         if (req instanceof Routable routable) {
-            Transactional.TxType type = getTransactionType(routable.getControllerMethod());
+            Transactional.TxType type = getTransactionType(routable.getControllerClass());
+            Method m = routable.getControllerMethod();
+            if (m != null) {
+                type = Optional.ofNullable(getTransactionType(m)).orElse(type);
+            }
             if (type != null) {
                 return switch (type) {
                     case REQUIRED -> dsl.transactionResult(ctx -> {
                         if (req instanceof Extendable e) e.setExtension("jooqDslContext", DSL.using(ctx));
                         return chain.next(req);
                     });
-                    case REQUIRES_NEW -> dsl.transactionResult(outer ->
-                            DSL.using(outer).transactionResult(ctx -> {
-                                if (req instanceof Extendable e) e.setExtension("jooqDslContext", DSL.using(ctx));
-                                return chain.next(req);
-                            }));
                     default -> throw new MisconfigurationException("jooq.UNSUPPORTED_TX_TYPE", type);
                 };
             }

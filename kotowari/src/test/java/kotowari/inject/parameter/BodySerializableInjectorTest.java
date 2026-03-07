@@ -19,6 +19,12 @@ class BodySerializableInjectorTest {
     }
 
     @Test
+    void notApplicableByTypeAlone() {
+        assertThat(injector.isApplicable(String.class)).isFalse();
+        assertThat(injector.isApplicable(Object.class)).isFalse();
+    }
+
+    @Test
     void notApplicableWhenRequestIsNull() {
         assertThat(injector.isApplicable(String.class, null)).isFalse();
     }

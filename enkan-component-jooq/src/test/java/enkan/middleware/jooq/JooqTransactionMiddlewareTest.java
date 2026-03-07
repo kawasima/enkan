@@ -71,8 +71,9 @@ class JooqTransactionMiddlewareTest {
         system.stop();
     }
 
-    private Object routableRequest(Method controllerMethod) {
+    private Object routableRequest(Class<?> controllerClass, Method controllerMethod) {
         TestRequest req = new TestRequest();
+        req.setControllerClass(controllerClass);
         req.setControllerMethod(controllerMethod);
         return req;
     }
@@ -81,9 +82,13 @@ class JooqTransactionMiddlewareTest {
         return new DefaultMiddlewareChain<>(Predicates.any(), "test", endpoint);
     }
 
+    // ---- method-level @Transactional ----
+
     @Test
     void transactionalRequiredCommitsOnSuccess() {
-        Object request = routableRequest(tryReflection(() -> TestController.class.getMethod("required")));
+        Object request = routableRequest(
+                TestController.class,
+                tryReflection(() -> TestController.class.getMethod("required")));
         middleware.handle(request, chain(req -> {
             DSLContext txCtx = ((TestRequest) req).getExtension("jooqDslContext");
             txCtx.insertInto(table("users"))
@@ -99,7 +104,9 @@ class JooqTransactionMiddlewareTest {
 
     @Test
     void transactionalRequiredRollsBackOnException() {
-        Object request = routableRequest(tryReflection(() -> TestController.class.getMethod("required")));
+        Object request = routableRequest(
+                TestController.class,
+                tryReflection(() -> TestController.class.getMethod("required")));
         assertThatThrownBy(() ->
             middleware.handle(request, chain(req -> {
                 DSLContext txCtx = ((TestRequest) req).getExtension("jooqDslContext");
@@ -120,7 +127,7 @@ class JooqTransactionMiddlewareTest {
         DSLContext ctx = system.getComponent("jooq", JooqProvider.class).getDSLContext();
 
         Method m = tryReflection(() -> TestController.class.getMethod("noAnnotation"));
-        middleware.handle(routableRequest(m), chain(req -> {
+        middleware.handle(routableRequest(TestController.class, m), chain(req -> {
             ctx.insertInto(table("users"))
                     .columns(field("id"), field("name"))
                     .values(2, "Bob")
@@ -132,19 +139,91 @@ class JooqTransactionMiddlewareTest {
         assertThat(result).hasSize(1);
     }
 
+    // ---- class-level @Transactional ----
+
     @Test
-    void unsupportedTxTypeThrowsMisconfigurationException() {
+    void classLevelTransactionalCommitsOnSuccess() {
+        Object request = routableRequest(TransactionalController.class, null);
+        middleware.handle(request, chain(req -> {
+            DSLContext txCtx = ((TestRequest) req).getExtension("jooqDslContext");
+            txCtx.insertInto(table("users"))
+                    .columns(field("id"), field("name"))
+                    .values(1, "Alice")
+                    .execute();
+            return "ok";
+        }));
+
+        DSLContext ctx = system.getComponent("jooq", JooqProvider.class).getDSLContext();
+        assertThat(ctx.select().from(table("users")).fetch()).hasSize(1);
+    }
+
+    @Test
+    void classLevelTransactionalRollsBackOnException() {
+        Object request = routableRequest(TransactionalController.class, null);
+        assertThatThrownBy(() ->
+            middleware.handle(request, chain(req -> {
+                DSLContext txCtx = ((TestRequest) req).getExtension("jooqDslContext");
+                txCtx.insertInto(table("users"))
+                        .columns(field("id"), field("name"))
+                        .values(1, "Alice")
+                        .execute();
+                throw new RuntimeException("forced rollback");
+            }))
+        ).isInstanceOf(RuntimeException.class);
+
+        DSLContext ctx = system.getComponent("jooq", JooqProvider.class).getDSLContext();
+        assertThat(ctx.select().from(table("users")).fetch()).isEmpty();
+    }
+
+    @Test
+    void nullControllerMethodFallsBackToClassAnnotation() {
+        // controllerMethod is null — should use class-level @Transactional
+        Object request = routableRequest(TransactionalController.class, null);
+        middleware.handle(request, chain(req -> {
+            DSLContext txCtx = ((TestRequest) req).getExtension("jooqDslContext");
+            assertThat(txCtx).isNotNull();
+            return "ok";
+        }));
+    }
+
+    @Test
+    void nullControllerMethodWithoutAnnotationPassesThrough() {
+        // Both class and method have no @Transactional
+        Object request = routableRequest(TestController.class, null);
+        Object result = middleware.handle(request, chain(req -> "ok"));
+        assertThat(result).isEqualTo("ok");
+    }
+
+    // ---- unsupported tx types ----
+
+    @Test
+    void requiresNewThrowsMisconfigurationException() {
+        Method m = tryReflection(() -> TestController.class.getMethod("requiresNew"));
+        assertThatThrownBy(() ->
+            middleware.handle(routableRequest(TestController.class, m), chain(req -> "ok"))
+        ).isInstanceOf(MisconfigurationException.class);
+    }
+
+    @Test
+    void mandatoryThrowsMisconfigurationException() {
         Method m = tryReflection(() -> TestController.class.getMethod("mandatory"));
         assertThatThrownBy(() ->
-            middleware.handle(routableRequest(m), chain(req -> "ok"))
+            middleware.handle(routableRequest(TestController.class, m), chain(req -> "ok"))
         ).isInstanceOf(MisconfigurationException.class);
     }
 
     // ------------------------------------------------------------------ helpers
 
     static class TestRequest implements Routable {
+        private Class<?> controllerClass;
         private Method controllerMethod;
         private final java.util.Map<String, Object> extensions = new java.util.HashMap<>();
+
+        @Override
+        public Class<?> getControllerClass() { return controllerClass; }
+
+        @Override
+        public void setControllerClass(Class<?> cls) { this.controllerClass = cls; }
 
         @Override
         public Method getControllerMethod() { return controllerMethod; }
@@ -164,10 +243,18 @@ class JooqTransactionMiddlewareTest {
         @Transactional(Transactional.TxType.REQUIRED)
         public void required() {}
 
+        @Transactional(Transactional.TxType.REQUIRES_NEW)
+        public void requiresNew() {}
+
         @Transactional(Transactional.TxType.MANDATORY)
         public void mandatory() {}
 
         public void noAnnotation() {}
+    }
+
+    @Transactional
+    static class TransactionalController {
+        public void someAction() {}
     }
 
     static class TestDataSourceComponent extends DataSourceComponent<TestDataSourceComponent> {

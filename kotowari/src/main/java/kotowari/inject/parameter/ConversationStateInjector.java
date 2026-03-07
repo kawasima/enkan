@@ -11,7 +11,7 @@ public class ConversationStateInjector implements ParameterInjector<Conversation
     }
 
     @Override
-    public boolean isApplicable(Class<?> type, HttpRequest request) {
+    public boolean isApplicable(Class<?> type) {
         return ConversationState.class.isAssignableFrom(type);
     }
 

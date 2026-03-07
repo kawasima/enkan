@@ -7,6 +7,7 @@ import enkan.collection.Parameters;
 import enkan.component.BeansConverter;
 import enkan.component.SystemComponent;
 import enkan.data.*;
+import enkan.exception.MisconfigurationException;
 import enkan.system.inject.ComponentInjector;
 import enkan.util.CodecUtils;
 import enkan.util.HttpRequestUtils;
@@ -125,16 +126,24 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
         if (mediaTypeTokens.length == 2) {
             MediaType mediaType = new MediaType(mediaTypeTokens[0], mediaTypeTokens[1]);
             Parameter[] parameters = method != null ? method.getParameters() : new Parameter[0];
+            long bodyParamCount = Arrays.stream(parameters)
+                    .filter(p -> parameterInjectors.stream().noneMatch(injector -> injector.isApplicable(p.getType())))
+                    .count();
+            if (bodyParamCount > 1) {
+                throw new MisconfigurationException("kotowari.AMBIGUOUS_BODY_PARAMETER",
+                        method.getDeclaringClass().getSimpleName(), method.getName());
+            }
             BodyDeserializable bodyDeserializable = (BodyDeserializable) request;
             for (Parameter parameter : parameters) {
                 Class<?> type = parameter.getType();
                 Type genericType = parameter.getParameterizedType();
 
-                if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, request)))
+                if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type)))
                     continue;
 
                 Object body = deserialize(request, type, genericType, mediaType);
                 bodyDeserializable.setDeserializedBody(body);
+                break;
             }
             if (bodyDeserializable.getDeserializedBody() == null) {
                 bodyDeserializable.setDeserializedBody(deserialize(request, Object.class, Object.class, mediaType));
@@ -151,7 +160,7 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 for (Parameter parameter : parameters) {
                     Class<?> type = parameter.getType();
                     final HttpRequest req = request;
-                    if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type, req)))
+                    if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type)))
                         continue;
                     bodyDeserializable.setDeserializedBody(beans.createFrom(
                             request.getParams(), type

@@ -91,11 +91,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
     /**
      * Resolve injectors for each parameter of the given method by type only.
      *
-     * <p>All built-in {@link ParameterInjector#isApplicable} implementations
-     * determine applicability solely from the parameter type, so passing
-     * {@code null} for the request is safe.  Custom injectors that rely on
-     * request state at applicability-check time are not supported by this
-     * caching strategy and must be handled separately.
+     * <p>{@link ParameterInjector#isApplicable(Class)} determines applicability
+     * solely from the parameter type, enabling static resolution at construction
+     * time. Injectors that require runtime request state implement
+     * {@link kotowari.inject.RuntimeParameterInjector} and are used as fallbacks.
      */
     private ParameterInjector<?>[] resolveInjectors(Method method) {
         Parameter[] parameters = method.getParameters();
@@ -103,7 +102,7 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
         for (int i = 0; i < parameters.length; i++) {
             Class<?> type = parameters[i].getType();
             injectors[i] = parameterInjectors.stream()
-                    .filter(injector -> injector.isApplicable(type, null))
+                    .filter(injector -> injector.isApplicable(type))
                     .findFirst()
                     .orElse(BODY_SERIALIZABLE_INJECTOR);
         }
