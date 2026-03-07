@@ -5,6 +5,7 @@ import enkan.MiddlewareChain;
 import enkan.collection.Multimap;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 import enkan.util.ThreadingUtils;
 import kotowari.data.BodyDeserializable;
 import kotowari.data.Validatable;
@@ -21,11 +22,18 @@ import java.util.Set;
  */
 @enkan.annotation.Middleware(name = "validateBody")
 public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES, HttpRequest, RES> {
-    private static final Validator VALIDATOR;
+    private static final Validator VALIDATOR = createValidator();
 
-    static {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            VALIDATOR = factory.getValidator();
+    private static Validator createValidator() {
+        try {
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Runtime.getRuntime().addShutdownHook(new Thread(factory::close,
+                    "ValidateBodyMiddleware-ValidatorFactory-shutdown"));
+            return factory.getValidator();
+        } catch (Exception | NoClassDefFoundError e) {
+            throw new MisconfigurationException("core.MISSING_IMPLEMENTATION",
+                    "ValidateBodyMiddleware requires a Jakarta Validation provider "
+                    + "(e.g. hibernate-validator) on the classpath", e);
         }
     }
 
