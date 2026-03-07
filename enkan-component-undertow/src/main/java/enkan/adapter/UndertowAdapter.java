@@ -204,8 +204,8 @@ public class UndertowAdapter {
         } catch (UnrecoverableKeyException e) {
             throw new MisconfigurationException("core.UNRECOVERABLE_KEY", e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            // This cannot be thrown because it use only DefaultAlgorithm.
-            throw new UnreachableException(e);
+            throw new MisconfigurationException("core.NO_SUCH_ALGORITHM",
+                    e.getMessage(), "TLS, TLSv1.2, TLSv1.3", e);
         } catch (KeyStoreException e) {
             throw new MisconfigurationException("core.KEY_STORE", e.getMessage(), e);
         } catch (KeyManagementException e) {

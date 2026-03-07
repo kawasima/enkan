@@ -6,6 +6,7 @@ import enkan.collection.OptionMap;
 import enkan.data.*;
 import enkan.middleware.session.MemoryStore;
 import enkan.middleware.session.KeyValueStore;
+import enkan.exception.MisconfigurationException;
 import enkan.util.MixinUtils;
 
 import jakarta.validation.constraints.NotNull;
@@ -109,6 +110,9 @@ public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<H
     }
 
     public void setStore(KeyValueStore store) {
+        if (store == null) {
+            throw new MisconfigurationException("core.NULL_ARGUMENT", "store");
+        }
         this.store = store;
     }
 }

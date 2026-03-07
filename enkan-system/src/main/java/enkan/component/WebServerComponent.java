@@ -165,6 +165,10 @@ public abstract class WebServerComponent<T extends WebServerComponent<T>> extend
     }
 
     protected OptionMap buildOptionMap() {
+        if (isSsl && keystoreFile == null && keystore == null) {
+            throw new MisconfigurationException("core.SSL_KEYSTORE_REQUIRED");
+        }
+
         OptionMap options = OptionMap.of(
                 "http?", isHttp,
                 "ssl?",  isSsl,
