@@ -60,7 +60,6 @@ public class FlashMiddleware implements WebMiddleware {
 
         HttpResponse response = castToHttpResponse(next.next(request));
 
-        response = MixinUtils.mixin(response, FlashAvailable.class);
         flashResponse(response, request);
 
         return response;

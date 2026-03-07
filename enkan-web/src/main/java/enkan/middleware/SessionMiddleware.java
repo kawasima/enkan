@@ -68,28 +68,26 @@ public class SessionMiddleware implements WebMiddleware {
         if (request instanceof WebSessionAvailable wsa) {
             sessionKey = wsa.getSessionKey();
         }
-        if (response instanceof WebSessionAvailable) {
-            Session session = response.getSession();
+        Session session = response.getSession();
 
-            // Invalidate session.
-            // - Call response.session == null
-            // - response.session.isNew && request.session != null
-            if (session == null || (session.isNew() && request.getSession() != null)) {
-                store.delete(sessionKey);
-            }
+        // Invalidate session.
+        // - Call response.session == null
+        // - response.session.isNew && request.session != null
+        if (session == null || (session.isNew() && request.getSession() != null)) {
+            store.delete(sessionKey);
+        }
 
-            String newSessionKey = null;
-            if (session != null) {
-                if (!(session instanceof PersistentMarkedSession)) {
-                    session.persist();
-                    newSessionKey = store.write(sessionKey, session);
-                }
+        String newSessionKey = null;
+        if (session != null) {
+            if (!(session instanceof PersistentMarkedSession)) {
+                session.persist();
+                newSessionKey = store.write(sessionKey, session);
             }
-            Cookie cookie = Cookie.create(cookieName, newSessionKey != null ? newSessionKey : sessionKey);
-            populateAttrs(cookie);
-            if (newSessionKey != null && !newSessionKey.equals(sessionKey)) {
-                response.getCookies().put(cookieName, cookie);
-            }
+        }
+        Cookie cookie = Cookie.create(cookieName, newSessionKey != null ? newSessionKey : sessionKey);
+        populateAttrs(cookie);
+        if (newSessionKey != null && !newSessionKey.equals(sessionKey)) {
+            response.getCookies().put(cookieName, cookie);
         }
     }
 
@@ -98,7 +96,6 @@ public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<H
         request = MixinUtils.mixin(request, WebSessionAvailable.class);
         sessionRequest(request);
         HttpResponse response = castToHttpResponse(chain.next(request));
-        response = MixinUtils.mixin(response, WebSessionAvailable.class);
         sessionResponse(response, request);
         return response;
     }
