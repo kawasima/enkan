@@ -17,11 +17,7 @@ echo "Running mvn versions:set -DnewVersion=$VERSION ..."
 mvn -f "$ROOT_DIR/pom.xml" versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
 echo "Reactor version updated -> $VERSION"
 
-# 2. Update docs/pom.xml parent version
-sed -i '' "s|<version>[^<]*</version>|<version>$VERSION</version>|g" "$ROOT_DIR/docs/pom.xml"
-echo "docs/pom.xml updated -> $VERSION"
-
-# 3. Update benchmark enkan.version
+# 2. Update benchmark enkan.version
 sed -i '' "s|<enkan\.version>[^<]*</enkan\.version>|<enkan.version>$VERSION</enkan.version>|g" "$ROOT_DIR/benchmark/enkan-app/pom.xml"
 echo "benchmark/enkan-app/pom.xml enkan.version updated -> $VERSION"
 
