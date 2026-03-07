@@ -262,6 +262,10 @@ public class ControllerInvokerMiddleware<RES> implements Middleware<HttpRequest,
     public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<Void, Void, NNREQ, NNRES> next) {
         if (request instanceof Routable routable) {
             Method controllerMethod = routable.getControllerMethod();
+            if (controllerMethod == null) {
+                throw new MisconfigurationException("kotowari.CONTROLLER_METHOD_NOT_FOUND",
+                        "ControllerInvokerMiddleware");
+            }
             Class<?> controllerClass = controllerMethod.getDeclaringClass();
 
             Object controller = controllerCache.computeIfAbsent(controllerClass, c ->

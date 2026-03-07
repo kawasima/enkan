@@ -49,6 +49,8 @@ public class DomaTransactionMiddleware<REQ, RES> implements DecoratorMiddleware<
         DataSource ds = defaultConfig.getDataSource(); // returns LocalTransactionDataSource
         if (ds instanceof EnkanLocalTransactionDataSource ltds) {
             tm = new LocalTransactionManager(ltds.getLocalTransaction(ConfigSupport.defaultJdbcLogger));
+        } else {
+            throw new MisconfigurationException("doma2.TX_MANAGER_NOT_AVAILABLE");
         }
     }
 

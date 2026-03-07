@@ -30,6 +30,10 @@ public class TransactionMiddleware<REQ, RES> implements DecoratorMiddleware<REQ,
             Method m = routable.getControllerMethod();
             Transactional.TxType type= getTransactionType(m);
             if (type != null) {
+                if (transactionComponent == null) {
+                    throw new MisconfigurationException("kotowari.MISSING_INJECTION",
+                            "transactionComponent", "TransactionMiddleware");
+                }
                 TransactionManager tm = transactionComponent.getTransactionManager();
                 switch(type) {
                     case REQUIRED:

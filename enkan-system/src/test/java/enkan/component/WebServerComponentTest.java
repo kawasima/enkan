@@ -38,15 +38,20 @@ class WebServerComponentTest {
     void optionMapContainsBasicSettings() {
         component.setPort(8080);
         component.setHost("localhost");
-        component.setSsl(true);
         component.setSslPort(8443);
 
         OptionMap options = component.getOptionMap();
 
         assertThat(options.get("port")).isEqualTo(8080);
         assertThat(options.get("host")).isEqualTo("localhost");
-        assertThat(options.get("ssl?")).isEqualTo(true);
         assertThat(options.get("sslPort")).isEqualTo(8443);
+    }
+
+    @Test
+    void sslWithoutKeystoreThrowsMisconfigurationException() {
+        component.setSsl(true);
+        assertThatThrownBy(() -> component.getOptionMap())
+                .hasMessageContaining("SSL_KEYSTORE_REQUIRED");
     }
 
     @Test

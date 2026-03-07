@@ -62,7 +62,8 @@ public class FlywayMigration extends SystemComponent<FlywayMigration> {
                     Optional.ofNullable(conn.getSchema())
                             .ifPresent(configuration::schemas);
                 } catch (SQLException e) {
-                    LOG.debug("Failed to get schema from connection", e);
+                    LOG.warn("Failed to get schema from connection. "
+                            + "Flyway may use the wrong schema.", e);
                 }
 
                 if (component.locations != null) {

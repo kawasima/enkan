@@ -43,6 +43,9 @@ public class FormMiddleware implements WebMiddleware {
     @Override
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
         Method method = ((Routable) request).getControllerMethod();
+        if (method == null) {
+            throw new MisconfigurationException("kotowari.CONTROLLER_METHOD_NOT_FOUND", "FormMiddleware");
+        }
         request = MixinUtils.mixin(request, BodyDeserializable.class);
         for (Parameter parameter : method.getParameters()) {
             Class<?> type = parameter.getType();

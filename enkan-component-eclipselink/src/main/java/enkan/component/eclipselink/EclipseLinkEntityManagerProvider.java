@@ -3,6 +3,7 @@ package enkan.component.eclipselink;
 import enkan.component.ComponentLifecycle;
 import enkan.component.DataSourceComponent;
 import enkan.component.jpa.EntityManagerProvider;
+import enkan.exception.MisconfigurationException;
 import enkan.exception.UnreachableException;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
@@ -59,6 +60,9 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
         return new ComponentLifecycle<>() {
             @Override
             public void start(EclipseLinkEntityManagerProvider component) {
+                if (getName() == null || getName().isEmpty()) {
+                    throw new MisconfigurationException("core.NULL_ARGUMENT", "name");
+                }
                 component.setDataSourceComponent(component.getDependency(DataSourceComponent.class));
                 SEPersistenceUnitInfo pu = new SEPersistenceUnitInfo();
                 pu.setPersistenceUnitName(getName());
