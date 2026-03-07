@@ -15,14 +15,20 @@ README_FILE="$ROOT_DIR/README.md"
 # 1. Update reactor version via Maven
 echo "Running mvn versions:set -DnewVersion=$VERSION ..."
 mvn -f "$ROOT_DIR/pom.xml" versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
-mvn -f docs/pom.xml versions:update-parent -DparentVersion=0.13.0-SNAPSHOT -DskipResolution=true -DgenerateBackupPoms=false
-
 echo "Reactor version updated -> $VERSION"
 
-# 2. Update <version> in README.md directly
+# 2. Update docs/pom.xml parent version
+sed -i '' "s|<version>[^<]*</version>|<version>$VERSION</version>|g" "$ROOT_DIR/docs/pom.xml"
+echo "docs/pom.xml updated -> $VERSION"
+
+# 3. Update benchmark enkan.version
+sed -i '' "s|<enkan\.version>[^<]*</enkan\.version>|<enkan.version>$VERSION</enkan.version>|g" "$ROOT_DIR/benchmark/enkan-app/pom.xml"
+echo "benchmark/enkan-app/pom.xml enkan.version updated -> $VERSION"
+
+# 4. Update <version> in README.md directly
 sed -i '' "s|<version>[^<]*</version>|<version>$VERSION</version>|g" "$README_FILE"
 echo "README.md updated -> $VERSION"
 
-# 3. Update <enkan.version>
+# 5. Update <enkan.version> in root pom.xml
 sed -i '' "s|<enkan\.version>[^<]*</enkan\.version>|<enkan.version>$VERSION</enkan.version>|g" "$ROOT_DIR/pom.xml"
-echo "enkan.version updated -> $VERSION"
+echo "root pom.xml enkan.version updated -> $VERSION"
