@@ -17,29 +17,32 @@ import java.util.stream.Collectors;
  * @author kawasima
  */
 public class BeanBuilder<X> {
-    private static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
+    private static final Validator DEFAULT_VALIDATOR = createValidator();
 
-    static {
-        // ValidatorFactory is Closeable; close it when the JVM shuts down to
-        // release resources (connection pools, etc.) held by the provider.
-        Runtime.getRuntime().addShutdownHook(new Thread(DEFAULT_VALIDATOR_FACTORY::close,
-                "BeanBuilder-ValidatorFactory-shutdown"));
+    private static Validator createValidator() {
+        try {
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Runtime.getRuntime().addShutdownHook(new Thread(factory::close,
+                    "BeanBuilder-ValidatorFactory-shutdown"));
+            return factory.getValidator();
+        } catch (Exception | NoClassDefFoundError e) {
+            // No validation provider on the classpath — skip validation.
+            return null;
+        }
     }
 
     private final X x;
-    private final ValidatorFactory validatorFactory;
 
-    private BeanBuilder(X x, ValidatorFactory validatorFactory) {
+    private BeanBuilder(X x) {
         this.x = x;
-        this.validatorFactory = validatorFactory;
     }
 
-    public static <X> Function<X,BeanBuilder<X>> builderWithValidation(ValidatorFactory validatorFactory) {
-        return bean -> new BeanBuilder<>(bean, validatorFactory);
+    public static <X> Function<X,BeanBuilder<X>> builderWithValidation() {
+        return BeanBuilder::new;
     }
 
     public static <Y> BeanBuilder<Y> builder(Y x) {
-        return new BeanBuilder<>(x, DEFAULT_VALIDATOR_FACTORY);
+        return new BeanBuilder<>(x);
     }
 
     public <V> BeanBuilder<X> set(BiConsumer<X, V> caller, V v) {
@@ -48,9 +51,8 @@ public class BeanBuilder<X> {
     }
 
     public X build() {
-        if (validatorFactory != null) {
-            Validator validator = validatorFactory.getValidator();
-            Set<ConstraintViolation<X>> violations = validator.validate(x);
+        if (DEFAULT_VALIDATOR != null) {
+            Set<ConstraintViolation<X>> violations = DEFAULT_VALIDATOR.validate(x);
             if (!violations.isEmpty()) {
                 throw new MisconfigurationException("core.BUILD_ERROR", x.getClass().getName(),
                         violations.stream().map(ConstraintViolation::getMessage)
