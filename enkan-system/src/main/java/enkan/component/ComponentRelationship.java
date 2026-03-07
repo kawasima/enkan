@@ -58,7 +58,12 @@ public record ComponentRelationship(String target, List<String> dependents) {
             for (String dep : dependents) {
                 int targetIndex = index(componentsOrder, target);
                 int depIndex = index(componentsOrder, dep);
-                if (depIndex == -1 || targetIndex == -1) continue;
+                if (targetIndex == -1) {
+                    throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", target, target);
+                }
+                if (depIndex == -1) {
+                    throw new MisconfigurationException("core.COMPONENT_NOT_FOUND", dep, target);
+                }
                 if (depIndex > targetIndex) {
                     componentsOrder.add(targetIndex, dep);
                     componentsOrder.remove(depIndex + 1);

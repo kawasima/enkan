@@ -63,6 +63,12 @@ public class HmacEncoder extends SystemComponent<HmacEncoder> {
     }
 
     private void createKeySpec() {
+        try {
+            Mac.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new MisconfigurationException("core.NO_SUCH_ALGORITHM", algorithm,
+                    "`HmacMD5`, `HmacSHA1`, and `HmacSHA256`", e);
+        }
         secretKeySpec = new SecretKeySpec(secret.getBytes(), algorithm);
     }
 

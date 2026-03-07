@@ -137,7 +137,7 @@ public class CodecUtils {
         try {
             return URLDecoder.decode(encoded, encoding);
         } catch (UnsupportedEncodingException e) {
-            return null;
+            throw new MisconfigurationException("core.UNSUPPORTED_ENCODING", encoding, e);
         } catch (IllegalArgumentException e) {
             return encoded;
         }
