@@ -13,7 +13,7 @@ It's inspired by [clojure component](https://github.com/stuartsierra/component).
 
 Enkan system is composed of components.
 
-```language-java
+```java
 EnkanSystem system = EnkanSystem.of(
     "http", new UndertowComponent()
 );
@@ -25,7 +25,7 @@ Using `of` method, components are registered to Enkan system.
 
 Components must be extended `SystemComponent` class. And implements `ComponentLifecycle`.
  
-```language-java
+```java
 class SomeComponent extends SystemComponent {
     @Override
     protected ComponentLifecycle<SomeComponent> lifecycle() {
@@ -49,7 +49,7 @@ So all components are started and stopped safely.
 
 Components often depend on each other. For example, an application component needs a template engine and a database provider, and the database provider itself needs a datasource. You declare these relationships with `relationships()`:
 
-```language-java
+```java
 system.relationships(
     component("http").using("app"),
     component("app").using("template", "doma", "datasource"),
@@ -77,14 +77,14 @@ Components are injected to a field of another component and middlewares.
 
 For injecting to a field, put the `Inject` annotation on it.
 
-```language-java
+```java
 @Inject
 private TemplateEngine templateEngine;
 ```
 
 If a class has multiple fields of same type, you can put the `Named` annotation for distinct. 
 
-```language-java
+```java
 @Named("freemarker")
 @Inject
 private TemplateEngine freemarker;
@@ -98,7 +98,7 @@ private TemplateEngine thymeleaf;
 
 To start/stop the Enkan system, call the `start()` or `stop()` method.
 
-```language-java
+```java
 system.start();
 
 // ...
@@ -108,7 +108,7 @@ system.stop();
 
 It is better to bootstrap a system in the REPL for the operation.
 
-```language-java
+```java
 PseudoRepl repl = new PseudoRepl(MyExampleSystemFactory.class.getName());
 ReplBoot.start(repl,
         new KotowariCommandRegister(),

@@ -14,7 +14,7 @@ It is not a feature-by-feature comparison — it highlights the **difference in 
 
 ### Spring Boot
 
-```language-java
+```java
 @Configuration
 public class AppConfig {
     @Bean
@@ -32,7 +32,7 @@ public class UserService {
 
 ### Enkan
 
-```language-java
+```java
 EnkanSystem.of(
     "datasource", new HikariCPComponent(),
     "doma",       new DomaProvider(),
@@ -53,7 +53,7 @@ EnkanSystem.of(
 
 ### Spring Boot
 
-```language-java
+```java
 @Component
 public class LoggingFilter implements Filter {
     @Override
@@ -70,7 +70,7 @@ Filter ordering is controlled by `@Order` or `FilterRegistrationBean`.
 
 ### Enkan
 
-```language-java
+```java
 app.use(new DefaultCharsetMiddleware());
 app.use(new MetricsMiddleware<>());
 app.use(new SessionMiddleware());
@@ -85,7 +85,7 @@ app.use(new RoutingMiddleware());
 
 ### Spring Boot
 
-```language-java
+```java
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -102,7 +102,7 @@ public class UserController {
 
 ### Enkan (Kotowari)
 
-```language-java
+```java
 Routes routes = Routes.define(r -> {
     r.get("/").to(HomeController.class, "index");
     r.resource(UserController.class);
@@ -114,7 +114,7 @@ Routes routes = Routes.define(r -> {
 
 The controller is a plain class — no annotations on methods:
 
-```language-java
+```java
 public class UserController {
     @Inject
     private DomaProvider daoProvider;
@@ -139,7 +139,7 @@ public class UserController {
 
 ### Spring Boot
 
-```language-yaml
+```yaml
 # application.yml
 server:
   port: 8080
@@ -148,14 +148,14 @@ spring:
     url: jdbc:postgresql://localhost/mydb
 ```
 
-```language-java
+```java
 @Value("${server.port}")
 private int port;
 ```
 
 ### Enkan
 
-```language-java
+```java
 public class MySystemFactory implements SystemFactory {
     @Override
     public EnkanSystem create() {
@@ -177,7 +177,7 @@ Component properties are set via Java setters or constructor arguments.
 
 ### Spring Boot
 
-```language-java
+```java
 @GetMapping("/dashboard")
 public String dashboard(HttpSession session) {
     session.setAttribute("visited", true);
@@ -187,7 +187,7 @@ public String dashboard(HttpSession session) {
 
 ### Enkan
 
-```language-java
+```java
 public HttpResponse dashboard(Session session) {
     session.put("visited", true);
     return builder(templateEngine.render("dashboard"))
@@ -206,7 +206,7 @@ Also, `SessionMiddleware` must be explicitly registered — `getSession()` does 
 
 ### Spring Boot (Spring Security)
 
-```language-java
+```java
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -223,7 +223,7 @@ public class SecurityConfig {
 
 ### Enkan
 
-```language-java
+```java
 // Authentication — register backends
 app.use(new AuthenticationMiddleware<>(List.of(
     new SessionBackend(),
@@ -246,7 +246,7 @@ app.use(
 
 ### Spring Boot
 
-```language-java
+```java
 @PostMapping("/users")
 public String create(@Valid @ModelAttribute UserForm form,
                      BindingResult result) {
@@ -259,7 +259,7 @@ public String create(@Valid @ModelAttribute UserForm form,
 
 ### Enkan (Kotowari)
 
-```language-java
+```java
 // Middleware stack
 app.use(new ValidateBodyMiddleware());
 
@@ -290,7 +290,7 @@ public HttpResponse create(CustomerForm form) {
 
 ### Spring Boot
 
-```language-java
+```java
 @GetMapping("/users")
 public String list(Model model) {
     model.addAttribute("users", userService.findAll());
@@ -300,7 +300,7 @@ public String list(Model model) {
 
 ### Enkan (Kotowari)
 
-```language-java
+```java
 @Inject
 private TemplateEngine templateEngine;
 
@@ -318,7 +318,7 @@ public HttpResponse list() {
 
 ### Spring Boot
 
-```language-java
+```java
 @Service
 public class UserService {
     @Autowired
@@ -333,7 +333,7 @@ public class UserService {
 
 ### Enkan (with Doma)
 
-```language-java
+```java
 // Middleware — wraps request in a transaction
 app.use(new DomaTransactionMiddleware<>());
 
@@ -360,7 +360,7 @@ Files in `src/main/resources/static/` are automatically served at `/`.
 
 ### Enkan
 
-```language-java
+```java
 app.use(new ResourceMiddleware());
 ```
 
@@ -394,7 +394,7 @@ enkan> /routes app         # inspect routing table
 
 ### Spring Boot
 
-```language-java
+```java
 @SpringBootTest
 @AutoConfigureMockMvc
 class UserControllerTest {
@@ -412,7 +412,7 @@ class UserControllerTest {
 
 ### Enkan
 
-```language-java
+```java
 class UserControllerTest {
     @Test
     void listUsers() {

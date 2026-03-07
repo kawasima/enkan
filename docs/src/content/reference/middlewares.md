@@ -21,7 +21,7 @@ AuthenticationMiddleware enables to authenticate a request using some backends.
 
 #### Usage
 
-```language-java
+```java
 app.use(new AuthenticationMiddleware(backends));
 ```
 
@@ -29,7 +29,7 @@ app.use(new AuthenticationMiddleware(backends));
 
 #### Usage
 
-```language-java
+```java
 app.use(new ServiceUnavailableMiddleware(serviceUnavailableEndpoint));
 ```
 #### Properties
@@ -53,7 +53,7 @@ Location: http://myhost/abc/123
 
 #### Usage
 
-```language-java
+```java
 app.use(new AbsoluteRedirectsMiddleware());
 ```
 
@@ -71,7 +71,7 @@ Because `AntiForgeryMiddleware` requires Session, We recommend using `Conversati
 
 #### Usage
 
-```language-java
+```java
 app.use(new AntiForgeryMiddleware());
 ```
 
@@ -85,7 +85,7 @@ Parses the `Accept` header and sets the value to a request.
 
 #### Usage
 
-```language-java
+```java
 app.use(new ContentNegotiationMiddleware());
 ```
 
@@ -95,7 +95,7 @@ Adds the `Content-Type` header if the response does not contains a `Content-Type
 
 #### Usage
 
-```language-java
+```java
 app.use(new ContentTypeMiddleware());
 ```
 
@@ -105,7 +105,7 @@ Creates a conversation and save states related with its conversation to the conv
 
 #### Usage
 
-```language-java
+```java
 app.use(new ConversationMiddleware());
 ```
 
@@ -115,7 +115,7 @@ Parses `Cookie` header and sets the `Set-Cookie` header to the response.
 
 #### Usage
 
-```language-java
+```java
 app.use(new CookiesMiddleware());
 ```
 
@@ -125,7 +125,7 @@ Adds the default charset to the response.
 
 #### Usage
 
-```language-java
+```java
 app.use(new DefaultCharsetMiddleware());
 ```
 
@@ -135,7 +135,7 @@ Serializes and deserializes a flash value.
 
 #### Usage
 
-```language-java
+```java
 app.use(new FlashMiddleware());
 ```
 
@@ -145,7 +145,7 @@ Enkan Session has no expires in default. This middleware append the feature of t
 
 #### Usage
 
-```language-java
+```java
 app.use(new IdleSessionTimeoutMiddleware());
 ```
 
@@ -155,7 +155,7 @@ Override a request method.
 
 #### Usage
 
-```language-java
+```java
 app.use(new MethodOverrideMiddleware());
 ```
 
@@ -165,7 +165,7 @@ Parses the multipart request.
 
 #### Usage
 
-```language-java
+```java
 app.use(new MultipartParamsMiddleware());
 ```
 
@@ -175,7 +175,7 @@ NestedParamsMiddleware enables to parse nested parameters like `foo[][bar]`. It 
 
 #### Usage
 
-```language-java
+```java
 app.use(new NestedParamsMiddleware());
 ```
 
@@ -185,7 +185,7 @@ Normalize the parameter values. It's for trimming spaces or converting letter ca
 
 #### Usage
 
-```language-java
+```java
 app.use(new NormalizationMiddleware());
 ```
 
@@ -195,7 +195,7 @@ ParamMiddleware enables to parse urlencoded query string and post body and set t
 
 #### Usage
 
-```language-java
+```java
 app.use(new ParamsMiddleware());
 ```
 
@@ -205,7 +205,7 @@ Returns the asset file that is searched from classpath.
 
 #### Usage
 
-```language-java
+```java
 app.use(new ResourceMiddleware());
 ```
 
@@ -223,7 +223,7 @@ SessionMiddleware enables to store/load session objects to/from in-memory stores
 
 #### Usage
 
-```language-java
+```java
 app.use(new SessionMiddleware());
 ```
 
@@ -241,7 +241,7 @@ Adds the response header for tracing using middlewares.
 
 #### Usage
 
-```language-java
+```java
 app.use(new TraceMiddleware());
 ```
 
@@ -266,7 +266,7 @@ All headers are enabled by default with safe values. Pass `null` to any setter t
 
 #### Usage
 
-```language-java
+```java
 // All defaults
 app.use(new SecurityHeadersMiddleware());
 
@@ -298,7 +298,7 @@ Invoke a controller method.
 
 #### Usage
 
-```language-java
+```java
 app.use(new ControllerInvokerMiddleware());
 ```
 
@@ -308,7 +308,7 @@ Populate the request body to a Java bean object.
 
 #### Usage
 
-```language-java
+```java
 app.use(new FormMiddleware());
 ```
 
@@ -322,7 +322,7 @@ Render HTML using a template. When a controller returns `TemplatedHttpResponse`,
 
 #### Usage
 
-```language-java
+```java
 app.use(new RenderTemplateMiddleware());
 ```
 
@@ -336,7 +336,7 @@ Routes the request to a controller method.
 
 #### Usage
 
-```language-java
+```java
 app.use(new RoutingMiddleware(routes));
 ```
 #### Properties
@@ -351,7 +351,7 @@ Deserialize the request body and serializes the response body.
 
 #### Usage
 
-```language-java
+```java
 app.use(new SerDesMiddleware());
 ```
 
@@ -369,7 +369,7 @@ Manages database transactions around controller invocation.
 
 #### Usage
 
-```language-java
+```java
 // requires enkan-component-doma2 dependency
 app.use(new DomaTransactionMiddleware<>(config));
 ```
@@ -380,7 +380,7 @@ Validates the body object. If body object implements the `Validatable` interface
 
 #### Usage
 
-```language-java
+```java
 app.use(new ValidateBodyMiddleware());
 ```
 
@@ -396,7 +396,7 @@ app.use(new ValidateBodyMiddleware());
 
 #### Usage
 
-```language-java
+```java
 app.use(new CorsMiddleware());
 ```
 
@@ -406,7 +406,76 @@ app.use(new CorsMiddleware());
 
 #### Usage
 
-```language-java
+```java
 app.use(new ForwardedSchemeMiddleware());
 ```
 
+### CacheControl
+
+Sets `Cache-Control` response headers based on configurable rules.
+A `staticPattern` regex distinguishes static assets from dynamic responses.
+URIs matching the pattern receive the `staticDirective`; all others receive the `dynamicDirective`.
+If a downstream handler already set `Cache-Control`, this middleware leaves it unchanged.
+
+#### Usage
+
+```java
+CacheControlMiddleware cache = new CacheControlMiddleware();
+cache.setStaticPattern(Pattern.compile("^/assets/"));
+cache.setStaticMaxAge(Duration.ofDays(365));
+cache.setDynamicDirective("no-cache");
+app.use(cache);
+```
+
+#### Properties
+
+| Name | Type | Description | Default |
+|:---|:---|:---|:---|
+| `staticPattern` | `Pattern` | Regex to identify static asset URIs | `null` (disabled) |
+| `staticMaxAge` | `Duration` | Convenience setter: produces `public, max-age=N, immutable` | — |
+| `staticDirective` | `String` | Full directive for static assets | `"public, max-age=31536000, immutable"` |
+| `dynamicDirective` | `String` | Directive for non-static responses; `null` to omit | `"no-cache"` |
+
+## jOOQ
+
+### JooqDslContext
+
+Stores a non-transactional `DSLContext` in the request extensions under the key `jooqDslContext`.
+Stack `JooqTransactionMiddleware` after this when transactional support is needed.
+Requires `JooqProvider` component.
+
+#### Usage
+
+```java
+// requires enkan-component-jooq dependency
+app.use(new JooqDslContextMiddleware());
+```
+
+### JooqTransaction
+
+Wraps the downstream handler in a jOOQ transaction when the matched controller class or method is annotated with `@Transactional`.
+Method-level annotation overrides class-level. Only `REQUIRED` propagation is supported.
+Requires `JooqDslContextMiddleware` to be stacked before this middleware.
+
+#### Usage
+
+```java
+app.use(new JooqDslContextMiddleware());
+app.use(new JooqTransactionMiddleware());
+```
+
+## OpenTelemetry
+
+### Tracing
+
+Creates an OpenTelemetry `SERVER` span for each HTTP request.
+Extracts W3C Trace Context (`traceparent`/`tracestate`) from incoming headers.
+Records HTTP semantic convention attributes: method, URL path, query string, status code, server address/port, client address, and network protocol version.
+Requires `OpenTelemetryComponent`.
+
+#### Usage
+
+```java
+// requires enkan-component-opentelemetry dependency
+app.use(new TracingMiddleware());
+```

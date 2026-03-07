@@ -14,7 +14,7 @@ You do not need a running HTTP server or a full application context to test most
 
 The standard pattern is to construct a `DefaultMiddlewareChain` with a stub endpoint, then call `handle()` directly.
 
-```language-java
+```java
 import enkan.Endpoint;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
@@ -55,7 +55,7 @@ Key points:
 
 Use `BeanBuilder` for concise request/response construction:
 
-```language-java
+```java
 import static enkan.util.BeanBuilder.builder;
 
 HttpRequest request = builder(new DefaultHttpRequest())
@@ -70,7 +70,7 @@ HttpRequest request = builder(new DefaultHttpRequest())
 Some middleware adds capabilities to the request via `MixinUtils.mixin()`.
 After calling `handle()`, cast the request inside the endpoint lambda to the mixin interface:
 
-```language-java
+```java
 @Test
 void setsLocaleOnRequest() {
     ContentNegotiationMiddleware cnm = new ContentNegotiationMiddleware();
@@ -99,7 +99,7 @@ void setsLocaleOnRequest() {
 Controllers are plain Java classes. Instantiate them directly, inject component mocks via setters,
 and call the method under test.
 
-```language-java
+```java
 class CustomerControllerTest {
 
     @Test
@@ -122,7 +122,7 @@ class CustomerControllerTest {
 Because components are injected via `@Inject`-annotated fields (not constructor arguments),
 you can set them in tests using a simple setter or direct field access:
 
-```language-java
+```java
 // Direct field access for tests (when no setter exists)
 ReflectionTestUtils.setField(controller, "templateEngine", fakeEngine);
 ```
@@ -134,7 +134,7 @@ ReflectionTestUtils.setField(controller, "templateEngine", fakeEngine);
 Components are lifecycle objects. Test them by calling `start()` and `stop()` explicitly,
 or just test the component's methods without the full lifecycle if the method does not require it.
 
-```language-java
+```java
 class HikariCPComponentTest {
 
     @Test
@@ -162,7 +162,7 @@ class HikariCPComponentTest {
 For integration tests that exercise the full middleware stack, build a minimal `Application`
 and drive it with constructed requests — no HTTP server needed.
 
-```language-java
+```java
 class AppIntegrationTest {
 
     private Application<HttpRequest, HttpResponse> app;

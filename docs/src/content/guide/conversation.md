@@ -13,7 +13,7 @@ Enkan supports the pseudo Java EE Conversation scope.
 
 If you start a conversation, describe as follows.
 
-```language-java
+```java
 HttpResponse startConversation(Conversation conversation) {
     if (conversation.isTransient()) conversation.begin();
 }
@@ -21,7 +21,7 @@ HttpResponse startConversation(Conversation conversation) {
 
 And if you end a conversation, describe as follows. 
 
-```language-java
+```java
 HttpResponse endConversation(Conversation conversation) {
     if (!conversation.isTransient()) conversation.end();
     
@@ -31,8 +31,8 @@ HttpResponse endConversation(Conversation conversation) {
 
 A conversation send to the server via HTTP parameters. So, you need to write the following code in each form. 
 
-```language-html
-<input type="hidden" name="__converstation-id" value="${conversationId}"/>
+```html
+<input type="hidden" name="__conversation-id" value="${conversationId}"/>
 ```
 
 ## Conversation state
@@ -40,7 +40,7 @@ A conversation send to the server via HTTP parameters. So, you need to write the
 A `ConversationState` can have pairs of key and value related with conversation.
 If conversation ends, conversation state will be deleted. 
 
-```language-java
+```java
 HttpResponse conversation(Conversation conversation) {
     if (conversation.isTransient()) conversation.begin();
     

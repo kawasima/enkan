@@ -12,7 +12,7 @@ Using `MultipartParamsMiddleware` a multipart request is processed by it and put
 
 You can access the temporary file as follows:
 
-```language-java
+```java
 public class UploadController {
     public String upload(Parameters params) {
         File tempfile = (File) params.getIn("datafile", "tempfile");

@@ -13,7 +13,7 @@ The recommended way to ship an Enkan application is as a self-contained fat JAR 
 
 Add the following to your `pom.xml`:
 
-```language-xml
+```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-shade-plugin</artifactId>
@@ -38,7 +38,7 @@ Add the following to your `pom.xml`:
 
 Build and run:
 
-```language-bash
+```bash
 mvn package
 java -jar target/myapp.jar
 ```
@@ -49,7 +49,7 @@ java -jar target/myapp.jar
 
 The main class starts the REPL (or the system directly) and blocks:
 
-```language-java
+```java
 public class MyMain {
     public static void main(String[] args) {
         PseudoRepl repl = new PseudoRepl(MySystemFactory.class.getName());
@@ -63,7 +63,7 @@ public class MyMain {
 For production, `PseudoRepl` listens on the console.
 To skip the REPL and start the system directly:
 
-```language-java
+```java
 public class MyMain {
     public static void main(String[] args) {
         EnkanSystem system = new MySystemFactory().create();
@@ -86,7 +86,7 @@ Configuration is read from three sources in priority order:
 
 Use `Env` to read values in your system factory:
 
-```language-java
+```java
 import enkan.Env;
 
 builder(new JettyComponent())
@@ -99,7 +99,7 @@ builder(new JettyComponent())
 
 ### `env.properties` example
 
-```language-properties
+```properties
 PORT=3000
 HOST=0.0.0.0
 DATABASE_URL=jdbc:h2:mem:dev
@@ -124,7 +124,7 @@ Both `JettyComponent` and `UndertowComponent` inherit from `WebServerComponent` 
 
 ### HTTPS example
 
-```language-java
+```java
 builder(new JettyComponent())
     .set(JettyComponent::setPort,            Env.getInt("PORT", 8080))
     .set(JettyComponent::setSsl,             true)
@@ -141,7 +141,7 @@ builder(new JettyComponent())
 [FlywayMigration](../reference/components.md) runs migrations automatically when the component starts.
 Add it to the system and declare it as a dependency of any component that needs a migrated schema:
 
-```language-java
+```java
 EnkanSystem.of(
     "datasource", new HikariCPComponent(OptionMap.of("uri", Env.get("DATABASE_URL"))),
     "flyway",     new FlywayMigration(),
@@ -165,7 +165,7 @@ Enkan supports deployment as a WAR via `enkan-servlet`.
 1. Change packaging to `war` in `pom.xml`.
 2. Extend `jakarta.servlet.http.HttpServlet` and delegate to `ServletUtils`:
 
-```language-java
+```java
 @WebServlet(urlPatterns = "/*")
 public class MyServlet extends HttpServlet {
     private EnkanSystem system;
@@ -199,7 +199,7 @@ public class MyServlet extends HttpServlet {
 
 A minimal `Dockerfile` for a fat JAR application:
 
-```language-dockerfile
+```dockerfile
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY target/myapp.jar app.jar
@@ -210,7 +210,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 Build and run:
 
-```language-bash
+```bash
 docker build -t myapp .
 docker run -p 3000:3000 -e DATABASE_URL=jdbc:postgresql://db/mydb myapp
 ```

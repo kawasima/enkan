@@ -24,7 +24,7 @@ For most web middleware, implement `WebMiddleware`.
 
 ## A Minimal Example
 
-```language-java
+```java
 import enkan.MiddlewareChain;
 import enkan.annotation.Middleware;
 import enkan.data.HttpRequest;
@@ -54,7 +54,7 @@ public class RequestIdMiddleware implements WebMiddleware {
 
 Register it in your `ApplicationFactory`:
 
-```language-java
+```java
 app.use(new RequestIdMiddleware());
 ```
 
@@ -65,7 +65,7 @@ app.use(new RequestIdMiddleware());
 If your middleware requires another middleware to have run first, declare it with the `@Middleware` annotation.
 Enkan validates the stack order at startup and throws a `MisconfigurationException` if the dependency is missing.
 
-```language-java
+```java
 @Middleware(name = "myMiddleware", dependencies = {"session", "cookies"})
 public class MyMiddleware implements WebMiddleware { ... }
 ```
@@ -77,7 +77,7 @@ public class MyMiddleware implements WebMiddleware { ... }
 Add fields and setters for configuration. Middleware instances are singletons, so fields are
 set once before the application starts.
 
-```language-java
+```java
 @Middleware(name = "rateLimit")
 public class RateLimitMiddleware implements WebMiddleware {
     private int requestsPerMinute = 60;
@@ -97,7 +97,7 @@ public class RateLimitMiddleware implements WebMiddleware {
 }
 ```
 
-```language-java
+```java
 RateLimitMiddleware rl = new RateLimitMiddleware();
 rl.setRequestsPerMinute(100);
 app.use(rl);
@@ -110,7 +110,7 @@ app.use(rl);
 If the middleware needs a component (e.g. a database or cache), declare it with `@Inject`.
 The `EnkanSystem` injects it before the application starts.
 
-```language-java
+```java
 @Middleware(name = "apiKeyAuth")
 public class ApiKeyAuthMiddleware implements WebMiddleware {
 
@@ -136,7 +136,7 @@ public class ApiKeyAuthMiddleware implements WebMiddleware {
 To attach new data to the request without modifying the `HttpRequest` interface,
 use `MixinUtils.mixin()`. Define a marker interface backed by the `Extendable` property bag:
 
-```language-java
+```java
 public interface TenantAvailable {
     default String getTenantId() {
         return (String) ((Extendable) this).getExtensions().get("tenantId");
@@ -147,7 +147,7 @@ public interface TenantAvailable {
 }
 ```
 
-```language-java
+```java
 @Middleware(name = "tenant")
 public class TenantMiddleware implements WebMiddleware {
 
@@ -170,7 +170,7 @@ Downstream handlers can then cast the request to `TenantAvailable` to read the t
 
 Use a predicate to apply middleware only to matching requests:
 
-```language-java
+```java
 // Only on /api/* paths
 app.use(path("^/api/"), new ApiKeyAuthMiddleware());
 

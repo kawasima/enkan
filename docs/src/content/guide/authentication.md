@@ -15,7 +15,7 @@ The first non-null principal wins; remaining backends are skipped.
 
 The resolved principal is added to the request via the `PrincipalAvailable` mixin:
 
-```language-java
+```java
 app.use(new AuthenticationMiddleware<>(List.of(
     new SessionBackend(),
     new MyTokenBackend()
@@ -35,14 +35,14 @@ Reads a `Principal` stored under the key `"principal"` in the session.
 Use this for classical login-form authentication where the principal is stored after a
 successful credential check.
 
-```language-java
+```java
 // On login success — store the principal in the session
 HttpResponse response = builder(redirect("/dashboard"))
     .set(HttpResponse::setSession, Session.of("principal", new UserPrincipal(user)))
     .build();
 ```
 
-```language-java
+```java
 // Register the backend
 app.use(new AuthenticationMiddleware<>(List.of(new SessionBackend())));
 ```
@@ -60,7 +60,7 @@ Authorization: Token <your-token-here>
 `TokenBackend.authenticate()` returns `null` by default — you must subclass it and implement
 your own token verification:
 
-```language-java
+```java
 public class JwtTokenBackend extends TokenBackend {
     private final JwtVerifier verifier;
 
@@ -85,7 +85,7 @@ To use a different header scheme (e.g. `Bearer`), call `setTokenName("Bearer")`.
 
 Implement `AuthBackend<REQ, T>`:
 
-```language-java
+```java
 public class BasicAuthBackend implements AuthBackend<HttpRequest, UsernamePassword> {
 
     private final UserRepository users;
@@ -120,7 +120,7 @@ backend does not apply to this request" and the next backend is tried.
 When `AuthenticationMiddleware` has run, the request implements `PrincipalAvailable`.
 Kotowari injects the principal as a method argument:
 
-```language-java
+```java
 public HttpResponse profile(UserPrincipal principal) {
     if (principal == null) {
         return redirect("/login");
@@ -131,7 +131,7 @@ public HttpResponse profile(UserPrincipal principal) {
 
 Or via the `@Inject`-based session approach for form-based login:
 
-```language-java
+```java
 public HttpResponse dashboard(UserPrincipal principal) {
     return templateEngine.render("dashboard", "principal", principal);
 }
@@ -146,7 +146,7 @@ Instead, use **predicates** to restrict access before the protected middleware e
 
 ### Redirect unauthenticated users
 
-```language-java
+```java
 app.use(
     and(path("^/admin/"), authenticated().negate()),
     (Endpoint<HttpRequest, HttpResponse>) req ->
@@ -158,7 +158,7 @@ app.use(
 
 If your `Principal` implements a permission check, wrap it in a custom predicate:
 
-```language-java
+```java
 public class HasPermission implements Predicate<HttpRequest> {
     private final String permission;
 
@@ -177,7 +177,7 @@ public class HasPermission implements Predicate<HttpRequest> {
 }
 ```
 
-```language-java
+```java
 app.use(
     and(path("^/admin/"), new HasPermission("ADMIN").negate()),
     (Endpoint<HttpRequest, HttpResponse>) req ->

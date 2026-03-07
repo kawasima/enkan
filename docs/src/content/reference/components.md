@@ -131,6 +131,12 @@ jOOQ component provides a DSL context for building type-safe SQL queries.
 </dependency>
 ```
 
+### Properties
+
+| Name | Type | Description | Default |
+|:---|:---|:---------|:------|
+| dialect | SQLDialect | SQL dialect | DEFAULT |
+
 ### Dependencies
 
 - DataSourceComponent
@@ -277,3 +283,33 @@ Metrics component provides the feature of collecting application metrics using D
 |Name|Type|Description|Default|
 |:---|:---|:---------|:------|
 |metricName|String|Base metric name prefix|enkan|
+
+## OpenTelemetry
+
+OpenTelemetry component wraps an `OpenTelemetry` instance and exposes a `Tracer` for use by `TracingMiddleware`.
+Defaults to `OpenTelemetry.noop()` — no spans are emitted unless an SDK is configured at runtime
+(e.g. via the OpenTelemetry Java Agent or an explicit SDK setup).
+
+### Usage
+
+```xml
+<dependency>
+  <groupId>net.unit8.enkan</groupId>
+  <artifactId>enkan-component-opentelemetry</artifactId>
+</dependency>
+```
+
+```java
+// No-op (default) — suitable for development
+OpenTelemetryComponent otel = new OpenTelemetryComponent();
+
+// With a configured SDK instance
+OpenTelemetryComponent otel = new OpenTelemetryComponent(GlobalOpenTelemetry.get());
+```
+
+### Properties
+
+| Name | Type | Description | Default |
+|:---|:---|:---------|:------|
+| openTelemetry | OpenTelemetry | OpenTelemetry instance | `OpenTelemetry.noop()` |
+| instrumentationName | String | Tracer / instrumentation scope name | `"enkan"` |

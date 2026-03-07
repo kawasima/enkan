@@ -2,15 +2,13 @@
 <@layout.myLayout>
   <div class="container">
   <div class="row">
-    <section class="col-lg-3">
+    <aside class="col-lg-2">
     <#include "menu.ftl">
-    </section>
-    <section class="col-lg-9">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-          ${content.body}
-          </div>
+    </aside>
+    <section class="col-lg-10">
+      <div class="row">
+        <div class="col-12">
+        ${content.body}
         </div>
       </div>
     </section>

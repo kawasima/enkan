@@ -12,7 +12,7 @@ Kotowari is a lightweight MVC web application framework on Enkan.
 A controller is a plain Java class. Its methods handle HTTP requests and return
 an `HttpResponse` (or a value that a middleware converts into one).
 
-```language-java
+```java
 public class CustomerController {
     @Inject
     private TemplateEngine templateEngine;
@@ -39,7 +39,7 @@ public class CustomerController {
 Components registered in the Enkan system are injected into `@Inject`-annotated
 fields of a controller by `ControllerInvokerMiddleware`.
 
-```language-java
+```java
 @Inject
 private TemplateEngine templateEngine;
 
@@ -49,7 +49,7 @@ private DomaProvider daoProvider;
 
 If multiple fields share the same type, use `@Named` to distinguish them:
 
-```language-java
+```java
 @Named("freemarker")
 @Inject
 private TemplateEngine freemarker;
@@ -80,7 +80,7 @@ Kotowari provides Rails-style routing.
 
 ### Defining Routes
 
-```language-java
+```java
 Routes routes = Routes.define(r -> {
     r.get("/").to(HomeController.class, "index");
     r.get("/customers").to(CustomerController.class, "index");
@@ -121,7 +121,7 @@ Routes routes = Routes.define(r -> {
 
 ### Path Generation
 
-```language-java
+```java
 // Generates "/customers/"
 routes.generate(OptionMap.of("controller", CustomerController.class, "action", "index"));
 
@@ -133,7 +133,7 @@ routes.generate(OptionMap.of("controller", CustomerController.class, "action", "
 
 `FormMiddleware` populates a form object from request parameters.
 
-```language-java
+```java
 public class CustomerForm extends FormBase {
     @NotBlank
     @Size(max = 100)
@@ -146,7 +146,7 @@ public class CustomerForm extends FormBase {
 
 The form object is injected into the controller method by `ControllerInvokerMiddleware`:
 
-```language-java
+```java
 public HttpResponse create(CustomerForm form) {
     // form fields are already populated from request parameters
 }
@@ -157,7 +157,7 @@ public HttpResponse create(CustomerForm form) {
 `ValidateBodyMiddleware` validates the form object using Jakarta Bean Validation (JSR 380).
 Validation errors are stored on the form object itself (via `Validatable`).
 
-```language-java
+```java
 public HttpResponse create(CustomerForm form) {
     if (!form.isValid()) {
         return templateEngine.render("customer/new", "form", form);
@@ -171,7 +171,7 @@ public HttpResponse create(CustomerForm form) {
 `TransactionMiddleware` wraps controller invocation in a JTA transaction when
 the controller method or class is annotated with `@Transactional`.
 
-```language-java
+```java
 @Transactional
 public HttpResponse create(CustomerForm form) {
     CustomerDao dao = daoProvider.get(CustomerDao.class);
@@ -189,7 +189,7 @@ using JAX-RS `MessageBodyReader`/`MessageBodyWriter` implementations.
 
 Add a JAX-RS provider dependency (e.g. Jackson) to enable JSON support:
 
-```language-xml
+```xml
 <dependency>
     <groupId>com.fasterxml.jackson.jaxrs</groupId>
     <artifactId>jackson-jaxrs-json-provider</artifactId>
@@ -198,7 +198,7 @@ Add a JAX-RS provider dependency (e.g. Jackson) to enable JSON support:
 
 A controller method can return any serializable object:
 
-```language-java
+```java
 public List<Customer> list() {
     return daoProvider.get(CustomerDao.class).selectAll();
 }

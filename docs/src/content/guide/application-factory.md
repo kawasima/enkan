@@ -18,7 +18,7 @@ Kotowari's routing has the features like RoR routing. There are recognizing and 
 
 `Routes` class has the `define` method for the mapping between the path and the controller method.
 
-```language-java
+```java
 Routes routes = Routes.define(r -> {
     r.get("/").to(HomeController.class, "index");
     r.scope("/admin", admin -> {
@@ -54,7 +54,7 @@ It provides useful methods as follows:
 
 And `scope` can be nested.
 
-```language-java
+```java
 Routes routes = Routes.define(r ->
     r.scope("/admin", admin ->
         admin.scope("/user", user ->
@@ -68,7 +68,7 @@ Above example routes the `/admin/user/list` request to the `list` method of Admi
 
 `UrlRewriter#urlFor` methods can generate the path string from the given parameters.
 
-```language-java
+```java
 Routes routes = Routes.define(r -> {
     r.get("/a/b/").to(TestController.class, "index");
     r.get("/a/b/:id").to(TestController.class, "show");
@@ -87,7 +87,7 @@ To use and configure the middleware, call `use()` method in Application.
 The middleware executes in the order they are called `use()`.
 
 
-```language-java
+```java
     app.use(new DefaultCharsetMiddleware());
     app.use(new MetricsMiddleware<>());
     app.use(NONE, new ServiceUnavailableMiddleware<>(new ResourceEndpoint("/public/html/503.html")));

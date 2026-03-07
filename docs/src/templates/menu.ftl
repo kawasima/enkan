@@ -16,8 +16,8 @@
       </a>
     </li>
     <li class="sidebar-brand">
-      <a href="${content.rootpath}guide/spring-boot-comparison.html">
-        Spring Boot Comparison
+      <a href="${content.rootpath}guide/repl.html">
+        REPL-Driven Development
       </a>
     </li>
     <li class="sidebar-brand">
@@ -63,6 +63,21 @@
     <li class="sidebar-brand">
       <a href="${content.rootpath}guide/development.html">
         Development tools
+      </a>
+    </li>
+    <li class="sidebar-brand">
+      <a href="${content.rootpath}guide/testing.html">
+        Testing
+      </a>
+    </li>
+    <li class="sidebar-brand">
+      <a href="${content.rootpath}guide/deployment.html">
+        Deployment
+      </a>
+    </li>
+    <li class="sidebar-brand">
+      <a href="${content.rootpath}guide/spring-boot-comparison.html">
+        Spring Boot Comparison
       </a>
     </li>
   </ul>
