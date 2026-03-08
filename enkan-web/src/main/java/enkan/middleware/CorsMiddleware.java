@@ -58,6 +58,8 @@ public class CorsMiddleware implements WebMiddleware {
                             headers -> headers.get("origin"))
                             .orElse("*");
                     responseHeaders.put("Access-Control-Allow-Origin", origin);
+                    // Vary: Origin ensures proxies cache separate preflight responses per origin.
+                    responseHeaders.put("Vary", "Origin");
                 }
 
                 if (methods != null && !methods.isEmpty()) {
@@ -82,9 +84,14 @@ public class CorsMiddleware implements WebMiddleware {
         HttpResponse response = castToHttpResponse(chain.next(request));
 
         if (isCORSRequest(request)) {
-            if (origins != null && !origins.isEmpty()) {
-                String allowOrigin = isAnyOriginAllowed() ? "*" : String.join(", ", origins);
-                header(response, "Access-Control-Allow-Origin", allowOrigin);
+            String requestOrigin = some(request.getHeaders(), h -> h.get("origin")).orElse(null);
+            if (isAnyOriginAllowed()) {
+                header(response, "Access-Control-Allow-Origin", "*");
+            } else if (requestOrigin != null && origins.contains(requestOrigin)) {
+                // RFC 6454 §7.2: Access-Control-Allow-Origin must be a single origin, not a list.
+                // Echo back the matched request origin and add Vary: Origin for correct caching.
+                header(response, "Access-Control-Allow-Origin", requestOrigin);
+                appendVaryOrigin(response);
             }
             if (credentials) {
                 header(response, "Access-Control-Allow-Credentials", "true");
@@ -126,6 +133,20 @@ public class CorsMiddleware implements WebMiddleware {
 
     private boolean isCORSRequest(HttpRequest httpRequest) {
         return Objects.nonNull(httpRequest.getHeaders().get("Origin"));
+    }
+
+    /**
+     * Appends "Origin" to the Vary header without overwriting existing values.
+     */
+    private void appendVaryOrigin(HttpResponse response) {
+        String existing = getHeader(response, "Vary");
+        if (existing == null) {
+            header(response, "Vary", "Origin");
+        } else if (Arrays.stream(existing.split(","))
+                .map(String::trim)
+                .noneMatch("Origin"::equalsIgnoreCase)) {
+            header(response, "Vary", existing + ", Origin");
+        }
     }
 
     /**
