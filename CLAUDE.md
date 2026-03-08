@@ -16,8 +16,13 @@ Improvement proposals and architectural decisions are tracked as GitHub Issues.
 
 ## Code Review Checklist
 
+Apply this checklist both when reviewing others' code **and** before submitting your own changes.
+
 - Verify all branches for malformed/invalid input, not just the happy path.
 - When multiple parsing strategies exist (e.g. quoted vs. unquoted), ensure malformed input in one strategy does not silently fall through to another and produce a wrong result.
+- When extending the scope of a utility function (e.g. adding new types to a filter), trace all call sites to verify that downstream behavior is correct for the new inputs — not just the entry point.
+- String comparisons against HTTP header values (media types, field names) must be case-insensitive per the relevant RFC. Verify that `equalsIgnoreCase`, `toLowerCase(Locale.ROOT)`, or `regionMatches(true, ...)` is used appropriately.
+- When modifying a utility on the request/response hot path, check for unnecessary allocations (e.g. `String.split`, `toLowerCase`) and prefer allocation-free alternatives (`indexOf` loop, `regionMatches`) consistent with surrounding code.
 
 ## Pull Requests
 
