@@ -20,12 +20,13 @@ public class DefaultCharsetMiddleware implements WebMiddleware {
     protected boolean isTextBasedContentType(String contentType) {
         if (contentType == null) return false;
         // Media type comparisons are case-insensitive per RFC 7231 §3.1.1.1.
-        String lower = contentType.toLowerCase(java.util.Locale.ROOT);
-        return lower.startsWith("text/")
-                || lower.startsWith("application/xml")
-                || lower.startsWith("application/json")
-                || lower.startsWith("application/ld+json")
-                || lower.startsWith("application/xhtml+xml");
+        // Use regionMatches(true, ...) to avoid allocating a lowercased String on each call.
+        int len = contentType.length();
+        return (len >= 5  && contentType.regionMatches(true, 0, "text/", 0, 5))
+                || (len >= 15 && contentType.regionMatches(true, 0, "application/xml", 0, 15))
+                || (len >= 16 && contentType.regionMatches(true, 0, "application/json", 0, 16))
+                || (len >= 19 && contentType.regionMatches(true, 0, "application/ld+json", 0, 19))
+                || (len >= 21 && contentType.regionMatches(true, 0, "application/xhtml+xml", 0, 21));
     }
 
     protected boolean isContainsCharset(String contentType) {

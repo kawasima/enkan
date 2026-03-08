@@ -106,11 +106,18 @@ public class HttpResponseUtils {
             type = "text/plain";
         }
         // Rebuild Content-Type preserving non-charset parameters, then append charset.
-        String[] parts = type.split(";");
-        StringBuilder sb = new StringBuilder(parts[0].trim());
-        for (int i = 1; i < parts.length; i++) {
-            String param = parts[i].trim();
-            if (!param.regionMatches(true, 0, "charset=", 0, 8)) {
+        // Uses indexOf loop instead of String.split to avoid regex overhead on hot path.
+        int semicolonIndex = type.indexOf(';');
+        StringBuilder sb = semicolonIndex < 0
+                ? new StringBuilder(type.trim())
+                : new StringBuilder(type.substring(0, semicolonIndex).trim());
+        int pos = semicolonIndex + 1;
+        int len = type.length();
+        while (semicolonIndex >= 0 && pos <= len) {
+            int next = type.indexOf(';', pos);
+            String param = (next < 0 ? type.substring(pos) : type.substring(pos, next)).trim();
+            pos = next < 0 ? len + 1 : next + 1;
+            if (!param.isEmpty() && !param.regionMatches(true, 0, "charset=", 0, 8)) {
                 sb.append("; ").append(param);
             }
         }
