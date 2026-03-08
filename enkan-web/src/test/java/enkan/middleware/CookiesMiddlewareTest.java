@@ -12,6 +12,8 @@ import enkan.predicate.AnyPredicate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+
 import static enkan.util.BeanBuilder.builder;
 import static enkan.util.ThreadingUtils.some;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +35,16 @@ class CookiesMiddlewareTest {
                 .set(HttpRequest::setUri, "/prefix/")
                 .set(HttpRequest::setQueryString, "a=b&c=d")
                 .build();
+    }
+
+    @Test
+    void cookieExpiresUsesGmtNotOffset() {
+        Cookie cookie = Cookie.create("session", "abc");
+        cookie.setExpires(new Date(0L)); // 1970-01-01T00:00:00Z
+        String header = cookie.toHttpString();
+        // RFC 6265 §4.1.2.1 requires GMT, not +0000
+        assertThat(header).contains("GMT");
+        assertThat(header).doesNotContain("+0000");
     }
 
     @Test
