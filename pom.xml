@@ -197,8 +197,8 @@
     <inceptionYear>2016</inceptionYear>
     <licenses>
         <license>
-            <name>Eclipse Public License (EPL), Version 1.0</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <name>Eclipse Public License (EPL), Version 2.0</name>
+            <url>https://www.eclipse.org/legal/epl-2.0/</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
