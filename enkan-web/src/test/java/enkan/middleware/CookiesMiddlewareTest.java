@@ -63,4 +63,33 @@ class CookiesMiddlewareTest {
         request.getHeaders().put("Cookie", "A=%E3%81%82%E3%81%84%E3%81%86; B=1");
         middleware.handle(request, chain);
     }
+
+    @Test
+    void parsesRfcValidCookieOctets() {
+        // RFC 6265 §4.1.1: spot-check a few allowed chars at the boundary of each range
+        // %x21=!, %x23=#, %x2B=+, %x2D=-, %x3A=:, %x3C=<, %x5B=[, %x5D=], %x7E=~
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
+                (Endpoint<HttpRequest, HttpResponse>) req -> {
+                    assertThat(req.getCookies()).containsKey("A");
+                    return HttpResponse.of("ok");
+                });
+        request.getHeaders().put("Cookie", "A=!#%2B-:%3C%5B%5D~");
+        middleware.handle(request, chain);
+    }
+
+    @Test
+    void rejectsBackslashInCookieValue() {
+        // Backslash (%x5C) is excluded by RFC 6265 §4.1.1 cookie-octet definition.
+        // The backslash is not consumed as a cookie-octet; RE_COOKIE_VALUE matches the
+        // empty string before it, so the cookie is parsed with an empty value.
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
+                (Endpoint<HttpRequest, HttpResponse>) req -> {
+                    Cookie bad = req.getCookies().get("BAD");
+                    assertThat(bad).isNotNull();
+                    assertThat(bad.getValue()).isEmpty();
+                    return HttpResponse.of("ok");
+                });
+        request.getHeaders().put("Cookie", "BAD=\\");
+        middleware.handle(request, chain);
+    }
 }
