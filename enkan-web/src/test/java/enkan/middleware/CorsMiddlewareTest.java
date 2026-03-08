@@ -10,6 +10,8 @@ import enkan.data.HttpResponse;
 import enkan.predicate.AnyPredicate;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static enkan.util.BeanBuilder.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -133,6 +135,96 @@ class CorsMiddlewareTest {
         assertThat(headers).extracting("Access-Control-Allow-Headers")
                 .asString()
                 .contains("Content-Type");
+    }
+
+    @Test
+    void preflightWithMultipleOriginsEchoesMatchedOriginAndSetsVary() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example", "https://b.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("OPTIONS");
+        request.setHeaders(Headers.of("Origin", "https://a.example",
+                "Access-Control-Request-Method", "POST"));
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(result.getHeaders().get("Access-Control-Allow-Origin"))
+                .isEqualTo("https://a.example");
+        assertThat(result.getHeaders().get("Vary")).isEqualTo("Origin");
+    }
+
+    @Test
+    void multipleConfiguredOriginsEchoesMatchedOrigin() {
+        // RFC 6454 §7.2: Access-Control-Allow-Origin must be a single origin, not a list.
+        // When multiple origins are configured, echo back only the matched request origin.
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example", "https://b.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Origin", "https://a.example"))
+                .set(HttpRequest::setRequestMethod, "GET")
+                .build();
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("ok"))
+                        .set(HttpResponse::setHeaders, Headers.of("Content-Type", "text/plain")).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        assertThat(result.getHeaders().get("Access-Control-Allow-Origin"))
+                .isEqualTo("https://a.example")
+                .doesNotContain(",");
+        assertThat(result.getHeaders().get("Vary")).isEqualTo("Origin");
+    }
+
+    @Test
+    void varyOriginIsAppendedNotOverwritten() {
+        // Vary already set by the endpoint; Origin must be appended, not overwrite it.
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Origin", "https://a.example"))
+                .set(HttpRequest::setRequestMethod, "GET")
+                .build();
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("ok"))
+                        .set(HttpResponse::setHeaders, Headers.of("Vary", "Accept-Encoding")).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        String vary = result.getHeaders().get("Vary");
+        assertThat(vary).contains("Accept-Encoding");
+        assertThat(vary).contains("Origin");
+    }
+
+    @Test
+    void multipleConfiguredOriginsRejectsUnknownOrigin() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example", "https://b.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Origin", "https://evil.example"))
+                .set(HttpRequest::setRequestMethod, "GET")
+                .build();
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("ok")).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        // Unknown origin should receive a 403
+        assertThat(result.getStatus()).isEqualTo(403);
     }
 
     @Test
