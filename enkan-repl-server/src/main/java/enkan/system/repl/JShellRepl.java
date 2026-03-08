@@ -408,29 +408,40 @@ public class JShellRepl implements Repl {
 
     }
 
-    private static final Path PORT_FILE = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
     private volatile Integer lastWrittenPort = null;
+    private volatile Path lastPortFile = null;
+
+    private static Path getPortFile() {
+        String override = System.getProperty("enkan.repl.portFile");
+        if (override != null && !override.isBlank()) {
+            return Path.of(override);
+        }
+        return Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+    }
 
     private void writePortFile(int port) {
+        Path portFile = getPortFile();
         try {
-            Files.writeString(PORT_FILE, Integer.toString(port));
-            PORT_FILE.toFile().deleteOnExit();
+            Files.writeString(portFile, Integer.toString(port));
+            portFile.toFile().deleteOnExit();
             lastWrittenPort = port;
+            lastPortFile = portFile;
         } catch (IOException e) {
-            LOG.warn("Failed to write port file {}: {}", PORT_FILE, e.getMessage());
+            LOG.warn("Failed to write port file {}: {}", portFile, e.getMessage());
         }
     }
 
     private void deletePortFile() {
         Integer port = lastWrittenPort;
         if (port == null) return;
+        Path portFile = lastPortFile != null ? lastPortFile : getPortFile();
         try {
-            String content = Files.readString(PORT_FILE).trim();
+            String content = Files.readString(portFile).trim();
             if (Integer.toString(port).equals(content)) {
-                Files.deleteIfExists(PORT_FILE);
+                Files.deleteIfExists(portFile);
             }
         } catch (IOException e) {
-            LOG.warn("Failed to delete port file {}: {}", PORT_FILE, e.getMessage());
+            LOG.warn("Failed to delete port file {}: {}", portFile, e.getMessage());
         }
     }
 
