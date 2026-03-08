@@ -256,6 +256,12 @@ class CorsMiddlewareTest {
     }
 
     @Test
+    void setMaxAgeNullIsAccepted() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setMaxAge(null); // no exception; header will not be emitted
+    }
+
+    @Test
     void setMaxAgeNegativeThrowsMisconfigurationException() {
         CorsMiddleware sut = new CorsMiddleware();
         assertThatThrownBy(() -> sut.setMaxAge(-1L))

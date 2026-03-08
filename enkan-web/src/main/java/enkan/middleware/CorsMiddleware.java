@@ -72,7 +72,7 @@ public class CorsMiddleware implements WebMiddleware {
                 if (credentials) {
                     responseHeaders.put("Access-Control-Allow-Credentials", "true");
                 }
-                if (maxAge > 0L) {
+                if (maxAge != null && maxAge > 0L) {
                     responseHeaders.put("Access-Control-Max-Age", String.valueOf(maxAge));
                 }
                 return builder(HttpResponse.of(""))
@@ -184,8 +184,7 @@ public class CorsMiddleware implements WebMiddleware {
      */
     public void setMaxAge(Long maxAge) {
         if (maxAge != null && maxAge < 0) {
-            throw new MisconfigurationException("core.INVALID_ARGUMENT", "maxAge", maxAge,
-                    "Access-Control-Max-Age must be a non-negative integer per the Fetch spec §3.2.1.");
+            throw new MisconfigurationException("core.INVALID_ARGUMENT", "maxAge", maxAge);
         }
         this.maxAge = maxAge;
     }
