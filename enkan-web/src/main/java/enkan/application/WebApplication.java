@@ -1,6 +1,7 @@
 package enkan.application;
 
 import enkan.Application;
+import enkan.Endpoint;
 import enkan.Middleware;
 import enkan.MiddlewareChain;
 import enkan.chain.DefaultMiddlewareChain;
@@ -40,6 +41,10 @@ public class WebApplication implements Application<HttpRequest, HttpResponse> {
     }
     public <REQ extends UriAvailable, RES, NREQ, NRES> void delete(String path, Middleware<REQ, RES, NREQ, NRES> middleware) {
         use(PathPredicate.DELETE(path), middleware);
+    }
+
+    public <REQ extends UriAvailable, RES> void use(Predicate<? super REQ> decision, String middlewareName, Endpoint<REQ, RES> endpoint) {
+        use(decision, middlewareName, (Middleware<REQ, RES, REQ, RES>) endpoint);
     }
 
     @Override
