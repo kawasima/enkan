@@ -351,19 +351,15 @@ public class ReplClient {
     }
 
     private static int readPortFile() {
-        Path dir = Path.of(System.getProperty("user.dir")).toAbsolutePath();
-        while (dir != null) {
-            Path portFile = dir.resolve(".enkan-repl-port");
-            try {
-                if (Files.exists(portFile)) {
-                    String content = Files.readString(portFile).trim();
-                    if (content.matches("\\d+")) {
-                        return Integer.parseInt(content);
-                    }
+        Path portFile = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+        try {
+            if (Files.exists(portFile)) {
+                String content = Files.readString(portFile).trim();
+                if (content.matches("\\d+")) {
+                    return Integer.parseInt(content);
                 }
-            } catch (IOException ignored) {
             }
-            dir = dir.getParent();
+        } catch (IOException ignored) {
         }
         return -1;
     }
