@@ -18,7 +18,12 @@ public class DefaultCharsetMiddleware implements WebMiddleware {
     private String defaultCharset = "UTF-8";
 
     protected boolean isTextBasedContentType(String contentType) {
-        return contentType != null && (contentType.startsWith("text/") || contentType.startsWith("application/xml"));
+        if (contentType == null) return false;
+        return contentType.startsWith("text/")
+                || contentType.startsWith("application/xml")
+                || contentType.startsWith("application/json")
+                || contentType.startsWith("application/ld+json")
+                || contentType.startsWith("application/xhtml+xml");
     }
 
     protected boolean isContainsCharset(String contentType) {

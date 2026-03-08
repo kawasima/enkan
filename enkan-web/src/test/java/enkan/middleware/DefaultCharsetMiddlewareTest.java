@@ -72,9 +72,57 @@ class DefaultCharsetMiddlewareTest {
     }
 
     @Test
-    void doesNotAddCharsetToApplicationJson() {
+    void addsCharsetToApplicationJson() {
         HttpResponse response = builder(HttpResponse.of("body"))
                 .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/json"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
+    void addsCharsetToApplicationJsonWithExistingCharsetUnchanged() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/json; charset=UTF-8"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).containsOnlyOnce("charset=UTF-8");
+    }
+
+    @Test
+    void addsCharsetToApplicationLdJson() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/ld+json"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
+    void addsCharsetToApplicationXhtmlXml() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/xhtml+xml"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
+    void doesNotAddCharsetToApplicationOctetStream() {
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/octet-stream"))
                 .build();
 
         HttpResponse result = handleWith(response);
