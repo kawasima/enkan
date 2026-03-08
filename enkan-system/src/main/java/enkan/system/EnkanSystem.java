@@ -182,10 +182,13 @@ public class EnkanSystem {
     public void stop() {
         List<String> reverse = new ArrayList<>(componentsOrder);
         Collections.reverse(reverse);
-        reverse.stream()
-                .map(components::get)
-                .forEach(EnkanSystem::stopComponent);
-        started = false;
+        try {
+            reverse.stream()
+                    .map(components::get)
+                    .forEach(EnkanSystem::stopComponent);
+        } finally {
+            started = false;
+        }
     }
 
     @SuppressWarnings("unchecked")

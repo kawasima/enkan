@@ -354,10 +354,11 @@ public class ReplClient {
         Path portFile = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
         try {
             String content = Files.readString(portFile).trim();
-            if (content.matches("\\d+")) {
-                return Integer.parseInt(content);
+            int port = Integer.parseInt(content);
+            if (port >= 1 && port <= 65535) {
+                return port;
             }
-        } catch (IOException ignored) {
+        } catch (IOException | NumberFormatException ignored) {
         }
         return -1;
     }

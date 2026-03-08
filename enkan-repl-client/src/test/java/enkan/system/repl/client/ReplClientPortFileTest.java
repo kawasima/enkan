@@ -1,7 +1,9 @@
 package enkan.system.repl.client;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -10,15 +12,25 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for ReplClient.readPortFile() via reflection,
- * exercising the $HOME/.enkan-repl-port discovery logic.
+ * Tests for ReplClient.readPortFile() via reflection.
+ * Redirects user.home to a JUnit-managed temp directory so the real
+ * $HOME/.enkan-repl-port is never touched.
  */
 class ReplClientPortFileTest {
-    private static final Path PORT_FILE = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+    @TempDir
+    Path tempDir;
+
+    private String originalHome;
+
+    @BeforeEach
+    void redirectHome() {
+        originalHome = System.getProperty("user.home");
+        System.setProperty("user.home", tempDir.toString());
+    }
 
     @AfterEach
-    void cleanup() throws Exception {
-        Files.deleteIfExists(PORT_FILE);
+    void restoreHome() {
+        System.setProperty("user.home", originalHome);
     }
 
     private int readPortFile() throws Exception {
@@ -27,37 +39,53 @@ class ReplClientPortFileTest {
         return (int) m.invoke(null);
     }
 
+    private Path portFile() {
+        return tempDir.resolve(".enkan-repl-port");
+    }
+
     @Test
     void returnsMinus1WhenFileAbsent() throws Exception {
-        Files.deleteIfExists(PORT_FILE);
-
         assertThat(readPortFile()).isEqualTo(-1);
     }
 
     @Test
     void returnsPortWhenFileContainsValidPort() throws Exception {
-        Files.writeString(PORT_FILE, "12345");
+        Files.writeString(portFile(), "12345");
 
         assertThat(readPortFile()).isEqualTo(12345);
     }
 
     @Test
-    void tripsWhitespaceAroundPortNumber() throws Exception {
-        Files.writeString(PORT_FILE, "  54321\n");
+    void trimsWhitespaceAroundPortNumber() throws Exception {
+        Files.writeString(portFile(), "  54321\n");
 
         assertThat(readPortFile()).isEqualTo(54321);
     }
 
     @Test
     void returnsMinus1WhenFileContainsNonNumeric() throws Exception {
-        Files.writeString(PORT_FILE, "not-a-port");
+        Files.writeString(portFile(), "not-a-port");
 
         assertThat(readPortFile()).isEqualTo(-1);
     }
 
     @Test
     void returnsMinus1WhenFileIsEmpty() throws Exception {
-        Files.writeString(PORT_FILE, "");
+        Files.writeString(portFile(), "");
+
+        assertThat(readPortFile()).isEqualTo(-1);
+    }
+
+    @Test
+    void returnsMinus1WhenPortIsOutOfRange() throws Exception {
+        Files.writeString(portFile(), "99999");
+
+        assertThat(readPortFile()).isEqualTo(-1);
+    }
+
+    @Test
+    void returnsMinus1WhenPortIsZero() throws Exception {
+        Files.writeString(portFile(), "0");
 
         assertThat(readPortFile()).isEqualTo(-1);
     }

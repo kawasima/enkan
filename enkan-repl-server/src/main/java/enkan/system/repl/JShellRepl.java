@@ -409,19 +409,26 @@ public class JShellRepl implements Repl {
     }
 
     private static final Path PORT_FILE = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+    private static volatile Integer lastWrittenPort = null;
 
     private static void writePortFile(int port) {
         try {
             Files.writeString(PORT_FILE, Integer.toString(port));
             PORT_FILE.toFile().deleteOnExit();
+            lastWrittenPort = port;
         } catch (IOException e) {
             LOG.warn("Failed to write port file {}: {}", PORT_FILE, e.getMessage());
         }
     }
 
     private static void deletePortFile() {
+        Integer port = lastWrittenPort;
+        if (port == null) return;
         try {
-            Files.deleteIfExists(PORT_FILE);
+            String content = Files.readString(PORT_FILE).trim();
+            if (Integer.toString(port).equals(content)) {
+                Files.deleteIfExists(PORT_FILE);
+            }
         } catch (IOException e) {
             LOG.warn("Failed to delete port file {}: {}", PORT_FILE, e.getMessage());
         }
