@@ -27,7 +27,7 @@ public class CorsMiddleware implements WebMiddleware {
     private Set<String> methods;
     private Set<String> origins;
     private Set<String> headers;
-    private Long maxage;
+    private Long maxAge;
     private boolean credentials;
 
     public CorsMiddleware() {
@@ -36,7 +36,7 @@ public class CorsMiddleware implements WebMiddleware {
         headers = Set.of(
                 "Origin", "Accept", "X-Requested-With", "Content-Type",
                 "Access-Control-Request-Method", "Access-Control-Request-Headers");
-        maxage = 1800L;
+        maxAge = 1800L;
         credentials = true;
     }
 
@@ -72,8 +72,8 @@ public class CorsMiddleware implements WebMiddleware {
                 if (credentials) {
                     responseHeaders.put("Access-Control-Allow-Credentials", "true");
                 }
-                if (maxage > 0L) {
-                    responseHeaders.put("Access-Control-Max-Age", String.valueOf(maxage));
+                if (maxAge > 0L) {
+                    responseHeaders.put("Access-Control-Max-Age", String.valueOf(maxAge));
                 }
                 return builder(HttpResponse.of(""))
                         .set(HttpResponse::setStatus, 200)
@@ -180,14 +180,14 @@ public class CorsMiddleware implements WebMiddleware {
     /**
      * Set the max age.
      *
-     * @param maxage max age
+     * @param maxAge max age
      */
-    public void setMaxage(Long maxage) {
-        if (maxage != null && maxage < 0) {
-            throw new MisconfigurationException("core.INVALID_ARGUMENT", "maxage", maxage,
+    public void setMaxAge(Long maxAge) {
+        if (maxAge != null && maxAge < 0) {
+            throw new MisconfigurationException("core.INVALID_ARGUMENT", "maxAge", maxAge,
                     "Access-Control-Max-Age must be a non-negative integer per the Fetch spec §3.2.1.");
         }
-        this.maxage = maxage;
+        this.maxAge = maxAge;
     }
 
     /**
