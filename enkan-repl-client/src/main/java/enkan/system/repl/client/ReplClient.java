@@ -353,11 +353,9 @@ public class ReplClient {
     private static int readPortFile() {
         Path portFile = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
         try {
-            if (Files.exists(portFile)) {
-                String content = Files.readString(portFile).trim();
-                if (content.matches("\\d+")) {
-                    return Integer.parseInt(content);
-                }
+            String content = Files.readString(portFile).trim();
+            if (content.matches("\\d+")) {
+                return Integer.parseInt(content);
             }
         } catch (IOException ignored) {
         }
@@ -374,7 +372,6 @@ public class ReplClient {
         } else {
             int port = readPortFile();
             if (port > 0) {
-                System.out.println("Auto-connecting to port " + port + " (from .enkan-repl-port)");
                 client.start(port);
             } else {
                 client.start();

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class EnkanSystem {
     private final Map<String, SystemComponent<?>> components;
     private final LinkedList<String> componentsOrder;
-    private boolean started = false;
+    private volatile boolean started = false;
 
     private EnkanSystem() {
         components = new HashMap<>();
