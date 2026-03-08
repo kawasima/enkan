@@ -102,6 +102,39 @@ class JShellReplIntegrationTest {
     }
 
     // -----------------------------------------------------------------------
+    // Status command
+    // -----------------------------------------------------------------------
+
+    @Test
+    void statusCommandReportsStoppedBeforeStart() {
+        List<ReplResponse> responses = client.send("/status");
+
+        boolean hasStopped = responses.stream()
+                .anyMatch(r -> r.getOut() != null && r.getOut().contains("stopped"));
+        assertThat(hasStopped)
+                .as("Expected 'stopped' in /status response before start, got: %s", responses)
+                .isTrue();
+
+        ReplResponse last = responses.get(responses.size() - 1);
+        assertThat(last.getStatus()).contains(ReplResponse.ResponseStatus.DONE);
+    }
+
+    @Test
+    void statusCommandReportsStartedAfterStart() {
+        client.send("/start");
+
+        List<ReplResponse> responses = client.send("/status");
+
+        boolean hasStarted = responses.stream()
+                .anyMatch(r -> r.getOut() != null && r.getOut().contains("started"));
+        assertThat(hasStarted)
+                .as("Expected 'started' in /status response after /start, got: %s", responses)
+                .isTrue();
+
+        client.send("/stop");
+    }
+
+    // -----------------------------------------------------------------------
     // Completer
     // -----------------------------------------------------------------------
 
