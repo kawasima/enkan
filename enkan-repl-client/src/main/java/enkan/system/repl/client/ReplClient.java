@@ -351,7 +351,7 @@ public class ReplClient {
     }
 
     static int readPortFile() {
-        Path portFile = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+        Path portFile = resolvePortFile();
         try {
             String content = Files.readString(portFile).trim();
             int port = Integer.parseInt(content);
@@ -361,6 +361,17 @@ public class ReplClient {
         } catch (IOException | NumberFormatException ignored) {
         }
         return -1;
+    }
+
+    private static Path resolvePortFile() {
+        String override = System.getProperty("enkan.repl.portFile");
+        if (override != null && !override.isEmpty()) {
+            try {
+                return Path.of(override);
+            } catch (java.nio.file.InvalidPathException ignored) {
+            }
+        }
+        return Path.of(System.getProperty("user.home"), ".enkan-repl-port");
     }
 
     public static void main(String[] args) {
