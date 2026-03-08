@@ -14,6 +14,11 @@ Improvement proposals and architectural decisions are tracked as GitHub Issues.
 - Close the issue with a reference commit (`closes #N`) when implemented
 - Close with `wontfix` label when rejected, with a brief reason in a comment
 
+## Code Review Checklist
+
+- Verify all branches for malformed/invalid input, not just the happy path.
+- When multiple parsing strategies exist (e.g. quoted vs. unquoted), ensure malformed input in one strategy does not silently fall through to another and produce a wrong result.
+
 ## Pull Requests
 
 - Always target `develop` as the base branch when creating PRs (not `main`)
