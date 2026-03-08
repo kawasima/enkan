@@ -106,19 +106,46 @@ public class HttpResponseUtils {
             type = "text/plain";
         }
         // Rebuild Content-Type preserving non-charset parameters, then append charset.
-        // Uses indexOf loop instead of String.split to avoid regex overhead on hot path.
+        // Uses a state machine to correctly handle semicolons inside quoted-string values
+        // (e.g., profile="a;b") without allocating a regex pattern on the hot path.
         int semicolonIndex = type.indexOf(';');
         StringBuilder sb = semicolonIndex < 0
                 ? new StringBuilder(type.trim())
                 : new StringBuilder(type.substring(0, semicolonIndex).trim());
-        int pos = semicolonIndex + 1;
-        int len = type.length();
-        while (semicolonIndex >= 0 && pos <= len) {
-            int next = type.indexOf(';', pos);
-            String param = (next < 0 ? type.substring(pos) : type.substring(pos, next)).trim();
-            pos = next < 0 ? len + 1 : next + 1;
-            if (!param.isEmpty() && !param.regionMatches(true, 0, "charset=", 0, 8)) {
-                sb.append("; ").append(param);
+        if (semicolonIndex >= 0) {
+            String paramsPart = type.substring(semicolonIndex + 1);
+            StringBuilder currentParam = new StringBuilder();
+            boolean inQuotes = false;
+            boolean escape = false;
+            for (int i = 0; i < paramsPart.length(); i++) {
+                char c = paramsPart.charAt(i);
+                if (escape) {
+                    currentParam.append(c);
+                    escape = false;
+                    continue;
+                }
+                if (c == '\\' && inQuotes) {
+                    escape = true;
+                    continue;
+                }
+                if (c == '"') {
+                    inQuotes = !inQuotes;
+                    currentParam.append(c);
+                    continue;
+                }
+                if (c == ';' && !inQuotes) {
+                    String param = currentParam.toString().trim();
+                    if (!param.isEmpty() && !param.regionMatches(true, 0, "charset=", 0, 8)) {
+                        sb.append("; ").append(param);
+                    }
+                    currentParam.setLength(0);
+                } else {
+                    currentParam.append(c);
+                }
+            }
+            String lastParam = currentParam.toString().trim();
+            if (!lastParam.isEmpty() && !lastParam.regionMatches(true, 0, "charset=", 0, 8)) {
+                sb.append("; ").append(lastParam);
             }
         }
         sb.append("; charset=").append(charset);
