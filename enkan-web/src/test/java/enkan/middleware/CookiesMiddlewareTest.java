@@ -83,14 +83,12 @@ class CookiesMiddlewareTest {
 
     @Test
     void backslashIsNotConsumedAsCookieOctet() {
-        // Backslash (%x5C) is excluded by RFC 6265 §4.1.1 cookie-octet definition.
-        // The backslash is not consumed as a cookie-octet; RE_COOKIE_VALUE matches the
-        // empty string before it, so the cookie value is empty.
+        // Backslash (%x5C) is not a valid cookie-octet (RFC 6265 §4.1.1).
+        // RE_COOKIE requires the value to be followed by a delimiter or end-of-input,
+        // so "BAD=\" does not match and the cookie is not parsed at all.
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
-                    Cookie bad = req.getCookies().get("BAD");
-                    assertThat(bad).isNotNull();
-                    assertThat(bad.getValue()).isEmpty();
+                    assertThat(req.getCookies()).doesNotContainKey("BAD");
                     return HttpResponse.of("ok");
                 });
         request.getHeaders().put("Cookie", "BAD=\\");
