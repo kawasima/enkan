@@ -159,7 +159,6 @@ public class SerDesMiddleware<NRES> implements Middleware<HttpRequest, HttpRespo
                 Parameter[] parameters = some(method, Method::getParameters).orElse(new Parameter[0]);
                 for (Parameter parameter : parameters) {
                     Class<?> type = parameter.getType();
-                    final HttpRequest req = request;
                     if (parameterInjectors.stream().anyMatch(injector-> injector.isApplicable(type)))
                         continue;
                     bodyDeserializable.setDeserializedBody(beans.createFrom(

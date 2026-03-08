@@ -209,8 +209,11 @@ public class MixinUtils {
         MethodHandle ctor = proxyCtorCache.computeIfAbsent(cacheKey, k -> {
             try {
                 ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                Constructor<?> cons = Proxy.getProxyClass(cl, classes)
-                        .getConstructor(InvocationHandler.class);
+                // Proxy.getProxyClass is deprecated since Java 9; obtain the proxy class
+                // via newProxyInstance and extract its Class to look up the constructor.
+                Class<?> proxyClass = Proxy.newProxyInstance(cl, classes,
+                        (p, m, a) -> null).getClass();
+                Constructor<?> cons = proxyClass.getConstructor(InvocationHandler.class);
                 return MethodHandles.lookup().unreflectConstructor(cons)
                         .asType(MethodType.methodType(Object.class, InvocationHandler.class));
             } catch (ReflectiveOperationException e) {

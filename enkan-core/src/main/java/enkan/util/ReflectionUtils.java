@@ -38,7 +38,7 @@ public class ReflectionUtils {
             switch (t) {
                 case Error error -> throw error;
                 case RuntimeException runtimeException -> throw runtimeException;
-                case Exception exception -> throw new RuntimeException(t);
+                case Exception ex -> throw new RuntimeException(ex);
                 case null, default -> throw new InternalError(t);
             }
         } catch (NoSuchMethodException e) {

@@ -50,7 +50,8 @@ class WebSocketTransportProviderTest {
         for (int i = 0; i < 50; i++) {
             wsPort = wsProvider.getPort();
             if (wsPort > 0) {
-                try (Socket probe = new Socket("localhost", wsPort)) {
+                try {
+                    new Socket("localhost", wsPort).close();
                     break;
                 } catch (Exception ignored) {
                 }
