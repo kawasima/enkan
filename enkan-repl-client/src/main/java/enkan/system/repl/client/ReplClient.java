@@ -5,6 +5,7 @@ import enkan.system.repl.serdes.Fressian;
 import enkan.system.repl.serdes.ReplResponseReader;
 import enkan.system.repl.serdes.ReplResponseWriter;
 import enkan.system.repl.serdes.ResponseStatusReader;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
@@ -209,6 +210,9 @@ public class ReplClient {
                             }
                         }
                     }
+                } catch (EndOfFileException e) {
+                    close();
+                    return;
                 } catch (UserInterruptException e) {
                     if (serverDisconnected.get()) {
                         reader.getTerminal().writer().println("Server disconnected.");
