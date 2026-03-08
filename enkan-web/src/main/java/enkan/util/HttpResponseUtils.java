@@ -105,12 +105,18 @@ public class HttpResponseUtils {
         if (type == null) {
             type = "text/plain";
         }
-        // Strip existing "; charset=..." without regex/Matcher allocation
-        int idx = type.indexOf(';');
-        String baseType = idx >= 0 ? type.substring(0, idx) : type;
-        String newType = baseType + "; charset=" + charset;
+        // Rebuild Content-Type preserving non-charset parameters, then append charset.
+        String[] parts = type.split(";");
+        StringBuilder sb = new StringBuilder(parts[0].trim());
+        for (int i = 1; i < parts.length; i++) {
+            String param = parts[i].trim();
+            if (!param.regionMatches(true, 0, "charset=", 0, 8)) {
+                sb.append("; ").append(param);
+            }
+        }
+        sb.append("; charset=").append(charset);
         response.getHeaders().remove("Content-Type");
-        header(response, "Content-Type", newType);
+        header(response, "Content-Type", sb.toString());
     }
 
     /**

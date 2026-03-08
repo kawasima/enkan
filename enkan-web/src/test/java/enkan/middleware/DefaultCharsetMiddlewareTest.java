@@ -132,6 +132,34 @@ class DefaultCharsetMiddlewareTest {
     }
 
     @Test
+    void addsCharsetPreservingExistingNonCharsetParameters() {
+        // application/json; profile=... should keep profile param after charset is added.
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "application/json; profile=\"http://example.com/schema\""))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType)
+                .contains("charset=UTF-8")
+                .contains("profile=");
+    }
+
+    @Test
+    void addsCharsetToCaseInsensitiveContentType() {
+        // Media types are case-insensitive per RFC 7231 §3.1.1.1.
+        HttpResponse response = builder(HttpResponse.of("body"))
+                .set(HttpResponse::setHeaders, Headers.of("Content-Type", "Application/JSON"))
+                .build();
+
+        HttpResponse result = handleWith(response);
+
+        String contentType = getHeader(result, "Content-Type");
+        assertThat(contentType).contains("charset=UTF-8");
+    }
+
+    @Test
     void doesNothingWhenContentTypeAbsent() {
         HttpResponse response = HttpResponse.of("body");
 
