@@ -26,7 +26,9 @@ public class CookiesMiddleware implements WebMiddleware {
     // Backslash (%x5C) and double-quote (%x22) are explicitly excluded.
     private static final Pattern RE_COOKIE_OCTET = Pattern.compile("[\\x21\\x23-\\x2B\\x2D-\\x3A\\x3C-\\x5B\\x5D-\\x7E]");
     private static final Pattern RE_COOKIE_VALUE = Pattern.compile("\"" + RE_COOKIE_OCTET.pattern() +  "*\"|" + RE_COOKIE_OCTET.pattern() + "*");
-    private static final Pattern RE_COOKIE = Pattern.compile("\\s*(" + RE_TOKEN + ")=(" + RE_COOKIE_VALUE.pattern() + ")\\s*[;,]?");
+    // Require the value to be followed by a valid delimiter or end-of-input so that
+    // non cookie-octet chars after the value (e.g. backslash) prevent a match entirely.
+    private static final Pattern RE_COOKIE = Pattern.compile("\\s*(" + RE_TOKEN + ")=(" + RE_COOKIE_VALUE.pattern() + ")\\s*(?:[;,]|$)");
 
     /**
      * Strip quotes from argument string.
