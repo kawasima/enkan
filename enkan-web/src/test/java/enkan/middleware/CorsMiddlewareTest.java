@@ -185,6 +185,29 @@ class CorsMiddlewareTest {
     }
 
     @Test
+    void varyOriginIsAppendedNotOverwritten() {
+        // Vary already set by the endpoint; Origin must be appended, not overwrite it.
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest())
+                .set(HttpRequest::setHeaders, Headers.of("Origin", "https://a.example"))
+                .set(HttpRequest::setRequestMethod, "GET")
+                .build();
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("ok"))
+                        .set(HttpResponse::setHeaders, Headers.of("Vary", "Accept-Encoding")).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        String vary = result.getHeaders().get("Vary");
+        assertThat(vary).contains("Accept-Encoding");
+        assertThat(vary).contains("Origin");
+    }
+
+    @Test
     void multipleConfiguredOriginsRejectsUnknownOrigin() {
         CorsMiddleware sut = new CorsMiddleware();
         sut.setOrigins(Set.of("https://a.example", "https://b.example"));

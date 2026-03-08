@@ -91,7 +91,7 @@ public class CorsMiddleware implements WebMiddleware {
                 // RFC 6454 §7.2: Access-Control-Allow-Origin must be a single origin, not a list.
                 // Echo back the matched request origin and add Vary: Origin for correct caching.
                 header(response, "Access-Control-Allow-Origin", requestOrigin);
-                header(response, "Vary", "Origin");
+                appendVaryOrigin(response);
             }
             if (credentials) {
                 header(response, "Access-Control-Allow-Credentials", "true");
@@ -133,6 +133,20 @@ public class CorsMiddleware implements WebMiddleware {
 
     private boolean isCORSRequest(HttpRequest httpRequest) {
         return Objects.nonNull(httpRequest.getHeaders().get("Origin"));
+    }
+
+    /**
+     * Appends "Origin" to the Vary header without overwriting existing values.
+     */
+    private void appendVaryOrigin(HttpResponse response) {
+        String existing = getHeader(response, "Vary");
+        if (existing == null) {
+            header(response, "Vary", "Origin");
+        } else if (Arrays.stream(existing.split(","))
+                .map(String::trim)
+                .noneMatch("Origin"::equalsIgnoreCase)) {
+            header(response, "Vary", existing + ", Origin");
+        }
     }
 
     /**
