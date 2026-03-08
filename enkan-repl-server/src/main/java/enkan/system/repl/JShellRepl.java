@@ -14,10 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.*;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -342,6 +345,7 @@ public class JShellRepl implements Repl {
             }
             LOG.info("Listen {}", port);
             replPort.complete(port);
+            writePortFile(port);
 
             // Completer
             int completerPort = Env.getInt("completer.port", 0);
@@ -393,6 +397,7 @@ public class JShellRepl implements Repl {
         } catch (Exception e) {
             LOG.error("REPL server error", e);
         } finally {
+            deletePortFile();
             transportProviders.forEach(TransportProvider::stop);
             LOG.info("Shutdown REPL server");
             backgroundTasks.values().forEach(task -> task.cancel(true));
@@ -400,6 +405,25 @@ public class JShellRepl implements Repl {
             jshell.close();
         }
 
+    }
+
+    private static final Path PORT_FILE = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
+
+    private static void writePortFile(int port) {
+        try {
+            Files.writeString(PORT_FILE, Integer.toString(port));
+            PORT_FILE.toFile().deleteOnExit();
+        } catch (IOException e) {
+            LOG.warn("Failed to write port file {}: {}", PORT_FILE, e.getMessage());
+        }
+    }
+
+    private static void deletePortFile() {
+        try {
+            Files.deleteIfExists(PORT_FILE);
+        } catch (IOException e) {
+            LOG.warn("Failed to delete port file {}: {}", PORT_FILE, e.getMessage());
+        }
     }
 
     private static class JShellMessage {
