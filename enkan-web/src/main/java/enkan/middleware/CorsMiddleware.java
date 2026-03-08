@@ -5,6 +5,7 @@ import enkan.annotation.Middleware;
 import enkan.collection.Headers;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -182,6 +183,10 @@ public class CorsMiddleware implements WebMiddleware {
      * @param maxage max age
      */
     public void setMaxage(Long maxage) {
+        if (maxage != null && maxage < 0) {
+            throw new MisconfigurationException("core.INVALID_ARGUMENT", "maxage", maxage,
+                    "Access-Control-Max-Age must be a non-negative integer per the Fetch spec §3.2.1.");
+        }
         this.maxage = maxage;
     }
 

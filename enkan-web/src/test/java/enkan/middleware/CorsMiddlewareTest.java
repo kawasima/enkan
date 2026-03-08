@@ -7,6 +7,7 @@ import enkan.collection.Headers;
 import enkan.data.DefaultHttpRequest;
 import enkan.data.HttpRequest;
 import enkan.data.HttpResponse;
+import enkan.exception.MisconfigurationException;
 import enkan.predicate.AnyPredicate;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 
 import static enkan.util.BeanBuilder.builder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -251,5 +253,36 @@ class CorsMiddlewareTest {
                 .contains(entry("Access-Control-Allow-Origin", "*"),
                         entry("Content-Type", "text/html"));
         assertThat(result.getBodyAsString()).isEqualTo("hello");
+    }
+
+    @Test
+    void setMaxageNegativeThrowsMisconfigurationException() {
+        CorsMiddleware sut = new CorsMiddleware();
+        assertThatThrownBy(() -> sut.setMaxage(-1L))
+                .isInstanceOf(MisconfigurationException.class);
+    }
+
+    @Test
+    void setMaxageZeroIsAccepted() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setMaxage(0L); // no exception; header will not be emitted (> 0 guard)
+    }
+
+    @Test
+    void setMaxagePositiveEmitsHeader() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setMaxage(3600L);
+
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("OPTIONS");
+        request.setHeaders(Headers.of("Origin", "http://sample.com",
+                "Access-Control-Request-Method", "POST"));
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        HttpResponse result = sut.handle(request, chain);
+        assertThat(result.getHeaders().get("Access-Control-Max-Age")).isEqualTo("3600");
     }
 }
