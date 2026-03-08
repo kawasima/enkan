@@ -57,7 +57,7 @@ public class HttpResponseUtils {
 
         /**
          * 303 See Other (RFC 7231 §6.4.4).
-         * The response to the redirect MUST be retrieved with GET.
+         * The response to the redirect MUST be retrieved with GET or HEAD.
          * Commonly used after a POST form submission to redirect to a result page.
          */
         SEE_OTHER(303),
