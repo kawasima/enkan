@@ -26,7 +26,10 @@ public class MultipartParser {
     private static final int DEFAULT_BUFFER_SIZE = 16384;
 
     private static final String EOL = "\r\n";
-    private static final Pattern MULTIPART = Pattern.compile("multipart/.*boundary=\"?([^\";,]+)\"?");
+    // Matches a quoted parameter value, handling backslash-escaped characters inside quotes.
+    private static final Pattern QUOTED_BOUNDARY = Pattern.compile("\"((?:[^\"\\\\]|\\\\.)*)\"");
+    // Matches an unquoted boundary token (RFC 2046 bchars + bcharsnospace).
+    private static final Pattern UNQUOTED_BOUNDARY = Pattern.compile("([^\\s;,\"]+)");
     private static final Pattern TOKEN = Pattern.compile("[^\\s()<>,;:\\\\\"/\\[\\]?=]+");
     private static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
@@ -113,14 +116,36 @@ public class MultipartParser {
     /**
      * Extracts the multipart boundary string from a Content-Type header value.
      *
+     * <p>Parses the header as a media-type followed by semicolon-separated parameters,
+     * locating the {@code boundary} parameter case-insensitively. Both quoted-string
+     * values (including backslash-escaped characters inside quotes, per RFC 2046 §5.1)
+     * and unquoted token values are supported. Parameters may appear in any order.</p>
+     *
      * @param contentType the value of the {@code Content-Type} header
      * @return the boundary string, or {@code null} if not found or {@code contentType} is {@code null}
      */
     public static String parseBoundary(String contentType) {
         if (contentType == null) return null;
-        Matcher m = MULTIPART.matcher(contentType);
-        if (m.find()) {
-            return m.group(1);
+        // Must start with multipart/ media type.
+        if (!contentType.trim().toLowerCase(java.util.Locale.ROOT).startsWith("multipart/")) return null;
+
+        // Split on ';' and scan each parameter for boundary=.
+        String[] parts = contentType.split(";");
+        for (int i = 1; i < parts.length; i++) {
+            String param = parts[i].trim();
+            if (param.regionMatches(true, 0, "boundary=", 0, 9)) {
+                String value = param.substring(9);
+                // Quoted string: unescape backslash sequences.
+                Matcher quoted = QUOTED_BOUNDARY.matcher(value);
+                if (quoted.matches()) {
+                    return quoted.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
+                }
+                // Unquoted token.
+                Matcher unquoted = UNQUOTED_BOUNDARY.matcher(value);
+                if (unquoted.find()) {
+                    return unquoted.group(1);
+                }
+            }
         }
         return null;
     }
