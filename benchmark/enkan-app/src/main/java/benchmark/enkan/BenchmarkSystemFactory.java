@@ -4,7 +4,7 @@ import enkan.component.ApplicationComponent;
 import enkan.component.WebServerComponent;
 import enkan.component.builtin.HmacEncoder;
 import enkan.component.jackson.JacksonBeansConverter;
-import enkan.component.undertow.UndertowComponent;
+import enkan.component.jetty.JettyComponent;
 import enkan.config.EnkanSystemFactory;
 import enkan.system.EnkanSystem;
 
@@ -18,7 +18,7 @@ public class BenchmarkSystemFactory implements EnkanSystemFactory {
                 "hmac",    new HmacEncoder(),
                 "jackson", new JacksonBeansConverter(),
                 "app",     new ApplicationComponent<>("benchmark.enkan.BenchmarkApplicationFactory"),
-                "http",    builder(new UndertowComponent())
+                "http",    builder(new JettyComponent())
                                .set(WebServerComponent::setPort, 8080)
                                .build()
         ).relationships(

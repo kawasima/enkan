@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
-            <artifactId>enkan-component-undertow</artifactId>
+            <artifactId>enkan-component-jetty</artifactId>
             <version>${enkan.version}</version>
         </dependency>
         <dependency>
