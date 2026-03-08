@@ -160,7 +160,7 @@ public class EnkanSystem {
     /**
      * Returns whether the system has been started.
      *
-     * @return {@code true} if {@link #start()} has been called and {@link #stop()} has not
+     * @return {@code true} if {@link #start()} has been called and {@link #stop()} has not been called since
      */
     public boolean isStarted() {
         return started;

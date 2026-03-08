@@ -350,7 +350,7 @@ public class ReplClient {
         }
     }
 
-    private static int readPortFile() {
+    static int readPortFile() {
         Path portFile = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
         try {
             String content = Files.readString(portFile).trim();
@@ -370,13 +370,15 @@ public class ReplClient {
             client.start(Integer.parseInt(args[0]));
         } else if (args.length == 2 && args[1].matches("\\d+")) {
             client.start(args[0], Integer.parseInt(args[1]));
-        } else {
+        } else if (args.length == 0) {
             int port = readPortFile();
             if (port > 0) {
                 client.start(port);
             } else {
                 client.start();
             }
+        } else {
+            client.start();
         }
     }
 }
