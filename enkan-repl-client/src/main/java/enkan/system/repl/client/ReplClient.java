@@ -16,6 +16,8 @@ import zmq.ZError;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -348,6 +350,20 @@ public class ReplClient {
         }
     }
 
+    private static int readPortFile() {
+        Path portFile = Path.of(".enkan-repl-port");
+        try {
+            if (Files.exists(portFile)) {
+                String content = Files.readString(portFile).trim();
+                if (content.matches("\\d+")) {
+                    return Integer.parseInt(content);
+                }
+            }
+        } catch (IOException ignored) {
+        }
+        return -1;
+    }
+
     public static void main(String[] args) {
         final ReplClient client = new ReplClient();
         Runtime.getRuntime().addShutdownHook(new Thread(client::close));
@@ -356,7 +372,12 @@ public class ReplClient {
         } else if (args.length == 2 && args[1].matches("\\d+")) {
             client.start(args[0], Integer.parseInt(args[1]));
         } else {
-            client.start();
+            int port = readPortFile();
+            if (port > 0) {
+                client.start(port);
+            } else {
+                client.start();
+            }
         }
     }
 }
