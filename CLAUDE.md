@@ -26,5 +26,7 @@ Apply this checklist both when reviewing others' code **and** before submitting 
 
 ## Pull Requests
 
+- **Never commit directly to `develop` or `master`.** Always work on a feature branch and open a PR.
 - Always target `develop` as the base branch when creating PRs (not `main`)
 - Use `gh pr create --base develop` explicitly
+- Workflow: create feature branch → commit → `gh pr create --base develop`
