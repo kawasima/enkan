@@ -28,8 +28,8 @@ public class MultipartParser {
     private static final String EOL = "\r\n";
     // Matches a quoted parameter value, handling backslash-escaped characters inside quotes.
     private static final Pattern QUOTED_BOUNDARY = Pattern.compile("\"((?:[^\"\\\\]|\\\\.)*)\"");
-    // Matches an unquoted boundary token (RFC 2046 bchars + bcharsnospace).
-    private static final Pattern UNQUOTED_BOUNDARY = Pattern.compile("([^\\s;,\"]+)");
+    // Matches an unquoted boundary token (RFC 2046 bchars + bcharsnospace); comma is allowed.
+    private static final Pattern UNQUOTED_BOUNDARY = Pattern.compile("([^\\s;\"]+)");
     private static final Pattern TOKEN = Pattern.compile("[^\\s()<>,;:\\\\\"/\\[\\]?=]+");
     private static final Pattern CONDISP = Pattern.compile("Content-Disposition:\\s*" + TOKEN.pattern() + "\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern VALUE = Pattern.compile("\"(?:\\\\\"|[^\"])*\"|" + TOKEN.pattern());
@@ -129,22 +129,24 @@ public class MultipartParser {
         // Must start with multipart/ media type.
         if (!contentType.trim().toLowerCase(java.util.Locale.ROOT).startsWith("multipart/")) return null;
 
-        // Split on ';' and scan each parameter for boundary=.
+        // Split on ';' and scan each parameter for a boundary attribute.
         String[] parts = contentType.split(";");
         for (int i = 1; i < parts.length; i++) {
             String param = parts[i].trim();
-            if (param.regionMatches(true, 0, "boundary=", 0, 9)) {
-                String value = param.substring(9);
-                // Quoted string: unescape backslash sequences.
-                Matcher quoted = QUOTED_BOUNDARY.matcher(value);
-                if (quoted.matches()) {
-                    return quoted.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
-                }
-                // Unquoted token.
-                Matcher unquoted = UNQUOTED_BOUNDARY.matcher(value);
-                if (unquoted.find()) {
-                    return unquoted.group(1);
-                }
+            int eq = param.indexOf('=');
+            if (eq <= 0) continue;
+            String attrName = param.substring(0, eq).trim();
+            if (!"boundary".equalsIgnoreCase(attrName)) continue;
+            String value = param.substring(eq + 1).trim();
+            // Quoted string: unescape backslash sequences (RFC 2046 quoted-pair: \X -> X for any X).
+            Matcher quoted = QUOTED_BOUNDARY.matcher(value);
+            if (quoted.matches()) {
+                return quoted.group(1).replaceAll("\\\\(.)", "$1");
+            }
+            // Unquoted token.
+            Matcher unquoted = UNQUOTED_BOUNDARY.matcher(value);
+            if (unquoted.find()) {
+                return unquoted.group(1);
             }
         }
         return null;

@@ -47,6 +47,13 @@ class MultipartParserTest {
     }
 
     @Test
+    void parseBoundaryWhitespaceAroundEquals() {
+        // Optional whitespace around '=' in parameter (OWS).
+        assertThat(parseBoundary("multipart/form-data; boundary = abc"))
+                .isEqualTo("abc");
+    }
+
+    @Test
     void parseBoundaryNotMultipart() {
         assertThat(parseBoundary("text/plain; boundary=abc")).isNull();
     }
