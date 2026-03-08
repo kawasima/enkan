@@ -30,6 +30,27 @@ public class CodecUtilsTest {
     }
 
     @Test
+    public void urlDecode() {
+        assertThat(CodecUtils.urlDecode("abc%e3%81%82def"))
+                .isEqualTo("abcあdef");
+    }
+
+    @Test
+    public void urlDecodeWithDollarSign() {
+        // %24 decodes to '$', which is special in Matcher.appendReplacement if not quoted.
+        assertThat(CodecUtils.urlDecode("%24")).isEqualTo("$");
+        assertThat(CodecUtils.urlDecode("%241")).isEqualTo("$1");
+        assertThat(CodecUtils.urlDecode("price%3D%241")).isEqualTo("price=$1");
+    }
+
+    @Test
+    public void urlDecodeWithBackslash() {
+        // %5C decodes to '\', which is special in Matcher.appendReplacement if not quoted.
+        assertThat(CodecUtils.urlDecode("%5C")).isEqualTo("\\");
+        assertThat(CodecUtils.urlDecode("a%5Cb")).isEqualTo("a\\b");
+    }
+
+    @Test
     public void formEncode() {
         Map<String, Object> m = new HashMap<>();
         m.put("a", null);
