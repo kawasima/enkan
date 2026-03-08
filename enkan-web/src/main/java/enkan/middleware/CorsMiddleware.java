@@ -82,9 +82,14 @@ public class CorsMiddleware implements WebMiddleware {
         HttpResponse response = castToHttpResponse(chain.next(request));
 
         if (isCORSRequest(request)) {
-            if (origins != null && !origins.isEmpty()) {
-                String allowOrigin = isAnyOriginAllowed() ? "*" : String.join(", ", origins);
-                header(response, "Access-Control-Allow-Origin", allowOrigin);
+            String requestOrigin = some(request.getHeaders(), h -> h.get("origin")).orElse(null);
+            if (isAnyOriginAllowed()) {
+                header(response, "Access-Control-Allow-Origin", "*");
+            } else if (requestOrigin != null && origins.contains(requestOrigin)) {
+                // RFC 6454 §7.2: Access-Control-Allow-Origin must be a single origin, not a list.
+                // Echo back the matched request origin and add Vary: Origin for correct caching.
+                header(response, "Access-Control-Allow-Origin", requestOrigin);
+                header(response, "Vary", "Origin");
             }
             if (credentials) {
                 header(response, "Access-Control-Allow-Credentials", "true");
