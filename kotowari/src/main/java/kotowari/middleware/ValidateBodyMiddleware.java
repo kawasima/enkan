@@ -22,19 +22,26 @@ import java.util.Set;
  */
 @enkan.annotation.Middleware(name = "validateBody")
 public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES, HttpRequest, RES> {
-    private static final Validator VALIDATOR = createValidator();
+    private volatile Validator validator;
 
-    private static Validator createValidator() {
-        try {
-            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-            Runtime.getRuntime().addShutdownHook(new Thread(factory::close,
-                    "ValidateBodyMiddleware-ValidatorFactory-shutdown"));
-            return factory.getValidator();
-        } catch (Exception | NoClassDefFoundError e) {
-            throw new MisconfigurationException("core.MISSING_IMPLEMENTATION",
-                    "ValidateBodyMiddleware requires a Jakarta Validation provider "
-                    + "(e.g. hibernate-validator) on the classpath", e);
+    private Validator getValidator() {
+        if (validator == null) {
+            synchronized (this) {
+                if (validator == null) {
+                    try {
+                        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                        Runtime.getRuntime().addShutdownHook(new Thread(factory::close,
+                                "ValidateBodyMiddleware-ValidatorFactory-shutdown"));
+                        validator = factory.getValidator();
+                    } catch (Exception | NoClassDefFoundError e) {
+                        throw new MisconfigurationException("core.MISSING_IMPLEMENTATION",
+                                "ValidateBodyMiddleware requires a Jakarta Validation provider "
+                                + "(e.g. hibernate-validator) on the classpath", e);
+                    }
+                }
+            }
         }
+        return validator;
     }
 
     protected Validatable getValidatable(HttpRequest request) {
@@ -52,7 +59,7 @@ public class ValidateBodyMiddleware<RES> implements Middleware<HttpRequest, RES,
 
         Optional<Validatable> validatable = ThreadingUtils.some(getValidatable(request), form -> {
             Multimap<String, Object> errors = Multimap.empty();
-            Set<ConstraintViolation<Object>> violations = VALIDATOR.validate(form);
+            Set<ConstraintViolation<Object>> violations = getValidator().validate(form);
             for (ConstraintViolation<Object> violation : violations) {
                 errors.add(violation.getPropertyPath().toString(), violation.getMessage());
             }

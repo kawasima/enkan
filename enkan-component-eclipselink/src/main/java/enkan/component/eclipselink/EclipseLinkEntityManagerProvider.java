@@ -61,7 +61,7 @@ public class EclipseLinkEntityManagerProvider extends EntityManagerProvider<Ecli
             @Override
             public void start(EclipseLinkEntityManagerProvider component) {
                 if (getName() == null || getName().isEmpty()) {
-                    throw new MisconfigurationException("core.NULL_ARGUMENT", "name");
+                    throw new MisconfigurationException("core.NULL_OR_EMPTY_ARGUMENT", "name");
                 }
                 component.setDataSourceComponent(component.getDependency(DataSourceComponent.class));
                 SEPersistenceUnitInfo pu = new SEPersistenceUnitInfo();

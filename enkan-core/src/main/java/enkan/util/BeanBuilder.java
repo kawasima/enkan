@@ -8,7 +8,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,10 +34,6 @@ public class BeanBuilder<X> {
 
     private BeanBuilder(X x) {
         this.x = x;
-    }
-
-    public static <X> Function<X,BeanBuilder<X>> builderWithValidation() {
-        return BeanBuilder::new;
     }
 
     public static <Y> BeanBuilder<Y> builder(Y x) {
