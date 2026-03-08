@@ -414,7 +414,11 @@ public class JShellRepl implements Repl {
     private static Path getPortFile() {
         String override = System.getProperty("enkan.repl.portFile");
         if (override != null && !override.isBlank()) {
-            return Path.of(override);
+            try {
+                return Path.of(override);
+            } catch (java.nio.file.InvalidPathException e) {
+                LOG.warn("Invalid enkan.repl.portFile value '{}', falling back to default: {}", override, e.getMessage());
+            }
         }
         return Path.of(System.getProperty("user.home"), ".enkan-repl-port");
     }
@@ -423,7 +427,6 @@ public class JShellRepl implements Repl {
         Path portFile = getPortFile();
         try {
             Files.writeString(portFile, Integer.toString(port));
-            portFile.toFile().deleteOnExit();
             lastWrittenPort = port;
             lastPortFile = portFile;
         } catch (IOException e) {
