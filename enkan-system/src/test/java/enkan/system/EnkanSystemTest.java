@@ -32,6 +32,27 @@ class EnkanSystemTest {
         }
     }
     @Test
+    void isStartedReturnsFalseBeforeStart() {
+        EnkanSystem system = EnkanSystem.of("c1", new TestComponent());
+        assertThat(system.isStarted()).isFalse();
+    }
+
+    @Test
+    void isStartedReturnsTrueAfterStart() {
+        EnkanSystem system = EnkanSystem.of();
+        system.start();
+        assertThat(system.isStarted()).isTrue();
+    }
+
+    @Test
+    void isStartedReturnsFalseAfterStop() {
+        EnkanSystem system = EnkanSystem.of();
+        system.start();
+        system.stop();
+        assertThat(system.isStarted()).isFalse();
+    }
+
+    @Test
     void systemCreation() {
         TestComponent c1 = new TestComponent();
         TestComponent c2 = new TestComponent("c2 component");
