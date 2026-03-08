@@ -58,6 +58,8 @@ public class CorsMiddleware implements WebMiddleware {
                             headers -> headers.get("origin"))
                             .orElse("*");
                     responseHeaders.put("Access-Control-Allow-Origin", origin);
+                    // Vary: Origin ensures proxies cache separate preflight responses per origin.
+                    responseHeaders.put("Vary", "Origin");
                 }
 
                 if (methods != null && !methods.isEmpty()) {

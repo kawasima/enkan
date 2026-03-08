@@ -138,6 +138,28 @@ class CorsMiddlewareTest {
     }
 
     @Test
+    void preflightWithMultipleOriginsEchoesMatchedOriginAndSetsVary() {
+        CorsMiddleware sut = new CorsMiddleware();
+        sut.setOrigins(Set.of("https://a.example", "https://b.example"));
+
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("OPTIONS");
+        request.setHeaders(Headers.of("Origin", "https://a.example",
+                "Access-Control-Request-Method", "POST"));
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        HttpResponse result = sut.handle(request, chain);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(result.getHeaders().get("Access-Control-Allow-Origin"))
+                .isEqualTo("https://a.example");
+        assertThat(result.getHeaders().get("Vary")).isEqualTo("Origin");
+    }
+
+    @Test
     void multipleConfiguredOriginsEchoesMatchedOrigin() {
         // RFC 6454 §7.2: Access-Control-Allow-Origin must be a single origin, not a list.
         // When multiple origins are configured, echo back only the matched request origin.
