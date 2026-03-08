@@ -365,7 +365,7 @@ public class ReplClient {
 
     private static Path resolvePortFile() {
         String override = System.getProperty("enkan.repl.portFile");
-        if (override != null && !override.isEmpty()) {
+        if (override != null && !override.isBlank()) {
             try {
                 return Path.of(override);
             } catch (java.nio.file.InvalidPathException ignored) {
