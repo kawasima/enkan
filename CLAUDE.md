@@ -18,7 +18,7 @@ Improvement proposals and architectural decisions are tracked as GitHub Issues.
 
 Apply this checklist both when reviewing others' code **and** before submitting your own changes.
 
-- Verify all branches for malformed/invalid input, not just the happy path.
+- Verify all branches for malformed/invalid input, not just the happy path. **This applies to tests too**: confirm that each test actually exercises the code path it claims — e.g. don't percent-encode chars when testing a regex that runs on the raw string.
 - When multiple parsing strategies exist (e.g. quoted vs. unquoted), ensure malformed input in one strategy does not silently fall through to another and produce a wrong result.
 - When extending the scope of a utility function (e.g. adding new types to a filter), trace all call sites to verify that downstream behavior is correct for the new inputs — not just the entry point.
 - String comparisons against HTTP header values (media types, field names) must be case-insensitive per the relevant RFC. Verify that `equalsIgnoreCase`, `toLowerCase(Locale.ROOT)`, or `regionMatches(true, ...)` is used appropriately.
