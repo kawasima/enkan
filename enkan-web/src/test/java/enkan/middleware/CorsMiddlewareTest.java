@@ -256,22 +256,22 @@ class CorsMiddlewareTest {
     }
 
     @Test
-    void setMaxageNegativeThrowsMisconfigurationException() {
+    void setMaxAgeNegativeThrowsMisconfigurationException() {
         CorsMiddleware sut = new CorsMiddleware();
-        assertThatThrownBy(() -> sut.setMaxage(-1L))
+        assertThatThrownBy(() -> sut.setMaxAge(-1L))
                 .isInstanceOf(MisconfigurationException.class);
     }
 
     @Test
-    void setMaxageZeroIsAccepted() {
+    void setMaxAgeZeroIsAccepted() {
         CorsMiddleware sut = new CorsMiddleware();
-        sut.setMaxage(0L); // no exception; header will not be emitted (> 0 guard)
+        sut.setMaxAge(0L); // no exception; header will not be emitted (> 0 guard)
     }
 
     @Test
-    void setMaxagePositiveEmitsHeader() {
+    void setMaxAgePositiveEmitsHeader() {
         CorsMiddleware sut = new CorsMiddleware();
-        sut.setMaxage(3600L);
+        sut.setMaxAge(3600L);
 
         HttpRequest request = builder(new DefaultHttpRequest()).build();
         request.setRequestMethod("OPTIONS");
