@@ -8,7 +8,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * The utilities of environments.
@@ -87,12 +86,8 @@ public class Env {
      * @return value
      */
     public static String getString(String name, String defaultValue) {
-        return Stream.of(name)
-                .map(Env::normalizeKey)
-                .map(envMap::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(defaultValue);
+        String value = envMap.get(normalizeKey(name));
+        return value != null ? value : defaultValue;
     }
 
     /**
@@ -103,13 +98,8 @@ public class Env {
      * @return integer value
      */
     public static int getInt(String name, int defaultValue) {
-        return Stream.of(name)
-                .map(Env::normalizeKey)
-                .map(envMap::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(Integer::parseInt)
-                .orElse(defaultValue);
+        String value = envMap.get(normalizeKey(name));
+        return value != null ? Integer.parseInt(value) : defaultValue;
     }
 
     /**
@@ -120,13 +110,8 @@ public class Env {
      * @return long value
      */
     public static long getLong(String name, long defaultValue) {
-        return Stream.of(name)
-                .map(Env::normalizeKey)
-                .map(envMap::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(Long::parseLong)
-                .orElse(defaultValue);
+        String value = envMap.get(normalizeKey(name));
+        return value != null ? Long.parseLong(value) : defaultValue;
     }
 
     /**
@@ -137,13 +122,8 @@ public class Env {
      * @return boolean value
      */
     public static boolean getBoolean(String name, boolean defaultValue) {
-        return Stream.of(name)
-                .map(Env::normalizeKey)
-                .map(envMap::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(Boolean::parseBoolean)
-                .orElse(defaultValue);
+        String value = envMap.get(normalizeKey(name));
+        return value != null ? Boolean.parseBoolean(value) : defaultValue;
     }
 
 }
