@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for ReplClient.ReplClient.readPortFile().
+ * Tests for ReplClient.readPortFile().
  * Redirects user.home to a JUnit-managed temp directory so the real
  * $HOME/.enkan-repl-port is never touched.
  */
