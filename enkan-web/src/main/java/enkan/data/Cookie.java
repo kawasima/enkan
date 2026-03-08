@@ -112,7 +112,7 @@ public class Cookie implements Serializable {
             sb.append(";path=").append(getPath());
         }
         if (getExpires() != null) {
-            sb.append(";expires=").append(HttpDateFormat.RFC822.format(getExpires()));
+            sb.append(";expires=").append(HttpDateFormat.RFC1123.format(getExpires()));
         }
         if (getMaxAge() != null) {
             sb.append(";max-age=").append(getMaxAge());
