@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static enkan.middleware.multipart.MultipartParser.parseBoundary;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
@@ -51,6 +51,12 @@ class MultipartParserTest {
         // Optional whitespace around '=' in parameter (OWS).
         assertThat(parseBoundary("multipart/form-data; boundary = abc"))
                 .isEqualTo("abc");
+    }
+
+    @Test
+    void parseBoundaryMalformedQuotedString() {
+        // A leading '"' without a closing '"' is malformed; should return null, not fall through to unquoted.
+        assertThat(parseBoundary("multipart/form-data; boundary=\"unclosed")).isNull();
     }
 
     @Test

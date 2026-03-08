@@ -16,5 +16,5 @@ Improvement proposals and architectural decisions are tracked as GitHub Issues.
 
 ## Pull Requests
 
-- Always target `develop` as the base branch when creating PRs (not `master`)
+- Always target `develop` as the base branch when creating PRs (not `main`)
 - Use `gh pr create --base develop` explicitly

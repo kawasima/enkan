@@ -138,15 +138,20 @@ public class MultipartParser {
             String attrName = param.substring(0, eq).trim();
             if (!"boundary".equalsIgnoreCase(attrName)) continue;
             String value = param.substring(eq + 1).trim();
-            // Quoted string: unescape backslash sequences (RFC 2046 quoted-pair: \X -> X for any X).
-            Matcher quoted = QUOTED_BOUNDARY.matcher(value);
-            if (quoted.matches()) {
-                return quoted.group(1).replaceAll("\\\\(.)", "$1");
-            }
-            // Unquoted token.
-            Matcher unquoted = UNQUOTED_BOUNDARY.matcher(value);
-            if (unquoted.find()) {
-                return unquoted.group(1);
+            if (value.startsWith("\"")) {
+                // Quoted string: unescape backslash sequences (RFC 2046 quoted-pair: \X -> X for any X).
+                // A leading '"' that does not form a valid quoted-string is treated as malformed.
+                Matcher quoted = QUOTED_BOUNDARY.matcher(value);
+                if (quoted.matches()) {
+                    return quoted.group(1).replaceAll("\\\\(.)", "$1");
+                }
+                // Malformed quoted-string — skip rather than falling through to unquoted.
+            } else {
+                // Unquoted token.
+                Matcher unquoted = UNQUOTED_BOUNDARY.matcher(value);
+                if (unquoted.find()) {
+                    return unquoted.group(1);
+                }
             }
         }
         return null;
