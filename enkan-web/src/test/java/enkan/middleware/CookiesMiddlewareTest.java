@@ -66,14 +66,18 @@ class CookiesMiddlewareTest {
 
     @Test
     void parsesRfcValidCookieOctets() {
-        // RFC 6265 §4.1.1: spot-check a few allowed chars at the boundary of each range
-        // %x21=!, %x23=#, %x2B=+, %x2D=-, %x3A=:, %x3C=<, %x5B=[, %x5D=], %x7E=~
+        // RFC 6265 §4.1.1: spot-check boundary chars of each allowed range using raw octets.
+        // %x21=!, %x23=#, %x25=%, %x2D=-, %x3A=:, %x3C=<, %x5B=[, %x5D=], %x7E=~
+        // Note: %x2B (+) is RFC-valid but decoded as space by formDecodeStr, so % is used instead.
+        final String expectedValue = "!#%-:<[]~";
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
-                    assertThat(req.getCookies()).containsKey("A");
+                    Cookie cookie = req.getCookies().get("A");
+                    assertThat(cookie).isNotNull();
+                    assertThat(cookie.getValue()).isEqualTo(expectedValue);
                     return HttpResponse.of("ok");
                 });
-        request.getHeaders().put("Cookie", "A=!#%2B-:%3C%5B%5D~");
+        request.getHeaders().put("Cookie", "A=!#%-:<[]~");
         middleware.handle(request, chain);
     }
 
