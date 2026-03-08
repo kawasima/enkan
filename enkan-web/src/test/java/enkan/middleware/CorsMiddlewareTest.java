@@ -258,7 +258,19 @@ class CorsMiddlewareTest {
     @Test
     void setMaxAgeNullIsAccepted() {
         CorsMiddleware sut = new CorsMiddleware();
-        sut.setMaxAge(null); // no exception; header will not be emitted
+        sut.setMaxAge(null);
+
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("OPTIONS");
+        request.setHeaders(Headers.of("Origin", "http://sample.com",
+                "Access-Control-Request-Method", "POST"));
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        HttpResponse result = sut.handle(request, chain);
+        assertThat(result.getHeaders()).doesNotContainKey("Access-Control-Max-Age");
     }
 
     @Test
@@ -271,7 +283,19 @@ class CorsMiddlewareTest {
     @Test
     void setMaxAgeZeroIsAccepted() {
         CorsMiddleware sut = new CorsMiddleware();
-        sut.setMaxAge(0L); // no exception; header will not be emitted (> 0 guard)
+        sut.setMaxAge(0L);
+
+        HttpRequest request = builder(new DefaultHttpRequest()).build();
+        request.setRequestMethod("OPTIONS");
+        request.setHeaders(Headers.of("Origin", "http://sample.com",
+                "Access-Control-Request-Method", "POST"));
+
+        MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(
+                new AnyPredicate<>(), null, (Endpoint<HttpRequest, HttpResponse>) req ->
+                builder(HttpResponse.of("")).set(HttpResponse::setStatus, 404).build());
+
+        HttpResponse result = sut.handle(request, chain);
+        assertThat(result.getHeaders()).doesNotContainKey("Access-Control-Max-Age");
     }
 
     @Test
