@@ -10,12 +10,64 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Optional;
 
+import static enkan.middleware.multipart.MultipartParser.parseBoundary;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kawasima
  */
 class MultipartParserTest {
+
+    // --- parseBoundary unit tests (RFC 2046 §5.1) ---
+
+    @Test
+    void parseBoundaryUnquoted() {
+        assertThat(parseBoundary("multipart/form-data; boundary=AaB03x"))
+                .isEqualTo("AaB03x");
+    }
+
+    @Test
+    void parseBoundaryQuoted() {
+        assertThat(parseBoundary("multipart/form-data; boundary=\"simple boundary\""))
+                .isEqualTo("simple boundary");
+    }
+
+    @Test
+    void parseBoundaryQuotedWithEscapedQuote() {
+        // RFC 2046 §5.1: quoted-string allows backslash-escaped characters.
+        assertThat(parseBoundary("multipart/form-data; boundary=\"foo\\\"bar\""))
+                .isEqualTo("foo\"bar");
+    }
+
+    @Test
+    void parseBoundaryParameterAfterBoundary() {
+        // boundary= is not required to be the last parameter.
+        assertThat(parseBoundary("multipart/form-data; charset=utf-8; boundary=abc"))
+                .isEqualTo("abc");
+    }
+
+    @Test
+    void parseBoundaryWhitespaceAroundEquals() {
+        // Optional whitespace around '=' in parameter (OWS).
+        assertThat(parseBoundary("multipart/form-data; boundary = abc"))
+                .isEqualTo("abc");
+    }
+
+    @Test
+    void parseBoundaryMalformedQuotedString() {
+        // A leading '"' without a closing '"' is malformed; should return null, not fall through to unquoted.
+        assertThat(parseBoundary("multipart/form-data; boundary=\"unclosed")).isNull();
+    }
+
+    @Test
+    void parseBoundaryNotMultipart() {
+        assertThat(parseBoundary("text/plain; boundary=abc")).isNull();
+    }
+
+    @Test
+    void parseBoundaryNull() {
+        assertThat(parseBoundary(null)).isNull();
+    }
     private Optional<String> getFileContents(Parameters params, String parameterName) {
         return ThreadingUtils.some(((File) params.getIn(parameterName, "tempfile")).toPath(),
                 Files::readAllLines,
