@@ -65,7 +65,7 @@ public class CodecUtils {
                     }
                     encodedSb.append(Integer.toString(d, 16));
                 }
-                m.appendReplacement(sb, encodedSb.toString());
+                m.appendReplacement(sb, Matcher.quoteReplacement(encodedSb.toString()));
             }
             m.appendTail(sb);
             return sb.toString();
@@ -84,7 +84,7 @@ public class CodecUtils {
             StringBuilder sb = new StringBuilder(encoded.length());
             while (m.find()) {
                 String chars = m.group(0);
-                m.appendReplacement(sb, new String(parseBytes(chars), encoding));
+                m.appendReplacement(sb, Matcher.quoteReplacement(new String(parseBytes(chars), encoding)));
             }
             m.appendTail(sb);
             return sb.toString();
