@@ -122,16 +122,17 @@ class JShellReplIntegrationTest {
     @Test
     void statusCommandReportsStartedAfterStart() {
         client.send("/start");
+        try {
+            List<ReplResponse> responses = client.send("/status");
 
-        List<ReplResponse> responses = client.send("/status");
-
-        boolean hasStarted = responses.stream()
-                .anyMatch(r -> r.getOut() != null && r.getOut().contains("started"));
-        assertThat(hasStarted)
-                .as("Expected 'started' in /status response after /start, got: %s", responses)
-                .isTrue();
-
-        client.send("/stop");
+            boolean hasStarted = responses.stream()
+                    .anyMatch(r -> r.getOut() != null && r.getOut().contains("started"));
+            assertThat(hasStarted)
+                    .as("Expected 'started' in /status response after /start, got: %s", responses)
+                    .isTrue();
+        } finally {
+            client.send("/stop");
+        }
     }
 
     // -----------------------------------------------------------------------
