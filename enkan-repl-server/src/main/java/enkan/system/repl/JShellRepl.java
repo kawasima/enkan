@@ -409,9 +409,9 @@ public class JShellRepl implements Repl {
     }
 
     private static final Path PORT_FILE = Path.of(System.getProperty("user.home"), ".enkan-repl-port");
-    private static volatile Integer lastWrittenPort = null;
+    private volatile Integer lastWrittenPort = null;
 
-    private static void writePortFile(int port) {
+    private void writePortFile(int port) {
         try {
             Files.writeString(PORT_FILE, Integer.toString(port));
             PORT_FILE.toFile().deleteOnExit();
@@ -421,7 +421,7 @@ public class JShellRepl implements Repl {
         }
     }
 
-    private static void deletePortFile() {
+    private void deletePortFile() {
         Integer port = lastWrittenPort;
         if (port == null) return;
         try {
