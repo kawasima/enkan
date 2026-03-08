@@ -66,10 +66,10 @@ class CookiesMiddlewareTest {
 
     @Test
     void parsesRfcValidCookieOctets() {
-        // RFC 6265 §4.1.1: spot-check boundary chars of each allowed range using raw octets.
-        // %x21=!, %x23=#, %x25=%, %x2D=-, %x3A=:, %x3C=<, %x5B=[, %x5D=], %x7E=~
-        // Note: %x2B (+) is RFC-valid but decoded as space by formDecodeStr, so % is used instead.
-        final String expectedValue = "!#%-:<[]~";
+        // RFC 6265 §4.1.1: spot-check one char from each allowed range using raw octets.
+        // %x21=!, %x23=#, %x2D=-, %x3A=:, %x3C=<, %x5B=[, %x5D=], %x7E=~
+        // Chars that have special meaning for form-decoding (+ as space, % as escape) are omitted.
+        final String expectedValue = "!#-:<[]~";
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     Cookie cookie = req.getCookies().get("A");
@@ -77,15 +77,15 @@ class CookiesMiddlewareTest {
                     assertThat(cookie.getValue()).isEqualTo(expectedValue);
                     return HttpResponse.of("ok");
                 });
-        request.getHeaders().put("Cookie", "A=!#%-:<[]~");
+        request.getHeaders().put("Cookie", "A=!#-:<[]~");
         middleware.handle(request, chain);
     }
 
     @Test
-    void rejectsBackslashInCookieValue() {
+    void backslashIsNotConsumedAsCookieOctet() {
         // Backslash (%x5C) is excluded by RFC 6265 §4.1.1 cookie-octet definition.
         // The backslash is not consumed as a cookie-octet; RE_COOKIE_VALUE matches the
-        // empty string before it, so the cookie is parsed with an empty value.
+        // empty string before it, so the cookie value is empty.
         MiddlewareChain<HttpRequest, HttpResponse, ?, ?> chain = new DefaultMiddlewareChain<>(new AnyPredicate<>(), null,
                 (Endpoint<HttpRequest, HttpResponse>) req -> {
                     Cookie bad = req.getCookies().get("BAD");
