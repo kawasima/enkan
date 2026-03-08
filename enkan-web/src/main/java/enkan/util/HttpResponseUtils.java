@@ -26,11 +26,51 @@ import static enkan.util.BeanBuilder.*;
  * @author kawasima
  */
 public class HttpResponseUtils {
+    /**
+     * HTTP redirect status codes.
+     *
+     * <p>Codes 301, 302, and 303 are <em>method-changing</em>: user agents MAY (and in practice always do)
+     * resubmit the request as GET regardless of the original method (RFC 7231 §6.4.2–6.4.4).
+     * Use 303 when you explicitly want a POST-to-GET redirect after a form submission.
+     *
+     * <p>Codes 307 and 308 are <em>method-preserving</em>: the request method and body MUST NOT be changed
+     * (RFC 7231 §6.4.7 and RFC 7538 §3). Use these when the original method (e.g. POST, PUT) must be
+     * repeated at the new URI.
+     */
     public enum RedirectStatusCode {
+        /**
+         * 301 Moved Permanently (RFC 7231 §6.4.2).
+         * User agents MAY change the method to GET; in practice all major browsers do.
+         * Use {@link #PERMANENT_REDIRECT} (308) when the original method must be preserved.
+         */
         MOVED_PERMANENTLY(301),
+
+        /**
+         * 302 Found (RFC 7231 §6.4.3).
+         * User agents MAY change the method to GET; in practice all major browsers do.
+         * Use {@link #TEMPORARY_REDIRECT} (307) when the original method must be preserved.
+         */
         FOUND(302),
+
+        /**
+         * 303 See Other (RFC 7231 §6.4.4).
+         * The response to the redirect MUST be retrieved with GET.
+         * Commonly used after a POST form submission to redirect to a result page.
+         */
         SEE_OTHER(303),
+
+        /**
+         * 307 Temporary Redirect (RFC 7231 §6.4.7).
+         * The request method and body MUST NOT be changed when following the redirect.
+         * Use this instead of 302 when method preservation is required.
+         */
         TEMPORARY_REDIRECT(307),
+
+        /**
+         * 308 Permanent Redirect (RFC 7538 §3).
+         * The request method and body MUST NOT be changed when following the redirect.
+         * Use this instead of 301 when method preservation is required.
+         */
         PERMANENT_REDIRECT(308);
 
         private final int code;
@@ -44,11 +84,16 @@ public class HttpResponseUtils {
 
 
     /**
-     * Create a response with a Location header.
+     * Creates a redirect response with a {@code Location} header.
      *
-     * @param url   a redirect url
-     * @param code  an HTTP status code in redirect
-     * @return response
+     * <p><strong>Method-change warning:</strong> status codes 301, 302, and 303 allow user agents to
+     * change the request method to GET when following the redirect. If you need the original method
+     * (e.g. POST or PUT) to be repeated at the new URI, use {@link RedirectStatusCode#TEMPORARY_REDIRECT}
+     * (307) or {@link RedirectStatusCode#PERMANENT_REDIRECT} (308) instead.
+     *
+     * @param url   the target URI to redirect to (set as the {@code Location} header value)
+     * @param code  the redirect status code; see {@link RedirectStatusCode} for semantics
+     * @return a response with the given status code and a {@code Location} header
      */
     public static HttpResponse redirect(String url, RedirectStatusCode code) {
         return builder(HttpResponse.of(""))
