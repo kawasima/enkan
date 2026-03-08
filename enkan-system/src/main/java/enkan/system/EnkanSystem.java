@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class EnkanSystem {
     private final Map<String, SystemComponent<?>> components;
     private final LinkedList<String> componentsOrder;
+    private boolean started = false;
 
     private EnkanSystem() {
         components = new HashMap<>();
@@ -157,12 +158,22 @@ public class EnkanSystem {
     }
 
     /**
+     * Returns whether the system has been started.
+     *
+     * @return {@code true} if {@link #start()} has been called and {@link #stop()} has not
+     */
+    public boolean isStarted() {
+        return started;
+    }
+
+    /**
      * Start all components
      */
     public void start() {
         componentsOrder.stream()
                 .map(components::get)
                 .forEach(EnkanSystem::startComponent);
+        started = true;
     }
 
     /**
@@ -174,6 +185,7 @@ public class EnkanSystem {
         reverse.stream()
                 .map(components::get)
                 .forEach(EnkanSystem::stopComponent);
+        started = false;
     }
 
     @SuppressWarnings("unchecked")

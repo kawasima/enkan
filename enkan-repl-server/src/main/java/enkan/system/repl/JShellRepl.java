@@ -123,6 +123,7 @@ public class JShellRepl implements Repl {
             registerCommand("stop",  new StopCommand());
             registerCommand("reset", new ResetCommand());
             registerCommand("middleware", new MiddlewareCommand());
+            registerCommand("status", new StatusCommand());
             // help is registered as a local command so it always reflects the live allCommands map
             registerLocalCommand("help", new HelpCommand(allCommands));
             // Import component classes from the system already created inside JShell
