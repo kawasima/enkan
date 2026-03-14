@@ -23,7 +23,7 @@ import java.util.function.BiFunction;
 public class JettyComponent extends WebServerComponent<JettyComponent> implements HealthCheckable {
     private Server server;
     private BiFunction<Server, OptionMap, Connector> serverConnectorFactory;
-    private boolean virtualThreads = false;
+    private boolean virtualThreads = true;
 
     @Override
     protected ComponentLifecycle<JettyComponent> lifecycle() {
