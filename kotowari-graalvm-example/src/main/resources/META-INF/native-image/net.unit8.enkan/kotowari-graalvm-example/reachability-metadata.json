@@ -1,0 +1,1163 @@
+{
+  "reflection": [
+    {
+      "type": "boolean[]"
+    },
+    {
+      "type": "byte[]"
+    },
+    {
+      "type": "ch.qos.logback.classic.Logger"
+    },
+    {
+      "type": "char[]"
+    },
+    {
+      "type": "com.sun.management.GarbageCollectorMXBean"
+    },
+    {
+      "type": "com.sun.management.GcInfo"
+    },
+    {
+      "type": "com.sun.management.HotSpotDiagnosticMXBean"
+    },
+    {
+      "type": "com.sun.management.ThreadMXBean"
+    },
+    {
+      "type": "com.sun.management.UnixOperatingSystemMXBean"
+    },
+    {
+      "type": "com.sun.management.VMOption"
+    },
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String",
+            "java.lang.String",
+            "java.lang.String",
+            "java.lang.String",
+            "boolean",
+            "boolean",
+            "boolean",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo[]"
+    },
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandInfo",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String",
+            "java.lang.String",
+            "java.lang.String",
+            "boolean",
+            "java.util.List"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.management.internal.DiagnosticCommandInfo[]"
+    },
+    {
+      "type": "com.sun.management.internal.GarbageCollectorExtImpl"
+    },
+    {
+      "type": "com.sun.management.internal.HotSpotDiagnostic"
+    },
+    {
+      "type": "com.sun.management.internal.HotSpotThreadImpl"
+    },
+    {
+      "type": "com.sun.management.internal.OperatingSystemImpl"
+    },
+    {
+      "type": "com.sun.management.internal.VirtualThreadSchedulerImpls$VirtualThreadSchedulerImpl"
+    },
+    {
+      "type": "double[]"
+    },
+    {
+      "type": "enkan.component.ApplicationComponent"
+    },
+    {
+      "type": "enkan.component.undertow.UndertowComponent"
+    },
+    {
+      "type": "enkan.data.DefaultHttpRequest$Mixin1",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "enkan.middleware.ContentNegotiationMiddleware"
+    },
+    {
+      "type": "enkan.middleware.ContentTypeMiddleware"
+    },
+    {
+      "type": "enkan.middleware.CookiesMiddleware"
+    },
+    {
+      "type": "enkan.middleware.DefaultCharsetMiddleware"
+    },
+    {
+      "type": "enkan.middleware.ParamsMiddleware"
+    },
+    {
+      "type": "enkan.middleware.ResourceMiddleware"
+    },
+    {
+      "type": "float[]"
+    },
+    {
+      "type": "int[]"
+    },
+    {
+      "type": "io.undertow.UndertowLogger_$logger",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "org.jboss.logging.Logger"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.undertow.UndertowLogger_$logger_ja"
+    },
+    {
+      "type": "io.undertow.UndertowLogger_$logger_ja_JP"
+    },
+    {
+      "type": "io.undertow.server.ConnectorStatisticsImpl"
+    },
+    {
+      "type": "io.undertow.server.DefaultByteBufferPool"
+    },
+    {
+      "type": "io.undertow.server.DefaultByteBufferPool$DefaultPooledBuffer"
+    },
+    {
+      "type": "io.undertow.server.HttpServerExchange"
+    },
+    {
+      "type": "io.undertow.server.protocol.http.HttpReadListener"
+    },
+    {
+      "type": "io.undertow.server.protocol.http.HttpRequestParser$$generated",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "org.xnio.OptionMap"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.undertow.util.Headers",
+      "fields": [
+        {
+          "name": "ACCEPT"
+        },
+        {
+          "name": "ACCEPT_CHARSET"
+        },
+        {
+          "name": "ACCEPT_ENCODING"
+        },
+        {
+          "name": "ACCEPT_LANGUAGE"
+        },
+        {
+          "name": "ACCEPT_RANGES"
+        },
+        {
+          "name": "AGE"
+        },
+        {
+          "name": "ALGORITHM"
+        },
+        {
+          "name": "ALLOW"
+        },
+        {
+          "name": "AUTHENTICATION_INFO"
+        },
+        {
+          "name": "AUTHORIZATION"
+        },
+        {
+          "name": "AUTH_PARAM"
+        },
+        {
+          "name": "BASIC"
+        },
+        {
+          "name": "CACHE_CONTROL"
+        },
+        {
+          "name": "CHUNKED"
+        },
+        {
+          "name": "CLOSE"
+        },
+        {
+          "name": "CNONCE"
+        },
+        {
+          "name": "COMPRESS"
+        },
+        {
+          "name": "CONNECTION"
+        },
+        {
+          "name": "CONTENT_DISPOSITION"
+        },
+        {
+          "name": "CONTENT_ENCODING"
+        },
+        {
+          "name": "CONTENT_LANGUAGE"
+        },
+        {
+          "name": "CONTENT_LENGTH"
+        },
+        {
+          "name": "CONTENT_LOCATION"
+        },
+        {
+          "name": "CONTENT_MD5"
+        },
+        {
+          "name": "CONTENT_RANGE"
+        },
+        {
+          "name": "CONTENT_SECURITY_POLICY"
+        },
+        {
+          "name": "CONTENT_TRANSFER_ENCODING"
+        },
+        {
+          "name": "CONTENT_TYPE"
+        },
+        {
+          "name": "COOKIE"
+        },
+        {
+          "name": "COOKIE2"
+        },
+        {
+          "name": "DATE"
+        },
+        {
+          "name": "DEFLATE"
+        },
+        {
+          "name": "DIGEST"
+        },
+        {
+          "name": "DOMAIN"
+        },
+        {
+          "name": "ETAG"
+        },
+        {
+          "name": "EXPECT"
+        },
+        {
+          "name": "EXPIRES"
+        },
+        {
+          "name": "FORWARDED"
+        },
+        {
+          "name": "FROM"
+        },
+        {
+          "name": "GZIP"
+        },
+        {
+          "name": "HOST"
+        },
+        {
+          "name": "IDENTITY"
+        },
+        {
+          "name": "IF_MATCH"
+        },
+        {
+          "name": "IF_MODIFIED_SINCE"
+        },
+        {
+          "name": "IF_NONE_MATCH"
+        },
+        {
+          "name": "IF_RANGE"
+        },
+        {
+          "name": "IF_UNMODIFIED_SINCE"
+        },
+        {
+          "name": "KEEP_ALIVE"
+        },
+        {
+          "name": "LAST_MODIFIED"
+        },
+        {
+          "name": "LOCATION"
+        },
+        {
+          "name": "MAX_FORWARDS"
+        },
+        {
+          "name": "NEGOTIATE"
+        },
+        {
+          "name": "NEXT_NONCE"
+        },
+        {
+          "name": "NONCE"
+        },
+        {
+          "name": "NONCE_COUNT"
+        },
+        {
+          "name": "OPAQUE"
+        },
+        {
+          "name": "ORIGIN"
+        },
+        {
+          "name": "PRAGMA"
+        },
+        {
+          "name": "PROXY_AUTHENTICATE"
+        },
+        {
+          "name": "PROXY_AUTHORIZATION"
+        },
+        {
+          "name": "QOP"
+        },
+        {
+          "name": "RANGE"
+        },
+        {
+          "name": "REALM"
+        },
+        {
+          "name": "REFERER"
+        },
+        {
+          "name": "REFERRER_POLICY"
+        },
+        {
+          "name": "REFRESH"
+        },
+        {
+          "name": "RESPONSE"
+        },
+        {
+          "name": "RESPONSE_AUTH"
+        },
+        {
+          "name": "RETRY_AFTER"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_ACCEPT"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_EXTENSIONS"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_KEY"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_KEY1"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_KEY2"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_LOCATION"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_ORIGIN"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_PROTOCOL"
+        },
+        {
+          "name": "SEC_WEB_SOCKET_VERSION"
+        },
+        {
+          "name": "SERVER"
+        },
+        {
+          "name": "SERVLET_ENGINE"
+        },
+        {
+          "name": "SET_COOKIE"
+        },
+        {
+          "name": "SET_COOKIE2"
+        },
+        {
+          "name": "SSL_CIPHER"
+        },
+        {
+          "name": "SSL_CIPHER_USEKEYSIZE"
+        },
+        {
+          "name": "SSL_CLIENT_CERT"
+        },
+        {
+          "name": "SSL_SESSION_ID"
+        },
+        {
+          "name": "STALE"
+        },
+        {
+          "name": "STATUS"
+        },
+        {
+          "name": "STRICT_TRANSPORT_SECURITY"
+        },
+        {
+          "name": "TE"
+        },
+        {
+          "name": "TRAILER"
+        },
+        {
+          "name": "TRANSFER_ENCODING"
+        },
+        {
+          "name": "UPGRADE"
+        },
+        {
+          "name": "URI"
+        },
+        {
+          "name": "USERNAME"
+        },
+        {
+          "name": "USER_AGENT"
+        },
+        {
+          "name": "VARY"
+        },
+        {
+          "name": "VIA"
+        },
+        {
+          "name": "WARNING"
+        },
+        {
+          "name": "WWW_AUTHENTICATE"
+        },
+        {
+          "name": "X_COMPRESS"
+        },
+        {
+          "name": "X_CONTENT_LENGTH"
+        },
+        {
+          "name": "X_CONTENT_TYPE_OPTIONS"
+        },
+        {
+          "name": "X_DISABLE_PUSH"
+        },
+        {
+          "name": "X_FORWARDED_FOR"
+        },
+        {
+          "name": "X_FORWARDED_HOST"
+        },
+        {
+          "name": "X_FORWARDED_PORT"
+        },
+        {
+          "name": "X_FORWARDED_PROTO"
+        },
+        {
+          "name": "X_FORWARDED_SERVER"
+        },
+        {
+          "name": "X_FRAME_OPTIONS"
+        },
+        {
+          "name": "X_GZIP"
+        },
+        {
+          "name": "X_XSS_PROTECTION"
+        }
+      ]
+    },
+    {
+      "type": "io.undertow.util.HttpString"
+    },
+    {
+      "type": "io.undertow.util.Methods",
+      "fields": [
+        {
+          "name": "ACL"
+        },
+        {
+          "name": "BASELINE_CONTROL"
+        },
+        {
+          "name": "CHECKIN"
+        },
+        {
+          "name": "CHECKOUT"
+        },
+        {
+          "name": "CONNECT"
+        },
+        {
+          "name": "COPY"
+        },
+        {
+          "name": "DELETE"
+        },
+        {
+          "name": "GET"
+        },
+        {
+          "name": "HEAD"
+        },
+        {
+          "name": "LABEL"
+        },
+        {
+          "name": "LOCK"
+        },
+        {
+          "name": "MERGE"
+        },
+        {
+          "name": "MKACTIVITY"
+        },
+        {
+          "name": "MKCOL"
+        },
+        {
+          "name": "MKWORKSPACE"
+        },
+        {
+          "name": "MOVE"
+        },
+        {
+          "name": "OPTIONS"
+        },
+        {
+          "name": "PATCH"
+        },
+        {
+          "name": "POST"
+        },
+        {
+          "name": "PROPFIND"
+        },
+        {
+          "name": "PROPPATCH"
+        },
+        {
+          "name": "PUT"
+        },
+        {
+          "name": "REPORT"
+        },
+        {
+          "name": "SEARCH"
+        },
+        {
+          "name": "TRACE"
+        },
+        {
+          "name": "UNCHECKOUT"
+        },
+        {
+          "name": "UNLOCK"
+        },
+        {
+          "name": "UPDATE"
+        },
+        {
+          "name": "VERSION_CONTROL"
+        }
+      ]
+    },
+    {
+      "type": "io.undertow.util.Protocols",
+      "fields": [
+        {
+          "name": "HTTP_0_9"
+        },
+        {
+          "name": "HTTP_1_0"
+        },
+        {
+          "name": "HTTP_1_1"
+        },
+        {
+          "name": "HTTP_2_0"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getBoolean",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Byte",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Character",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.ClassLoader",
+      "fields": [
+        {
+          "name": "classLoaderValueMap"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Deprecated"
+    },
+    {
+      "type": "java.lang.Double",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Float",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Integer",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Long",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Record"
+    },
+    {
+      "type": "java.lang.Short",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.StackTraceElement"
+    },
+    {
+      "type": "java.lang.String"
+    },
+    {
+      "type": "java.lang.String[]"
+    },
+    {
+      "type": "java.lang.Thread",
+      "fields": [
+        {
+          "name": "contextClassLoader"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Void",
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.management.BufferPoolMXBean"
+    },
+    {
+      "type": "java.lang.management.ClassLoadingMXBean"
+    },
+    {
+      "type": "java.lang.management.CompilationMXBean"
+    },
+    {
+      "type": "java.lang.management.LockInfo"
+    },
+    {
+      "type": "java.lang.management.MemoryMXBean"
+    },
+    {
+      "type": "java.lang.management.MemoryManagerMXBean"
+    },
+    {
+      "type": "java.lang.management.MemoryPoolMXBean"
+    },
+    {
+      "type": "java.lang.management.MemoryUsage"
+    },
+    {
+      "type": "java.lang.management.MonitorInfo"
+    },
+    {
+      "type": "java.lang.management.PlatformLoggingMXBean"
+    },
+    {
+      "type": "java.lang.management.RuntimeMXBean"
+    },
+    {
+      "type": "java.lang.management.ThreadInfo"
+    },
+    {
+      "type": "java.math.BigDecimal"
+    },
+    {
+      "type": "java.math.BigInteger"
+    },
+    {
+      "type": "java.util.Arrays",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "asList",
+          "parameterTypes": [
+            "java.lang.Object[]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.util.Date"
+    },
+    {
+      "type": "javax.management.MBeanOperationInfo"
+    },
+    {
+      "type": "javax.management.MBeanServerBuilder",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "javax.management.ObjectName"
+    },
+    {
+      "type": "javax.management.ObjectName[]"
+    },
+    {
+      "type": "javax.management.StandardEmitterMBean"
+    },
+    {
+      "type": "javax.management.openmbean.CompositeData"
+    },
+    {
+      "type": "javax.management.openmbean.CompositeData[]"
+    },
+    {
+      "type": "javax.management.openmbean.OpenMBeanOperationInfoSupport"
+    },
+    {
+      "type": "javax.management.openmbean.TabularData"
+    },
+    {
+      "type": "jdk.internal.misc.Unsafe"
+    },
+    {
+      "type": "jdk.management.VirtualThreadSchedulerMXBean"
+    },
+    {
+      "type": "jdk.management.jfr.ConfigurationInfo"
+    },
+    {
+      "type": "jdk.management.jfr.EventTypeInfo"
+    },
+    {
+      "type": "jdk.management.jfr.FlightRecorderMXBean"
+    },
+    {
+      "type": "jdk.management.jfr.FlightRecorderMXBeanImpl"
+    },
+    {
+      "type": "jdk.management.jfr.RecordingInfo"
+    },
+    {
+      "type": "jdk.management.jfr.SettingDescriptorInfo"
+    },
+    {
+      "type": "kotowari.example.graalvm.NativeApplicationFactory",
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true
+    },
+    {
+      "type": "kotowari.example.graalvm.NativeSystemFactory",
+      "allDeclaredMethods": true,
+      "allDeclaredConstructors": true
+    },
+    {
+      "type": "kotowari.example.graalvm.controller.TodoController",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "kotowari.example.graalvm.model.Todo",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "java.lang.String",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "kotowari.graalvm.KotowariDispatcher"
+    },
+    {
+      "type": "kotowari.graalvm.NativeControllerInvokerMiddleware",
+      "methods": [
+        {
+          "name": "setupParameterInjectors",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "kotowari.middleware.RoutingMiddleware"
+    },
+    {
+      "type": "kotowari.middleware.SerDesMiddleware",
+      "fields": [
+        {
+          "name": "beans"
+        }
+      ],
+      "methods": [
+        {
+          "name": "loadReaderAndWriter",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "long[]"
+    },
+    {
+      "type": "org.apache.log4j.LogManager"
+    },
+    {
+      "type": "org.apache.logging.log4j.Logger"
+    },
+    {
+      "type": "org.jboss.logmanager.LogManager"
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor",
+      "fields": [
+        {
+          "name": "activeCount"
+        },
+        {
+          "name": "peakQueueSize"
+        },
+        {
+          "name": "peakThreadCount"
+        },
+        {
+          "name": "terminationWaiters"
+        }
+      ]
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor$MXBeanImpl"
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor$PoolThreadNode",
+      "fields": [
+        {
+          "name": "parked"
+        },
+        {
+          "name": "task"
+        }
+      ]
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor$QNode",
+      "fields": [
+        {
+          "name": "next"
+        }
+      ]
+    },
+    {
+      "type": "org.jboss.threads.Messages_$logger",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "org.jboss.logging.Logger"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jboss.threads.Messages_$logger_ja"
+    },
+    {
+      "type": "org.jboss.threads.Messages_$logger_ja_JP"
+    },
+    {
+      "type": "org.jboss.threads.management.StandardThreadPoolMXBean"
+    },
+    {
+      "type": "org.slf4j.simple.SimpleServiceProvider"
+    },
+    {
+      "type": "org.xnio.Connection"
+    },
+    {
+      "type": "org.xnio.XnioWorker"
+    },
+    {
+      "type": "org.xnio._private.Messages_$logger",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "org.jboss.logging.Logger"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.xnio._private.Messages_$logger_ja"
+    },
+    {
+      "type": "org.xnio._private.Messages_$logger_ja_JP"
+    },
+    {
+      "type": "org.xnio.management.XnioProviderMXBean"
+    },
+    {
+      "type": "org.xnio.management.XnioServerMXBean"
+    },
+    {
+      "type": "org.xnio.management.XnioWorkerMXBean"
+    },
+    {
+      "type": "org.xnio.nio.Log_$logger",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "org.jboss.logging.Logger"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.xnio.nio.Log_$logger_ja"
+    },
+    {
+      "type": "org.xnio.nio.Log_$logger_ja_JP"
+    },
+    {
+      "type": "org.xnio.nio.NioSocketConduit"
+    },
+    {
+      "type": "org.xnio.nio.NioTcpServer"
+    },
+    {
+      "type": "org.xnio.nio.NioTcpServer$1"
+    },
+    {
+      "type": "org.xnio.nio.NioXnio$3"
+    },
+    {
+      "type": "org.xnio.nio.NioXnioProvider"
+    },
+    {
+      "type": "org.xnio.nio.NioXnioWorker"
+    },
+    {
+      "type": "org.xnio.nio.NioXnioWorker$NioWorkerMetrics"
+    },
+    {
+      "type": "org.xnio.nio.WorkerThread"
+    },
+    {
+      "type": "org.xnio.streams.ChannelInputStream"
+    },
+    {
+      "type": "short[]"
+    },
+    {
+      "type": "sun.management.ClassLoadingImpl"
+    },
+    {
+      "type": "sun.management.CompilationImpl"
+    },
+    {
+      "type": "sun.management.ManagementFactoryHelper$1"
+    },
+    {
+      "type": "sun.management.ManagementFactoryHelper$PlatformLoggingImpl"
+    },
+    {
+      "type": "sun.management.MemoryImpl"
+    },
+    {
+      "type": "sun.management.MemoryManagerImpl"
+    },
+    {
+      "type": "sun.management.MemoryPoolImpl"
+    },
+    {
+      "type": "sun.management.RuntimeImpl"
+    },
+    {
+      "type": "sun.management.VMManagementImpl",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "compTimeMonitoringSupport"
+        },
+        {
+          "name": "currentThreadCpuTimeSupport"
+        },
+        {
+          "name": "objectMonitorUsageSupport"
+        },
+        {
+          "name": "otherThreadCpuTimeSupport"
+        },
+        {
+          "name": "remoteDiagnosticCommandsSupport"
+        },
+        {
+          "name": "synchronizerUsageSupport"
+        },
+        {
+          "name": "threadAllocatedMemorySupport"
+        },
+        {
+          "name": "threadContentionMonitoringSupport"
+        }
+      ]
+    },
+    {
+      "type": "sun.misc.Unsafe",
+      "fields": [
+        {
+          "name": "theUnsafe"
+        }
+      ]
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData"
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData_en"
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData_en_US"
+    },
+    {
+      "type": "sun.util.resources.cldr.CalendarData"
+    },
+    {
+      "type": "sun.util.resources.cldr.TimeZoneNames"
+    },
+    {
+      "type": "sun.util.resources.cldr.TimeZoneNames_en"
+    },
+    {
+      "type": "sun.util.resources.cldr.TimeZoneNames_en_US"
+    },
+    {
+      "type": "tools.jackson.databind.deser.Deserializers[]"
+    },
+    {
+      "type": "tools.jackson.databind.deser.KeyDeserializers[]"
+    },
+    {
+      "type": "tools.jackson.databind.deser.ValueInstantiators[]"
+    },
+    {
+      "type": "tools.jackson.databind.ser.Serializers[]"
+    }
+  ]
+}

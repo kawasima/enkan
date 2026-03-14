@@ -241,6 +241,18 @@ public class MixinUtils {
     private static final AtomicLong classCounter = new AtomicLong();
 
     /**
+     * Map from generated class name (binary name, e.g. {@code enkan.data.DefaultHttpRequest$Mixin1})
+     * to the raw class bytes produced by the Class-File API.
+     *
+     * <p>This is populated by {@link #createFactory} and is read by the GraalVM
+     * {@code KotowariFeature} at native-image build time to write the bytes to
+     * a {@code predefined-classes/} directory and generate
+     * {@code predefined-classes-config.json}.  The map is never cleared so that
+     * the Feature can access all generated classes after calling {@code createFactory}.
+     */
+    public static final ConcurrentHashMap<String, byte[]> generatedClassBytes = new ConcurrentHashMap<>();
+
+    /**
      * Creates a factory that produces instances of a runtime-generated subclass
      * that extends the concrete class of {@code template} and implements all
      * the given mixin interfaces.
@@ -292,6 +304,11 @@ public class MixinUtils {
         ClassDesc genDesc = ClassDesc.of(superClass.getName() + "$Mixin" + id);
 
         byte[] bytes = ClassFile.of().build(genDesc, cb -> {
+            // Target Java 17 class-file format (major version 61) so that the
+            // GraalVM native-image predefined-classes mechanism (which uses an
+            // older bundled ASM) can parse the bytes.  The generated class only
+            // uses Java 17-compatible bytecode features.
+            cb.withVersion(ClassFile.JAVA_17_VERSION, 0);
             cb.withSuperclass(superDesc);
             cb.withInterfaceSymbols(newIfaceDescs);
             cb.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_SUPER);
@@ -308,6 +325,9 @@ public class MixinUtils {
         try {
             MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
                     superClass, MethodHandles.lookup());
+            // Store bytes before defining so KotowariFeature can retrieve them
+            // at native-image build time and write predefined-classes-config.json.
+            generatedClassBytes.put(genDesc.displayName(), bytes);
             Class<?> generated = lookup.defineClass(bytes);
             Constructor<T> ctor = (Constructor<T>) generated.getDeclaredConstructor();
             ctor.setAccessible(true);

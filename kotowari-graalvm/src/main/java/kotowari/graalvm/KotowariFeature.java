@@ -60,6 +60,7 @@ public class KotowariFeature implements Feature {
         }
 
         registerControllerReflection(access, entries);
+        pregenerateMixinClasses(access);
 
         byte[] dispatcherBytes = generateDispatcher(entries);
         Class<?> dispatcherClass = defineDispatcherClass(dispatcherBytes);
@@ -72,6 +73,74 @@ public class KotowariFeature implements Feature {
                     "dispatch", String.class, Object.class, Object[].class));
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Failed to register KotowariDispatcher.dispatch", e);
+        }
+    }
+
+    /**
+     * Invokes the factory's {@code buildApp()} method (if available) to trigger
+     * {@link enkan.util.MixinUtils#createFactory} in the build JVM, then registers
+     * every generated {@code $Mixin} class with the native-image analyser.
+     *
+     * <p>The class bytes and {@code predefined-classes-config.json} are written
+     * to {@code target/} by the {@code GenerateMixinConfig} Maven exec step that
+     * runs in the {@code prepare-package} phase — before native-image starts.
+     * This method only needs to register the already-defined classes so the
+     * analyser knows about them.
+     */
+    private void pregenerateMixinClasses(BeforeAnalysisAccess access) {
+        String factoryClassName = System.getProperty("kotowari.routes.factory");
+        if (factoryClassName == null) {
+            return;
+        }
+        try {
+            Class<?> factoryClass = access.findClassByName(factoryClassName);
+            if (factoryClass == null) {
+                return;
+            }
+            Method buildAppMethod;
+            try {
+                buildAppMethod = factoryClass.getMethod("buildApp");
+            } catch (NoSuchMethodException e) {
+                // Factory does not expose buildApp(); mixin pre-generation skipped.
+                return;
+            }
+            Object app = buildAppMethod.invoke(null);
+            // Trigger buildRequestFactory() -> MixinUtils.createFactory() via createRequest().
+            // When the predefined-classes-config.json was already applied, the class loader
+            // may reject a duplicate defineClass call with a LinkageError — that is expected
+            // and harmless: the class is already embedded in the image.
+            Method createRequest = app.getClass().getMethod("createRequest");
+            try {
+                createRequest.invoke(app);
+            } catch (java.lang.reflect.InvocationTargetException ite) {
+                Throwable cause = ite.getCause();
+                if (cause instanceof LinkageError) {
+                    System.out.println("[KotowariFeature] Mixin class already predefined (LinkageError suppressed): "
+                            + cause.getMessage());
+                } else {
+                    throw ite;
+                }
+            }
+
+            // Register every $Mixin class that is already available (either just-defined
+            // or already loaded by the predefined-classes mechanism).
+            String baseClassName = "enkan.data.DefaultHttpRequest";
+            for (long i = 1; i <= 20; i++) {
+                String mixinName = baseClassName + "$Mixin" + i;
+                try {
+                    Class<?> mixinClass = Class.forName(mixinName);
+                    RuntimeReflection.register(mixinClass);
+                    RuntimeReflection.registerAllConstructors(mixinClass);
+                    access.registerAsUsed(mixinClass);
+                    System.out.println("[KotowariFeature] Registered mixin class: " + mixinName);
+                } catch (ClassNotFoundException e) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[KotowariFeature] Could not pre-generate mixin classes: "
+                    + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 

@@ -58,6 +58,14 @@
     </build>
 
     <dependencies>
+        <!-- Override wildfly-common to 2.0.1 — 1.5.4.Final contains GraalVM substitutions
+             that reference internal GraalVM classes absent in GraalVM 25, causing
+             "Substitution target not loaded" errors at native-image build time. -->
+        <dependency>
+            <groupId>org.wildfly.common</groupId>
+            <artifactId>wildfly-common</artifactId>
+            <version>2.0.1</version>
+        </dependency>
         <dependency>
             <groupId>net.unit8.enkan</groupId>
             <artifactId>enkan-system</artifactId>
@@ -108,6 +116,28 @@
             <id>native</id>
             <build>
                 <plugins>
+                    <!-- Generate predefined-classes-config.json before native-image runs -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-mixin-config</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>kotowari.example.graalvm.GenerateMixinConfig</mainClass>
+                                    <arguments>
+                                        <argument>${project.build.directory}</argument>
+                                    </arguments>
+                                    <includeProjectDependencies>true</includeProjectDependencies>
+                                    <includePluginDependencies>false</includePluginDependencies>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
@@ -127,6 +157,8 @@
                             <buildArgs>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>--features=enkan.graalvm.EnkanFeature,kotowari.graalvm.KotowariFeature</buildArg>
+                                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+                                <buildArg>-H:PredefinedClassesConfigurationFiles=${project.build.directory}/predefined-classes-config.json</buildArg>
                             </buildArgs>
                             <javaToolchain>
                                 <version>25</version>
