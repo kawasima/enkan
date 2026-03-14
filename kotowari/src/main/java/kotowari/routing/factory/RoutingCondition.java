@@ -98,7 +98,7 @@ public class RoutingCondition {
         }
 
         OptionMap options = OptionMap.of(
-                "controller", controllerClass,
+                "controller", controllerClass.getName(),
                 "action", controllerMethod,
                 "conditions", conditions);
 

@@ -58,10 +58,24 @@ public class Routes {
      */
     public String generate(OptionMap options) {
         OptionMap merged = OptionMap.of(options);
-        Class<?> controller = (Class<?>) options.get("controller");
+        Object controllerValue = options.get("controller");
+        Class<?> controller;
+        if (controllerValue instanceof Class<?> c) {
+            controller = c;
+            merged.put("controller", c.getName());
+        } else if (controllerValue instanceof String name) {
+            try {
+                controller = Class.forName(name, false,
+                        Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new MisconfigurationException("core.CLASS_NOT_FOUND", name, e);
+            }
+        } else {
+            throw new MisconfigurationException("kotowari.ROUTING_GENERATION");
+        }
         String action = options.getString("action");
 
-        if (controller == null || action == null) {
+        if (action == null) {
             throw new MisconfigurationException("kotowari.ROUTING_GENERATION");
         }
         return routeList.stream()

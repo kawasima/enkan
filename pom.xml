@@ -68,6 +68,7 @@
         <module>enkan-component-opentelemetry</module>
         <module>kotowari</module>
         <module>kotowari-jpa</module>
+        <module>kotowari-graalvm</module>
         <module>enkan-throttling</module>
         <module>kotowari-example</module>
 

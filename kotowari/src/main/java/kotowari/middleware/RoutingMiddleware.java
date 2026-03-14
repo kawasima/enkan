@@ -50,26 +50,31 @@ public class RoutingMiddleware implements WebMiddleware {
     @Override
     public <NNREQ, NNRES> HttpResponse handle(HttpRequest request, MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> next) {
         request = MixinUtils.mixin(request, Routable.class);
-        Class<?> controllerClass;
+        Class<?> controllerClass = null;
 
         OptionMap routing = recognizePath(request);
         if (routing.containsKey("controller")) {
-            controllerClass = (Class<?>) routing.get("controller");
+            String controllerClassName = routing.getString("controller");
+            try {
+                controllerClass = Class.forName(controllerClassName, true,
+                        Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new MisconfigurationException("core.CLASS_NOT_FOUND", controllerClassName, e);
+            }
             String action = routing.getString("action");
-            if (controllerClass != null) {
-                ((Routable) request).setControllerClass(controllerClass);
+            ((Routable) request).setControllerClass(controllerClass);
 
-                if (action != null) {
-                    Method actionMethod = methodCache.computeIfAbsent(controllerClass.getName() + "#" + action, key -> Arrays.stream(controllerClass.getMethods())
-                            .filter(m -> m.getName().equals(action))
-                            .findAny()
-                            .orElse(null));
-                    ((Routable) request).setControllerMethod(actionMethod);
-                }
+            if (action != null) {
+                String methodKey = controllerClassName + "#" + action;
+                Method actionMethod = methodCache.computeIfAbsent(methodKey, key -> Arrays.stream(controllerClass.getMethods())
+                        .filter(m -> m.getName().equals(action))
+                        .findAny()
+                        .orElse(null));
+                ((Routable) request).setControllerMethod(actionMethod);
+                ((Routable) request).setControllerMethodName(methodKey);
             }
 
-
-            if (controllerClass == null || (action != null && ((Routable) request).getControllerMethod() == null)) {
+            if (action != null && ((Routable) request).getControllerMethod() == null) {
                 HttpResponse response = HttpResponse.of("NotFound");
                 response.setStatus(404);
                 return response;
@@ -98,11 +103,12 @@ public class RoutingMiddleware implements WebMiddleware {
                     return null;
                 });
         if (response instanceof TemplatedHttpResponse templatedResponse) {
+            final Class<?> resolvedControllerClass = controllerClass;
             Function<List<?>, Object> urlForFunction = arguments -> {
                 if (arguments.isEmpty()) {
                     return "/";
                 } else if (arguments.size() == 1){
-                    return routes.generate(UrlRewriter.urlFor(controllerClass, arguments.getFirst().toString()).options());
+                    return routes.generate(UrlRewriter.urlFor(resolvedControllerClass, arguments.getFirst().toString()).options());
                 } else {
                     try {
                         Class<?> ctrlClass = Class.forName(arguments.get(0).toString(), true,

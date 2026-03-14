@@ -29,7 +29,7 @@ public class Route {
     private List<String> significantKeys;
     private OptionMap parameterShell;
     private boolean matchingPrepared;
-    private Class<?> controllerRequirement;
+    private String controllerRequirement;
     private String actionRequirement;
     private Pattern recognizePattern;
 
@@ -188,12 +188,12 @@ public class Route {
     /* --- generate --- */
     public boolean matchesController(Class<?> controller) {
         prepareMatching();
-        return controller.equals(controllerRequirement);
+        return controller.getName().equals(controllerRequirement);
     }
 
     public boolean matchesControllerAndAction(Class<?> controller, String action) {
         prepareMatching();
-        return  (controllerRequirement == null || controller.equals(controllerRequirement)) &&
+        return  (controllerRequirement == null || controller.getName().equals(controllerRequirement)) &&
                 (actionRequirement == null || action.equals(actionRequirement));
     }
 
@@ -234,7 +234,7 @@ public class Route {
     }
     private void prepareMatching() {
         if (!matchingPrepared) {
-            controllerRequirement = (Class<?>) constraints.get("controller");
+            controllerRequirement = constraints.getString("controller");
             actionRequirement = requirementFor("action");
             matchingPrepared = true;
         }
