@@ -50,6 +50,10 @@ public class Routes {
         return recognizer.recognize(request);
     }
 
+    public List<Route> getRouteList() {
+        return routeList;
+    }
+
     /**
      * Generate a path string from route parameters.
      *
@@ -62,6 +66,8 @@ public class Routes {
         Class<?> controller;
         if (controllerValue instanceof Class<?> c) {
             controller = c;
+            // Route.generationRequirements compares against the String FQN stored in constraints,
+            // so merged must carry the class name, not the Class<?> object.
             merged.put("controller", c.getName());
         } else if (controllerValue instanceof String name) {
             try {
