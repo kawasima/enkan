@@ -66,7 +66,8 @@ public class RoutingMiddleware implements WebMiddleware {
 
             if (action != null) {
                 String methodKey = controllerClassName + "#" + action;
-                Method actionMethod = methodCache.computeIfAbsent(methodKey, key -> Arrays.stream(controllerClass.getMethods())
+                final Class<?> resolvedClass = controllerClass;
+                Method actionMethod = methodCache.computeIfAbsent(methodKey, key -> Arrays.stream(resolvedClass.getMethods())
                         .filter(m -> m.getName().equals(action))
                         .findAny()
                         .orElse(null));
