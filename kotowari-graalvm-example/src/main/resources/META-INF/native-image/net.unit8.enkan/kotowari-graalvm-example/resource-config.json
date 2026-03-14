@@ -1,1 +1,8 @@
-{"resources":{"includes":[{"pattern":"META-INF/misconfiguration.properties"},{"pattern":"META-INF/misconfiguration_ja.properties"}]},"bundles":[{"name":"META-INF/misconfiguration"}],"globs":[{"glob":"META-INF/misconfiguration.properties"},{"glob":"META-INF/misconfiguration_ja.properties"},{"glob":"META-INF/misconfiguration_ja_JP.properties"},{"glob":"META-INF/services/jakarta.validation.spi.ValidationProvider"},{"glob":"META-INF/services/jakarta.ws.rs.ext.MessageBodyReader"},{"glob":"META-INF/services/jakarta.ws.rs.ext.MessageBodyWriter"},{"glob":"META-INF/services/java.nio.channels.spi.SelectorProvider"},{"glob":"META-INF/services/java.time.zone.ZoneRulesProvider"},{"glob":"META-INF/services/org.jboss.logging.LoggerProvider"},{"glob":"META-INF/services/org.slf4j.spi.SLF4JServiceProvider"},{"glob":"META-INF/services/org.xnio.XnioProvider"},{"glob":"io/undertow/version.properties"},{"glob":"org/jboss/threads/Version.properties"},{"glob":"org/xnio/Version.properties"},{"glob":"org/xnio/nio/Version.properties"},{"glob":"simplelogger.properties"},{"module":"jdk.jfr","glob":"jdk/jfr/internal/query/view.ini"}]}
+{
+  "globs": [
+    {"glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"},
+    {"glob": "META-INF/services/jakarta.validation.spi.ValidationProvider"},
+    {"glob": "simplelogger.properties"},
+    {"module": "jdk.jfr", "glob": "jdk/jfr/internal/query/view.ini"}
+  ]
+}

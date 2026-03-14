@@ -1,0 +1,6 @@
+{
+  "globs": [
+    {"glob": "META-INF/services/jakarta.ws.rs.ext.MessageBodyReader"},
+    {"glob": "META-INF/services/jakarta.ws.rs.ext.MessageBodyWriter"}
+  ]
+}
