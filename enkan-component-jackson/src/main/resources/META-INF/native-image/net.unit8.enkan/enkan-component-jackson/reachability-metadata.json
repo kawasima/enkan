@@ -1,0 +1,8 @@
+{
+  "reflection": [
+    {"type": "tools.jackson.databind.deser.Deserializers[]"},
+    {"type": "tools.jackson.databind.deser.KeyDeserializers[]"},
+    {"type": "tools.jackson.databind.deser.ValueInstantiators[]"},
+    {"type": "tools.jackson.databind.ser.Serializers[]"}
+  ]
+}

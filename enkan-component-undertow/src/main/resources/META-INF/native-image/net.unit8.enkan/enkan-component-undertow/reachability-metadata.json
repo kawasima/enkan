@@ -1,0 +1,151 @@
+{
+  "reflection": [
+    {
+      "type": "io.undertow.UndertowLogger_$logger",
+      "methods": [{"name": "<init>", "parameterTypes": ["org.jboss.logging.Logger"]}]
+    },
+    {"type": "io.undertow.UndertowLogger_$logger_ja"},
+    {"type": "io.undertow.UndertowLogger_$logger_ja_JP"},
+    {"type": "io.undertow.server.ConnectorStatisticsImpl"},
+    {"type": "io.undertow.server.DefaultByteBufferPool"},
+    {"type": "io.undertow.server.DefaultByteBufferPool$DefaultPooledBuffer"},
+    {"type": "io.undertow.server.HttpServerExchange"},
+    {"type": "io.undertow.server.protocol.http.HttpReadListener"},
+    {
+      "type": "io.undertow.server.protocol.http.HttpRequestParser$$generated",
+      "methods": [{"name": "<init>", "parameterTypes": ["org.xnio.OptionMap"]}]
+    },
+    {
+      "type": "io.undertow.util.Headers",
+      "fields": [
+        {"name": "ACCEPT"}, {"name": "ACCEPT_CHARSET"}, {"name": "ACCEPT_ENCODING"},
+        {"name": "ACCEPT_LANGUAGE"}, {"name": "ACCEPT_RANGES"}, {"name": "AGE"},
+        {"name": "ALGORITHM"}, {"name": "ALLOW"}, {"name": "AUTHENTICATION_INFO"},
+        {"name": "AUTHORIZATION"}, {"name": "AUTH_PARAM"}, {"name": "BASIC"},
+        {"name": "CACHE_CONTROL"}, {"name": "CHUNKED"}, {"name": "CLOSE"},
+        {"name": "CNONCE"}, {"name": "COMPRESS"}, {"name": "CONNECTION"},
+        {"name": "CONTENT_DISPOSITION"}, {"name": "CONTENT_ENCODING"},
+        {"name": "CONTENT_LANGUAGE"}, {"name": "CONTENT_LENGTH"},
+        {"name": "CONTENT_LOCATION"}, {"name": "CONTENT_MD5"},
+        {"name": "CONTENT_RANGE"}, {"name": "CONTENT_SECURITY_POLICY"},
+        {"name": "CONTENT_TRANSFER_ENCODING"}, {"name": "CONTENT_TYPE"},
+        {"name": "COOKIE"}, {"name": "COOKIE2"}, {"name": "DATE"},
+        {"name": "DEFLATE"}, {"name": "DIGEST"}, {"name": "DOMAIN"},
+        {"name": "ETAG"}, {"name": "EXPECT"}, {"name": "EXPIRES"},
+        {"name": "FORWARDED"}, {"name": "FROM"}, {"name": "GZIP"},
+        {"name": "HOST"}, {"name": "IDENTITY"}, {"name": "IF_MATCH"},
+        {"name": "IF_MODIFIED_SINCE"}, {"name": "IF_NONE_MATCH"}, {"name": "IF_RANGE"},
+        {"name": "IF_UNMODIFIED_SINCE"}, {"name": "KEEP_ALIVE"}, {"name": "LAST_MODIFIED"},
+        {"name": "LOCATION"}, {"name": "MAX_FORWARDS"}, {"name": "NEGOTIATE"},
+        {"name": "NEXT_NONCE"}, {"name": "NONCE"}, {"name": "NONCE_COUNT"},
+        {"name": "OPAQUE"}, {"name": "ORIGIN"}, {"name": "PRAGMA"},
+        {"name": "PROXY_AUTHENTICATE"}, {"name": "PROXY_AUTHORIZATION"}, {"name": "QOP"},
+        {"name": "RANGE"}, {"name": "REALM"}, {"name": "REFERER"},
+        {"name": "REFERRER_POLICY"}, {"name": "REFRESH"}, {"name": "RESPONSE"},
+        {"name": "RESPONSE_AUTH"}, {"name": "RETRY_AFTER"},
+        {"name": "SEC_WEB_SOCKET_ACCEPT"}, {"name": "SEC_WEB_SOCKET_EXTENSIONS"},
+        {"name": "SEC_WEB_SOCKET_KEY"}, {"name": "SEC_WEB_SOCKET_KEY1"},
+        {"name": "SEC_WEB_SOCKET_KEY2"}, {"name": "SEC_WEB_SOCKET_LOCATION"},
+        {"name": "SEC_WEB_SOCKET_ORIGIN"}, {"name": "SEC_WEB_SOCKET_PROTOCOL"},
+        {"name": "SEC_WEB_SOCKET_VERSION"}, {"name": "SERVER"}, {"name": "SERVLET_ENGINE"},
+        {"name": "SET_COOKIE"}, {"name": "SET_COOKIE2"}, {"name": "SSL_CIPHER"},
+        {"name": "SSL_CIPHER_USEKEYSIZE"}, {"name": "SSL_CLIENT_CERT"},
+        {"name": "SSL_SESSION_ID"}, {"name": "STALE"}, {"name": "STATUS"},
+        {"name": "STRICT_TRANSPORT_SECURITY"}, {"name": "TE"}, {"name": "TRAILER"},
+        {"name": "TRANSFER_ENCODING"}, {"name": "UPGRADE"}, {"name": "URI"},
+        {"name": "USERNAME"}, {"name": "USER_AGENT"}, {"name": "VARY"},
+        {"name": "VIA"}, {"name": "WARNING"}, {"name": "WWW_AUTHENTICATE"},
+        {"name": "X_COMPRESS"}, {"name": "X_CONTENT_LENGTH"},
+        {"name": "X_CONTENT_TYPE_OPTIONS"}, {"name": "X_DISABLE_PUSH"},
+        {"name": "X_FORWARDED_FOR"}, {"name": "X_FORWARDED_HOST"},
+        {"name": "X_FORWARDED_PORT"}, {"name": "X_FORWARDED_PROTO"},
+        {"name": "X_FORWARDED_SERVER"}, {"name": "X_FRAME_OPTIONS"},
+        {"name": "X_GZIP"}, {"name": "X_XSS_PROTECTION"}
+      ]
+    },
+    {"type": "io.undertow.util.HttpString"},
+    {
+      "type": "io.undertow.util.Methods",
+      "fields": [
+        {"name": "ACL"}, {"name": "BASELINE_CONTROL"}, {"name": "CHECKIN"},
+        {"name": "CHECKOUT"}, {"name": "CONNECT"}, {"name": "COPY"},
+        {"name": "DELETE"}, {"name": "GET"}, {"name": "HEAD"}, {"name": "LABEL"},
+        {"name": "LOCK"}, {"name": "MERGE"}, {"name": "MKACTIVITY"}, {"name": "MKCOL"},
+        {"name": "MKWORKSPACE"}, {"name": "MOVE"}, {"name": "OPTIONS"}, {"name": "PATCH"},
+        {"name": "POST"}, {"name": "PROPFIND"}, {"name": "PROPPATCH"}, {"name": "PUT"},
+        {"name": "REPORT"}, {"name": "SEARCH"}, {"name": "TRACE"}, {"name": "UNCHECKOUT"},
+        {"name": "UNLOCK"}, {"name": "UPDATE"}, {"name": "VERSION_CONTROL"}
+      ]
+    },
+    {
+      "type": "io.undertow.util.Protocols",
+      "fields": [
+        {"name": "HTTP_0_9"}, {"name": "HTTP_1_0"}, {"name": "HTTP_1_1"}, {"name": "HTTP_2_0"}
+      ]
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor",
+      "fields": [
+        {"name": "activeCount"}, {"name": "peakQueueSize"},
+        {"name": "peakThreadCount"}, {"name": "terminationWaiters"}
+      ]
+    },
+    {"type": "org.jboss.threads.EnhancedQueueExecutor$MXBeanImpl"},
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor$PoolThreadNode",
+      "fields": [{"name": "parked"}, {"name": "task"}]
+    },
+    {
+      "type": "org.jboss.threads.EnhancedQueueExecutor$QNode",
+      "fields": [{"name": "next"}]
+    },
+    {
+      "type": "org.jboss.threads.Messages_$logger",
+      "methods": [{"name": "<init>", "parameterTypes": ["org.jboss.logging.Logger"]}]
+    },
+    {"type": "org.jboss.threads.Messages_$logger_ja"},
+    {"type": "org.jboss.threads.Messages_$logger_ja_JP"},
+    {"type": "org.jboss.threads.management.StandardThreadPoolMXBean"},
+    {"type": "org.xnio.Connection"},
+    {"type": "org.xnio.XnioWorker"},
+    {
+      "type": "org.xnio._private.Messages_$logger",
+      "methods": [{"name": "<init>", "parameterTypes": ["org.jboss.logging.Logger"]}]
+    },
+    {"type": "org.xnio._private.Messages_$logger_ja"},
+    {"type": "org.xnio._private.Messages_$logger_ja_JP"},
+    {"type": "org.xnio.management.XnioProviderMXBean"},
+    {"type": "org.xnio.management.XnioServerMXBean"},
+    {"type": "org.xnio.management.XnioWorkerMXBean"},
+    {
+      "type": "org.xnio.nio.Log_$logger",
+      "methods": [{"name": "<init>", "parameterTypes": ["org.jboss.logging.Logger"]}]
+    },
+    {"type": "org.xnio.nio.Log_$logger_ja"},
+    {"type": "org.xnio.nio.Log_$logger_ja_JP"},
+    {"type": "org.xnio.nio.NioSocketConduit"},
+    {"type": "org.xnio.nio.NioTcpServer"},
+    {"type": "org.xnio.nio.NioTcpServer$1"},
+    {"type": "org.xnio.nio.NioXnio$3"},
+    {"type": "org.xnio.nio.NioXnioProvider"},
+    {"type": "org.xnio.nio.NioXnioWorker"},
+    {"type": "org.xnio.nio.NioXnioWorker$NioWorkerMetrics"},
+    {"type": "org.xnio.nio.WorkerThread"},
+    {"type": "org.xnio.streams.ChannelInputStream"},
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "fields": [{"name": "TYPE"}],
+      "methods": [{"name": "getBoolean", "parameterTypes": ["java.lang.String"]}]
+    },
+    {"type": "java.lang.Byte", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Character", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Double", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Float", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Integer", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Long", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.Short", "fields": [{"name": "TYPE"}]},
+    {"type": "java.lang.String"},
+    {"type": "java.lang.String[]"}
+  ]
+}
