@@ -68,6 +68,15 @@ public class EnkanFeature implements Feature {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void generateAndRegisterBinder(Class<?> componentClass) {
+        // Only generate a binder when the class has an accessible no-arg constructor.
+        // Classes that rely on constructor injection fall back to ComponentInjector.
+        try {
+            componentClass.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            System.err.println("[EnkanFeature] Skipping binder for " + componentClass.getName()
+                    + " — no no-arg constructor; will use ComponentInjector fallback.");
+            return;
+        }
         try {
             byte[] bytes = generateBinderBytecode(componentClass);
 
