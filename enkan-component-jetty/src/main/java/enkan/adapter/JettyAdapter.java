@@ -17,6 +17,7 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.util.thread.VirtualThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,9 @@ public class JettyAdapter {
     }
 
     private ThreadPool createThreadPool(OptionMap options) {
+        if (options.getBoolean("virtualThreads?", false)) {
+            return new VirtualThreadPool();
+        }
         QueuedThreadPool pool = new QueuedThreadPool(options.getInt("maxThreads", 50));
         pool.setMinThreads(options.getInt("minThreads", 8));
         return pool;

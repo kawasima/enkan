@@ -229,6 +229,41 @@ class JettyAdapterTest {
                 .isEqualTo("mapped");
     }
 
+    // ---------------------------------------------------- virtual threads
+
+    @Test
+    void virtualThreadPoolStartsAndHandlesRequest() throws Exception {
+        int vtPort;
+        try (ServerSocket s = new ServerSocket(0)) {
+            vtPort = s.getLocalPort();
+        }
+        WebApplication app = new WebApplication();
+        app.use(Predicates.any(), "vt", new WebMiddleware() {
+            @Override
+            public <NNREQ, NNRES> HttpResponse handle(HttpRequest req,
+                    enkan.MiddlewareChain<HttpRequest, HttpResponse, NNREQ, NNRES> chain) {
+                HttpResponse res = HttpResponse.of("vt-ok");
+                res.setHeaders(Headers.empty());
+                return res;
+            }
+        });
+        OptionMap options = OptionMap.of("http?", true, "port", vtPort, "host", "127.0.0.1",
+                "join?", false, "virtualThreads?", true);
+        Server vtServer = new JettyAdapter().runJetty(app, options);
+        try {
+            URI uri = URI.create("http://127.0.0.1:" + vtPort + "/");
+            HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            assertThat(conn.getResponseCode()).isEqualTo(200);
+            assertThat(new String(conn.getInputStream().readAllBytes(), StandardCharsets.UTF_8))
+                    .isEqualTo("vt-ok");
+        } finally {
+            vtServer.stop();
+            vtServer.join();
+        }
+    }
+
     // ----------------------------------------------------------- SSL config
 
     @Test
