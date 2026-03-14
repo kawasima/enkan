@@ -1,0 +1,12 @@
+{
+  "globs": [
+    {"glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"},
+    {"glob": "META-INF/services/java.time.zone.ZoneRulesProvider"},
+    {"glob": "META-INF/services/org.jboss.logging.LoggerProvider"},
+    {"glob": "META-INF/services/org.xnio.XnioProvider"},
+    {"glob": "io/undertow/version.properties"},
+    {"glob": "org/jboss/threads/Version.properties"},
+    {"glob": "org/xnio/Version.properties"},
+    {"glob": "org/xnio/nio/Version.properties"}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "globs": [
+    {"glob": "META-INF/misconfiguration.properties"},
+    {"glob": "META-INF/misconfiguration_ja.properties"},
+    {"glob": "META-INF/misconfiguration_ja_JP.properties"}
+  ],
+  "bundles": [
+    {"name": "META-INF/misconfiguration"}
+  ]
+}
