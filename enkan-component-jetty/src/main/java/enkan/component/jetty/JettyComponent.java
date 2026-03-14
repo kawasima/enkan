@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 public class JettyComponent extends WebServerComponent<JettyComponent> implements HealthCheckable {
     private Server server;
     private BiFunction<Server, OptionMap, Connector> serverConnectorFactory;
+    private boolean virtualThreads = false;
 
     @Override
     protected ComponentLifecycle<JettyComponent> lifecycle() {
@@ -35,6 +36,7 @@ public class JettyComponent extends WebServerComponent<JettyComponent> implement
                     OptionMap options = buildOptionMap();
                     if (serverConnectorFactory != null) options.put("serverConnectorFactory", serverConnectorFactory);
                     options.put("join?", false);
+                    options.put("virtualThreads?", virtualThreads);
                     if (!(app.getApplication() instanceof WebApplication webApp)) {
                         throw new MisconfigurationException("web.APPLICATION_NOT_WEB");
                     }
@@ -62,6 +64,14 @@ public class JettyComponent extends WebServerComponent<JettyComponent> implement
     @Override
     public HealthStatus health() {
         return (server != null && server.isRunning()) ? HealthStatus.UP : HealthStatus.DOWN;
+    }
+
+    public boolean isVirtualThreads() {
+        return virtualThreads;
+    }
+
+    public void setVirtualThreads(boolean virtualThreads) {
+        this.virtualThreads = virtualThreads;
     }
 
     /**
