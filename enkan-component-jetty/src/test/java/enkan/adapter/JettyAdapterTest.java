@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import org.eclipse.jetty.util.thread.VirtualThreadPool;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -251,6 +253,8 @@ class JettyAdapterTest {
                 "join?", false, "virtualThreads?", true);
         Server vtServer = new JettyAdapter().runJetty(app, options);
         try {
+            assertThat(vtServer.getThreadPool()).isInstanceOf(VirtualThreadPool.class);
+
             URI uri = URI.create("http://127.0.0.1:" + vtPort + "/");
             HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
             conn.setConnectTimeout(3000);
