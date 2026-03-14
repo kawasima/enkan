@@ -32,7 +32,7 @@ Enkan(円環) is a microframework implementing a middleware pattern like ring or
 
 ## Requirements
 
-- Java 21 or higher
+- Java 25 or higher
 - Jakarta EE 10 Specification
 
 ## Middleware
