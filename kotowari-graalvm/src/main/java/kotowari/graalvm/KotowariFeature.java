@@ -194,16 +194,25 @@ public class KotowariFeature implements Feature {
                     code.aload(2);
                     code.ldc(i);
                     code.aaload();
-                    ClassDesc paramDesc = ClassDesc.of(params[i].getType().getName());
-                    code.checkcast(paramDesc);
+                    Class<?> paramType = params[i].getType();
+                    if (paramType.isPrimitive()) {
+                        // unbox: checkcast wrapper, then invoke XxxValue()
+                        code.checkcast(wrapperDesc(paramType));
+                        emitUnbox(code, paramType);
+                    } else {
+                        code.checkcast(toClassDesc(paramType));
+                    }
                 }
 
                 MethodTypeDesc actionDesc = buildMethodTypeDesc(actionMethod);
                 code.invokevirtual(ctrlDesc, actionMethod.getName(), actionDesc);
 
-                // Box primitive returns or push null for void
-                if (actionMethod.getReturnType() == void.class) {
+                // Box primitive return or push null for void
+                Class<?> returnType = actionMethod.getReturnType();
+                if (returnType == void.class) {
                     code.aconst_null();
+                } else if (returnType.isPrimitive()) {
+                    emitBox(code, returnType);
                 }
                 code.areturn();
 
@@ -244,7 +253,50 @@ public class KotowariFeature implements Feature {
         if (type == byte.class) return CD_byte;
         if (type == short.class) return CD_short;
         if (type == char.class) return CD_char;
-        return ClassDesc.of(type.getName());
+        return toClassDesc(type);
+    }
+
+    /** Convert a reference or array type to {@link ClassDesc} using the descriptor string. */
+    private ClassDesc toClassDesc(Class<?> type) {
+        // type.descriptorString() works for all types: reference, array, and primitive
+        return ClassDesc.ofDescriptor(type.descriptorString());
+    }
+
+    /** Return the {@link ClassDesc} of the wrapper type for a primitive. */
+    private ClassDesc wrapperDesc(Class<?> primitive) {
+        if (primitive == int.class)     return ClassDesc.of("java.lang.Integer");
+        if (primitive == long.class)    return ClassDesc.of("java.lang.Long");
+        if (primitive == boolean.class) return ClassDesc.of("java.lang.Boolean");
+        if (primitive == double.class)  return ClassDesc.of("java.lang.Double");
+        if (primitive == float.class)   return ClassDesc.of("java.lang.Float");
+        if (primitive == byte.class)    return ClassDesc.of("java.lang.Byte");
+        if (primitive == short.class)   return ClassDesc.of("java.lang.Short");
+        if (primitive == char.class)    return ClassDesc.of("java.lang.Character");
+        throw new IllegalArgumentException("Not a primitive: " + primitive);
+    }
+
+    /** Emit an unboxing call (e.g. {@code Integer.intValue()}) for the given primitive type. */
+    private void emitUnbox(CodeBuilder code, Class<?> primitive) {
+        String method;
+        ClassDesc wrapDesc = wrapperDesc(primitive);
+        ClassDesc primDesc = mapType(primitive);
+        if (primitive == int.class)     method = "intValue";
+        else if (primitive == long.class)    method = "longValue";
+        else if (primitive == boolean.class) method = "booleanValue";
+        else if (primitive == double.class)  method = "doubleValue";
+        else if (primitive == float.class)   method = "floatValue";
+        else if (primitive == byte.class)    method = "byteValue";
+        else if (primitive == short.class)   method = "shortValue";
+        else if (primitive == char.class)    method = "charValue";
+        else throw new IllegalArgumentException("Not a primitive: " + primitive);
+        code.invokevirtual(wrapDesc, method, MethodTypeDesc.of(primDesc));
+    }
+
+    /** Emit a boxing call (e.g. {@code Integer.valueOf(int)}) for the given primitive type. */
+    private void emitBox(CodeBuilder code, Class<?> primitive) {
+        ClassDesc wrapDesc = wrapperDesc(primitive);
+        ClassDesc primDesc = mapType(primitive);
+        code.invokestatic(wrapDesc, "valueOf", MethodTypeDesc.of(wrapDesc, primDesc));
     }
 
     private Class<?> defineDispatcherClass(byte[] bytes) {

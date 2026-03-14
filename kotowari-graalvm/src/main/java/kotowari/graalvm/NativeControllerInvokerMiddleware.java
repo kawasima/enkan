@@ -64,8 +64,8 @@ public class NativeControllerInvokerMiddleware<RES> implements Middleware<HttpRe
                         dispatchMethod = dispatcherClass.getMethod("dispatch",
                                 String.class, Object.class, Object[].class);
                     } catch (ClassNotFoundException | NoSuchMethodException e) {
-                        throw new MisconfigurationException("kotowari.DISPATCHER_NOT_FOUND",
-                                "KotowariDispatcher", e);
+                        throw new MisconfigurationException("kotowari.CONTROLLER_METHOD_NOT_FOUND",
+                                "NativeControllerInvokerMiddleware", e);
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class NativeControllerInvokerMiddleware<RES> implements Middleware<HttpRe
     @Override
     public <NNREQ, NNRES> RES handle(HttpRequest request, MiddlewareChain<Void, Void, NNREQ, NNRES> next) {
         if (!(request instanceof Routable routable)) {
-            throw new MisconfigurationException("kotowari.MISSING_IMPLEMENTATION", Routable.class);
+            throw new MisconfigurationException("core.MISSING_IMPLEMENTATION", Routable.class);
         }
 
         String methodName = routable.getControllerMethodName();

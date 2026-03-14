@@ -71,12 +71,13 @@ public class Routes {
                 throw new MisconfigurationException("core.CLASS_NOT_FOUND", name, e);
             }
         } else {
-            throw new MisconfigurationException("kotowari.ROUTING_GENERATION");
+            throw new MisconfigurationException("core.INVALID_ARGUMENT",
+                    "controller", controllerValue != null ? controllerValue : "null");
         }
         String action = options.getString("action");
 
         if (action == null) {
-            throw new MisconfigurationException("kotowari.ROUTING_GENERATION");
+            throw new MisconfigurationException("core.INVALID_ARGUMENT", "action", "null");
         }
         return routeList.stream()
                 .filter(r -> r.matchesControllerAndAction(controller, action))
