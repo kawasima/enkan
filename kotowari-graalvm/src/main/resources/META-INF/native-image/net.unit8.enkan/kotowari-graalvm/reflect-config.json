@@ -1,5 +1,8 @@
 [
   {
+    "name": "enkan.component.ApplicationComponent"
+  },
+  {
     "name": "enkan.data.Routable",
     "allDeclaredMethods": true
   },
@@ -14,6 +17,30 @@
   {
     "name": "enkan.data.ContentNegotiable",
     "allDeclaredMethods": true
+  },
+  {
+    "name": "enkan.middleware.ContentNegotiationMiddleware"
+  },
+  {
+    "name": "enkan.middleware.ContentTypeMiddleware"
+  },
+  {
+    "name": "enkan.middleware.CookiesMiddleware"
+  },
+  {
+    "name": "enkan.middleware.DefaultCharsetMiddleware"
+  },
+  {
+    "name": "enkan.middleware.ParamsMiddleware"
+  },
+  {
+    "name": "enkan.middleware.ResourceMiddleware"
+  },
+  {
+    "name": "kotowari.graalvm.NativeControllerInvokerMiddleware",
+    "methods": [
+      {"name": "setupParameterInjectors", "parameterTypes": []}
+    ]
   },
   {
     "name": "kotowari.inject.parameter.HttpRequestInjector",
@@ -39,5 +66,15 @@
     "name": "kotowari.inject.parameter.PrincipalInjector",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.middleware.RoutingMiddleware"
+  },
+  {
+    "name": "kotowari.middleware.SerDesMiddleware",
+    "fields": [{"name": "beans"}],
+    "methods": [
+      {"name": "loadReaderAndWriter", "parameterTypes": []}
+    ]
   }
 ]
