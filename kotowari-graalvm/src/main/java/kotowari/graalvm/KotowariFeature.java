@@ -1,5 +1,6 @@
 package kotowari.graalvm;
 
+import enkan.util.MixinUtils;
 import kotowari.routing.Route;
 import kotowari.routing.Routes;
 import org.graalvm.nativeimage.hosted.Feature;
@@ -65,14 +66,12 @@ public class KotowariFeature implements Feature {
         byte[] dispatcherBytes = generateDispatcher(entries);
         Class<?> dispatcherClass = defineDispatcherClass(dispatcherBytes);
         access.registerAsUsed(dispatcherClass);
-        // Register the dispatcher for reflection so NativeControllerInvokerMiddleware
-        // can look it up via Class.forName + getMethod at runtime.
-        RuntimeReflection.register(dispatcherClass);
         try {
-            RuntimeReflection.register(dispatcherClass.getMethod(
-                    "dispatch", String.class, Object.class, Object[].class));
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Failed to register KotowariDispatcher.dispatch", e);
+            KotowariDispatcherInvoker inv =
+                    (KotowariDispatcherInvoker) dispatcherClass.getConstructor().newInstance();
+            NativeDispatcherRegistry.register(inv);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to instantiate KotowariDispatcher", e);
         }
     }
 
@@ -122,11 +121,8 @@ public class KotowariFeature implements Feature {
                 }
             }
 
-            // Register every $Mixin class that is already available (either just-defined
-            // or already loaded by the predefined-classes mechanism).
-            String baseClassName = "enkan.data.DefaultHttpRequest";
-            for (long i = 1; i <= 20; i++) {
-                String mixinName = baseClassName + "$Mixin" + i;
+            // Register every $Mixin class that was just generated (keyed by binary name in MixinUtils).
+            for (String mixinName : MixinUtils.generatedClassBytes.keySet()) {
                 try {
                     Class<?> mixinClass = Class.forName(mixinName);
                     RuntimeReflection.register(mixinClass);
@@ -134,7 +130,7 @@ public class KotowariFeature implements Feature {
                     access.registerAsUsed(mixinClass);
                     System.out.println("[KotowariFeature] Registered mixin class: " + mixinName);
                 } catch (ClassNotFoundException e) {
-                    break;
+                    System.err.println("[KotowariFeature] Mixin class not loadable: " + mixinName);
                 }
             }
         } catch (Exception e) {
@@ -169,7 +165,7 @@ public class KotowariFeature implements Feature {
     }
 
     @SuppressWarnings("unchecked")
-    private List<RouteEntry> extractEntries(Routes routes) {
+    List<RouteEntry> extractEntries(Routes routes) {
         List<RouteEntry> entries = new ArrayList<>();
         try {
             Field routeListField = Routes.class.getDeclaredField("routeList");
@@ -210,25 +206,38 @@ public class KotowariFeature implements Feature {
     /**
      * Generate a {@code KotowariDispatcher} class with the Class File API.
      *
-     * <p>The generated class has a single static method:
+     * <p>The generated class implements {@link KotowariDispatcherInvoker} and has an instance method:
      * <pre>{@code
-     * public static Object dispatch(String key, Object controller, Object[] args)
+     * public Object dispatch(String key, Object controller, Object[] args)
      * }</pre>
      *
      * The method body is an if-chain over the {@code key} string (Controller#action format),
      * each branch casting {@code controller} to the concrete type and calling the action method
      * via {@code invokevirtual}.
      */
-    private byte[] generateDispatcher(List<RouteEntry> entries) {
+    byte[] generateDispatcher(List<RouteEntry> entries) {
         ClassDesc dispatcherDesc = ClassDesc.of("kotowari.graalvm.KotowariDispatcher");
+        ClassDesc invokerDesc = ClassDesc.of("kotowari.graalvm.KotowariDispatcherInvoker");
         ClassDesc objectArrayDesc = CD_Object.arrayType();
 
         return ClassFile.of().build(dispatcherDesc, classBuilder -> {
             classBuilder.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL);
+            classBuilder.withInterfaceSymbols(invokerDesc);
 
+            // No-arg constructor: public KotowariDispatcher() { super(); }
+            classBuilder.withMethod(INIT_NAME,
+                    MethodTypeDesc.of(CD_void),
+                    ClassFile.ACC_PUBLIC,
+                    methodBuilder -> methodBuilder.withCode(codeBuilder -> {
+                        codeBuilder.aload(0);
+                        codeBuilder.invokespecial(CD_Object, INIT_NAME, MethodTypeDesc.of(CD_void));
+                        codeBuilder.return_();
+                    }));
+
+            // Instance dispatch method implementing KotowariDispatcherInvoker
             classBuilder.withMethod("dispatch",
                     MethodTypeDesc.of(CD_Object, CD_String, CD_Object, objectArrayDesc),
-                    ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC,
+                    ClassFile.ACC_PUBLIC,
                     methodBuilder -> methodBuilder.withCode(codeBuilder -> {
                         buildDispatchBody(codeBuilder, entries, dispatcherDesc);
                     }));
@@ -254,22 +263,23 @@ public class KotowariFeature implements Feature {
                 String key = entry.controllerClassName() + "#" + entry.actionName();
                 ClassDesc ctrlDesc = ClassDesc.of(entry.controllerClassName());
 
-                // Emit: if (key.equals(arg0)) { return ((CtrlClass)arg1).action(args); }
+                // Emit: if (key.equals(arg1)) { return ((CtrlClass)arg2).action(args); }
+                // Slot 0 = this, slot 1 = key, slot 2 = controller, slot 3 = args
                 var skipLabel = code.newLabel();
-                code.aload(0);                              // load key arg
+                code.aload(1);                              // load key arg
                 code.ldc(key);                              // push literal key
                 code.invokevirtual(CD_String,
                         "equals",
                         MethodTypeDesc.of(CD_boolean, CD_Object));
                 code.ifeq(skipLabel);                       // skip if not equal
 
-                code.aload(1);
+                code.aload(2);
                 code.checkcast(ctrlDesc);
 
-                // Load arguments from Object[] arg2
+                // Load arguments from Object[] arg3
                 Parameter[] params = actionMethod.getParameters();
                 for (int i = 0; i < params.length; i++) {
-                    code.aload(2);
+                    code.aload(3);
                     code.ldc(i);
                     code.aaload();
                     Class<?> paramType = params[i].getType();
@@ -304,7 +314,7 @@ public class KotowariFeature implements Feature {
         // Fallback: throw IllegalArgumentException
         code.new_(ClassDesc.of("java.lang.IllegalArgumentException"));
         code.dup();
-        code.aload(0);
+        code.aload(1);
         code.invokespecial(ClassDesc.of("java.lang.IllegalArgumentException"),
                 INIT_NAME,
                 MethodTypeDesc.of(CD_void, CD_String));

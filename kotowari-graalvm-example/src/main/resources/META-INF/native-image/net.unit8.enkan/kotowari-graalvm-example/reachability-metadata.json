@@ -1,95 +1,6 @@
 {
   "reflection": [
     {
-      "type": "boolean[]"
-    },
-    {
-      "type": "byte[]"
-    },
-    {
-      "type": "ch.qos.logback.classic.Logger"
-    },
-    {
-      "type": "char[]"
-    },
-    {
-      "type": "com.sun.management.GarbageCollectorMXBean"
-    },
-    {
-      "type": "com.sun.management.GcInfo"
-    },
-    {
-      "type": "com.sun.management.HotSpotDiagnosticMXBean"
-    },
-    {
-      "type": "com.sun.management.ThreadMXBean"
-    },
-    {
-      "type": "com.sun.management.UnixOperatingSystemMXBean"
-    },
-    {
-      "type": "com.sun.management.VMOption"
-    },
-    {
-      "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo",
-      "jniAccessible": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": [
-            "java.lang.String",
-            "java.lang.String",
-            "java.lang.String",
-            "java.lang.String",
-            "boolean",
-            "boolean",
-            "boolean",
-            "int"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.sun.management.internal.DiagnosticCommandArgumentInfo[]"
-    },
-    {
-      "type": "com.sun.management.internal.DiagnosticCommandInfo",
-      "jniAccessible": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": [
-            "java.lang.String",
-            "java.lang.String",
-            "java.lang.String",
-            "boolean",
-            "java.util.List"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.sun.management.internal.DiagnosticCommandInfo[]"
-    },
-    {
-      "type": "com.sun.management.internal.GarbageCollectorExtImpl"
-    },
-    {
-      "type": "com.sun.management.internal.HotSpotDiagnostic"
-    },
-    {
-      "type": "com.sun.management.internal.HotSpotThreadImpl"
-    },
-    {
-      "type": "com.sun.management.internal.OperatingSystemImpl"
-    },
-    {
-      "type": "com.sun.management.internal.VirtualThreadSchedulerImpls$VirtualThreadSchedulerImpl"
-    },
-    {
-      "type": "double[]"
-    },
-    {
       "type": "enkan.component.ApplicationComponent"
     },
     {
@@ -121,12 +32,6 @@
     },
     {
       "type": "enkan.middleware.ResourceMiddleware"
-    },
-    {
-      "type": "float[]"
-    },
-    {
-      "type": "int[]"
     },
     {
       "type": "io.undertow.UndertowLogger_$logger",
@@ -658,17 +563,6 @@
       ]
     },
     {
-      "type": "java.lang.ClassLoader",
-      "fields": [
-        {
-          "name": "classLoaderValueMap"
-        }
-      ]
-    },
-    {
-      "type": "java.lang.Deprecated"
-    },
-    {
       "type": "java.lang.Double",
       "fields": [
         {
@@ -701,9 +595,6 @@
       ]
     },
     {
-      "type": "java.lang.Record"
-    },
-    {
       "type": "java.lang.Short",
       "fields": [
         {
@@ -712,143 +603,10 @@
       ]
     },
     {
-      "type": "java.lang.StackTraceElement"
-    },
-    {
       "type": "java.lang.String"
     },
     {
       "type": "java.lang.String[]"
-    },
-    {
-      "type": "java.lang.Thread",
-      "fields": [
-        {
-          "name": "contextClassLoader"
-        }
-      ]
-    },
-    {
-      "type": "java.lang.Void",
-      "fields": [
-        {
-          "name": "TYPE"
-        }
-      ]
-    },
-    {
-      "type": "java.lang.management.BufferPoolMXBean"
-    },
-    {
-      "type": "java.lang.management.ClassLoadingMXBean"
-    },
-    {
-      "type": "java.lang.management.CompilationMXBean"
-    },
-    {
-      "type": "java.lang.management.LockInfo"
-    },
-    {
-      "type": "java.lang.management.MemoryMXBean"
-    },
-    {
-      "type": "java.lang.management.MemoryManagerMXBean"
-    },
-    {
-      "type": "java.lang.management.MemoryPoolMXBean"
-    },
-    {
-      "type": "java.lang.management.MemoryUsage"
-    },
-    {
-      "type": "java.lang.management.MonitorInfo"
-    },
-    {
-      "type": "java.lang.management.PlatformLoggingMXBean"
-    },
-    {
-      "type": "java.lang.management.RuntimeMXBean"
-    },
-    {
-      "type": "java.lang.management.ThreadInfo"
-    },
-    {
-      "type": "java.math.BigDecimal"
-    },
-    {
-      "type": "java.math.BigInteger"
-    },
-    {
-      "type": "java.util.Arrays",
-      "jniAccessible": true,
-      "methods": [
-        {
-          "name": "asList",
-          "parameterTypes": [
-            "java.lang.Object[]"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "java.util.Date"
-    },
-    {
-      "type": "javax.management.MBeanOperationInfo"
-    },
-    {
-      "type": "javax.management.MBeanServerBuilder",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "javax.management.ObjectName"
-    },
-    {
-      "type": "javax.management.ObjectName[]"
-    },
-    {
-      "type": "javax.management.StandardEmitterMBean"
-    },
-    {
-      "type": "javax.management.openmbean.CompositeData"
-    },
-    {
-      "type": "javax.management.openmbean.CompositeData[]"
-    },
-    {
-      "type": "javax.management.openmbean.OpenMBeanOperationInfoSupport"
-    },
-    {
-      "type": "javax.management.openmbean.TabularData"
-    },
-    {
-      "type": "jdk.internal.misc.Unsafe"
-    },
-    {
-      "type": "jdk.management.VirtualThreadSchedulerMXBean"
-    },
-    {
-      "type": "jdk.management.jfr.ConfigurationInfo"
-    },
-    {
-      "type": "jdk.management.jfr.EventTypeInfo"
-    },
-    {
-      "type": "jdk.management.jfr.FlightRecorderMXBean"
-    },
-    {
-      "type": "jdk.management.jfr.FlightRecorderMXBeanImpl"
-    },
-    {
-      "type": "jdk.management.jfr.RecordingInfo"
-    },
-    {
-      "type": "jdk.management.jfr.SettingDescriptorInfo"
     },
     {
       "type": "kotowari.example.graalvm.NativeApplicationFactory",
@@ -910,18 +668,6 @@
           "parameterTypes": []
         }
       ]
-    },
-    {
-      "type": "long[]"
-    },
-    {
-      "type": "org.apache.log4j.LogManager"
-    },
-    {
-      "type": "org.apache.logging.log4j.Logger"
-    },
-    {
-      "type": "org.jboss.logmanager.LogManager"
     },
     {
       "type": "org.jboss.threads.EnhancedQueueExecutor",
@@ -1060,92 +806,6 @@
     },
     {
       "type": "org.xnio.streams.ChannelInputStream"
-    },
-    {
-      "type": "short[]"
-    },
-    {
-      "type": "sun.management.ClassLoadingImpl"
-    },
-    {
-      "type": "sun.management.CompilationImpl"
-    },
-    {
-      "type": "sun.management.ManagementFactoryHelper$1"
-    },
-    {
-      "type": "sun.management.ManagementFactoryHelper$PlatformLoggingImpl"
-    },
-    {
-      "type": "sun.management.MemoryImpl"
-    },
-    {
-      "type": "sun.management.MemoryManagerImpl"
-    },
-    {
-      "type": "sun.management.MemoryPoolImpl"
-    },
-    {
-      "type": "sun.management.RuntimeImpl"
-    },
-    {
-      "type": "sun.management.VMManagementImpl",
-      "jniAccessible": true,
-      "fields": [
-        {
-          "name": "compTimeMonitoringSupport"
-        },
-        {
-          "name": "currentThreadCpuTimeSupport"
-        },
-        {
-          "name": "objectMonitorUsageSupport"
-        },
-        {
-          "name": "otherThreadCpuTimeSupport"
-        },
-        {
-          "name": "remoteDiagnosticCommandsSupport"
-        },
-        {
-          "name": "synchronizerUsageSupport"
-        },
-        {
-          "name": "threadAllocatedMemorySupport"
-        },
-        {
-          "name": "threadContentionMonitoringSupport"
-        }
-      ]
-    },
-    {
-      "type": "sun.misc.Unsafe",
-      "fields": [
-        {
-          "name": "theUnsafe"
-        }
-      ]
-    },
-    {
-      "type": "sun.text.resources.cldr.FormatData"
-    },
-    {
-      "type": "sun.text.resources.cldr.FormatData_en"
-    },
-    {
-      "type": "sun.text.resources.cldr.FormatData_en_US"
-    },
-    {
-      "type": "sun.util.resources.cldr.CalendarData"
-    },
-    {
-      "type": "sun.util.resources.cldr.TimeZoneNames"
-    },
-    {
-      "type": "sun.util.resources.cldr.TimeZoneNames_en"
-    },
-    {
-      "type": "sun.util.resources.cldr.TimeZoneNames_en_US"
     },
     {
       "type": "tools.jackson.databind.deser.Deserializers[]"
