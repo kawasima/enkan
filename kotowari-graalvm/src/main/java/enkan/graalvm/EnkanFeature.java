@@ -4,7 +4,6 @@ import enkan.component.SystemComponent;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.lang.classfile.ClassFile;
@@ -12,7 +11,6 @@ import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -107,9 +105,10 @@ public class EnkanFeature implements Feature {
         ClassDesc mapDesc = ClassDesc.of("java.util.Map");
         ClassDesc componentBinderDesc = ClassDesc.of(ComponentBinder.class.getName());
 
-        // Only inject @Named fields from the concrete class (mirrors ComponentInjector behavior)
+        // Only inject @Named fields from the concrete class (mirrors ComponentInjector behavior).
+        // Unnamed @Inject fields and @PostConstruct are handled by NativeComponentInjector
+        // after bind() returns, so they are not emitted here.
         List<Field> namedInjectFields = collectNamedInjectFields(componentClass);
-        Method postConstructMethod = findPostConstruct(componentClass);
 
         return ClassFile.of().build(binderDesc, classBuilder -> {
             classBuilder.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL);
@@ -133,9 +132,11 @@ public class EnkanFeature implements Feature {
                         cb.invokespecial(componentDesc, INIT_NAME, MethodTypeDesc.of(CD_void));
                         cb.astore(2); // store component instance at local var 2
 
-                        // Inject @Named fields only — use map.get(name) directly
+                        // Inject @Named @Inject fields only — use map.get(name) directly.
+                        // Unnamed @Inject fields are handled by NativeComponentInjector.inject().
                         for (Field f : namedInjectFields) {
-                            ClassDesc fieldTypeDesc = ClassDesc.of(f.getType().getName());
+                            // Use ofDescriptor to correctly handle array types (e.g. String[])
+                            ClassDesc fieldTypeDesc = ClassDesc.ofDescriptor(f.getType().descriptorString());
                             String name = f.getAnnotation(Named.class).value();
                             // Use declaring class as putfield owner to avoid verifier errors
                             ClassDesc ownerDesc = ClassDesc.of(f.getDeclaringClass().getName());
@@ -147,16 +148,6 @@ public class EnkanFeature implements Feature {
                                     MethodTypeDesc.of(CD_Object, CD_Object));
                             cb.checkcast(fieldTypeDesc);
                             cb.putfield(ownerDesc, f.getName(), fieldTypeDesc);
-                        }
-
-                        // Call @PostConstruct if present
-                        if (postConstructMethod != null) {
-                            ClassDesc ownerDesc = ClassDesc.of(
-                                    postConstructMethod.getDeclaringClass().getName());
-                            cb.aload(2);
-                            cb.invokevirtual(ownerDesc,
-                                    postConstructMethod.getName(),
-                                    MethodTypeDesc.of(CD_void));
                         }
 
                         cb.aload(2);
@@ -182,12 +173,4 @@ public class EnkanFeature implements Feature {
         return result;
     }
 
-    private Method findPostConstruct(Class<?> clazz) {
-        for (Method m : clazz.getDeclaredMethods()) {
-            if (m.getAnnotation(PostConstruct.class) != null) {
-                return m;
-            }
-        }
-        return null;
-    }
 }
