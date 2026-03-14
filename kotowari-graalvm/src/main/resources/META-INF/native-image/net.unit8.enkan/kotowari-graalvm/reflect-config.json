@@ -1,0 +1,43 @@
+[
+  {
+    "name": "enkan.data.Routable",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "enkan.data.SessionAvailable",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "enkan.data.FlashAvailable",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "enkan.data.ContentNegotiable",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.inject.parameter.HttpRequestInjector",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.inject.parameter.BodySerializableInjector",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.inject.parameter.MapInjector",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.inject.parameter.FormInjector",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotowari.inject.parameter.PrincipalInjector",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  }
+]

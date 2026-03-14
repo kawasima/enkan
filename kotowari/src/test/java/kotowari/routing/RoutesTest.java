@@ -27,7 +27,7 @@ class RoutesTest {
                 .set(HttpRequest::setUri, "/")
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method1");
     }
 
@@ -42,14 +42,14 @@ class RoutesTest {
                 .set(HttpRequest::setUri, "/admin/list")
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method1");
 
         m = routes.recognizePath(builder(new DefaultHttpRequest())
                 .set(HttpRequest::setUri, "/home6")
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method6");
     }
 
@@ -65,7 +65,7 @@ class RoutesTest {
                 .set(HttpRequest::setUri, "/admin/user/list")
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method1");
     }
 
@@ -80,7 +80,7 @@ class RoutesTest {
                 .set(HttpRequest::setUri, "/" + CodecUtils.urlEncode("あいう"))
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method1");
         assertThat(m.get("val1")).isEqualTo("あいう");
     }
@@ -97,7 +97,7 @@ class RoutesTest {
                         "/" + CodecUtils.urlEncode("かきく"))
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method2");
         assertThat(m.get("glob")).isEqualTo("あいう/かきく");
     }
@@ -110,7 +110,7 @@ class RoutesTest {
                 .set(HttpRequest::setUri, "/%RR%01%01")
                 .set(HttpRequest::setRequestMethod, "GET")
                 .build());
-        assertThat(m.get("controller")).isEqualTo(ExampleController.class);
+        assertThat(m.get("controller")).isEqualTo(ExampleController.class.getName());
         assertThat(m.get("action")).isEqualTo("method1");
         assertThat(m.get("val1")).isEqualTo("%RR%01%01");
     }

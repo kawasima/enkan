@@ -22,4 +22,12 @@ public interface Routable extends Extendable {
     default void setControllerMethod(Method controllerMethod) {
         setExtension("controllerMethod", controllerMethod);
     }
+
+    default String getControllerMethodName() {
+        return getExtension("controllerMethodName");
+    }
+
+    default void setControllerMethodName(String name) {
+        setExtension("controllerMethodName", name);
+    }
 }
