@@ -11,6 +11,7 @@ import enkan.data.Routable;
 import enkan.exception.MisconfigurationException;
 import enkan.middleware.WebMiddleware;
 import enkan.util.MixinUtils;
+import enkan.util.ReflectionUtils;
 import enkan.util.ThreadingUtils;
 import kotowari.component.TemplateEngine;
 import kotowari.data.TemplatedHttpResponse;
@@ -116,7 +117,8 @@ public class RoutingMiddleware implements WebMiddleware {
                                 Thread.currentThread().getContextClassLoader());
                         return routes.generate(UrlRewriter.urlFor(ctrlClass, arguments.get(1).toString()).options());
                     } catch (ClassNotFoundException e) {
-                        throw new MisconfigurationException("core.CLASS_NOT_FOUND", arguments.getFirst().toString(), e);
+                        throw new MisconfigurationException("core.CLASS_NOT_FOUND",
+                                arguments.getFirst().toString(), ReflectionUtils.getClasspathString(), e);
                     }
                 }
             };
