@@ -1,6 +1,5 @@
 package kotowari.graalvm;
 
-import com.oracle.svm.core.annotate.AutomaticFeature;
 import kotowari.routing.Route;
 import kotowari.routing.Routes;
 import org.graalvm.nativeimage.hosted.Feature;
@@ -46,7 +45,6 @@ import static java.lang.constant.ConstantDescs.*;
  * // where AppRoutes has: public static Routes routes() { ... }
  * }</pre>
  */
-@AutomaticFeature
 public class KotowariFeature implements Feature {
 
     @Override
@@ -145,15 +143,13 @@ public class KotowariFeature implements Feature {
      */
     private byte[] generateDispatcher(List<RouteEntry> entries) {
         ClassDesc dispatcherDesc = ClassDesc.of("kotowari.graalvm.KotowariDispatcher");
-        ClassDesc stringDesc = CD_String;
-        ClassDesc objectDesc = CD_Object;
-        ClassDesc objectArrayDesc = ClassDesc.of("[Ljava.lang.Object;");
+        ClassDesc objectArrayDesc = CD_Object.arrayType();
 
         return ClassFile.of().build(dispatcherDesc, classBuilder -> {
             classBuilder.withFlags(ClassFile.ACC_PUBLIC | ClassFile.ACC_FINAL);
 
             classBuilder.withMethod("dispatch",
-                    MethodTypeDesc.of(objectDesc, stringDesc, objectDesc, objectArrayDesc),
+                    MethodTypeDesc.of(CD_Object, CD_String, CD_Object, objectArrayDesc),
                     ClassFile.ACC_PUBLIC | ClassFile.ACC_STATIC,
                     methodBuilder -> methodBuilder.withCode(codeBuilder -> {
                         buildDispatchBody(codeBuilder, entries, dispatcherDesc);

@@ -1,6 +1,5 @@
 package enkan.graalvm;
 
-import com.oracle.svm.core.annotate.AutomaticFeature;
 import enkan.component.SystemComponent;
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
@@ -39,7 +38,6 @@ import static java.lang.constant.ConstantDescs.*;
  *   <li>Registers the generated binder in {@link NativeComponentRegistry}.</li>
  * </ol>
  */
-@AutomaticFeature
 public class EnkanFeature implements Feature {
 
     @Override
