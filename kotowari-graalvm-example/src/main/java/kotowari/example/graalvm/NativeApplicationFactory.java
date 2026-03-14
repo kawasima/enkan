@@ -20,6 +20,8 @@ import kotowari.middleware.*;
 import kotowari.middleware.serdes.ToStringBodyWriter;
 import kotowari.routing.Routes;
 
+import java.util.Set;
+
 import static enkan.util.BeanBuilder.builder;
 
 public class NativeApplicationFactory implements ApplicationFactory<HttpRequest, HttpResponse> {
@@ -59,7 +61,9 @@ public class NativeApplicationFactory implements ApplicationFactory<HttpRequest,
         app.use(new ContentTypeMiddleware());
         app.use(new ParamsMiddleware());
         app.use(new CookiesMiddleware());
-        app.use(new ContentNegotiationMiddleware());
+        app.use(builder(new ContentNegotiationMiddleware())
+                .set(ContentNegotiationMiddleware::setAllowedTypes, Set.of("application/json"))
+                .build());
         app.use(new ResourceMiddleware());
         app.use(new RoutingMiddleware(routes));
         app.use(builder(new SerDesMiddleware<>())
@@ -94,7 +98,9 @@ public class NativeApplicationFactory implements ApplicationFactory<HttpRequest,
         app.use(new ContentTypeMiddleware());
         app.use(new ParamsMiddleware());
         app.use(new CookiesMiddleware());
-        app.use(new ContentNegotiationMiddleware());
+        app.use(builder(new ContentNegotiationMiddleware())
+                .set(ContentNegotiationMiddleware::setAllowedTypes, Set.of("application/json"))
+                .build());
         app.use(new ResourceMiddleware());
         app.use(new RoutingMiddleware(routes));
         app.use(builder(new SerDesMiddleware<>())
