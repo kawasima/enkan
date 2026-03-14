@@ -18,6 +18,16 @@ import java.util.Map;
  * unnamed {@code @Inject} fields and invokes {@code @PostConstruct}.
  * For any class without a registered binder, it falls back entirely to the standard
  * reflection-based {@code ComponentInjector}.
+ *
+ * <p><b>Limitation:</b> unnamed {@code @Inject} fields (those annotated with
+ * {@code @Inject} but <em>not</em> with {@code @Named}) are resolved by
+ * {@link ComponentInjector#injectField} which calls {@code Field.setAccessible(true)}.
+ * Any component class that has such fields must therefore have
+ * {@code "allDeclaredFields": true} in its {@code reflect-config.json} entry,
+ * or be registered via {@code EnkanFeature} with
+ * {@code RuntimeReflection.registerAllFields(componentClass)}.
+ * Components that rely only on {@code @Named @Inject} fields (the common case for
+ * named component dependencies) require no additional reflection registration.
  */
 public class NativeComponentInjector extends ComponentInjector {
     private final Map<String, SystemComponent<?>> components;

@@ -185,6 +185,10 @@ public class Route {
 
     }
 
+    public OptionMap constraints() {
+        return constraints;
+    }
+
     /* --- generate --- */
     public boolean matchesController(Class<?> controller) {
         prepareMatching();

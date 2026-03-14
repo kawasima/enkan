@@ -11,7 +11,6 @@ import java.lang.classfile.CodeBuilder;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -157,26 +156,15 @@ public class KotowariFeature implements Feature {
         }
     }
 
-    @SuppressWarnings("unchecked")
     List<RouteEntry> extractEntries(Routes routes) {
         List<RouteEntry> entries = new ArrayList<>();
-        try {
-            Field routeListField = Routes.class.getDeclaredField("routeList");
-            routeListField.setAccessible(true);
-            List<Route> routeList = (List<Route>) routeListField.get(routes);
-            for (Route route : routeList) {
-                Field constraintsField = Route.class.getDeclaredField("constraints");
-                constraintsField.setAccessible(true);
-                enkan.collection.OptionMap constraints =
-                        (enkan.collection.OptionMap) constraintsField.get(route);
-                String controllerName = constraints.getString("controller");
-                String action = constraints.getString("action");
-                if (controllerName != null && action != null) {
-                    entries.add(new RouteEntry(controllerName, action));
-                }
+        for (Route route : routes.getRouteList()) {
+            enkan.collection.OptionMap constraints = route.constraints();
+            String controllerName = constraints.getString("controller");
+            String action = constraints.getString("action");
+            if (controllerName != null && action != null) {
+                entries.add(new RouteEntry(controllerName, action));
             }
-        } catch (ReflectiveOperationException e) {
-            System.err.println("[KotowariFeature] Could not extract route list: " + e.getMessage());
         }
         return entries;
     }

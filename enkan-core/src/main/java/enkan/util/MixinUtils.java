@@ -246,11 +246,14 @@ public class MixinUtils {
      * Map from generated class name (binary name, e.g. {@code enkan.data.DefaultHttpRequest$Mixin1})
      * to the raw class bytes produced by the Class-File API.
      *
-     * <p>This is populated by {@link #createFactory} and is read by the GraalVM
-     * {@code KotowariFeature} at native-image build time to write the bytes to
-     * a {@code predefined-classes/} directory and generate
-     * {@code predefined-classes-config.json}.  The map is never cleared so that
-     * the Feature can access all generated classes after calling {@code createFactory}.
+     * <p>This is populated by {@link #createFactory} and is read by
+     * {@code GenerateMixinConfig} at native-image build time (in the Maven
+     * {@code prepare-package} phase) to write each {@code $Mixin} class as an
+     * ordinary {@code .class} file into {@code target/classes/}.  The shade plugin
+     * then includes those files in the fat JAR so {@code native-image} sees them
+     * as normal compiled classes — no predefined-classes mechanism is required.
+     * The map is never cleared so that the build-time step can access all generated
+     * classes after calling {@code createFactory}.
      */
     public static final ConcurrentHashMap<String, byte[]> generatedClassBytes = new ConcurrentHashMap<>();
 
