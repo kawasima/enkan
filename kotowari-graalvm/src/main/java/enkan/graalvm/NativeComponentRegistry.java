@@ -1,7 +1,5 @@
 package enkan.graalvm;
 
-import enkan.component.SystemComponent;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,7 +16,7 @@ public final class NativeComponentRegistry {
 
     private NativeComponentRegistry() {}
 
-    public static <T extends SystemComponent<T>> void register(Class<T> componentClass,
+    public static <T> void register(Class<T> componentClass,
                                                                ComponentBinder<T> binder) {
         BINDERS.put(componentClass, binder);
     }

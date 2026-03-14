@@ -41,9 +41,6 @@ public class NativeControllerInvokerMiddleware<RES> implements Middleware<HttpRe
     private static final ParameterInjector<?> BODY_SERIALIZABLE_INJECTOR = new BodySerializableInjector<>();
     private List<ParameterInjector<?>> parameterInjectors;
 
-    /** Reflective handle to the generated dispatcher; resolved once at first use. */
-    private static volatile Method dispatchMethod;
-
     public NativeControllerInvokerMiddleware(ComponentInjector componentInjector) {
         this.componentInjector = componentInjector;
     }
@@ -53,24 +50,6 @@ public class NativeControllerInvokerMiddleware<RES> implements Middleware<HttpRe
         if (parameterInjectors == null) {
             parameterInjectors = ParameterUtils.getDefaultParameterInjectors();
         }
-    }
-
-    private Method getDispatchMethod() {
-        if (dispatchMethod == null) {
-            synchronized (NativeControllerInvokerMiddleware.class) {
-                if (dispatchMethod == null) {
-                    try {
-                        Class<?> dispatcherClass = Class.forName("kotowari.graalvm.KotowariDispatcher");
-                        dispatchMethod = dispatcherClass.getMethod("dispatch",
-                                String.class, Object.class, Object[].class);
-                    } catch (ClassNotFoundException | NoSuchMethodException e) {
-                        throw new MisconfigurationException("kotowari.CONTROLLER_METHOD_NOT_FOUND",
-                                "NativeControllerInvokerMiddleware", e);
-                    }
-                }
-            }
-        }
-        return dispatchMethod;
     }
 
     private ParameterInjector<?>[] resolveInjectors(Method method) {
@@ -122,16 +101,12 @@ public class NativeControllerInvokerMiddleware<RES> implements Middleware<HttpRe
                 k -> resolveInjectors(controllerMethod));
         Object[] arguments = createArguments(request, injectors);
 
-        try {
-            return (RES) getDispatchMethod().invoke(null, methodName, controller, arguments);
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof Error err) throw err;
-            if (cause instanceof RuntimeException re) throw re;
-            throw new RuntimeException(cause);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        KotowariDispatcherInvoker invoker = NativeDispatcherRegistry.get();
+        if (invoker == null) {
+            throw new MisconfigurationException("kotowari.CONTROLLER_METHOD_NOT_FOUND",
+                    "KotowariDispatcher not registered");
         }
+        return (RES) invoker.dispatch(methodName, controller, arguments);
     }
 
     public void setParameterInjectors(List<ParameterInjector<?>> parameterInjectors) {
