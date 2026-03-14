@@ -77,14 +77,17 @@ public class KotowariFeature implements Feature {
 
     /**
      * Invokes the factory's {@code buildApp()} method (if available) to trigger
-     * {@link enkan.util.MixinUtils#createFactory} in the build JVM, then registers
-     * every generated {@code $Mixin} class with the native-image analyser.
+     * {@link enkan.util.MixinUtils#createFactory} in the build JVM, populating
+     * {@link MixinUtils#factoryCache}.  Because {@code MixinUtils} is initialized
+     * at build time (via {@code --initialize-at-build-time=enkan.util.MixinUtils}),
+     * the cache — including the {@code Supplier} holding the pre-built
+     * {@code MethodHandle} — is serialized into the native image heap and reused
+     * at runtime without re-generating any class.
      *
-     * <p>The class bytes and {@code predefined-classes-config.json} are written
-     * to {@code target/} by the {@code GenerateMixinConfig} Maven exec step that
-     * runs in the {@code prepare-package} phase — before native-image starts.
-     * This method only needs to register the already-defined classes so the
-     * analyser knows about them.
+     * <p>The mixin {@code .class} files are written to {@code target/classes/} by the
+     * {@code GenerateMixinConfig} Maven exec step (in {@code prepare-package}) so
+     * that the shade JAR contains them as ordinary compiled classes before
+     * native-image starts.
      */
     private void pregenerateMixinClasses(BeforeAnalysisAccess access) {
         String factoryClassName = System.getProperty("kotowari.routes.factory");
@@ -104,24 +107,14 @@ public class KotowariFeature implements Feature {
                 return;
             }
             Object app = buildAppMethod.invoke(null);
-            // Trigger buildRequestFactory() -> MixinUtils.createFactory() via createRequest().
-            // When the predefined-classes-config.json was already applied, the class loader
-            // may reject a duplicate defineClass call with a LinkageError — that is expected
-            // and harmless: the class is already embedded in the image.
+            // Trigger buildRequestFactory() -> MixinUtils.createFactory().
+            // The resulting Supplier is cached in MixinUtils.factoryCache and will be
+            // reused at runtime (no duplicate defineClass call needed).
             Method createRequest = app.getClass().getMethod("createRequest");
-            try {
-                createRequest.invoke(app);
-            } catch (java.lang.reflect.InvocationTargetException ite) {
-                Throwable cause = ite.getCause();
-                if (cause instanceof LinkageError) {
-                    System.out.println("[KotowariFeature] Mixin class already predefined (LinkageError suppressed): "
-                            + cause.getMessage());
-                } else {
-                    throw ite;
-                }
-            }
+            createRequest.invoke(app);
 
-            // Register every $Mixin class that was just generated (keyed by binary name in MixinUtils).
+            // Register every $Mixin class for reflection so that any reflective
+            // access patterns in the framework still work.
             for (String mixinName : MixinUtils.generatedClassBytes.keySet()) {
                 try {
                     Class<?> mixinClass = Class.forName(mixinName);
