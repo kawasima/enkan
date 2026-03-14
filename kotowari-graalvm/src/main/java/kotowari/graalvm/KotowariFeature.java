@@ -62,7 +62,17 @@ public class KotowariFeature implements Feature {
         registerControllerReflection(access, entries);
 
         byte[] dispatcherBytes = generateDispatcher(entries);
-        access.registerAsUsed(defineDispatcherClass(dispatcherBytes));
+        Class<?> dispatcherClass = defineDispatcherClass(dispatcherBytes);
+        access.registerAsUsed(dispatcherClass);
+        // Register the dispatcher for reflection so NativeControllerInvokerMiddleware
+        // can look it up via Class.forName + getMethod at runtime.
+        RuntimeReflection.register(dispatcherClass);
+        try {
+            RuntimeReflection.register(dispatcherClass.getMethod(
+                    "dispatch", String.class, Object.class, Object[].class));
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Failed to register KotowariDispatcher.dispatch", e);
+        }
     }
 
     private Routes resolveRoutes(BeforeAnalysisAccess access) {
@@ -121,11 +131,10 @@ public class KotowariFeature implements Feature {
             }
             RuntimeReflection.register(ctrl);
             RuntimeReflection.registerAllConstructors(ctrl);
-            for (Method m : ctrl.getDeclaredMethods()) {
-                if (m.getName().equals(entry.actionName())) {
-                    RuntimeReflection.register(m);
-                }
-            }
+            // Register @Inject fields and @PostConstruct methods so ComponentInjector
+            // can wire the controller instance in native mode.
+            RuntimeReflection.registerAllDeclaredFields(ctrl);
+            RuntimeReflection.registerAllDeclaredMethods(ctrl);
         }
     }
 
