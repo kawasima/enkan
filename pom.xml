@@ -69,6 +69,7 @@
         <module>kotowari</module>
         <module>kotowari-jpa</module>
         <module>kotowari-graalvm</module>
+        <module>kotowari-graalvm-example</module>
         <module>enkan-throttling</module>
         <module>kotowari-example</module>
 
