@@ -239,6 +239,8 @@ public class MixinUtils {
 
     /** Counter for generating unique class names. */
     private static final AtomicLong classCounter = new AtomicLong();
+    /** Cache: (superClass, interfaces...) → pre-built Supplier to avoid re-generating at runtime. */
+    private static final ConcurrentHashMap<List<Class<?>>, Supplier<?>> factoryCache = new ConcurrentHashMap<>();
 
     /**
      * Map from generated class name (binary name, e.g. {@code enkan.data.DefaultHttpRequest$Mixin1})
@@ -275,6 +277,24 @@ public class MixinUtils {
     public static <T> Supplier<T> createFactory(T template, Class<?>... interfaces) {
         Class<?> superClass = template.getClass();
 
+        // Build cache key: [superClass, interfaces...]
+        List<Class<?>> cacheKey = new ArrayList<>(interfaces.length + 1);
+        cacheKey.add(superClass);
+        for (Class<?> iface : interfaces) {
+            cacheKey.add(iface);
+        }
+        Supplier<?> cached = factoryCache.get(cacheKey);
+        if (cached != null) {
+            return (Supplier<T>) cached;
+        }
+
+        Supplier<T> factory = buildFactory(superClass, interfaces);
+        Supplier<?> existing = factoryCache.putIfAbsent(cacheKey, factory);
+        return existing != null ? (Supplier<T>) existing : factory;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Supplier<T> buildFactory(Class<?> superClass, Class<?>[] interfaces) {
         // Collect only interfaces not already implemented by superClass
         List<ClassDesc> newIfaceDescs = new ArrayList<>();
         for (Class<?> iface : interfaces) {
@@ -322,18 +342,32 @@ public class MixinUtils {
                     });
         });
 
+        String generatedName = superClass.getName() + "$Mixin" + id;
         try {
             MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
                     superClass, MethodHandles.lookup());
-            // Store bytes before defining so KotowariFeature can retrieve them
-            // at native-image build time and write predefined-classes-config.json.
-            generatedClassBytes.put(genDesc.displayName(), bytes);
-            Class<?> generated = lookup.defineClass(bytes);
-            Constructor<T> ctor = (Constructor<T>) generated.getDeclaredConstructor();
-            ctor.setAccessible(true);
+            // Store bytes so KotowariFeature (or GenerateMixinConfig) can retrieve them
+            // at native-image build time and write the class file to target/classes/.
+            generatedClassBytes.put(generatedName, bytes);
+            Class<?> generated;
+            try {
+                generated = lookup.defineClass(bytes);
+            } catch (LinkageError le) {
+                // Class already loaded (e.g. written to target/classes/ and compiled into
+                // the native image). Find it by name in the current class loader.
+                try {
+                    generated = Class.forName(generatedName, true,
+                            superClass.getClassLoader());
+                } catch (ClassNotFoundException cnfe) {
+                    throw new RuntimeException("Class " + generatedName
+                            + " already loaded but not findable", cnfe);
+                }
+            }
+            MethodHandle ctorHandle = lookup.findConstructor(
+                    generated, MethodType.methodType(void.class));
             return () -> {
-                try { return ctor.newInstance(); }
-                catch (ReflectiveOperationException e) {
+                try { return (T) ctorHandle.invoke(); }
+                catch (Throwable e) {
                     throw new RuntimeException("Failed to create pre-mixed instance", e);
                 }
             };

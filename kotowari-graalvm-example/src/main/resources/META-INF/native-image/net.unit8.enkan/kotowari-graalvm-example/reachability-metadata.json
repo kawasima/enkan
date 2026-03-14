@@ -18,6 +18,7 @@
     },
     {
       "type": "kotowari.example.graalvm.model.Todo",
+      "allDeclaredMethods": true,
       "methods": [
         {"name": "<init>", "parameterTypes": ["long", "java.lang.String", "boolean"]}
       ]

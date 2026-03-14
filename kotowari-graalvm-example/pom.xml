@@ -116,7 +116,7 @@
             <id>native</id>
             <build>
                 <plugins>
-                    <!-- Generate predefined-classes-config.json before native-image runs -->
+                    <!-- Write mixin .class files to target/classes before the shade JAR is assembled -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -157,8 +157,6 @@
                             <buildArgs>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>--features=enkan.graalvm.EnkanFeature,kotowari.graalvm.KotowariFeature</buildArg>
-                                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
-                                <buildArg>-H:PredefinedClassesConfigurationFiles=${project.build.directory}/predefined-classes-config.json</buildArg>
                             </buildArgs>
                             <javaToolchain>
                                 <version>25</version>
