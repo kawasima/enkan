@@ -24,7 +24,7 @@ import org.jooq.DSLContext;
  *
  * <p>Without {@link JooqTransactionMiddleware}, queries run in auto-commit mode.
  */
-@Middleware(name = "jooqDslContext", dependencies = {"routing"})
+@Middleware(name = "jooqDslContext")
 public class JooqDslContextMiddleware<REQ, RES> implements DecoratorMiddleware<REQ, RES> {
     @Inject
     private JooqProvider jooqProvider;
