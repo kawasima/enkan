@@ -107,85 +107,8 @@ public class ReplClient {
             // existing connection (and the REPL itself) untouched. Only after
             // the completer handshake succeeds do we publish the new sockets to
             // instance fields.
-            final String monitorAddress = MONITOR_ADDRESS + UUID.randomUUID();
             final ZMQ.Socket newSocket = ctx.createSocket(SocketType.DEALER);
-            final AtomicBoolean attemptFailed = new AtomicBoolean(false);
-
-            if (!newSocket.monitor(monitorAddress, ZMQ.EVENT_ALL)) {
-                printErr(reader, "Failed to install ZMQ monitor for /connect " + host + ":" + port);
-                newSocket.close();
-                return;
-            }
-
-            final ZMQ.Socket monitorSocket = ctx.createSocket(SocketType.PAIR);
-            monitorSocket.connect(monitorAddress);
-            // The monitor has two phases:
-            //   Phase 1 (handshakeSeen=false): we're still trying to bring the
-            //     connection up. DISCONNECTED / CLOSED / repeated CONNECT_RETRIED
-            //     means the attempt failed; signal via attemptFailed and exit
-            //     so connect() can clean up the per-attempt sockets.
-            //   Phase 2 (handshakeSeen=true): we already saw CONNECTED. From
-            //     here on, DISCONNECTED means the server we were talking to
-            //     went away — switch to the legacy behaviour of closing the
-            //     whole REPL with the "Server disconnected." message.
-            //
-            // Ownership of monitorSocket: exactly one thread must close it.
-            //   - On the failure path, connect() signals the monitor thread to
-            //     skip its close (monitorSocketOwned.set(false)) and then closes
-            //     the socket itself AFTER the signal, giving the monitor thread a
-            //     chance to see ETERM and exit its recv loop cleanly.
-            //   - On the success path, the monitor thread is the sole owner and
-            //     must close it in its finally block.
-            final AtomicBoolean monitorSocketOwned = new AtomicBoolean(true); // true = monitor thread owns it
-            final AtomicBoolean handshakeSeen = new AtomicBoolean(false);
-            // Use ZThread.start (IDetachedRunnable) instead of ZThread.fork so no
-            // parent-side PAIR pipe socket is allocated — the monitor thread does not
-            // use the pipe at all, and the socket returned by fork() would be leaked.
-            ZThread.start(args -> {
-                int retryCnt = 0;
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        ZEvent event = ZEvent.recv(monitorSocket);
-                        if (event == null) {
-                            if (monitorSocket.errno() == ZError.ETERM) break;
-                            continue;
-                        }
-                        ZMonitor.Event eventType = event.getEvent();
-                        if (eventType == ZMonitor.Event.CONNECTED) {
-                            handshakeSeen.set(true);
-                            retryCnt = 0;
-                            continue;
-                        }
-                        if (eventType == ZMonitor.Event.CONNECT_RETRIED) {
-                            if (!handshakeSeen.get() && retryCnt++ > 3) {
-                                attemptFailed.set(true);
-                                return;
-                            }
-                            continue;
-                        }
-                        if (eventType == ZMonitor.Event.DISCONNECTED
-                                || eventType == ZMonitor.Event.CLOSED) {
-                            if (!handshakeSeen.get()) {
-                                // Connection never came up — abort the attempt.
-                                attemptFailed.set(true);
-                                return;
-                            }
-                            // Phase 2: we were connected and the server went away.
-                            // Match the legacy behaviour and shut the REPL down.
-                            serverDisconnected.set(true);
-                            close();
-                            return;
-                        }
-                    }
-                } finally {
-                    // Only close if this thread still owns the socket. On the failure
-                    // path, connect() takes ownership (monitorSocketOwned=false) and
-                    // closes it itself to avoid a double-close race.
-                    if (monitorSocketOwned.get()) {
-                        try { monitorSocket.close(); } catch (Throwable ignore) { }
-                    }
-                }
-            });
+            newSocket.setLinger(0);
 
             newSocket.connect("tcp://" + host + ":" + port);
             final ZMQ.Poller poller = ctx.createPoller(1);
@@ -197,12 +120,8 @@ public class ReplClient {
             ZMsg completerMsg = null;
             long deadline = System.currentTimeMillis() + CONNECT_TIMEOUT_MS;
             while (!Thread.currentThread().isInterrupted()) {
-                if (attemptFailed.get()) break;
                 long remaining = deadline - System.currentTimeMillis();
-                if (remaining <= 0) {
-                    attemptFailed.set(true);
-                    break;
-                }
+                if (remaining <= 0) break;
                 poller.poll(Math.min(remaining, 250));
                 if (poller.pollin(0)) {
                     completerMsg = ZMsg.recvMsg(newSocket, false);
@@ -210,27 +129,47 @@ public class ReplClient {
                 }
             }
 
-            if (completerMsg == null || attemptFailed.get()) {
-                // Connection failed: tear down the per-attempt sockets and
-                // leave the REPL exactly as it was. Print a clearly visible
-                // error so the user understands why nothing happened.
+            if (completerMsg == null) {
+                // Connection failed: tear down the per-attempt socket and leave
+                // the REPL exactly as it was.
                 printErr(reader, "Failed to connect to " + host + ":" + port
                         + " (no response within " + (CONNECT_TIMEOUT_MS / 1000) + "s — is the server running?)");
                 reader.getTerminal().writer().flush();
                 try { poller.close(); } catch (Throwable ignore) { }
-                // Transfer ownership before closing so the monitor thread's finally
-                // block does not attempt a concurrent double-close.
-                monitorSocketOwned.set(false);
-                try { monitorSocket.close(); } catch (Throwable ignore) { }
                 try { newSocket.close(); } catch (Throwable ignore) { }
                 return;
             }
 
             // ----- Connection accepted: commit the new sockets to instance state. -----
-            // The poller was only needed for the handshake — close it now that we have
-            // a reply. The monitor socket stays open: the forked monitor thread owns it
-            // for phase-2 disconnect detection and will close it when it exits.
             try { poller.close(); } catch (Throwable ignore) { }
+
+            // Start a disconnect-detection monitor now that the connection is confirmed.
+            // The monitor socket is owned solely by this thread and closed in its finally.
+            final String monitorAddress = MONITOR_ADDRESS + UUID.randomUUID();
+            if (newSocket.monitor(monitorAddress, ZMQ.EVENT_DISCONNECTED | ZMQ.EVENT_CLOSED)) {
+                ZThread.start(args -> {
+                    ZMQ.Socket monSock = ctx.createSocket(SocketType.PAIR);
+                    monSock.setLinger(0);
+                    monSock.connect(monitorAddress);
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            ZEvent event = ZEvent.recv(monSock);
+                            if (event == null) {
+                                if (monSock.errno() == ZError.ETERM) break;
+                                continue;
+                            }
+                            ZMonitor.Event et = event.getEvent();
+                            if (et == ZMonitor.Event.DISCONNECTED || et == ZMonitor.Event.CLOSED) {
+                                serverDisconnected.set(true);
+                                close();
+                                return;
+                            }
+                        }
+                    } finally {
+                        try { monSock.close(); } catch (Throwable ignore) { }
+                    }
+                });
+            }
 
             ZFrame completerFrame = completerMsg.pop();
             byte[] completerData = completerFrame != null ? completerFrame.getData() : null;
